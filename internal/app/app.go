@@ -229,6 +229,9 @@ func (a *App) ready() {
 		a.updateResults()
 		a.panel.Update(func() {})
 	}
+	if os.Getenv("FL_DEBUG_OPEN_SETTINGS") == "1" {
+		a.openSettings()
+	}
 	if value := os.Getenv("FL_DEBUG_EXIT_MS"); value != "" {
 		if milliseconds, err := strconv.Atoi(value); err == nil && milliseconds > 0 {
 			time.AfterFunc(time.Duration(milliseconds)*time.Millisecond, mygo.App.Quit)

@@ -18,6 +18,7 @@ import (
 
 	"github.com/mistquay/fluentlauncher/internal/core/model"
 	"github.com/mistquay/fluentlauncher/internal/core/settings"
+	"github.com/mistquay/fluentlauncher/internal/winapi/shortcut"
 )
 
 // Catalog lists Start menu, desktop and portable applications. Installed
@@ -144,11 +145,23 @@ func scanRoot(ctx context.Context, root string, recursive bool, add func(model.E
 		if !launchable(path) {
 			return nil
 		}
+		identity, arguments := path, ""
+		var aliases []string
+		if strings.EqualFold(filepath.Ext(path), ".lnk") {
+			if target, ok := shortcut.Resolve(path); ok {
+				identity, arguments = target.Path, target.Arguments
+				name := strings.TrimSuffix(filepath.Base(target.Path), filepath.Ext(target.Path))
+				if name != "" {
+					aliases = []string{name}
+				}
+			}
+		}
 		add(model.Entry{
-			ID:           appID(path, ""),
+			ID:           appID(identity, arguments),
 			Title:        strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)),
 			Subtitle:     path,
 			LaunchTarget: path,
+			Aliases:      aliases,
 			Kind:         model.Application,
 			SourceID:     "applications",
 			IconPath:     path,

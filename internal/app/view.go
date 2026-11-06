@@ -155,8 +155,16 @@ func (a *App) drawPrompt(c *ui.Context, theme *ui.Theme) {
 	}
 	ui.Column(c).Fill().Padding(20).Gap(12).Children(func() {
 		ui.Text(c, a.promptTitle).FontSize(18).Bold().TextColor(theme.Text)
-		field := ui.TextInput(c, &a.promptValue).AutoFocus().FontSize(18)
-		if field.Submitted() || c.Shortcut(0, ui.KeyEnter) {
+		if a.promptReadOnly {
+			ui.TextArea(c, &a.promptValue).ReadOnly(true).Height(260)
+		} else {
+			field := ui.TextInput(c, &a.promptValue).AutoFocus().FontSize(18)
+			if field.Submitted() || c.Shortcut(0, ui.KeyEnter) {
+				a.savePrompt()
+				return
+			}
+		}
+		if !a.promptReadOnly && c.Shortcut(0, ui.KeyEnter) {
 			a.savePrompt()
 			return
 		}
@@ -248,15 +256,18 @@ func (a *App) drawBackground(c *ui.Context, theme *ui.Theme) {
 	case settings.BackgroundImage:
 		root.Background(ui.Transparent)
 		if a.background != nil {
-			ui.Box(c).Absolute().Top(0).Left(0).Right(0).Bottom(0).
-				Opacity(float32(clampFloat(a.settings.Theme.ImageMaskOpacity, 0, 1))).
-				Draw(func(p *ui.Painter, r ui.Rect) {
-					if a.settings.Theme.ImageCover {
-						p.Image(a.background, r, ui.Cover)
-					} else {
-						p.Image(a.background, r, ui.Contain)
-					}
-				})
+			box := ui.Box(c).Absolute().Top(0).Left(0).Right(0).Bottom(0).
+				Opacity(float32(clampFloat(a.settings.Theme.ImageMaskOpacity, 0, 1)))
+			if a.settings.Theme.ImageBlur > 0 {
+				box.Blur(float32(a.settings.Theme.ImageBlur))
+			}
+			box.Draw(func(p *ui.Painter, r ui.Rect) {
+				if a.settings.Theme.ImageCover {
+					p.Image(a.background, r, ui.Cover)
+				} else {
+					p.Image(a.background, r, ui.Contain)
+				}
+			})
 		}
 	case settings.BackgroundGradient:
 		from, ok := parseColor(a.settings.Theme.BackgroundColor)

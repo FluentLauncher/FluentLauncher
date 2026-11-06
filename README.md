@@ -14,6 +14,8 @@ Windows 11 键盘优先启动器，使用 Go + [MyGo](https://github.com/egoist/
 - 可执行插件 + JSON-RPC over stdio；官方回显/开发工具插件。
 - 设置窗口覆盖常规、外观、文件、音量、站点、启动项、插件与其他。
 
+复刻覆盖与剩余项见 `docs/port-status.md`。
+
 ## 开发
 
 ```powershell

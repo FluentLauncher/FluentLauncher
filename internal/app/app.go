@@ -90,10 +90,11 @@ type App struct {
 	actionIndex  int
 	actionsFocus ui.Handle
 
-	promptOpen  bool
-	promptTitle string
-	promptValue string
-	promptEntry string
+	promptOpen     bool
+	promptTitle    string
+	promptValue    string
+	promptEntry    string
+	promptReadOnly bool
 
 	quitting bool
 
@@ -123,6 +124,7 @@ func Run() error {
 		}
 	})
 	mygo.App.OnBeforeQuit(func(*mygo.QuitEvent) { a.quitting = true })
+	mygo.App.OnWillQuit(func(*mygo.QuitEvent) { a.close() })
 	mygo.App.WhenReady(a.ready)
 	return mygo.App.Run()
 }

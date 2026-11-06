@@ -64,16 +64,20 @@ func (a *App) runAction() {
 			}
 		}
 	case search.CommandPluginPreview:
+		a.actionsOpen = false
 		a.promptOpen = true
 		a.promptTitle = "文本预览（只读）"
 		a.promptValue = entry.PreviewText
 		a.promptEntry = ""
+		a.promptReadOnly = true
 		a.input.CancelFocus()
 	case search.CommandSetAlias:
+		a.actionsOpen = false
 		a.promptOpen = true
 		a.promptTitle = "设置别名（用分号分隔多个）"
 		a.promptValue = a.profile(entry.ID).Alias
 		a.promptEntry = entry.ID
+		a.promptReadOnly = false
 		a.input.CancelFocus()
 	case search.CommandTogglePinned:
 		a.changeProfile(entry.ID, func(profile model.Profile) model.Profile {

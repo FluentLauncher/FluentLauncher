@@ -380,6 +380,9 @@ func (a *App) installPlugin(directory bool) {
 		a.settingsWin.Update(func() { a.settingsError = err.Error() })
 		return
 	}
+	if check.IsUpgrade() {
+		a.plugins.Stop(check.Package.ID)
+	}
 	if _, err := a.pluginRepo.Install(paths[0], check.IsUpgrade()); err != nil {
 		a.settingsWin.Update(func() { a.settingsError = err.Error() })
 		return

@@ -229,6 +229,9 @@ func (a *App) ready() {
 		a.updateResults()
 		a.panel.Update(func() {})
 	}
+	if os.Getenv("FL_DEBUG_SHOW") == "1" {
+		a.show()
+	}
 	if os.Getenv("FL_DEBUG_OPEN_SETTINGS") == "1" {
 		a.openSettings()
 	}

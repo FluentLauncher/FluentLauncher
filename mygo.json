@@ -1,0 +1,13 @@
+{
+  "name": "FluentLauncher",
+  "slug": "fluent-launcher",
+  "identifier": "io.github.mistquay.fluentlauncher",
+  "version": "0.1.0",
+  "copyright": "© 2026 mistquay",
+  "publisher": "mistquay",
+  "out": "build",
+  "windows": {
+    "displayName": "FluentLauncher",
+    "installDirName": "FluentLauncher"
+  }
+}

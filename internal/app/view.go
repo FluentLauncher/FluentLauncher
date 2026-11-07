@@ -264,7 +264,7 @@ func (a *App) drawActions(c *ui.Context, theme *ui.Theme) {
 }
 
 func (a *App) applyUITheme(t *ui.Theme) {
-	value := a.settings.Theme
+	value := a.displayTheme()
 	if value.FontFamily != "" {
 		t.Font = value.FontFamily
 	}
@@ -288,22 +288,29 @@ func (a *App) applyUITheme(t *ui.Theme) {
 }
 
 func (a *App) drawBackground(c *ui.Context, theme *ui.Theme, canTransparent bool) {
+	value := a.displayTheme()
+	opacity := float32(clampFloat(value.Opacity, 0, 1))
+	if opacity <= 0 {
+		opacity = 1
+	}
 	root := c.Root()
-	switch a.settings.Theme.Background {
+	base := ui.Transparent
+	if !canTransparent {
+		base = theme.Surface
+	}
+	fill := func() ui.Element {
+		return ui.Box(c).Absolute().Top(0).Left(0).Right(0).Bottom(0)
+	}
+	switch value.Background {
 	case settings.BackgroundImage:
-		if canTransparent {
-			root.Background(ui.Transparent)
-		} else {
-			root.Background(theme.Background)
-		}
+		root.Background(base)
 		if a.background != nil {
-			box := ui.Box(c).Absolute().Top(0).Left(0).Right(0).Bottom(0).
-				Opacity(float32(clampFloat(a.settings.Theme.ImageMaskOpacity, 0, 1)))
-			if a.settings.Theme.ImageBlur > 0 {
-				box.Blur(float32(a.settings.Theme.ImageBlur))
+			box := fill().Opacity(float32(clampFloat(value.ImageMaskOpacity, 0, 1)))
+			if value.ImageBlur > 0 {
+				box.Blur(float32(value.ImageBlur))
 			}
 			box.Draw(func(p *ui.Painter, r ui.Rect) {
-				if a.settings.Theme.ImageCover {
+				if value.ImageCover {
 					p.Image(a.background, r, ui.Cover)
 				} else {
 					p.Image(a.background, r, ui.Contain)
@@ -311,28 +318,44 @@ func (a *App) drawBackground(c *ui.Context, theme *ui.Theme, canTransparent bool
 			})
 		}
 	case settings.BackgroundGradient:
-		from, ok := parseColor(a.settings.Theme.BackgroundColor)
+		root.Background(base)
+		from, ok := parseColor(value.BackgroundColor)
 		if !ok {
 			from = theme.Background
 		}
-		to, ok := parseColor(a.settings.Theme.GradientColor)
+		to, ok := parseColor(value.GradientColor)
 		if !ok {
 			to = theme.Surface
 		}
-		root.Gradient(from, to, 180)
+		fill().Gradient(withAlpha(from, opacity), withAlpha(to, opacity), 180)
 	case settings.BackgroundSolid:
-		if colorValue, ok := parseColor(a.settings.Theme.BackgroundColor); ok {
-			root.Background(colorValue)
-		} else {
-			root.Background(theme.Background)
+		root.Background(base)
+		solid, ok := parseColor(value.BackgroundColor)
+		if !ok {
+			solid = theme.Background
 		}
+		fill().Background(withAlpha(solid, opacity))
 	default:
 		if c.Vibrancy() {
 			root.Background(ui.Transparent)
 		} else {
 			root.Background(theme.Background)
 		}
+		if opacity < 1 {
+			// The system materials have no opacity of their own; a tint
+			// layer washes them out towards the theme background.
+			tint, ok := parseColor(value.BackgroundColor)
+			if !ok {
+				tint = theme.Background
+			}
+			fill().Background(tint.Alpha(1 - opacity))
+		}
 	}
+}
+
+// withAlpha scales a color's alpha by factor, for the theme's opacity.
+func withAlpha(col ui.Color, factor float32) ui.Color {
+	return col.Alpha(float32(col.A) / 255 * factor)
 }
 
 func (a *App) resultIcon(entry model.Entry) *ui.Bitmap {

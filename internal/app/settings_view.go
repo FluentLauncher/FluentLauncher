@@ -30,6 +30,8 @@ var pageIcons = []*ui.SVG{
 	ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.5h.01"/></svg>`)),
 }
 
+var chevronIcon = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`))
+
 func (a *App) settingsView(c *ui.Context) {
 	theme := *c.Theme()
 	a.applyUITheme(&theme)
@@ -76,6 +78,8 @@ func (a *App) settingsView(c *ui.Context) {
 				if ui.Button(c, "取消").Clicked() {
 					a.settingsDraft = a.settings
 					a.settingsError = ""
+					a.lastPreview = a.settings.Theme
+					a.applyThemeFrom(a.settings.Theme)
 					a.settingsWin.Hide()
 				}
 				if ui.PrimaryButton(c, "保存").Clicked() {
@@ -176,14 +180,93 @@ func (a *App) textRow(c *ui.Context, label, hint, placeholder string, value *str
 	})
 }
 
-// selectRow shows a dropdown of localized labels and maps the chosen
-// label back with choose.
-func selectRow(c *ui.Context, label, hint string, labels []string, current string, choose func(label string)) {
+// themedSelect is a dropdown drawn in the window, so its field and popup
+// carry the theme like every other control; ui.Select's popup is a plain
+// system-styled list.
+func (a *App) themedSelect(c *ui.Context, key, label, hint string, options []string, current string, choose func(label string)) {
 	settingRow(c, label, hint, func(c *ui.Context) {
-		value := current
-		if ui.Select(c, &value, labels).Width(200).Changed() {
-			choose(value)
+		theme := c.Theme()
+		open := a.selectOpen == key
+		anchor := ui.Row(c).Width(220).Padding(8, 12).Gap(8).AlignItems(ui.Center).
+			Radius(8).Background(theme.Surface).Border(1, theme.Border)
+		anchor.Children(func() {
+			ui.Text(c, current).FontSize(13).TextColor(theme.Text).Grow(1).SingleLine()
+			ui.Icon(c, chevronIcon).FontSize(12).TextColor(theme.TextMuted)
+		})
+		if anchor.Clicked() {
+			if open {
+				a.selectOpen = ""
+			} else {
+				a.selectOpen = key
+			}
+			open = a.selectOpen == key
 		}
+		ui.Popover(c, anchor, &open, func() {
+			ui.Column(c).Width(220).Padding(4).Gap(2).Children(func() {
+				for _, option := range options {
+					background := ui.Transparent
+					text := theme.Text
+					if option == current {
+						background = theme.Accent.Alpha(0.85)
+						text = theme.AccentText
+					}
+					row := ui.Row(c).Padding(8, 12).Radius(6).Background(background)
+					row.Children(func() {
+						ui.Text(c, option).FontSize(13).TextColor(text).Grow(1).SingleLine()
+					})
+					if row.Clicked() {
+						choose(option)
+						a.selectOpen = ""
+						open = false
+					}
+				}
+			})
+		})
+		if !open && a.selectOpen == key {
+			a.selectOpen = ""
+		}
+	})
+}
+
+// colorRow edits an optional hex color with a color well; an empty value
+// keeps the system color and can be restored with 重置.
+func (a *App) colorRow(c *ui.Context, label, hint string, value *string, fallback ui.Color) {
+	settingRow(c, label, hint, func(c *ui.Context) {
+		theme := c.Theme()
+		picked := fallback
+		if parsed, ok := parseColor(*value); ok {
+			picked = parsed
+		}
+		ui.Row(c).Gap(10).AlignItems(ui.Center).Children(func() {
+			if ui.ColorWell(c, &picked).Changed() {
+				*value = hexOf(picked)
+			}
+			shown := "跟随系统"
+			if *value != "" {
+				shown = hexOf(picked)
+			}
+			ui.Text(c, shown).FontSize(12).TextColor(theme.TextMuted).Width(90).SingleLine()
+			if *value != "" && ui.Button(c, "重置").Clicked() {
+				*value = ""
+			}
+		})
+	})
+}
+
+func hexOf(col ui.Color) string {
+	if col.A == 255 {
+		return fmt.Sprintf("#%02X%02X%02X", col.R, col.G, col.B)
+	}
+	return fmt.Sprintf("#%02X%02X%02X%02X", col.A, col.R, col.G, col.B)
+}
+
+// sliderRow edits a float with a slider and shows its current value.
+func (a *App) sliderRow(c *ui.Context, label, hint string, value *float64, lo, hi float64, format func(float64) string) {
+	settingRow(c, label, hint, func(c *ui.Context) {
+		ui.Row(c).Gap(12).AlignItems(ui.Center).Children(func() {
+			ui.Slider(c, value, lo, hi).Width(200)
+			ui.Text(c, format(*value)).FontSize(12).TextColor(c.Theme().TextMuted).Width(52).SingleLine()
+		})
 	})
 }
 
@@ -233,7 +316,7 @@ func (a *App) generalPage(c *ui.Context) {
 		if a.hotkeyActive != "" && a.hotkeyActive != a.settingsDraft.Hotkey {
 			hotkeyHint = "当前生效：" + a.hotkeyActive + "（所选热键被占用或未保存）"
 		}
-		selectRow(c, "热键", hotkeyHint, []string{"Alt+Space", "Ctrl+Alt+Space", "Ctrl+Space"},
+		a.themedSelect(c, "hotkey", "热键", hotkeyHint, []string{"Alt+Space", "Ctrl+Alt+Space", "Ctrl+Space"},
 			a.settingsDraft.Hotkey, func(label string) { a.settingsDraft.Hotkey = label })
 		a.switchRow(c, "启动时隐藏搜索框", "关闭后开机进入桌面即显示面板", &a.settingsDraft.HideOnStartup)
 		a.switchRow(c, "开机启动", "登录系统后自动在后台运行", &a.settingsDraft.RunAtLogin)
@@ -245,7 +328,7 @@ func (a *App) generalPage(c *ui.Context) {
 				placementLabel = choice.label
 			}
 		}
-		selectRow(c, "弹出位置", "呼出面板时所在的屏幕", choiceLabels(placementChoices), placementLabel, func(label string) {
+		a.themedSelect(c, "placement", "弹出位置", "呼出面板时所在的屏幕", choiceLabels(placementChoices), placementLabel, func(label string) {
 			for _, choice := range placementChoices {
 				if choice.label == label {
 					a.settingsDraft.Placement = choice.value
@@ -260,69 +343,98 @@ func (a *App) generalPage(c *ui.Context) {
 }
 
 func (a *App) appearancePage(c *ui.Context) {
+	draft := &a.settingsDraft.Theme
+	background := draft.Background
 	settingCard(c, "模式与背景", func(c *ui.Context) {
 		modeLabel := themeModeChoices[0].label
 		for _, choice := range themeModeChoices {
-			if choice.value == a.settingsDraft.Theme.Mode {
+			if choice.value == draft.Mode {
 				modeLabel = choice.label
 			}
 		}
-		selectRow(c, "模式", "浅色、深色或跟随系统", choiceLabels(themeModeChoices), modeLabel, func(label string) {
+		a.themedSelect(c, "mode", "模式", "浅色、深色或跟随系统", choiceLabels(themeModeChoices), modeLabel, func(label string) {
 			for _, choice := range themeModeChoices {
 				if choice.label == label {
-					a.settingsDraft.Theme.Mode = choice.value
+					draft.Mode = choice.value
 				}
 			}
 		})
 		backgroundLabel := backgroundChoices[0].label
 		for _, choice := range backgroundChoices {
-			if choice.value == a.settingsDraft.Theme.Background {
+			if choice.value == background {
 				backgroundLabel = choice.label
 			}
 		}
-		selectRow(c, "背景材质", "亚克力与云母需要系统支持", choiceLabels(backgroundChoices), backgroundLabel, func(label string) {
+		a.themedSelect(c, "background", "背景材质", "亚克力与云母需要系统支持", choiceLabels(backgroundChoices), backgroundLabel, func(label string) {
 			for _, choice := range backgroundChoices {
 				if choice.label == label {
-					a.settingsDraft.Theme.Background = choice.value
+					draft.Background = choice.value
 				}
 			}
 		})
 	})
 	settingCard(c, "颜色", func(c *ui.Context) {
-		a.textRow(c, "强调色", "按钮与选中行，#RRGGBB 或 #AARRGGBB", "#4F7CFF", &a.settingsDraft.Theme.AccentColor, 200)
-		a.textRow(c, "背景色", "纯色与渐变起点，留空跟随系统", "#RRGGBB", &a.settingsDraft.Theme.BackgroundColor, 200)
-		a.textRow(c, "文字色", "留空跟随系统", "跟随系统", &a.settingsDraft.Theme.ForegroundColor, 200)
-		a.textRow(c, "渐变终点", "仅渐变背景使用", "#3366AA", &a.settingsDraft.Theme.GradientColor, 200)
+		theme := c.Theme()
+		a.colorRow(c, "强调色", "按钮与选中行", &draft.AccentColor, theme.Accent)
+		a.colorRow(c, "文字色", "留空跟随系统", &draft.ForegroundColor, theme.Text)
+		switch background {
+		case settings.BackgroundSolid, settings.BackgroundGradient:
+			a.colorRow(c, "背景色", "纯色与渐变起点，留空跟随系统", &draft.BackgroundColor, theme.Background)
+		case settings.BackgroundAcrylic, settings.BackgroundMica:
+			a.colorRow(c, "背景色", "材质上的 tint，留空使用系统背景", &draft.BackgroundColor, theme.Background)
+		}
+		if background == settings.BackgroundGradient {
+			a.colorRow(c, "渐变终点", "仅渐变背景使用", &draft.GradientColor, theme.Surface)
+		}
 	})
-	settingCard(c, "字体与圆角", func(c *ui.Context) {
-		a.textRow(c, "字体", "留空使用系统字体", "Segoe UI Variable", &a.settingsDraft.Theme.FontFamily, 240)
-		a.floatRow(c, "字号", "12 – 32", &a.settingsDraft.Theme.FontSize, 12, 32, 1)
-		a.floatRow(c, "结果行内边距", "2 – 24", &a.settingsDraft.Theme.RowPadding, 2, 24, 1)
-		a.floatRow(c, "圆角", "0 – 32", &a.settingsDraft.Theme.CornerRadius, 0, 32, 1)
-	})
-	settingCard(c, "背景图片", func(c *ui.Context) {
-		settingRow(c, "图片路径", "背景材质为“图片”时使用", func(c *ui.Context) {
-			ui.Row(c).Gap(8).Children(func() {
-				ui.TextInput(c, &a.settingsDraft.Theme.ImagePath).Placeholder("选择一张图片").Width(320)
-				if ui.Button(c, "选择…").Clicked() {
-					go func() {
-						path, err := mygo.Dialog.Open(mygo.OpenDialogOptions{Title: "选择背景图片"})
-						if err == nil && len(path) > 0 {
-							a.settingsWin.Update(func() { a.settingsDraft.Theme.ImagePath = path[0] })
-						}
-					}()
-				}
+	if background != settings.BackgroundImage {
+		settingCard(c, "不透明度", func(c *ui.Context) {
+			label, hint := "整体不透明度", "越低越透，适用于纯色与渐变"
+			if background == settings.BackgroundAcrylic || background == settings.BackgroundMica {
+				label, hint = "材质不透明度", "越低越接近背景色"
+			}
+			a.sliderRow(c, label, hint, &draft.Opacity, 0.2, 1, func(v float64) string {
+				return fmt.Sprintf("%.0f%%", v*100)
 			})
 		})
-		a.switchRow(c, "图片铺满", "关闭则完整显示整张图片", &a.settingsDraft.Theme.ImageCover)
-		opacity := a.settingsDraft.Theme.ImageMaskOpacity * 100
-		settingRow(c, "遮罩不透明度", "图片上方蒙版 0 – 90%", func(c *ui.Context) {
-			if ui.NumberInput(c, &opacity, 0, 90, 5).Width(150).Changed() {
-				a.settingsDraft.Theme.ImageMaskOpacity = opacity / 100
-			}
-		})
-		a.numberRow(c, "模糊", "0 – 24，0 为不模糊", &a.settingsDraft.Theme.ImageBlur, 0, 24, 1)
+	}
+	settingCard(c, "字体与圆角", func(c *ui.Context) {
+		a.textRow(c, "字体", "留空使用系统字体", "Segoe UI Variable", &draft.FontFamily, 240)
+		a.floatRow(c, "字号", "12 – 32", &draft.FontSize, 12, 32, 1)
+		a.floatRow(c, "结果行内边距", "2 – 24", &draft.RowPadding, 2, 24, 1)
+		a.floatRow(c, "圆角", "0 – 32", &draft.CornerRadius, 0, 32, 1)
 	})
+	if background == settings.BackgroundImage {
+		settingCard(c, "背景图片", func(c *ui.Context) {
+			settingRow(c, "图片路径", "背景材质为“图片”时使用", func(c *ui.Context) {
+				ui.Row(c).Gap(8).Children(func() {
+					ui.TextInput(c, &draft.ImagePath).Placeholder("选择一张图片").Width(320)
+					if ui.Button(c, "选择…").Clicked() {
+						go func() {
+							path, err := mygo.Dialog.Open(mygo.OpenDialogOptions{Title: "选择背景图片"})
+							if err == nil && len(path) > 0 {
+								a.settingsWin.Update(func() { draft.ImagePath = path[0] })
+							}
+						}()
+					}
+				})
+			})
+			a.switchRow(c, "图片铺满", "关闭则完整显示整张图片", &draft.ImageCover)
+			a.sliderRow(c, "遮罩不透明度", "图片上方蒙版，越高图片越淡", &draft.ImageMaskOpacity, 0, 0.9, func(v float64) string {
+				return fmt.Sprintf("%.0f%%", v*100)
+			})
+			if draft.ImageBlur != a.blurSliderInt {
+				a.blurSlider = float64(draft.ImageBlur)
+				a.blurSliderInt = draft.ImageBlur
+			} else {
+				a.blurSliderInt = int(a.blurSlider)
+				draft.ImageBlur = a.blurSliderInt
+			}
+			a.sliderRow(c, "高斯模糊", "0 – 24，0 为不模糊", &a.blurSlider, 0, 24, func(v float64) string {
+				return fmt.Sprintf("%.0f", v)
+			})
+		})
+	}
 	settingCard(c, "主题文件", func(c *ui.Context) {
 		ui.Row(c).Gap(8).Children(func() {
 			if ui.Button(c, "导出主题…").Clicked() {
@@ -333,6 +445,13 @@ func (a *App) appearancePage(c *ui.Context) {
 			}
 		})
 	})
+	// Preview the draft as it changes: both windows redraw with it until
+	// the dialog is saved or cancelled. Skipped headless, where theme
+	// changes have no main loop to apply them on.
+	if a.panel != nil && a.settingsDraft.Theme != a.lastPreview {
+		a.lastPreview = a.settingsDraft.Theme
+		a.applyThemeFrom(a.settingsDraft.Theme)
+	}
 }
 
 func (a *App) filesPage(c *ui.Context) {

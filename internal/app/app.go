@@ -94,6 +94,11 @@ type App struct {
 	listHoverNext int
 	brandIcon     *ui.Bitmap
 
+	selectOpen    string
+	lastPreview   settings.ThemeSettings
+	blurSlider    float64
+	blurSliderInt int
+
 	actionsOpen      bool
 	actions          []search.CommandItem
 	actionIndex      int
@@ -517,6 +522,7 @@ func (a *App) applySettings(value settings.LauncherSettings) error {
 	}
 	a.settings = value
 	a.settingsDraft = value
+	a.lastPreview = value.Theme
 	a.catalog.SetOptions(value.Applications)
 	if a.plugins != nil {
 		a.plugins.Configure(a.pluginRepo.Installed(), value.Plugins)
@@ -552,7 +558,22 @@ func (a *App) saveTheme(value settings.ThemeSettings) error {
 
 // applyTheme switches the system appearance, window material and image.
 func (a *App) applyTheme() {
-	switch a.settings.Theme.Mode {
+	a.applyThemeFrom(a.settings.Theme)
+}
+
+// displayTheme is what the views draw: while the settings window shows,
+// the draft, so appearance edits preview live; otherwise the saved theme.
+func (a *App) displayTheme() settings.ThemeSettings {
+	if a.settingsWin != nil && a.settingsWin.IsVisible() {
+		return a.settingsDraft.Theme
+	}
+	return a.settings.Theme
+}
+
+// applyThemeFrom applies a theme value to both windows without persisting
+// it, which the appearance page uses to preview the draft.
+func (a *App) applyThemeFrom(value settings.ThemeSettings) {
+	switch value.Mode {
 	case settings.ThemeLight:
 		mygo.Theme.SetSource(mygo.ThemeLight)
 	case settings.ThemeDark:
@@ -560,14 +581,15 @@ func (a *App) applyTheme() {
 	default:
 		mygo.Theme.SetSource(mygo.ThemeSystem)
 	}
+	vibrancy := a.vibrancyOf(value)
 	if a.panel != nil {
-		a.panel.SetVibrancy(a.vibrancy())
+		a.panel.SetVibrancy(vibrancy)
 	}
 	if a.settingsWin != nil {
-		a.settingsWin.SetVibrancy(a.vibrancy())
+		a.settingsWin.SetVibrancy(vibrancy)
 	}
-	if a.settings.Theme.Background == settings.BackgroundImage && a.settings.Theme.ImagePath != "" {
-		if data, err := os.ReadFile(a.settings.Theme.ImagePath); err == nil {
+	if value.Background == settings.BackgroundImage && value.ImagePath != "" {
+		if data, err := os.ReadFile(value.ImagePath); err == nil {
 			if bitmap, err := ui.DecodeBitmap(data); err == nil {
 				a.background = bitmap
 			}
@@ -575,14 +597,20 @@ func (a *App) applyTheme() {
 	} else {
 		a.background = nil
 	}
+	if a.panel != nil {
+		a.panel.Update(func() {})
+	}
 	if a.settingsWin != nil {
 		a.settingsWin.Update(func() {})
 	}
 }
 
 func (a *App) vibrancy() mygo.Vibrancy {
-	t := a.settings.Theme
-	switch t.Background {
+	return a.vibrancyOf(a.displayTheme())
+}
+
+func (a *App) vibrancyOf(value settings.ThemeSettings) mygo.Vibrancy {
+	switch value.Background {
 	case settings.BackgroundMica:
 		return mygo.VibrancyMica
 	case settings.BackgroundAcrylic:
@@ -820,6 +848,7 @@ func (a *App) openSettings() {
 		return
 	}
 	a.settingsDraft = cloneSettings(a.settings)
+	a.lastPreview = a.settingsDraft.Theme
 	a.settingsWin = mygo.NewWindow(mygo.WindowOptions{
 		Title:     "FluentLauncher 设置",
 		Width:     900,

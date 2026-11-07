@@ -72,6 +72,45 @@ func TestRowClickAndEnterExecute(t *testing.T) {
 	}
 }
 
+func TestSettingsAppearanceInteractions(t *testing.T) {
+	a := &App{
+		settings:      settings.Default(),
+		settingsDraft: settings.Default(),
+		icons:         map[string]*ui.Bitmap{},
+		iconLoading:   map[string]bool{},
+		profiles:      map[string]model.Profile{},
+	}
+	a.settingsDraft.Theme.Background = settings.BackgroundAcrylic
+	tt := ui.NewTester(a.settingsView, 900, 660)
+	if err := tt.Click("外观"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if a.settingsPage != 1 {
+		t.Fatalf("settings page = %d, want 1", a.settingsPage)
+	}
+	if !tt.HasText("不透明度") {
+		t.Fatal("opacity card missing for acrylic")
+	}
+	if tt.HasText("高斯模糊") {
+		t.Fatal("image card shown while acrylic selected")
+	}
+	if err := tt.Click("亚克力"); err != nil { // the dropdown anchor
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if err := tt.Click("图片"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if a.settingsDraft.Theme.Background != settings.BackgroundImage {
+		t.Fatalf("background = %q, want image", a.settingsDraft.Theme.Background)
+	}
+	if !tt.HasText("高斯模糊") {
+		t.Fatal("image card missing after switching to image")
+	}
+}
+
 func TestSettingsViewBuilds(t *testing.T) {
 	a := &App{settings: settings.Default(), settingsDraft: settings.Default()}
 	for page := range settingPages {

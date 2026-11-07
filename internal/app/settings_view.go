@@ -78,22 +78,22 @@ func (a *App) settingsView(c *ui.Context) {
 					})
 				})
 				ui.Divider(c)
-				ui.Row(c).Padding(12, 24).Gap(8).AlignItems(ui.Center).Children(func() {
+				// No save or cancel buttons: every change applies and is
+				// saved a moment later, so this row only reports what went
+				// wrong or reassures that there is nothing to do.
+				ui.Row(c).Padding(8, 24).AlignItems(ui.Center).Children(func() {
 					if a.settingsError != "" {
-						ui.Text(c, a.settingsError).FontSize(12).TextColor(theme.Danger).Grow(1)
+						ui.Text(c, a.settingsError).FontSize(12).TextColor(theme.Danger)
 					} else {
-						ui.Column(c).Grow(1)
-					}
-					if compactButton(c, "取消").Clicked() {
-						a.cancelSettings()
-					}
-					if compactPrimaryButton(c, "保存").Clicked() {
-						a.saveSettings()
+						ui.Text(c, "更改会自动保存").FontSize(11).TextColor(theme.TextMuted)
 					}
 				})
 			})
 		})
 	})
+	if a.settingsWin != nil && a.draftChanged() {
+		a.scheduleSettingsSave()
+	}
 }
 
 // settingsSidebar is the navigation column: transparent over the window
@@ -901,29 +901,6 @@ func (a *App) resetLearning() {
 	a.customEngine.UpdateProfiles(m)
 	a.workspaceEngine.UpdateProfiles(m)
 	a.updateResults()
-}
-
-func (a *App) saveSettings() {
-	if err := a.applySettings(a.settingsDraft); err != nil {
-		a.settingsError = err.Error()
-		return
-	}
-	a.settingsError = ""
-	a.settingsWin.Hide()
-}
-
-// cancelSettings drops the draft and puts back the saved theme and panel
-// size, which the preview had applied while the user was editing.
-func (a *App) cancelSettings() {
-	a.settingsDraft = a.settings
-	a.settingsError = ""
-	a.lastPreview = a.settings.Theme
-	if a.settingsWin != nil {
-		a.settingsWin.Hide()
-	}
-	a.applyThemeFrom(a.settings.Theme)
-	a.applyWindowSize()
-	a.positionPanel()
 }
 
 func cloneSettings(value settings.LauncherSettings) settings.LauncherSettings {

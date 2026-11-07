@@ -9,6 +9,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
@@ -106,17 +107,18 @@ type App struct {
 	listHoverNext int
 	brandIcon     *ui.Bitmap
 
-	selectOpen     string
-	lastPreview    settings.ThemeSettings
-	blurSlider     float64
-	blurSliderInt  int
-	sizeDragging   bool
-	sizeDragWidth  float64
-	sizeDragHeight float64
-	sizeDragPanelX float32
-	sizeDragPanelY float32
-	trayClickAt    time.Time
-	anchorTimer    *time.Timer
+	selectOpen        string
+	lastPreview       settings.ThemeSettings
+	blurSlider        float64
+	blurSliderInt     int
+	sizeDragging      bool
+	sizeDragWidth     float64
+	sizeDragHeight    float64
+	sizeDragPanelX    float32
+	sizeDragPanelY    float32
+	trayClickAt       time.Time
+	anchorTimer       *time.Timer
+	settingsSaveTimer *time.Timer
 
 	actionsOpen      bool
 	actions          []search.CommandItem
@@ -149,6 +151,10 @@ func Run() error {
 	data := filepath.Join(os.Getenv("LOCALAPPDATA"), "FluentLauncher")
 	mygo.App.SetName("FluentLauncher")
 	mygo.App.SetVersion("0.1.0")
+	// The interface is written in Chinese: the language says which fonts the
+	// text system draws the Han characters with, and the date and number
+	// formats. Without it, some windows fall back to a serif font.
+	mygo.App.SetLocale("zh-CN")
 	mygo.App.SetPath(mygo.PathUserData, data)
 	mygo.App.SetPath(mygo.PathCache, filepath.Join(data, "cache"))
 	mygo.App.SetPath(mygo.PathLogs, filepath.Join(data, "logs"))
@@ -555,12 +561,40 @@ func (a *App) setUpTray() {
 	}
 	a.tray = tray
 	a.tray.SetMenu(a.trayMenu())
-	// The menu opens on a right click; a double click on the icon shows the
-	// search panel, as the notification area of a launcher does.
+	// A double click on the icon shows the panel, as the notification area
+	// of a launcher does; a right click opens the menu.
 	a.tray.OnClick(a.trayClicked)
 	mygo.App.OnWillQuit(func(*mygo.QuitEvent) {
 		a.stopVolume()
 		tray.Destroy()
+	})
+}
+
+// trayMenu builds the notification area menu. The menu follows the app's
+// light or dark appearance, which the theme tells the system (mygo forces
+// its preferred app mode when the theme source changes). Checkable items are
+// plain rows whose label states the value: a check box would reserve a mark
+// column that leaves an empty gutter beside every item.
+func (a *App) trayMenu() *mygo.Menu {
+	loginLabel := "开机启动：关"
+	if a.settings.RunAtLogin {
+		loginLabel = "开机启动：开"
+	}
+	return mygo.NewMenu([]*mygo.MenuItem{
+		{Label: "显示搜索", Click: func(*mygo.MenuItem, *mygo.Window) { a.show() }},
+		{Label: "设置", Click: func(*mygo.MenuItem, *mygo.Window) { a.openSettings() }},
+		mygo.Separator(),
+		{Label: loginLabel, Click: func(*mygo.MenuItem, *mygo.Window) {
+			a.settings.RunAtLogin = !a.settings.RunAtLogin
+			a.settingsDraft.RunAtLogin = a.settings.RunAtLogin
+			_ = a.config.Save(a.settings)
+			a.applyOpenAtLogin()
+			if a.tray != nil {
+				a.tray.SetMenu(a.trayMenu())
+			}
+		}},
+		mygo.Separator(),
+		{Label: "退出", Click: func(*mygo.MenuItem, *mygo.Window) { mygo.App.Quit() }},
 	})
 }
 
@@ -586,32 +620,6 @@ func isDoubleClick(last *time.Time, now time.Time) bool {
 	}
 	*last = now
 	return false
-}
-
-// trayMenu builds the notification area menu. Checkable items are plain
-// rows whose label states the value: a check box would reserve a mark
-// column that leaves an empty gutter beside every item.
-func (a *App) trayMenu() *mygo.Menu {
-	loginLabel := "开机启动：关"
-	if a.settings.RunAtLogin {
-		loginLabel = "开机启动：开"
-	}
-	return mygo.NewMenu([]*mygo.MenuItem{
-		{Label: "显示搜索", Click: func(*mygo.MenuItem, *mygo.Window) { a.show() }},
-		{Label: "设置", Click: func(*mygo.MenuItem, *mygo.Window) { a.openSettings() }},
-		mygo.Separator(),
-		{Label: loginLabel, Click: func(*mygo.MenuItem, *mygo.Window) {
-			a.settings.RunAtLogin = !a.settings.RunAtLogin
-			_ = a.config.Save(a.settings)
-			a.settingsDraft = a.settings
-			a.applyOpenAtLogin()
-			if a.tray != nil {
-				a.tray.SetMenu(a.trayMenu())
-			}
-		}},
-		mygo.Separator(),
-		{Label: "退出", Click: func(*mygo.MenuItem, *mygo.Window) { mygo.App.Quit() }},
-	})
 }
 
 func (a *App) registerHotkey() {
@@ -691,6 +699,48 @@ func (a *App) applySettings(value settings.LauncherSettings) error {
 	return nil
 }
 
+// draftChanged reports whether the settings window shows changes that are not
+// saved yet.
+func (a *App) draftChanged() bool {
+	return !reflect.DeepEqual(a.settingsDraft, a.settings)
+}
+
+// scheduleSettingsSave applies and saves the settings a moment after the last
+// change: the settings window has no save button, so every control takes
+// effect as it is set.
+func (a *App) scheduleSettingsSave() {
+	if a.settingsSaveTimer != nil {
+		a.settingsSaveTimer.Stop()
+	}
+	a.settingsSaveTimer = time.AfterFunc(600*time.Millisecond, func() {
+		if a.settingsWin != nil {
+			a.settingsWin.Update(func() { a.flushSettingsDraft() })
+		}
+	})
+}
+
+// flushSettingsDraft applies the draft when it differs from the saved
+// settings. Values that do not validate are reported instead of saved, and
+// the saved ones are put back, so that the window never shows a look that was
+// not kept.
+func (a *App) flushSettingsDraft() {
+	if !a.draftChanged() {
+		return
+	}
+	if err := a.applySettings(a.settingsDraft); err != nil {
+		a.settingsError = err.Error()
+		a.applyThemeFrom(a.settings.Theme)
+		a.applyWindowSize()
+		a.positionPanel()
+	} else {
+		a.settingsError = ""
+	}
+	if a.settingsWin != nil {
+		a.settingsWin.Update(func() {})
+	}
+}
+
+// saveTheme persists a theme without touching the rest of the settings.
 func (a *App) saveTheme(value settings.ThemeSettings) error {
 	if err := a.config.SaveTheme(value); err != nil {
 		return err
@@ -1016,7 +1066,9 @@ func (a *App) openSettings() {
 			return
 		}
 		e.PreventDefault()
-		a.cancelSettings()
+		// Everything applies as it is set; closing keeps what is valid.
+		a.flushSettingsDraft()
+		a.settingsWin.Hide()
 	})
 	if icon := windowIconPNG(); icon != nil {
 		if err := a.settingsWin.SetIcon(icon); err != nil {

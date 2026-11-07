@@ -17,7 +17,7 @@ import (
 const (
 	volumeOverlayWidth  = 240
 	volumeOverlayHeight = 44
-	volumeOverlayGap    = 40
+	volumeOverlayGap    = 20
 )
 
 var volumeIcon = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>`))

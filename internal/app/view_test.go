@@ -120,6 +120,21 @@ func TestSettingsAppearanceInteractions(t *testing.T) {
 	}
 }
 
+func TestSettingsSaveAutomatically(t *testing.T) {
+	a := &App{settings: settings.Default(), settingsDraft: settings.Default()}
+	a.settingsPage = 1
+	tt := ui.NewTester(a.settingsView, 900, 660)
+	if tt.HasText("取消") {
+		t.Fatal("settings still offer a cancel button")
+	}
+	if !tt.HasText("更改会自动保存") {
+		t.Fatal("settings do not say that changes save themselves")
+	}
+	a.settingsDraft.Theme.Opacity = 0.4
+	if !a.draftChanged() {
+		t.Fatal("a changed draft is not reported")
+	}
+}
 func TestSettingsViewBuilds(t *testing.T) {
 	a := &App{settings: settings.Default(), settingsDraft: settings.Default()}
 	for page := range settingPages {

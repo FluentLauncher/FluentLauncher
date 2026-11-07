@@ -84,7 +84,7 @@ func (c *Catalog) Discover(ctx context.Context) ([]model.Entry, error) {
 		add(model.Entry{
 			ID:           appID(app.Path, ""),
 			Title:        app.Name,
-			Subtitle:     app.Path,
+			Subtitle:     appSubtitle(app.Path),
 			LaunchTarget: app.Path,
 			Kind:         model.Application,
 			SourceID:     "applications",
@@ -177,6 +177,20 @@ func launchable(path string) bool {
 		return true
 	}
 	return false
+}
+
+// appSubtitle shows a readable origin for an entry: packaged apps carry
+// a shell:AppsFolder identifier, which reads as noise in a result row.
+func appSubtitle(path string) string {
+	const prefix = "shell:AppsFolder\\"
+	if !strings.HasPrefix(path, prefix) {
+		return path
+	}
+	name := strings.Split(strings.TrimPrefix(path, prefix), "!")[0]
+	if i := strings.LastIndex(name, "_"); i > 0 {
+		name = name[:i]
+	}
+	return "应用包 " + name
 }
 
 func appID(identity, arguments string) string {

@@ -1,12 +1,7 @@
 package app
 
 import (
-	"bytes"
 	"fmt"
-	"image"
-	"image/color"
-	"image/png"
-	"log"
 	"strings"
 
 	"github.com/egoist/mygo"
@@ -81,6 +76,8 @@ func (a *App) view(c *ui.Context) {
 }
 
 func (a *App) resultsArea(c *ui.Context, theme *ui.Theme) {
+	a.listHover = a.listHoverNext
+	a.listHoverNext = -1
 	if a.hotkeyNotice != "" {
 		ui.Row(c).Padding(12, 16).Children(func() {
 			ui.Text(c, a.hotkeyNotice).FontSize(12).TextColor(theme.Warning)
@@ -117,11 +114,18 @@ func (a *App) row(c *ui.Context, theme *ui.Theme, index int) {
 	item := a.results[index]
 	background := ui.Transparent
 	text, muted := theme.Text, theme.TextMuted
-	if index == a.chosen {
+	switch {
+	case index == a.chosen:
 		background = theme.Accent.Alpha(0.85)
 		text, muted = theme.AccentText, theme.AccentText.Alpha(0.75)
+	case index == a.listHover:
+		background = theme.Surface.Alpha(0.8)
 	}
-	row := ui.Row(c).Padding(6, 10).Gap(12).AlignItems(ui.Center).Radius(8).Background(background)
+	vertical := float32(a.settings.Theme.RowPadding) / 2
+	if vertical < 3 {
+		vertical = 3
+	}
+	row := ui.Row(c).Padding(vertical, 10).Gap(12).AlignItems(ui.Center).Radius(8).Background(background)
 	row.Children(func() {
 		if bitmap := a.resultIcon(item.Entry); bitmap != nil {
 			ui.Image(c, bitmap).Size(float32(a.iconSize), float32(a.iconSize))
@@ -147,6 +151,9 @@ func (a *App) row(c *ui.Context, theme *ui.Theme, index int) {
 		a.chosen = index
 		a.selectedID = item.Entry.ID
 		a.pendingOpen = true
+	}
+	if row.Hovered() {
+		a.listHoverNext = index
 	}
 }
 
@@ -224,12 +231,17 @@ func (a *App) drawActions(c *ui.Context, theme *ui.Theme) {
 		})
 		ui.Divider(c)
 		ui.Column(c).Fill().Padding(6).Bind(&a.actionsFocus).Focusable().AutoFocus().Children(func() {
+			a.actionsHover = a.actionsHoverNext
+			a.actionsHoverNext = -1
 			for i, command := range a.actions {
 				background := ui.Transparent
 				text := theme.Text
-				if i == a.actionIndex {
+				switch {
+				case i == a.actionIndex:
 					background = theme.Accent.Alpha(0.85)
 					text = theme.AccentText
+				case i == a.actionsHover:
+					background = theme.Surface.Alpha(0.8)
 				}
 				row := ui.Row(c).Padding(10, 14).Radius(6).Background(background).Children(func() {
 					ui.Text(c, command.Title).TextColor(text).Grow(1)
@@ -238,6 +250,9 @@ func (a *App) drawActions(c *ui.Context, theme *ui.Theme) {
 					a.actionIndex = i
 					a.runAction()
 					return
+				}
+				if row.Hovered() {
+					a.actionsHoverNext = i
 				}
 			}
 		})
@@ -368,22 +383,4 @@ func clampFloat(v, low, high float64) float64 {
 		return high
 	}
 	return v
-}
-
-func trayIcon() []byte {
-	img := image.NewNRGBA(image.Rect(0, 0, 32, 32))
-	ink := color.NRGBA{R: 79, G: 124, B: 255, A: 255}
-	for y := range 32 {
-		for x := range 32 {
-			dx, dy := float64(x)-16, float64(y)-16
-			if dx*dx+dy*dy <= 13*13 {
-				img.Set(x, y, ink)
-			}
-		}
-	}
-	var buffer bytes.Buffer
-	if err := png.Encode(&buffer, img); err != nil {
-		log.Printf("tray icon: %v", err)
-	}
-	return buffer.Bytes()
 }

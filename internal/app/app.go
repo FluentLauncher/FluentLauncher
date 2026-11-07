@@ -89,10 +89,17 @@ type App struct {
 	hotkeyNotice string
 	pendingOpen  bool
 
-	actionsOpen  bool
-	actions      []search.CommandItem
-	actionIndex  int
-	actionsFocus ui.Handle
+	settingsHover int
+	listHover     int
+	listHoverNext int
+	brandIcon     *ui.Bitmap
+
+	actionsOpen      bool
+	actions          []search.CommandItem
+	actionIndex      int
+	actionsFocus     ui.Handle
+	actionsHover     int
+	actionsHoverNext int
 
 	promptOpen     bool
 	promptTitle    string
@@ -238,6 +245,15 @@ func (a *App) ready() {
 	}
 	if os.Getenv("FL_DEBUG_OPEN_SETTINGS") == "1" {
 		a.openSettings()
+	}
+	if os.Getenv("FL_DEBUG_TRAY_MENU") == "1" {
+		time.AfterFunc(2*time.Second, func() {
+			a.panel.Update(func() {
+				if a.tray != nil {
+					a.tray.PopUpMenu()
+				}
+			})
+		})
 	}
 	if value := os.Getenv("FL_DEBUG_EXIT_MS"); value != "" {
 		if milliseconds, err := strconv.Atoi(value); err == nil && milliseconds > 0 {
@@ -408,30 +424,42 @@ func (a *App) applyWindowSize() {
 }
 
 func (a *App) setUpTray() {
-	tray, err := mygo.NewTray(mygo.TrayOptions{Icon: trayIcon(), ToolTip: "FluentLauncher"})
+	tray, err := mygo.NewTray(mygo.TrayOptions{Icon: trayIconPNG(), ToolTip: "FluentLauncher"})
 	if err != nil {
 		log.Printf("tray: %v", err)
 		return
 	}
 	a.tray = tray
-	menu := mygo.NewMenu([]*mygo.MenuItem{
-		{Label: "显示搜索", Click: func(*mygo.MenuItem, *mygo.Window) { a.show() }},
-		{Label: "设置", Click: func(*mygo.MenuItem, *mygo.Window) { a.openSettings() }},
-		mygo.Separator(),
-		{Label: "开机启动", Type: mygo.MenuItemCheckbox, Checked: a.settings.RunAtLogin,
-			Click: func(item *mygo.MenuItem, _ *mygo.Window) {
-				a.settings.RunAtLogin = item.Checked
-				_ = a.config.Save(a.settings)
-				a.applyOpenAtLogin()
-				a.settingsDraft = a.settings
-			}},
-		mygo.Separator(),
-		{Role: mygo.RoleQuit},
-	})
-	tray.SetMenu(menu)
+	a.tray.SetMenu(a.trayMenu())
 	mygo.App.OnWillQuit(func(*mygo.QuitEvent) {
 		a.stopVolume()
 		tray.Destroy()
+	})
+}
+
+// trayMenu builds the notification area menu. Checkable items are plain
+// rows whose label states the value: a check box would reserve a mark
+// column that leaves an empty gutter beside every item.
+func (a *App) trayMenu() *mygo.Menu {
+	loginLabel := "开机启动：关"
+	if a.settings.RunAtLogin {
+		loginLabel = "开机启动：开"
+	}
+	return mygo.NewMenu([]*mygo.MenuItem{
+		{Label: "显示搜索", Click: func(*mygo.MenuItem, *mygo.Window) { a.show() }},
+		{Label: "设置", Click: func(*mygo.MenuItem, *mygo.Window) { a.openSettings() }},
+		mygo.Separator(),
+		{Label: loginLabel, Click: func(*mygo.MenuItem, *mygo.Window) {
+			a.settings.RunAtLogin = !a.settings.RunAtLogin
+			_ = a.config.Save(a.settings)
+			a.settingsDraft = a.settings
+			a.applyOpenAtLogin()
+			if a.tray != nil {
+				a.tray.SetMenu(a.trayMenu())
+			}
+		}},
+		mygo.Separator(),
+		{Label: "退出", Click: func(*mygo.MenuItem, *mygo.Window) { mygo.App.Quit() }},
 	})
 }
 
@@ -809,6 +837,11 @@ func (a *App) openSettings() {
 		e.PreventDefault()
 		a.settingsWin.Hide()
 	})
+	if icon := windowIconPNG(); icon != nil {
+		if err := a.settingsWin.SetIcon(icon); err != nil {
+			log.Printf("settings icon: %v", err)
+		}
+	}
 	a.settingsWin.Show()
 }
 

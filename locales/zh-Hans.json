@@ -1,0 +1,31 @@
+{
+  "@@locale": "zh-Hans",
+  "settingsLanguage": "界面语言",
+  "@settingsLanguage": {
+    "description": "General page: the language dropdown label."
+  },
+  "settingsLanguageSystem": "跟随系统",
+  "@settingsLanguageSystem": {
+    "description": "Language dropdown: follow the Windows display language."
+  },
+  "settingsLanguageHint": "更改语言后立即生效，无需重启。",
+  "@settingsLanguageHint": {
+    "description": "General page: hint under the language dropdown."
+  },
+  "settingsWindowTitle": "FluentLauncher 设置",
+  "@settingsWindowTitle": {
+    "description": "Settings window title and caption bar."
+  },
+  "workspaceResultTitle": "工作区结果",
+  "@workspaceResultTitle": {
+    "description": "Workspace result window title and caption bar."
+  },
+  "validateLanguage": "界面语言不受支持",
+  "@validateLanguage": {
+    "description": "Settings validation: bad Language value."
+  },
+  "settingsLanguageCard": "语言",
+  "@settingsLanguageCard": {
+    "description": "General page: card holding the language dropdown."
+  }
+}

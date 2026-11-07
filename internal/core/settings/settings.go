@@ -262,10 +262,22 @@ func (v *VolumeWheelOptions) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// Supported interface languages. "" follows the system's languages, and the
+// app shows the catalog language that suits them best.
+const (
+	LanguageSystem = ""
+	LanguageZhHans = "zh-Hans"
+	LanguageZhHant = "zh-Hant"
+	LanguageEn     = "en"
+)
+
 // LauncherSettings is settings.json. JSON names stay PascalCase so the C#
 // implementation and user-edited files keep working.
 type LauncherSettings struct {
-	Version            int             `json:"Version"`
+	Version int `json:"Version"`
+	// Language is a BCP 47 tag of the interface language, or "" to follow
+	// the system. It is applied with mygo.App.SetLocale.
+	Language           string          `json:"Language"`
 	Hotkey             string          `json:"Hotkey"`
 	ShowRecentEntries  bool            `json:"ShowRecentEntries"`
 	ShowRecentSearches bool            `json:"ShowRecentSearches"`
@@ -369,6 +381,11 @@ func (s *LauncherSettings) Normalize() {
 func (s LauncherSettings) Validate() error {
 	if s.Version != 1 {
 		return fmt.Errorf("配置版本不受支持")
+	}
+	switch s.Language {
+	case LanguageSystem, LanguageZhHans, LanguageZhHant, LanguageEn:
+	default:
+		return fmt.Errorf("界面语言不受支持")
 	}
 	switch s.Hotkey {
 	case "Alt+Space", "Ctrl+Alt+Space", "Ctrl+Space":

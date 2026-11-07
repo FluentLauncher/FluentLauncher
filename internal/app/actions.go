@@ -9,6 +9,7 @@ import (
 	"fluentlauncher/internal/core/search"
 	"fluentlauncher/internal/core/settings"
 	"fluentlauncher/internal/winapi/apps"
+	"fluentlauncher/locales"
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 )
@@ -168,7 +169,7 @@ func (a *App) showWorkspaceResult(name string, steps []settings.WorkspaceStep) {
 		a.workspaceWin.Close()
 	}
 	a.workspaceWin = mygo.NewWindow(mygo.WindowOptions{
-		Title:             "工作区结果",
+		Title:             locales.WorkspaceResultTitle(),
 		Width:             520,
 		Height:            420,
 		MinWidth:          420,
@@ -187,7 +188,7 @@ func (a *App) workspaceView(c *ui.Context) {
 	a.applyUITheme(&theme)
 	c.SetTheme(&theme)
 	a.drawShell(c, &theme, func() {
-		a.captionBar(c, &theme, "工作区结果", a.workspaceWin)
+		a.captionBar(c, &theme, locales.WorkspaceResultTitle(), a.workspaceWin)
 		ui.Column(c).Grow(1).FillWidth().Padding(16).Gap(10).Children(func() {
 			ui.Text(c, a.workspaceName).FontSize(18).Bold().TextColor(theme.Text)
 			for i := range a.workspaceSteps {

@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/egoist/mygo"
+	"github.com/egoist/mygo/i18n"
 	"github.com/egoist/mygo/ui"
 
 	"fluentlauncher/internal/core/model"
@@ -17,6 +18,7 @@ import (
 	"fluentlauncher/internal/plugin"
 	"fluentlauncher/internal/plugin/protocol"
 	"fluentlauncher/internal/store"
+	"fluentlauncher/locales"
 )
 
 var settingPages = []string{"常规", "外观", "文件", "音量", "站点搜索", "启动项", "插件", "其他"}
@@ -48,7 +50,7 @@ func (a *App) settingsView(c *ui.Context) {
 	a.settingsPage = min(max(a.settingsPage, 0), len(settingPages)-1)
 
 	a.drawShell(c, &theme, func() {
-		a.captionBar(c, &theme, "FluentLauncher 设置", a.settingsWin)
+		a.captionBar(c, &theme, locales.SettingsWindowTitle(), a.settingsWin)
 		ui.Row(c).Grow(1).FillWidth().Children(func() {
 			a.settingsSidebar(c, &theme)
 			ui.Column(c).Grow(1).FillHeight().Children(func() {
@@ -372,7 +374,38 @@ func choiceLabels[T any](choices []struct {
 	return labels
 }
 
+// languageChoices lists the interface languages, each named in itself.
+var languageChoices = []struct {
+	tag   string
+	label string
+}{
+	{settings.LanguageZhHans, i18n.Autonym(settings.LanguageZhHans)},
+	{settings.LanguageZhHant, i18n.Autonym(settings.LanguageZhHant)},
+	{settings.LanguageEn, i18n.Autonym(settings.LanguageEn)},
+}
+
 func (a *App) generalPage(c *ui.Context) {
+	settingCard(c, locales.SettingsLanguageCard(), func(c *ui.Context) {
+		labels := make([]string, 0, len(languageChoices)+1)
+		labels = append(labels, locales.SettingsLanguageSystem())
+		for _, choice := range languageChoices {
+			labels = append(labels, choice.label)
+		}
+		current := locales.SettingsLanguageSystem()
+		for i, choice := range languageChoices {
+			if choice.tag == a.settingsDraft.Language {
+				current = labels[i+1]
+			}
+		}
+		a.themedSelect(c, "language", locales.SettingsLanguage(), locales.SettingsLanguageHint(), labels, current, func(label string) {
+			a.settingsDraft.Language = settings.LanguageSystem
+			for i, choice := range languageChoices {
+				if labels[i+1] == label {
+					a.settingsDraft.Language = choice.tag
+				}
+			}
+		})
+	})
 	settingCard(c, "唤醒与启动", func(c *ui.Context) {
 		hotkeyHint := ""
 		if a.hotkeyActive != "" && a.hotkeyActive != a.settingsDraft.Hotkey {

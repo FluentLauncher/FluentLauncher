@@ -1,0 +1,10 @@
+{
+  "@@locale": "en",
+  "settingsLanguage": "Language",
+  "settingsLanguageSystem": "Follow system",
+  "settingsLanguageHint": "Takes effect immediately, no restart needed.",
+  "settingsWindowTitle": "FluentLauncher Settings",
+  "workspaceResultTitle": "Workspace Results",
+  "validateLanguage": "Unsupported interface language",
+  "settingsLanguageCard": "Language"
+}

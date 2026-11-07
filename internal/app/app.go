@@ -31,6 +31,7 @@ import (
 	"fluentlauncher/internal/winapi/volume"
 	"fluentlauncher/internal/winapi/wallpaper"
 	"fluentlauncher/internal/winapi/windowlist"
+	"fluentlauncher/locales"
 )
 
 type App struct {
@@ -153,10 +154,10 @@ func Run() error {
 	data := filepath.Join(os.Getenv("LOCALAPPDATA"), "FluentLauncher")
 	mygo.App.SetName("FluentLauncher")
 	mygo.App.SetVersion("0.1.0")
-	// The interface is written in Chinese: the language says which fonts the
-	// text system draws the Han characters with, and the date and number
-	// formats. Without it, some windows fall back to a serif font.
-	mygo.App.SetLocale("zh-CN")
+	// Follow the system's languages until the settings load and apply the
+	// user's choice; the language also picks the fonts the text system draws
+	// Han characters with, and the date and number formats.
+	mygo.App.SetLocale("")
 	mygo.App.SetPath(mygo.PathUserData, data)
 	mygo.App.SetPath(mygo.PathCache, filepath.Join(data, "cache"))
 	mygo.App.SetPath(mygo.PathLogs, filepath.Join(data, "logs"))
@@ -192,6 +193,20 @@ func (a *App) ready() {
 		a.settings = value
 	}
 	a.settingsDraft = a.settings
+	a.applyLanguage()
+	// Views rebuild themselves when the language changes; what the app set
+	// once — window titles and the tray menu — it sets again here.
+	mygo.App.OnLocaleChanged(func(string) {
+		if a.settingsWin != nil {
+			a.settingsWin.SetTitle(locales.SettingsWindowTitle())
+		}
+		if a.workspaceWin != nil {
+			a.workspaceWin.SetTitle(locales.WorkspaceResultTitle())
+		}
+		if a.tray != nil {
+			a.tray.SetMenu(a.trayMenu())
+		}
+	})
 
 	a.loadDatabase()
 	a.catalog = apps.NewCatalog(a.settings.Applications)
@@ -684,6 +699,12 @@ func (a *App) memLoop() {
 
 // profileMapFor is used by callers that need a stable copy.
 
+// applyLanguage shows the app in the settings' language; the empty tag
+// follows the system's languages again.
+func (a *App) applyLanguage() {
+	mygo.App.SetLocale(a.settings.Language)
+}
+
 // applySettings persists and applies the whole configuration.
 func (a *App) applySettings(value settings.LauncherSettings) error {
 	if err := value.Validate(); err != nil {
@@ -695,6 +716,7 @@ func (a *App) applySettings(value settings.LauncherSettings) error {
 	a.settings = value
 	a.settingsDraft = value
 	a.lastPreview = value.Theme
+	a.applyLanguage()
 	a.catalog.SetOptions(value.Applications)
 	if a.plugins != nil {
 		a.plugins.Configure(a.pluginRepo.Installed(), value.Plugins)
@@ -1076,7 +1098,7 @@ func (a *App) openSettings() {
 	// wider than tall: the pages read as a column of cards, and a window the
 	// height of the whole screen wasted the width.
 	a.settingsWin = mygo.NewWindow(mygo.WindowOptions{
-		Title:             "FluentLauncher 设置",
+		Title:             locales.SettingsWindowTitle(),
 		Width:             1180,
 		Height:            840,
 		MinWidth:          820,

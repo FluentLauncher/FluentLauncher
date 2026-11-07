@@ -1,0 +1,10 @@
+{
+  "@@locale": "zh-Hant",
+  "settingsLanguage": "介面語言",
+  "settingsLanguageSystem": "跟隨系統",
+  "settingsLanguageHint": "變更語言後立即生效，無需重新啟動。",
+  "settingsWindowTitle": "FluentLauncher 設定",
+  "workspaceResultTitle": "工作區結果",
+  "validateLanguage": "不支援的介面語言",
+  "settingsLanguageCard": "語言"
+}

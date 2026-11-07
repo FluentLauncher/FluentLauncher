@@ -4,7 +4,6 @@ package apps
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -15,6 +14,7 @@ import (
 
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/winapi/windowlist"
+	"fluentlauncher/locales"
 )
 
 var (
@@ -56,11 +56,11 @@ func Launch(ctx context.Context, entry model.Entry, action model.EntryAction) mo
 	}
 	switch entry.Kind {
 	case model.Plugin, model.Calculation, model.Command, model.Workspace:
-		return model.Outcome{Error: "此动作由对应来源处理。"}
+		return model.Outcome{Error: locales.LaunchActionHandledBySource()}
 	}
 	if action == model.OpenLocation {
 		if entry.LaunchTarget == "" || !filepath.IsAbs(entry.LaunchTarget) {
-			return model.Outcome{Error: "此条目没有本地位置。"}
+			return model.Outcome{Error: locales.LaunchNoLocalLocation()}
 		}
 		if info, err := os.Stat(entry.LaunchTarget); err == nil && info.IsDir() {
 			if err := mygo.Shell.OpenPath(entry.LaunchTarget); err != nil {
@@ -72,11 +72,11 @@ func Launch(ctx context.Context, entry model.Entry, action model.EntryAction) mo
 		return model.Outcome{Succeeded: true}
 	}
 	if action == model.CopyPath || action == model.CopyText || entry.Kind == model.Calculation {
-		return model.Outcome{Error: "此动作由对应来源处理。"}
+		return model.Outcome{Error: locales.LaunchActionHandledBySource()}
 	}
 	runAs := action == model.RunAsAdministrator || (action == model.Open && entry.RunElevated)
 	if runAs && entry.Kind != model.Application {
-		return model.Outcome{Error: "仅应用支持以管理员身份运行。"}
+		return model.Outcome{Error: locales.LaunchRunAsAppsOnly()}
 	}
 	if entry.Kind == model.URL {
 		if err := mygo.Shell.OpenExternal(entry.LaunchTarget); err != nil {
@@ -143,12 +143,12 @@ func shellExecute(file, arguments, directory string, runAs bool) model.Outcome {
 	r, _, callErr := procShellExecuteEx.Call(uintptr(unsafe.Pointer(&info)))
 	if r == 0 {
 		if errno, ok := callErr.(syscall.Errno); ok && errno == 1223 {
-			return model.Outcome{Canceled: true, Error: "用户取消了系统权限确认。"}
+			return model.Outcome{Canceled: true, Error: locales.LaunchUACCanceled()}
 		}
 		if callErr != nil && callErr != syscall.Errno(0) {
 			return model.Outcome{Error: callErr.Error()}
 		}
-		return model.Outcome{Error: fmt.Sprintf("ShellExecuteEx 失败：%v", windows.GetLastError())}
+		return model.Outcome{Error: locales.LaunchShellExecuteFailed(windows.GetLastError())}
 	}
 	if info.HProcess != 0 {
 		windows.CloseHandle(windows.Handle(info.HProcess))

@@ -21,6 +21,7 @@ import (
 
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/search"
+	"fluentlauncher/locales"
 )
 
 const (
@@ -111,7 +112,7 @@ func query(ctx context.Context, text string, limit int) ([]model.Result, error) 
 	everythingName, _ := windows.UTF16PtrFromString(everythingClass)
 	everything, _, _ := procFindWindowW.Call(uintptr(unsafe.Pointer(everythingName)), 0)
 	if everything == 0 {
-		return nil, errors.New("Everything 客户端未运行；仅启动服务不支持 IPC。请启动客户端或关闭此来源。")
+		return nil, errors.New(locales.EverythingClientNotRunning())
 	}
 	className := fmt.Sprintf("FluentLauncher.Everything.%d", time.Now().UnixNano())
 	classPtr, _ := windows.UTF16PtrFromString(className)
@@ -125,7 +126,7 @@ func query(ctx context.Context, text string, limit int) ([]model.Result, error) 
 		data := (*copyData)(lParam)
 		if data.Tag == everythingTag {
 			if data.Length < 28 || data.Length > maxReplyBytes || data.Data == nil {
-				state.err = errors.New("Everything 响应大小无效")
+				state.err = errors.New(locales.EverythingReplySizeInvalid())
 			} else {
 				payload := unsafe.Slice((*byte)(data.Data), int(data.Length))
 				state.results, state.err = parseResults(append([]byte(nil), payload...), limit)
@@ -174,7 +175,7 @@ func query(ctx context.Context, text string, limit int) ([]model.Result, error) 
 	r, _, _ := procSendMessageTimeoutW.Call(everything, wmCopyData, hwnd,
 		uintptr(unsafe.Pointer(&data)), 2, sendTimeout, uintptr(unsafe.Pointer(&accepted)))
 	if r == 0 || accepted == 0 {
-		return nil, errors.New("Everything 不接受查询，请检查客户端版本、权限和数据库状态")
+		return nil, errors.New(locales.EverythingQueryRejected())
 	}
 
 	for !state.done {
@@ -185,7 +186,7 @@ func query(ctx context.Context, text string, limit int) ([]model.Result, error) 
 		var m msg
 		got, _, _ := procGetMessageW.Call(uintptr(unsafe.Pointer(&m)), 0, 0, 0)
 		if int32(got) <= 0 {
-			return nil, errors.New("Everything IPC 消息循环退出")
+			return nil, errors.New(locales.EverythingMessageLoopExited())
 		}
 		procDispatchMessageW.Call(uintptr(unsafe.Pointer(&m)))
 	}
@@ -197,11 +198,11 @@ func query(ctx context.Context, text string, limit int) ([]model.Result, error) 
 
 func parseResults(payload []byte, limit int) ([]model.Result, error) {
 	if len(payload) < 28 {
-		return nil, errors.New("Everything 结果头不完整")
+		return nil, errors.New(locales.EverythingResultHeaderIncomplete())
 	}
 	count := int(int32(binary.LittleEndian.Uint32(payload[20:])))
 	if count < 0 || count > limit || 28+count*12 > len(payload) {
-		return nil, errors.New("Everything 结果计数无效")
+		return nil, errors.New(locales.EverythingResultCountInvalid())
 	}
 	results := make([]model.Result, 0, count)
 	for i := 0; i < count; i++ {
@@ -238,12 +239,12 @@ func parseResults(payload []byte, limit int) ([]model.Result, error) {
 
 func readText(data []byte, offset, minimum int) (string, error) {
 	if offset < minimum || offset%2 != 0 || offset >= len(data) {
-		return "", errors.New("Everything 字符串偏移无效")
+		return "", errors.New(locales.EverythingStringOffsetInvalid())
 	}
 	for end := offset; end+1 < len(data); end += 2 {
 		if data[end] == 0 && data[end+1] == 0 {
 			return windows.UTF16ToString(unsafe.Slice((*uint16)(unsafe.Pointer(&data[offset])), (end-offset)/2)), nil
 		}
 	}
-	return "", errors.New("Everything 字符串未终止")
+	return "", errors.New(locales.EverythingStringNotTerminated())
 }

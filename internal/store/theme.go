@@ -6,13 +6,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/locales"
 )
 
 const maxThemeImageBytes = 30 << 20
@@ -37,11 +37,11 @@ func (s *ThemeStore) Export(theme settings.ThemeSettings, destination string) er
 	if theme.Background == settings.BackgroundImage {
 		ext := strings.ToLower(filepath.Ext(theme.ImagePath))
 		if !themeImageExt[ext] {
-			return fmt.Errorf("主题图片格式不受支持")
+			return errors.New(locales.StoreThemeImageFormatUnsupported())
 		}
 		info, err := os.Stat(theme.ImagePath)
 		if err != nil || info.Size() > maxThemeImageBytes {
-			return fmt.Errorf("主题图片格式不受支持或超过 30 MiB")
+			return errors.New(locales.StoreThemeImageInvalidOrTooLarge())
 		}
 		packaged.ImagePath = "background" + ext
 	}
@@ -90,7 +90,7 @@ func (s *ThemeStore) Import(source string) (settings.ThemeSettings, error) {
 	}
 	defer archive.Close()
 	if len(archive.File) < 1 || len(archive.File) > 2 {
-		return settings.ThemeSettings{}, fmt.Errorf("主题包只能包含 theme.json 和一张静态图片")
+		return settings.ThemeSettings{}, errors.New(locales.StoreThemePackageEntries())
 	}
 	var theme settings.ThemeSettings
 	theme.ImagePath = ""
@@ -98,7 +98,7 @@ func (s *ThemeStore) Import(source string) (settings.ThemeSettings, error) {
 	for _, entry := range archive.File {
 		if entry.Name == "theme.json" {
 			if entry.UncompressedSize64 > 65536 {
-				return settings.ThemeSettings{}, fmt.Errorf("主题描述超过 64 KiB")
+				return settings.ThemeSettings{}, errors.New(locales.StoreThemeJSONTooLarge())
 			}
 			reader, err := entry.Open()
 			if err != nil {
@@ -115,7 +115,7 @@ func (s *ThemeStore) Import(source string) (settings.ThemeSettings, error) {
 	}
 	if theme.Background != settings.BackgroundImage {
 		if len(archive.File) != 1 {
-			return settings.ThemeSettings{}, fmt.Errorf("非图片主题不应包含其他文件")
+			return settings.ThemeSettings{}, errors.New(locales.StoreThemeNonImageExtraFiles())
 		}
 		if err := settings.ValidateTheme(theme); err != nil {
 			return settings.ThemeSettings{}, err
@@ -125,13 +125,13 @@ func (s *ThemeStore) Import(source string) (settings.ThemeSettings, error) {
 	name := theme.ImagePath
 	if name == "" || filepath.Base(name) != name || strings.ContainsAny(name, `/\`) ||
 		!themeImageExt[strings.ToLower(filepath.Ext(name))] {
-		return settings.ThemeSettings{}, fmt.Errorf("主题图片须为包内的单个图片文件名")
+		return settings.ThemeSettings{}, errors.New(locales.StoreThemeImageNameInvalid())
 	}
 	if imageEntry == nil || imageEntry.Name != name {
-		return settings.ThemeSettings{}, fmt.Errorf("主题图片不存在")
+		return settings.ThemeSettings{}, errors.New(locales.StoreThemeImageMissing())
 	}
 	if imageEntry.UncompressedSize64 > maxThemeImageBytes {
-		return settings.ThemeSettings{}, fmt.Errorf("主题图片超过 30 MiB")
+		return settings.ThemeSettings{}, errors.New(locales.StoreThemeImageTooLarge())
 	}
 	directory := filepath.Join(s.dir, randomName())
 	destination := filepath.Join(directory, "background"+strings.ToLower(filepath.Ext(name)))
@@ -164,7 +164,7 @@ func (s *ThemeStore) Import(source string) (settings.ThemeSettings, error) {
 	}
 	if written > maxThemeImageBytes {
 		os.RemoveAll(directory)
-		return settings.ThemeSettings{}, fmt.Errorf("主题图片超过 30 MiB")
+		return settings.ThemeSettings{}, errors.New(locales.StoreThemeImageTooLarge())
 	}
 	return theme, nil
 }

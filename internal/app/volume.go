@@ -10,6 +10,7 @@ import (
 
 	"fluentlauncher/internal/winapi/glass"
 	"fluentlauncher/internal/winapi/volume"
+	"fluentlauncher/locales"
 )
 
 // The volume overlay is a small pill near the bottom of the screen: a
@@ -77,7 +78,7 @@ func (a *App) applyVolumeSettings() {
 	})
 	if err != nil {
 		log.Printf("volume hook: %v", err)
-		a.notice = "无法启用边缘滚轮调音量：" + err.Error()
+		a.notice = locales.VolumeWheelError(err.Error())
 		return
 	}
 	a.volume = controller

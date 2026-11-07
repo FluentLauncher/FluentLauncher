@@ -1,12 +1,13 @@
 package app
 
 import (
-	"fmt"
 	"math"
+	"strconv"
 
 	"github.com/egoist/mygo/ui"
 
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/locales"
 )
 
 // The size of the preview canvas, in DIPs, and the parts of the miniature
@@ -55,10 +56,10 @@ func (a *App) panelSizePreview(c *ui.Context) {
 
 	ui.Column(c).Gap(8).Children(func() {
 		ui.Row(c).Gap(12).AlignItems(ui.Center).Children(func() {
-			ui.Text(c, "拖动面板移动位置，拖边缘调整大小").FontSize(11).TextColor(theme.TextMuted).Grow(1)
-			ui.Text(c, fmt.Sprintf("%d × %d", a.settingsDraft.Width, a.settingsDraft.Height)).
+			ui.Text(c, locales.SizePreviewHint()).FontSize(11).TextColor(theme.TextMuted).Grow(1)
+			ui.Text(c, locales.SizePreviewDimensions(strconv.Itoa(a.settingsDraft.Width), strconv.Itoa(a.settingsDraft.Height))).
 				FontSize(12).TextColor(theme.Text)
-			if ui.Button(c, "恢复默认").Clicked() {
+			if ui.Button(c, locales.SizePreviewReset()).Clicked() {
 				defaults := settings.Default()
 				a.settingsDraft.Width = defaults.Width
 				a.settingsDraft.Height = defaults.Height
@@ -70,7 +71,7 @@ func (a *App) panelSizePreview(c *ui.Context) {
 
 		preview := ui.Box(c).Width(previewWidth).Height(previewHeight).Radius(10).
 			Border(1, theme.Border).Background(theme.Surface.Alpha(0.35)).
-			Focusable().Label("窗口尺寸与位置预览")
+			Focusable().Label(locales.SizePreviewLabel())
 		preview.Draw(func(p *ui.Painter, r ui.Rect) {
 			// Painter coordinates are the window's: r is the canvas box.
 			desk := ui.Rect{X: r.X + deskX, Y: r.Y + deskY, W: deskWidth, H: deskHeight}

@@ -13,6 +13,7 @@ import (
 
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/locales"
 )
 
 // FileIndex scans the configured directories, writes only differences to
@@ -95,7 +96,7 @@ func (f *FileIndex) Configure(ctx context.Context, options settings.FileIndexOpt
 func (f *FileIndex) watch(ctx context.Context, root string) {
 	watcher, err := mygo.WatchFiles(ctx, root, mygo.FileWatchOptions{Recursive: true, HintsOnly: true})
 	if err != nil {
-		f.setWarning("文件索引监听失败 " + root + "：" + err.Error())
+		f.setWarning(locales.StoreFileIndexWatchFailed(root, err))
 		return
 	}
 	defer watcher.Close()
@@ -115,7 +116,7 @@ func (f *FileIndex) schedule() {
 	}
 	f.timer = time.AfterFunc(750*time.Millisecond, func() {
 		if err := f.Rebuild(context.Background()); err != nil {
-			f.setWarning("文件索引更新失败：" + err.Error())
+			f.setWarning(locales.StoreFileIndexUpdateFailed(err))
 		}
 	})
 	f.mu.Unlock()

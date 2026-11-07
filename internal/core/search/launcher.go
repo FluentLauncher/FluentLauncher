@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"fluentlauncher/internal/core/model"
+	"fluentlauncher/locales"
 )
 
 const SettingsID = "launcher:settings"
@@ -28,7 +29,7 @@ func (LauncherCommands) Search(ctx context.Context, q Query, limit int) ([]model
 		if strings.HasPrefix(strings.ToLower(keyword), strings.ToLower(text)) {
 			return []model.Result{{Entry: model.Entry{
 				ID:       SettingsID,
-				Title:    "设置",
+				Title:    locales.ResultSettings(),
 				Subtitle: "FluentLauncher",
 				Kind:     model.Command,
 				SourceID: "launcher",

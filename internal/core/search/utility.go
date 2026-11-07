@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"fluentlauncher/internal/core/model"
+	"fluentlauncher/locales"
 )
 
 // UtilityProvider supplies URL/path opening and the calculator.
@@ -31,7 +32,7 @@ func (p UtilityProvider) Search(ctx context.Context, q Query, limit int) ([]mode
 		target := strings.ReplaceAll(cfg.WebSearchTemplate, "{query}", escapeQuery(q.Text))
 		return []model.Result{{Entry: model.Entry{
 			ID:           "web:" + q.Text,
-			Title:        "搜索网页：" + q.Text,
+			Title:        locales.ResultSearchWeb(q.Text),
 			Subtitle:     target,
 			LaunchTarget: target,
 			Kind:         model.URL,
@@ -43,7 +44,7 @@ func (p UtilityProvider) Search(ctx context.Context, q Query, limit int) ([]mode
 		return []model.Result{{Entry: model.Entry{
 			ID:           "url:" + u.String(),
 			Title:        q.Text,
-			Subtitle:     "打开网址",
+			Subtitle:     locales.ResultOpenUrl(),
 			LaunchTarget: u.String(),
 			Kind:         model.URL,
 			SourceID:     "utilities",
@@ -53,7 +54,7 @@ func (p UtilityProvider) Search(ctx context.Context, q Query, limit int) ([]mode
 		return []model.Result{{Entry: model.Entry{
 			ID:           "path:" + q.Text,
 			Title:        q.Text,
-			Subtitle:     "打开本地路径",
+			Subtitle:     locales.ResultOpenLocalPath(),
 			LaunchTarget: q.Text,
 			Kind:         model.File,
 			SourceID:     "utilities",
@@ -65,7 +66,7 @@ func (p UtilityProvider) Search(ctx context.Context, q Query, limit int) ([]mode
 			return []model.Result{{Entry: model.Entry{
 				ID:       "calc:" + q.Text,
 				Title:    formatted,
-				Subtitle: q.Text + " · Enter 复制结果",
+				Subtitle: locales.ResultCalcHint(q.Text),
 				Kind:     model.Calculation,
 				CopyText: formatted,
 				SourceID: "utilities",

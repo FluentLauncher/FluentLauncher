@@ -91,5 +91,2729 @@
   "commonBrowse": "浏览…",
   "@commonBrowse": {
     "description": "Shared: browse files button."
+  },
+  "appCannotReadSettings": "无法读取设置，使用默认配置：{err}",
+  "@appCannotReadSettings": {
+    "description": "Startup notice: the settings file could not be read; the defaults are used.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "appCannotOpenDatabase": "无法打开数据库：{err}",
+  "@appCannotOpenDatabase": {
+    "description": "Startup notice: the launcher database could not be opened.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "appCannotReadProfiles": "无法读取个人规则：{err}",
+  "@appCannotReadProfiles": {
+    "description": "Startup notice: the personal usage profiles could not be read from the database.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "appCannotReadFileIndex": "无法读取文件索引：{err}",
+  "@appCannotReadFileIndex": {
+    "description": "Startup notice: the cached file index could not be read.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "appDiscoveryFailed": "应用发现失败：{err}",
+  "@appDiscoveryFailed": {
+    "description": "Notice: discovering the installed applications failed.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "appDiscoveredApps": "已发现 {count} 个应用",
+  "@appDiscoveredApps": {
+    "description": "Status bar: how many applications discovery found.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "appNoPathToCopy": "此条目没有可复制的路径",
+  "@appNoPathToCopy": {
+    "description": "Notice: the chosen entry has no path for the copy-path action."
+  },
+  "appNoPluginAction": "该插件条目没有可执行动作",
+  "@appNoPluginAction": {
+    "description": "Notice: the plugin entry offers no action to run."
+  },
+  "appCanceled": "已取消",
+  "@appCanceled": {
+    "description": "Notice: the user canceled the launch."
+  },
+  "appCannotOpenEntry": "无法打开“{title}”：{err}",
+  "@appCannotOpenEntry": {
+    "description": "Notice: opening the chosen entry failed.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "err": {
+        "type": "String"
+      }
+    }
+  },
+  "trayShowSearch": "显示搜索",
+  "@trayShowSearch": {
+    "description": "Tray menu: show the search panel."
+  },
+  "traySettings": "设置",
+  "@traySettings": {
+    "description": "Tray menu: open the settings window."
+  },
+  "trayRunAtLoginOn": "开机启动：开",
+  "@trayRunAtLoginOn": {
+    "description": "Tray menu: launching at login is currently on."
+  },
+  "trayRunAtLoginOff": "开机启动：关",
+  "@trayRunAtLoginOff": {
+    "description": "Tray menu: launching at login is currently off."
+  },
+  "trayQuit": "退出",
+  "@trayQuit": {
+    "description": "Tray menu: quit the launcher."
+  },
+  "hotkeyOccupiedFallback": "热键 {hotkey} 被其他程序占用，已改用 {fallback}。",
+  "@hotkeyOccupiedFallback": {
+    "description": "Notice: the configured hotkey is taken by another program; a fallback was registered instead.",
+    "placeholders": {
+      "hotkey": {
+        "type": "String"
+      },
+      "fallback": {
+        "type": "String"
+      }
+    }
+  },
+  "hotkeyAllOccupied": "全局热键全部被占用，请在设置中更换。",
+  "@hotkeyAllOccupied": {
+    "description": "Notice: every candidate global hotkey is taken; the user should pick another one."
+  },
+  "statusShowingResults": "当前显示 {count} 条",
+  "@statusShowingResults": {
+    "description": "Status bar: how many results the current search shows.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "panelSearchPlaceholder": "搜索应用、文件、命令",
+  "@panelSearchPlaceholder": {
+    "description": "Main launcher panel: placeholder of the search box"
+  },
+  "panelSearchLabel": "搜索",
+  "@panelSearchLabel": {
+    "description": "Main launcher panel: accessible label of the search box"
+  },
+  "panelGripLabel": "拖动窗口",
+  "@panelGripLabel": {
+    "description": "Main launcher panel: label and tooltip of the grip that drags the window"
+  },
+  "panelEmptySearch": "输入以搜索",
+  "@panelEmptySearch": {
+    "description": "Main launcher panel: empty state when a non-empty query returned no results"
+  },
+  "panelEmptyQuery": "输入以搜索应用、文件或命令",
+  "@panelEmptyQuery": {
+    "description": "Main launcher panel: empty state when the query is empty"
+  },
+  "panelLoading": "正在读取应用…",
+  "@panelLoading": {
+    "description": "Main launcher panel: empty state while apps are still being read"
+  },
+  "panelWorkspaceBadge": "工作区",
+  "@panelWorkspaceBadge": {
+    "description": "Main launcher panel: badge on result rows that are workspaces"
+  },
+  "panelComposing": "组合 {value}",
+  "@panelComposing": {
+    "description": "Main launcher panel footer: whether the input method is composing",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "panelHint": "↑↓ 选择 · ↵ 打开 · Ctrl+K 动作 · Esc 清空/隐藏",
+  "@panelHint": {
+    "description": "Main launcher panel footer: shortcut hint"
+  },
+  "panelHintHotkey": "{hotkey} 呼出 · ↑↓ 选择 · ↵ 打开 · Ctrl+K 动作 · Esc 清空/隐藏",
+  "@panelHintHotkey": {
+    "description": "Main launcher panel footer: shortcut hint prefixed by the active call hotkey",
+    "placeholders": {
+      "hotkey": {
+        "type": "String"
+      }
+    }
+  },
+  "panelActionsHint": "↑↓ 选择 · ↵ 执行 · Esc 返回",
+  "@panelActionsHint": {
+    "description": "Actions panel: footer shortcut hint"
+  },
+  "panelPluginActionFailed": "插件动作失败：{err}",
+  "@panelPluginActionFailed": {
+    "description": "Main launcher panel: notice when a plugin action fails",
+    "placeholders": {
+      "err": {
+        "type": "String"
+      }
+    }
+  },
+  "panelPluginRuntimeDisabled": "插件运行时未启用",
+  "@panelPluginRuntimeDisabled": {
+    "description": "Main launcher panel: notice when the plugin runtime is not enabled"
+  },
+  "panelPluginActionDone": "已执行：{title}",
+  "@panelPluginActionDone": {
+    "description": "Main launcher panel footer: status after a plugin action executed",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "panelPluginActionUnsupported": "不支持的插件动作。",
+  "@panelPluginActionUnsupported": {
+    "description": "Main launcher panel: notice for an unknown plugin action kind"
+  },
+  "promptPreviewTitle": "文本预览（只读）",
+  "@promptPreviewTitle": {
+    "description": "Prompt dialog: title of the read-only text preview"
+  },
+  "promptAliasTitle": "设置别名（用分号分隔多个）",
+  "@promptAliasTitle": {
+    "description": "Prompt dialog: title of the alias editor"
+  },
+  "workspaceRunFailed": "工作区 {name}：{count} 个项目失败{details}",
+  "@workspaceRunFailed": {
+    "description": "Main launcher panel: notice when some workspace steps failed; details are newline-prefixed lines",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "workspaceStepFailed": "{name}：{error}",
+  "@workspaceStepFailed": {
+    "description": "Main launcher panel: one detail line of a failed workspace step",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "workspaceDeleted": "工作区已删除，请重新查询。",
+  "@workspaceDeleted": {
+    "description": "Main launcher panel: notice when the chosen workspace no longer exists"
+  },
+  "workspaceRetryStatus": "已重试：{name}",
+  "@workspaceRetryStatus": {
+    "description": "Workspace result window: footer status after a successful retry",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "workspaceRetryFailed": "重试失败：{error}",
+  "@workspaceRetryFailed": {
+    "description": "Workspace result window: notice when a retry fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "workspaceItemDeleted": "该启动项已删除。",
+  "@workspaceItemDeleted": {
+    "description": "Workspace result window: notice when the launch item to retry no longer exists"
+  },
+  "volumeWheelError": "无法启用边缘滚轮调音量：{err}",
+  "@volumeWheelError": {
+    "description": "Main launcher panel: notice when the edge wheel for volume cannot start",
+    "placeholders": {
+      "err": {
+        "type": "String"
+      }
+    }
+  },
+  "sizePreviewHint": "拖动面板移动位置，拖边缘调整大小",
+  "@sizePreviewHint": {
+    "description": "Settings, appearance page: hint above the panel size preview"
+  },
+  "sizePreviewReset": "恢复默认",
+  "@sizePreviewReset": {
+    "description": "Settings, appearance page: button restoring the panel size and position defaults"
+  },
+  "sizePreviewLabel": "窗口尺寸与位置预览",
+  "@sizePreviewLabel": {
+    "description": "Settings, appearance page: accessible label of the panel size preview canvas"
+  },
+  "sizePreviewDimensions": "{width} × {height}",
+  "@sizePreviewDimensions": {
+    "description": "Settings, appearance page: the draft panel size in DIPs next to the preview",
+    "placeholders": {
+      "width": {
+        "type": "String"
+      },
+      "height": {
+        "type": "String"
+      }
+    }
+  },
+  "cmdRunAsAdministrator": "以管理员身份运行",
+  "@cmdRunAsAdministrator": {
+    "description": "Context menu command: run an application elevated."
+  },
+  "cmdOpenFileLocation": "打开文件位置",
+  "@cmdOpenFileLocation": {
+    "description": "Context menu command: open the folder containing the file."
+  },
+  "cmdOpenInExplorer": "在资源管理器中打开",
+  "@cmdOpenInExplorer": {
+    "description": "Context menu command for directories: open in Explorer."
+  },
+  "cmdCopyPath": "复制路径",
+  "@cmdCopyPath": {
+    "description": "Context menu command: copy the local path of the entry."
+  },
+  "cmdCopyUrl": "复制网址",
+  "@cmdCopyUrl": {
+    "description": "Context menu command: copy the URL of a web entry."
+  },
+  "cmdViewTextPreview": "查看文本预览",
+  "@cmdViewTextPreview": {
+    "description": "Context menu command: preview a plugin entry's text."
+  },
+  "cmdSetAlias": "设置别名",
+  "@cmdSetAlias": {
+    "description": "Context menu command: set an alias for the entry."
+  },
+  "cmdPin": "固定到前面",
+  "@cmdPin": {
+    "description": "Context menu command: pin the entry to the front."
+  },
+  "cmdUnpin": "取消固定",
+  "@cmdUnpin": {
+    "description": "Context menu command: remove the entry's pin."
+  },
+  "cmdHide": "不再显示此条目",
+  "@cmdHide": {
+    "description": "Context menu command: hide the entry from results."
+  },
+  "cmdRestoreHidden": "恢复隐藏的条目",
+  "@cmdRestoreHidden": {
+    "description": "Context menu command: restore all hidden entries."
+  },
+  "cmdOpenInBrowser": "在浏览器中打开",
+  "@cmdOpenInBrowser": {
+    "description": "Open command for URL entries."
+  },
+  "cmdOpenFolder": "打开文件夹",
+  "@cmdOpenFolder": {
+    "description": "Open command for directory entries."
+  },
+  "cmdCopyCalcResult": "复制计算结果",
+  "@cmdCopyCalcResult": {
+    "description": "Open command for calculation entries: copies the result."
+  },
+  "cmdSwitchToWindow": "切换到此窗口",
+  "@cmdSwitchToWindow": {
+    "description": "Open command for window entries."
+  },
+  "cmdOpenWorkspace": "依次打开工作区",
+  "@cmdOpenWorkspace": {
+    "description": "Open command for workspace entries."
+  },
+  "cmdOpenAsAdministrator": "以管理员身份打开",
+  "@cmdOpenAsAdministrator": {
+    "description": "Open command for entries that always run elevated."
+  },
+  "resultSettings": "设置",
+  "@resultSettings": {
+    "description": "Built-in launcher result title that opens the settings window."
+  },
+  "resultCategoryWindowsSettings": "Windows 设置",
+  "@resultCategoryWindowsSettings": {
+    "description": "Result subtitle category: ms-settings pages."
+  },
+  "resultCategoryWindowsTools": "Windows 工具",
+  "@resultCategoryWindowsTools": {
+    "description": "Result subtitle category: ms-* and shell: tools."
+  },
+  "resultCategorySystemFeatures": "系统功能",
+  "@resultCategorySystemFeatures": {
+    "description": "Result subtitle category: other system URIs."
+  },
+  "resultCategoryControlPanel": "控制面板",
+  "@resultCategoryControlPanel": {
+    "description": "Result subtitle category: Control Panel items."
+  },
+  "resultCategoryAdminTools": "管理工具",
+  "@resultCategoryAdminTools": {
+    "description": "Result subtitle category: .msc administrative tools."
+  },
+  "resultCategorySystemTools": "系统工具",
+  "@resultCategorySystemTools": {
+    "description": "Result subtitle category: other system tool executables."
+  },
+  "resultSearchWeb": "搜索网页：{text}",
+  "@resultSearchWeb": {
+    "description": "Result title for a web search with the query text.",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "resultOpenUrl": "打开网址",
+  "@resultOpenUrl": {
+    "description": "Result subtitle: the row opens a typed URL."
+  },
+  "resultOpenLocalPath": "打开本地路径",
+  "@resultOpenLocalPath": {
+    "description": "Result subtitle: the row opens a typed local path."
+  },
+  "resultCalcHint": "{text} · Enter 复制结果",
+  "@resultCalcHint": {
+    "description": "Calculation result subtitle: the expression and the Enter hint.",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "resultWorkspaceSubtitle": "工作区 · 依次打开 {count} 个项目",
+  "@resultWorkspaceSubtitle": {
+    "description": "Workspace result subtitle with the number of items it opens.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "resultWorkspaceItemDeleted": "启动项已删除，请编辑此工作区。",
+  "@resultWorkspaceItemDeleted": {
+    "description": "Workspace step error: the launch item no longer exists."
+  },
+  "resultWorkspaceItemDisabled": "启动项已停用。",
+  "@resultWorkspaceItemDisabled": {
+    "description": "Workspace step error: the launch item is disabled."
+  },
+  "resultWorkspaceCanceled": "已取消。",
+  "@resultWorkspaceCanceled": {
+    "description": "Workspace step error: the launch was canceled."
+  },
+  "resultWorkspaceLaunchFailed": "启动失败。",
+  "@resultWorkspaceLaunchFailed": {
+    "description": "Workspace step error: the launch failed without details."
+  },
+  "validateVersion": "配置版本不受支持",
+  "@validateVersion": {
+    "description": "Settings validation: unsupported settings file version."
+  },
+  "validateHotkey": "请选择受支持的热键",
+  "@validateHotkey": {
+    "description": "Settings validation: unsupported hotkey."
+  },
+  "validateWindowBounds": "窗口宽度须为 480–1600，高度 320–1200，结果数 5–200",
+  "@validateWindowBounds": {
+    "description": "Settings validation: window size or result count out of range."
+  },
+  "validateAnchor": "弹出位置须在 0–1 之间",
+  "@validateAnchor": {
+    "description": "Settings validation: panel anchor position out of range."
+  },
+  "validatePlacement": "窗口定位模式无效",
+  "@validatePlacement": {
+    "description": "Settings validation: invalid window placement mode."
+  },
+  "validateVolumeEdges": "屏幕边缘调音量须至少选择一条有效边缘",
+  "@validateVolumeEdges": {
+    "description": "Settings validation: the volume wheel needs at least one edge."
+  },
+  "validateVolumeWheelSize": "音量触发带厚度须为 1–32，步长须为 1–10",
+  "@validateVolumeWheelSize": {
+    "description": "Settings validation: volume wheel thickness or step out of range."
+  },
+  "validateCustomItemsLimit": "自定义启动项不能超过 200 条",
+  "@validateCustomItemsLimit": {
+    "description": "Settings validation: too many custom launch items."
+  },
+  "validateSitesLimit": "站点搜索不能超过 50 条",
+  "@validateSitesLimit": {
+    "description": "Settings validation: too many web search sites."
+  },
+  "validateWorkspacesLimit": "工作区不能超过 50 个",
+  "@validateWorkspacesLimit": {
+    "description": "Settings validation: too many workspaces."
+  },
+  "validateWorkspaceIDDuplicate": "工作区标识重复",
+  "@validateWorkspaceIDDuplicate": {
+    "description": "Settings validation: two workspaces share an ID."
+  },
+  "validateCustomItemIDDuplicate": "自定义启动项标识重复",
+  "@validateCustomItemIDDuplicate": {
+    "description": "Settings validation: two custom items share an ID."
+  },
+  "validateFileIndexLimit": "文件索引上限须为 1,000–500,000",
+  "@validateFileIndexLimit": {
+    "description": "Settings validation: file index entry limit out of range."
+  },
+  "validatePluginOptions": "插件超时、结果数、空闲回收或进程数量超出允许范围",
+  "@validatePluginOptions": {
+    "description": "Settings validation: plugin timeout, results, idle or process count out of range."
+  },
+  "validateWebTemplate": "网页搜索模板须为包含 '{query}' 的 HTTP/HTTPS 地址",
+  "@validateWebTemplate": {
+    "description": "Settings validation: the web search template is not a valid HTTP/HTTPS URL with {query}."
+  },
+  "validateThemeMode": "主题模式无效",
+  "@validateThemeMode": {
+    "description": "Settings validation: invalid theme mode or background mode."
+  },
+  "validateThemeSizes": "主题尺寸、着色强度或模糊参数超出允许范围",
+  "@validateThemeSizes": {
+    "description": "Settings validation: theme size, shading or blur value out of range."
+  },
+  "validateFontFamily": "字体名称无效",
+  "@validateFontFamily": {
+    "description": "Settings validation: empty or too long font name."
+  },
+  "validateColor": "颜色须为 #RRGGBB 或 #AARRGGBB，留空表示跟随系统",
+  "@validateColor": {
+    "description": "Settings validation: a theme color is not #RRGGBB or #AARRGGBB."
+  },
+  "validateImagePath": "图片背景须指定本地绝对路径",
+  "@validateImagePath": {
+    "description": "Settings validation: image background lacks a local absolute path."
+  },
+  "validateDirectoryListLimit": "目录列表不能超过 100 项",
+  "@validateDirectoryListLimit": {
+    "description": "Settings validation: a directory list has more than 100 entries."
+  },
+  "validateDirectoryPath": "后台索引仅支持本地绝对目录路径，不递归扫描网络共享",
+  "@validateDirectoryPath": {
+    "description": "Settings validation: an indexed directory is not a local absolute path."
+  },
+  "validateScreenEdge": "无效的屏幕边缘：{edge}",
+  "@validateScreenEdge": {
+    "description": "Settings parsing: an unrecognized screen edge name.",
+    "placeholders": {
+      "edge": {
+        "type": "String"
+      }
+    }
+  },
+  "validateScreenEdgesType": "屏幕边缘须为字符串或数字",
+  "@validateScreenEdgesType": {
+    "description": "Settings parsing: screen edges are neither a string nor a number."
+  },
+  "validateItemID": "启动项标识无效",
+  "@validateItemID": {
+    "description": "Custom item validation: invalid ID."
+  },
+  "validateItemName": "启动项名称不能为空，且不超过 100 个字符",
+  "@validateItemName": {
+    "description": "Custom item validation: empty or too long name."
+  },
+  "validateItemAliases": "启动项别名不能超过 500 个字符",
+  "@validateItemAliases": {
+    "description": "Custom item validation: aliases too long."
+  },
+  "validateItemArguments": "启动项参数不能超过 2000 个字符",
+  "@validateItemArguments": {
+    "description": "Custom item validation: arguments too long."
+  },
+  "validateWorkingDirectory": "工作目录须为本地绝对路径，留空表示由系统决定",
+  "@validateWorkingDirectory": {
+    "description": "Custom item validation: working directory is not a local absolute path."
+  },
+  "validateItemTarget": "启动目标不能为空",
+  "@validateItemTarget": {
+    "description": "Custom item validation: empty launch target."
+  },
+  "validateWebItemOptions": "网址启动项不支持参数、工作目录或管理员运行",
+  "@validateWebItemOptions": {
+    "description": "Custom item validation: URL items reject arguments, working directory or elevation."
+  },
+  "validateItemTargetPath": "启动目标须为本地绝对路径或 HTTP/HTTPS 网址",
+  "@validateItemTargetPath": {
+    "description": "Custom item validation: target is neither a local path nor an HTTP/HTTPS URL."
+  },
+  "validateSiteKeyword": "站点关键词须为 1–32 个字符，不能包含空格或以 > 开头",
+  "@validateSiteKeyword": {
+    "description": "Site validation: keyword length or shape is invalid."
+  },
+  "validateSiteKeywordReserved": "站点关键词“{keyword}”与内置查询前缀冲突，请改用其他关键词",
+  "@validateSiteKeywordReserved": {
+    "description": "Site validation: keyword collides with a built-in query prefix.",
+    "placeholders": {
+      "keyword": {
+        "type": "String"
+      }
+    }
+  },
+  "validateSiteName": "站点名称不能为空，且不超过 100 个字符",
+  "@validateSiteName": {
+    "description": "Site validation: empty or too long name."
+  },
+  "validateSiteUrl": "站点地址须为包含 '{query}' 的 HTTP/HTTPS 地址",
+  "@validateSiteUrl": {
+    "description": "Site validation: URL template is not a valid HTTP/HTTPS URL with {query}."
+  },
+  "validateSiteKeywordDuplicate": "站点关键词“{keyword}”重复，只有第一条会生效。",
+  "@validateSiteKeywordDuplicate": {
+    "description": "Site conflict warning: duplicated keyword, only the first takes effect.",
+    "placeholders": {
+      "keyword": {
+        "type": "String"
+      }
+    }
+  },
+  "validateSiteKeywordPluginClash": "站点关键词“{keyword}”与已启用插件的触发词相同，两者的结果会同时出现。",
+  "@validateSiteKeywordPluginClash": {
+    "description": "Site conflict warning: keyword matches an enabled plugin trigger word.",
+    "placeholders": {
+      "keyword": {
+        "type": "String"
+      }
+    }
+  },
+  "validateWorkspaceID": "工作区标识无效",
+  "@validateWorkspaceID": {
+    "description": "Workspace validation: invalid ID."
+  },
+  "validateWorkspaceName": "工作区名称不能为空，且不超过 100 个字符",
+  "@validateWorkspaceName": {
+    "description": "Workspace validation: empty or too long name."
+  },
+  "validateWorkspaceAliases": "工作区别名不能超过 500 个字符",
+  "@validateWorkspaceAliases": {
+    "description": "Workspace validation: aliases too long."
+  },
+  "validateWorkspaceItems": "工作区须包含 1–50 个启动项",
+  "@validateWorkspaceItems": {
+    "description": "Workspace validation: item count out of range."
+  },
+  "validateWorkspaceItemIDs": "工作区的启动项不能为空或重复",
+  "@validateWorkspaceItemIDs": {
+    "description": "Workspace validation: an item ID is empty or duplicated."
+  },
+  "sysAboutYourPC": "关于此电脑",
+  "@sysAboutYourPC": {
+    "description": "System settings catalog: title of the About your PC entry."
+  },
+  "sysSystemProperties": "系统属性",
+  "@sysSystemProperties": {
+    "description": "System settings catalog: title of the System Properties entry."
+  },
+  "sysSystemInformation": "系统信息",
+  "@sysSystemInformation": {
+    "description": "System settings catalog: title of the System Information entry."
+  },
+  "sysNotificationsAndActions": "通知和操作",
+  "@sysNotificationsAndActions": {
+    "description": "System settings catalog: title of the Notifications entry."
+  },
+  "sysDisplay": "显示设置",
+  "@sysDisplay": {
+    "description": "System settings catalog: title of the Display settings entry."
+  },
+  "sysAdvancedDisplay": "高级显示",
+  "@sysAdvancedDisplay": {
+    "description": "System settings catalog: title of the Advanced display entry."
+  },
+  "sysNightLight": "夜间模式",
+  "@sysNightLight": {
+    "description": "System settings catalog: title of the Night light entry."
+  },
+  "sysGraphicsSettings": "图形设置",
+  "@sysGraphicsSettings": {
+    "description": "System settings catalog: title of the Graphics settings entry."
+  },
+  "sysColorFilters": "颜色筛选",
+  "@sysColorFilters": {
+    "description": "System settings catalog: title of the Color filters entry."
+  },
+  "sysSound": "声音设置",
+  "@sysSound": {
+    "description": "System settings catalog: title of the Sound settings entry."
+  },
+  "sysOutputDevices": "输出设备",
+  "@sysOutputDevices": {
+    "description": "System settings catalog: title of the Output devices entry."
+  },
+  "sysAppVolume": "应用音量",
+  "@sysAppVolume": {
+    "description": "System settings catalog: title of the App volume entry."
+  },
+  "sysSoundControlPanel": "声音控制面板",
+  "@sysSoundControlPanel": {
+    "description": "System settings catalog: title of the Sound Control Panel entry."
+  },
+  "sysSpeech": "语音",
+  "@sysSpeech": {
+    "description": "System settings catalog: title of the Speech entry."
+  },
+  "sysNetworkStatus": "网络状态",
+  "@sysNetworkStatus": {
+    "description": "System settings catalog: title of the Network status entry."
+  },
+  "sysWiFi": "Wi-Fi",
+  "@sysWiFi": {
+    "description": "System settings catalog: title of the Wi-Fi entry."
+  },
+  "sysEthernet": "以太网",
+  "@sysEthernet": {
+    "description": "System settings catalog: title of the Ethernet entry."
+  },
+  "sysNetworkConnections": "网络连接",
+  "@sysNetworkConnections": {
+    "description": "System settings catalog: title of the Network Connections entry."
+  },
+  "sysVPN": "VPN",
+  "@sysVPN": {
+    "description": "System settings catalog: title of the VPN entry."
+  },
+  "sysProxy": "代理",
+  "@sysProxy": {
+    "description": "System settings catalog: title of the Proxy entry."
+  },
+  "sysBluetooth": "蓝牙",
+  "@sysBluetooth": {
+    "description": "System settings catalog: title of the Bluetooth entry."
+  },
+  "sysConnectedDevices": "已连接设备",
+  "@sysConnectedDevices": {
+    "description": "System settings catalog: title of the Connected devices entry."
+  },
+  "sysUSBSettings": "USB 设置",
+  "@sysUSBSettings": {
+    "description": "System settings catalog: title of the USB settings entry."
+  },
+  "sysPenAndInk": "触控笔和手写",
+  "@sysPenAndInk": {
+    "description": "System settings catalog: title of the Pen & Windows Ink entry."
+  },
+  "sysDeviceManager": "设备管理器",
+  "@sysDeviceManager": {
+    "description": "System settings catalog: title of the Device Manager entry."
+  },
+  "sysPrintersAndScanners": "打印机和扫描仪",
+  "@sysPrintersAndScanners": {
+    "description": "System settings catalog: title of the Printers & scanners entry."
+  },
+  "sysDevicesAndPrinters": "设备和打印机",
+  "@sysDevicesAndPrinters": {
+    "description": "System settings catalog: title of the Devices and Printers entry."
+  },
+  "sysFaxAndScan": "Windows 传真和扫描",
+  "@sysFaxAndScan": {
+    "description": "System settings catalog: title of the Windows Fax and Scan entry."
+  },
+  "sysPowerAndBattery": "电源和电池",
+  "@sysPowerAndBattery": {
+    "description": "System settings catalog: title of the Power & battery entry."
+  },
+  "sysPowerOptions": "电源选项",
+  "@sysPowerOptions": {
+    "description": "System settings catalog: title of the Power Options entry."
+  },
+  "sysBatterySaver": "节电模式",
+  "@sysBatterySaver": {
+    "description": "System settings catalog: title of the Battery saver entry."
+  },
+  "sysWindowsUpdate": "Windows 更新",
+  "@sysWindowsUpdate": {
+    "description": "System settings catalog: title of the Windows Update entry."
+  },
+  "sysUpdateHistory": "更新历史记录",
+  "@sysUpdateHistory": {
+    "description": "System settings catalog: title of the Update history entry."
+  },
+  "sysWindowsSecurity": "Windows 安全中心",
+  "@sysWindowsSecurity": {
+    "description": "System settings catalog: title of the Windows Security entry."
+  },
+  "sysFirewall": "防火墙",
+  "@sysFirewall": {
+    "description": "System settings catalog: title of the Windows Defender Firewall entry."
+  },
+  "sysRecovery": "恢复",
+  "@sysRecovery": {
+    "description": "System settings catalog: title of the Recovery entry."
+  },
+  "sysWindowsBackup": "Windows 备份",
+  "@sysWindowsBackup": {
+    "description": "System settings catalog: title of the Windows Backup entry."
+  },
+  "sysYourInfo": "账户信息",
+  "@sysYourInfo": {
+    "description": "System settings catalog: title of the account info entry."
+  },
+  "sysSignInOptions": "登录选项",
+  "@sysSignInOptions": {
+    "description": "System settings catalog: title of the Sign-in options entry."
+  },
+  "sysOtherUsers": "其他用户",
+  "@sysOtherUsers": {
+    "description": "System settings catalog: title of the Other users entry."
+  },
+  "sysEmailAndAccounts": "电子邮件和账户",
+  "@sysEmailAndAccounts": {
+    "description": "System settings catalog: title of the Email & accounts entry."
+  },
+  "sysSyncSettings": "同步设置",
+  "@sysSyncSettings": {
+    "description": "System settings catalog: title of the Sync your settings entry."
+  },
+  "sysDateAndTime": "日期和时间",
+  "@sysDateAndTime": {
+    "description": "System settings catalog: title of the Date & time entry."
+  },
+  "sysDateAndTimeControlPanel": "日期和时间控制面板",
+  "@sysDateAndTimeControlPanel": {
+    "description": "System settings catalog: title of the Date and Time control panel entry."
+  },
+  "sysLanguageAndRegion": "语言和区域",
+  "@sysLanguageAndRegion": {
+    "description": "System settings catalog: title of the Language & region entry."
+  },
+  "sysRegionFormatting": "区域格式",
+  "@sysRegionFormatting": {
+    "description": "System settings catalog: title of the Region formatting entry."
+  },
+  "sysInstalledApps": "已安装的应用",
+  "@sysInstalledApps": {
+    "description": "System settings catalog: title of the Installed apps entry."
+  },
+  "sysDefaultApps": "默认应用",
+  "@sysDefaultApps": {
+    "description": "System settings catalog: title of the Default apps entry."
+  },
+  "sysStartupApps": "启动应用",
+  "@sysStartupApps": {
+    "description": "System settings catalog: title of the Startup apps entry."
+  },
+  "sysOptionalFeatures": "可选功能",
+  "@sysOptionalFeatures": {
+    "description": "System settings catalog: title of the Optional features entry."
+  },
+  "sysProgramsAndFeatures": "程序和功能",
+  "@sysProgramsAndFeatures": {
+    "description": "System settings catalog: title of the Programs and Features entry."
+  },
+  "sysMouse": "鼠标",
+  "@sysMouse": {
+    "description": "System settings catalog: title of the Mouse entry."
+  },
+  "sysMouseProperties": "鼠标属性",
+  "@sysMouseProperties": {
+    "description": "System settings catalog: title of the Mouse Properties entry."
+  },
+  "sysKeyboard": "键盘",
+  "@sysKeyboard": {
+    "description": "System settings catalog: title of the Keyboard entry."
+  },
+  "sysTyping": "输入",
+  "@sysTyping": {
+    "description": "System settings catalog: title of the Typing entry."
+  },
+  "sysTouchpad": "触摸板",
+  "@sysTouchpad": {
+    "description": "System settings catalog: title of the Touchpad entry."
+  },
+  "sysStorageSense": "存储感知",
+  "@sysStorageSense": {
+    "description": "System settings catalog: title of the Storage sense entry."
+  },
+  "sysDisksAndVolumes": "磁盘和卷",
+  "@sysDisksAndVolumes": {
+    "description": "System settings catalog: title of the Disks & volumes entry."
+  },
+  "sysSaveLocations": "保存位置",
+  "@sysSaveLocations": {
+    "description": "System settings catalog: title of the Save locations entry."
+  },
+  "sysDiskManagement": "磁盘管理",
+  "@sysDiskManagement": {
+    "description": "System settings catalog: title of the Disk Management entry."
+  },
+  "sysPrivacyAndSecurity": "隐私和安全性",
+  "@sysPrivacyAndSecurity": {
+    "description": "System settings catalog: title of the Privacy & security entry."
+  },
+  "sysLocationServices": "位置服务",
+  "@sysLocationServices": {
+    "description": "System settings catalog: title of the Location services entry."
+  },
+  "sysCamera": "相机",
+  "@sysCamera": {
+    "description": "System settings catalog: title of the Camera privacy entry."
+  },
+  "sysMicrophone": "麦克风",
+  "@sysMicrophone": {
+    "description": "System settings catalog: title of the Microphone privacy entry."
+  },
+  "sysDiagnosticsAndFeedback": "诊断和反馈",
+  "@sysDiagnosticsAndFeedback": {
+    "description": "System settings catalog: title of the Diagnostics & feedback entry."
+  },
+  "sysForDevelopers": "开发者选项",
+  "@sysForDevelopers": {
+    "description": "System settings catalog: title of the For developers entry."
+  },
+  "sysEnvironmentVariables": "环境变量",
+  "@sysEnvironmentVariables": {
+    "description": "System settings catalog: title of the Environment Variables entry."
+  },
+  "sysSystemConfiguration": "系统配置",
+  "@sysSystemConfiguration": {
+    "description": "System settings catalog: title of the System Configuration (msconfig) entry."
+  },
+  "sysServices": "服务",
+  "@sysServices": {
+    "description": "System settings catalog: title of the Services entry."
+  },
+  "sysEventViewer": "事件查看器",
+  "@sysEventViewer": {
+    "description": "System settings catalog: title of the Event Viewer entry."
+  },
+  "sysComputerManagement": "计算机管理",
+  "@sysComputerManagement": {
+    "description": "System settings catalog: title of the Computer Management entry."
+  },
+  "sysTaskManager": "任务管理器",
+  "@sysTaskManager": {
+    "description": "System settings catalog: title of the Task Manager entry."
+  },
+  "sysResourceMonitor": "资源监视器",
+  "@sysResourceMonitor": {
+    "description": "System settings catalog: title of the Resource Monitor entry."
+  },
+  "sysRegistryEditor": "注册表编辑器",
+  "@sysRegistryEditor": {
+    "description": "System settings catalog: title of the Registry Editor entry."
+  },
+  "sysControlPanel": "控制面板",
+  "@sysControlPanel": {
+    "description": "System settings catalog: title of the Control Panel entry."
+  },
+  "sysAdministrativeTools": "管理工具",
+  "@sysAdministrativeTools": {
+    "description": "System settings catalog: title of the Administrative Tools entry."
+  },
+  "sysCredentialManager": "凭据管理器",
+  "@sysCredentialManager": {
+    "description": "System settings catalog: title of the Credential Manager entry."
+  },
+  "sysFonts": "字体",
+  "@sysFonts": {
+    "description": "System settings catalog: title of the Fonts entry."
+  },
+  "sysInternetOptions": "Internet 选项",
+  "@sysInternetOptions": {
+    "description": "System settings catalog: title of the Internet Options entry."
+  },
+  "sysCatSystem": "系统",
+  "@sysCatSystem": {
+    "description": "System settings catalog: category name grouping system entries."
+  },
+  "sysCatDisplay": "显示",
+  "@sysCatDisplay": {
+    "description": "System settings catalog: category name grouping display entries."
+  },
+  "sysCatSound": "声音",
+  "@sysCatSound": {
+    "description": "System settings catalog: category name grouping sound entries."
+  },
+  "sysCatNetwork": "网络",
+  "@sysCatNetwork": {
+    "description": "System settings catalog: category name grouping network entries."
+  },
+  "sysCatBluetoothAndDevices": "蓝牙与设备",
+  "@sysCatBluetoothAndDevices": {
+    "description": "System settings catalog: category name grouping Bluetooth and device entries."
+  },
+  "sysCatPrinters": "打印机",
+  "@sysCatPrinters": {
+    "description": "System settings catalog: category name grouping printer entries."
+  },
+  "sysCatPower": "电源",
+  "@sysCatPower": {
+    "description": "System settings catalog: category name grouping power entries."
+  },
+  "sysCatUpdateAndSecurity": "更新与安全",
+  "@sysCatUpdateAndSecurity": {
+    "description": "System settings catalog: category name grouping update and security entries."
+  },
+  "sysCatAccounts": "账户",
+  "@sysCatAccounts": {
+    "description": "System settings catalog: category name grouping account entries."
+  },
+  "sysCatTimeAndLanguage": "时间与语言",
+  "@sysCatTimeAndLanguage": {
+    "description": "System settings catalog: category name grouping time and language entries."
+  },
+  "sysCatAppsAndUninstall": "应用与卸载",
+  "@sysCatAppsAndUninstall": {
+    "description": "System settings catalog: category name grouping apps and uninstall entries."
+  },
+  "sysCatMouseAndKeyboard": "鼠标键盘",
+  "@sysCatMouseAndKeyboard": {
+    "description": "System settings catalog: category name grouping mouse and keyboard entries."
+  },
+  "sysCatStorage": "存储",
+  "@sysCatStorage": {
+    "description": "System settings catalog: category name grouping storage entries."
+  },
+  "sysCatPrivacy": "隐私",
+  "@sysCatPrivacy": {
+    "description": "System settings catalog: category name grouping privacy entries."
+  },
+  "sysCatDeveloperOptions": "开发者选项",
+  "@sysCatDeveloperOptions": {
+    "description": "System settings catalog: category name grouping developer entries."
+  },
+  "sysCatServices": "服务",
+  "@sysCatServices": {
+    "description": "System settings catalog: category name grouping services entries."
+  },
+  "sysCatTaskManager": "任务管理器",
+  "@sysCatTaskManager": {
+    "description": "System settings catalog: category name grouping task manager entries."
+  },
+  "sysCatRegistryEditor": "注册表编辑器",
+  "@sysCatRegistryEditor": {
+    "description": "System settings catalog: category name grouping registry editor entries."
+  },
+  "sysCatControlPanel": "控制面板",
+  "@sysCatControlPanel": {
+    "description": "System settings catalog: category name grouping control panel entries."
+  },
+  "cmdOpen": "打开",
+  "@cmdOpen": {
+    "description": "Context menu open command title."
+  },
+  "pluginStateDisabled": "未启用",
+  "@pluginStateDisabled": {
+    "description": "Plugin page: status pill for a plugin the user turned off."
+  },
+  "pluginStateRunning": "运行中",
+  "@pluginStateRunning": {
+    "description": "Plugin page: status pill for a plugin whose process is answering."
+  },
+  "pluginStatePaused": "已暂停",
+  "@pluginStatePaused": {
+    "description": "Plugin page: status pill for a plugin paused after consecutive failures."
+  },
+  "pluginStateFailed": "出错",
+  "@pluginStateFailed": {
+    "description": "Plugin page: status pill for a plugin whose last attempt failed."
+  },
+  "pluginStateStopped": "已停止",
+  "@pluginStateStopped": {
+    "description": "Plugin page: status pill for a plugin with no process running."
+  },
+  "pluginProcessPID": "进程 {pid, number, ::group-off}",
+  "@pluginProcessPID": {
+    "description": "Plugin page: runtime line fragment naming the plugin process.",
+    "placeholders": {
+      "pid": {
+        "type": "int"
+      }
+    }
+  },
+  "pluginStartupTime": "启动 {ms}",
+  "@pluginStartupTime": {
+    "description": "Plugin page: runtime line fragment with the startup time.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginQueryTime": "查询 {ms}",
+  "@pluginQueryTime": {
+    "description": "Plugin page: runtime line fragment with the last query round trip.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginLastUsed": "上次使用 {elapsed}",
+  "@pluginLastUsed": {
+    "description": "Plugin page: runtime line fragment with the time since the last use.",
+    "placeholders": {
+      "elapsed": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginConsecutiveFailures": "连续失败 {count} 次",
+  "@pluginConsecutiveFailures": {
+    "description": "Plugin page: runtime line fragment counting consecutive failed queries.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pluginDroppedResults": "丢弃 {count, number, ::group-off} 条结果",
+  "@pluginDroppedResults": {
+    "description": "Plugin page: runtime line fragment counting dropped results.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pluginDisabledNote": "未启用，不会参与搜索。",
+  "@pluginDisabledNote": {
+    "description": "Plugin page: runtime line for a disabled plugin."
+  },
+  "pluginNotRunNote": "尚未运行：首次搜索时启动，空闲后自动回收进程。",
+  "@pluginNotRunNote": {
+    "description": "Plugin page: runtime line for a plugin that has not run yet."
+  },
+  "pluginUnderOneMillis": "<1 毫秒",
+  "@pluginUnderOneMillis": {
+    "description": "Plugin page: a duration below one millisecond."
+  },
+  "pluginMillis": "{value} 毫秒",
+  "@pluginMillis": {
+    "description": "Plugin page: a duration in milliseconds.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginSeconds": "{value} 秒",
+  "@pluginSeconds": {
+    "description": "Plugin page: a duration in seconds.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginElapsedJustNow": "刚刚",
+  "@pluginElapsedJustNow": {
+    "description": "Plugin page: elapsed time below one minute."
+  },
+  "pluginElapsedMinutes": "{count, number, ::group-off} 分钟前",
+  "@pluginElapsedMinutes": {
+    "description": "Plugin page: elapsed time in minutes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pluginElapsedHours": "{count, number, ::group-off} 小时前",
+  "@pluginElapsedHours": {
+    "description": "Plugin page: elapsed time in hours.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pluginElapsedDays": "{count, number, ::group-off} 天前",
+  "@pluginElapsedDays": {
+    "description": "Plugin page: elapsed time in days.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pluginQueryResultInvalid": "插件返回的结果格式错误：{err}",
+  "@pluginQueryResultInvalid": {
+    "description": "Plugin client: the query reply is not valid JSON of the expected shape.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginExecuteStartFailed": "无法启动插件执行动作：{err}",
+  "@pluginExecuteStartFailed": {
+    "description": "Plugin client: the process cannot be started for an action.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginClientClosed": "插件客户端已关闭",
+  "@pluginClientClosed": {
+    "description": "Plugin client: requests refused after Close."
+  },
+  "pluginStdinPipeFailed": "无法连接插件进程输入：{err}",
+  "@pluginStdinPipeFailed": {
+    "description": "Plugin client: cannot take the process's stdin pipe.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginStdoutPipeFailed": "无法连接插件进程输出：{err}",
+  "@pluginStdoutPipeFailed": {
+    "description": "Plugin client: cannot take the process's stdout pipe.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginStderrPipeFailed": "无法连接插件进程错误输出：{err}",
+  "@pluginStderrPipeFailed": {
+    "description": "Plugin client: cannot take the process's stderr pipe.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginProcessStartFailed": "无法启动插件进程：{err}",
+  "@pluginProcessStartFailed": {
+    "description": "Plugin client: the process cannot be started.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginHandshakeFailed": "插件握手失败：{err}",
+  "@pluginHandshakeFailed": {
+    "description": "Plugin client: the initialize round trip failed.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginHandshakeReplyInvalid": "插件握手回复格式错误",
+  "@pluginHandshakeReplyInvalid": {
+    "description": "Plugin client: the initialize reply is not valid JSON of the expected shape."
+  },
+  "pluginProcessNotStarted": "插件进程未启动",
+  "@pluginProcessNotStarted": {
+    "description": "Plugin client: a request was made with no process."
+  },
+  "pluginSendQueryFailed": "无法向插件发送查询请求：{err}",
+  "@pluginSendQueryFailed": {
+    "description": "Plugin client: writing the query request failed.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginSendExecuteFailed": "无法向插件发送执行动作请求：{err}",
+  "@pluginSendExecuteFailed": {
+    "description": "Plugin client: writing the action request failed.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginSendInitializeFailed": "无法向插件发送初始化请求：{err}",
+  "@pluginSendInitializeFailed": {
+    "description": "Plugin client: writing the initialize request failed.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginExitedNoResult": "插件已退出，没有返回结果",
+  "@pluginExitedNoResult": {
+    "description": "Plugin client: the process ended before answering."
+  },
+  "pluginReadResponseFailed": "读取插件响应失败：{err}",
+  "@pluginReadResponseFailed": {
+    "description": "Plugin client: reading the reply frame failed.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginResponseInvalidJSON": "插件响应不是合法 JSON：{err}",
+  "@pluginResponseInvalidJSON": {
+    "description": "Plugin client: the reply is not valid JSON.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginResponseMismatch": "插件响应与请求不匹配",
+  "@pluginResponseMismatch": {
+    "description": "Plugin client: the reply does not belong to the request."
+  },
+  "pluginQueryTimeout": "插件查询超时（{ms, number, ::group-off} 毫秒）",
+  "@pluginQueryTimeout": {
+    "description": "Plugin client: a query did not answer in time.",
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "pluginExecuteTimeout": "插件执行动作超时（{ms, number, ::group-off} 毫秒）",
+  "@pluginExecuteTimeout": {
+    "description": "Plugin client: an action did not answer in time.",
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "pluginInitializeTimeout": "插件初始化超时（{ms, number, ::group-off} 毫秒）",
+  "@pluginInitializeTimeout": {
+    "description": "Plugin client: the handshake did not answer in time.",
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "pluginQueryCanceled": "插件查询已取消",
+  "@pluginQueryCanceled": {
+    "description": "Plugin client: a query was canceled by a newer search."
+  },
+  "pluginExecuteCanceled": "插件执行动作已取消",
+  "@pluginExecuteCanceled": {
+    "description": "Plugin client: an action was canceled."
+  },
+  "pluginInitializeCanceled": "插件初始化已取消",
+  "@pluginInitializeCanceled": {
+    "description": "Plugin client: the handshake was canceled."
+  },
+  "pluginPausedByFailures": "插件连续失败已暂停；请在设置的插件页重启它。",
+  "@pluginPausedByFailures": {
+    "description": "Search result row: a plugin skipped because it was paused."
+  },
+  "pluginActiveProcessLimit": "插件活动进程已达上限，请稍后重试。",
+  "@pluginActiveProcessLimit": {
+    "description": "Search result row: no slot for another plugin process."
+  },
+  "pluginPausedWithErrors": "插件连续 {count} 次查询失败，已暂停；请在设置中重启它。最近的错误：{message}",
+  "@pluginPausedWithErrors": {
+    "description": "Search result row: a plugin paused after too many failed queries, with its last error.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginResultDropped": "结果被丢弃：{reason}",
+  "@pluginResultDropped": {
+    "description": "Plugin diagnostics: a result refused by the protocol rules.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginActionDropped": "动作被丢弃：{reason}",
+  "@pluginActionDropped": {
+    "description": "Plugin diagnostics: an action refused by the protocol rules.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginDisabledExecute": "插件 {id} 已停用，请在设置中启用后再执行",
+  "@pluginDisabledExecute": {
+    "description": "Plugin manager: an action refused because the plugin is disabled.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginProcessRecycled": "插件进程已回收，请重新搜索后再执行",
+  "@pluginProcessRecycled": {
+    "description": "Plugin manager: an action refused because the plugin process is gone."
+  },
+  "pluginUnavailableTitle": "{name} 暂不可用",
+  "@pluginUnavailableTitle": {
+    "description": "Search result title: a plugin could not answer.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginValidateResultNoID": "结果缺少 id",
+  "@pluginValidateResultNoID": {
+    "description": "Plugin diagnostics: a result without an id."
+  },
+  "pluginValidateResultIDTooLong": "结果 id 超过 512 个字符",
+  "@pluginValidateResultIDTooLong": {
+    "description": "Plugin diagnostics: a result with an overlong id."
+  },
+  "pluginValidateResultNoTitle": "结果缺少标题",
+  "@pluginValidateResultNoTitle": {
+    "description": "Plugin diagnostics: a result without a title."
+  },
+  "pluginValidateResultTitleTooLong": "结果标题超过 1000 个字符",
+  "@pluginValidateResultTitleTooLong": {
+    "description": "Plugin diagnostics: a result with an overlong title."
+  },
+  "pluginValidateResultSubtitleTooLong": "结果副标题超过 4000 个字符",
+  "@pluginValidateResultSubtitleTooLong": {
+    "description": "Plugin diagnostics: a result with an overlong subtitle."
+  },
+  "pluginValidateResultActionsTooMany": "一个结果最多 10 个动作",
+  "@pluginValidateResultActionsTooMany": {
+    "description": "Plugin diagnostics: a result with too many actions."
+  },
+  "pluginValidateResultPreviewTooLong": "预览文本超过 16000 个字符",
+  "@pluginValidateResultPreviewTooLong": {
+    "description": "Plugin diagnostics: a result with overlong preview text."
+  },
+  "pluginValidateActionNoID": "动作缺少 id",
+  "@pluginValidateActionNoID": {
+    "description": "Plugin diagnostics: an action without an id."
+  },
+  "pluginValidateActionIDTooLong": "动作 id 超过 200 个字符",
+  "@pluginValidateActionIDTooLong": {
+    "description": "Plugin diagnostics: an action with an overlong id."
+  },
+  "pluginValidateActionNoTitle": "动作缺少标题",
+  "@pluginValidateActionNoTitle": {
+    "description": "Plugin diagnostics: an action without a title."
+  },
+  "pluginValidateActionTitleTooLong": "动作标题超过 200 个字符",
+  "@pluginValidateActionTitleTooLong": {
+    "description": "Plugin diagnostics: an action with an overlong title."
+  },
+  "pluginValidateActionValueTooLong": "动作值超过 16000 个字符",
+  "@pluginValidateActionValueTooLong": {
+    "description": "Plugin diagnostics: an action with an overlong value."
+  },
+  "pluginValidateActionOpenURL": "动作类型 openUrl 的值必须是 http 或 https 地址，当前为 \"{value}\"",
+  "@pluginValidateActionOpenURL": {
+    "description": "Plugin diagnostics: an openUrl action whose value is not an http URL.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginValidateActionOpenPath": "动作类型 openPath 的值必须是绝对路径，当前为 \"{value}\"",
+  "@pluginValidateActionOpenPath": {
+    "description": "Plugin diagnostics: an openPath action whose value is not an absolute path.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginValidateActionKind": "不支持的动作类型 \"{kind}\"",
+  "@pluginValidateActionKind": {
+    "description": "Plugin diagnostics: an action with an unknown kind.",
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginHandshakeProtocolVersion": "插件使用协议版本 {version}，本启动器使用 {expected}",
+  "@pluginHandshakeProtocolVersion": {
+    "description": "Plugin handshake: the plugin speaks another protocol version.",
+    "placeholders": {
+      "version": {
+        "type": "int"
+      },
+      "expected": {
+        "type": "int"
+      }
+    }
+  },
+  "pluginHandshakeIDMismatch": "插件声明的标识是 \"{declared}\"，与包内 plugin.json 的 \"{expected}\" 不一致",
+  "@pluginHandshakeIDMismatch": {
+    "description": "Plugin handshake: the plugin declares another id than its manifest.",
+    "placeholders": {
+      "declared": {
+        "type": "String"
+      },
+      "expected": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginRPCError": "插件返回错误（{code, number, ::group-off}）：{message}",
+  "@pluginRPCError": {
+    "description": "Plugin protocol: the JSON-RPC error a plugin returned.",
+    "placeholders": {
+      "code": {
+        "type": "int"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginFrameLengthInvalid": "插件消息长度无效：{length, number, ::group-off}",
+  "@pluginFrameLengthInvalid": {
+    "description": "Plugin protocol: a frame header with an impossible length.",
+    "placeholders": {
+      "length": {
+        "type": "int"
+      }
+    }
+  },
+  "pluginFrameTooLarge": "插件消息超过大小上限",
+  "@pluginFrameTooLarge": {
+    "description": "Plugin protocol: a frame above the size limit."
+  },
+  "pluginManifestIDInvalid": "插件标识 \"{id}\" 无效：只能包含字母、数字、点、减号和下划线，长度 1–100",
+  "@pluginManifestIDInvalid": {
+    "description": "Plugin manifest: an id that cannot name a package.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginManifestNameMissing": "插件缺少名称",
+  "@pluginManifestNameMissing": {
+    "description": "Plugin manifest: no name."
+  },
+  "pluginManifestNameTooLong": "插件名称过长：最多 200 个字符，当前 {count, number, ::group-off}",
+  "@pluginManifestNameTooLong": {
+    "description": "Plugin manifest: an overlong name.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pluginManifestVersionInvalid": "插件版本 \"{version}\" 无效：需要 2–4 段数字，例如 1.0.0",
+  "@pluginManifestVersionInvalid": {
+    "description": "Plugin manifest: a version that is not 2–4 numeric segments.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginManifestProtocolVersion": "插件协议版本为 {version}，本启动器使用协议版本 {expected}；请更新插件或启动器",
+  "@pluginManifestProtocolVersion": {
+    "description": "Plugin manifest: the package declares another protocol version.",
+    "placeholders": {
+      "version": {
+        "type": "int"
+      },
+      "expected": {
+        "type": "int"
+      }
+    }
+  },
+  "pluginManifestEntryMissing": "插件缺少入口：请在 plugin.json 的 executable 中写出包内可执行文件名",
+  "@pluginManifestEntryMissing": {
+    "description": "Plugin manifest: no executable or entryAssembly."
+  },
+  "pluginManifestEntryInvalid": "插件入口 \"{entry}\" 无效：只能是包内的文件名，不能包含路径",
+  "@pluginManifestEntryInvalid": {
+    "description": "Plugin manifest: an entry that is not a plain file name.",
+    "placeholders": {
+      "entry": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginManifestKeywordsTooMany": "插件触发词过多：最多 20 个，当前 {count, number, ::group-off}",
+  "@pluginManifestKeywordsTooMany": {
+    "description": "Plugin manifest: too many keywords.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pluginManifestKeywordInvalid": "插件触发词 \"{keyword}\" 无效：不能为空、不能含空白字符，最多 32 个字符",
+  "@pluginManifestKeywordInvalid": {
+    "description": "Plugin manifest: a keyword that breaks the matching rules.",
+    "placeholders": {
+      "keyword": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginManifestKeywordDuplicate": "插件触发词 \"{keyword}\" 重复",
+  "@pluginManifestKeywordDuplicate": {
+    "description": "Plugin manifest: two keywords that match case-insensitively.",
+    "placeholders": {
+      "keyword": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginManifestPermissionsTooMany": "插件权限声明过多：最多 20 项，当前 {count, number, ::group-off}",
+  "@pluginManifestPermissionsTooMany": {
+    "description": "Plugin manifest: too many permission declarations.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pluginManifestDescriptionTooLong": "插件描述过长：最多 10000 个字符",
+  "@pluginManifestDescriptionTooLong": {
+    "description": "Plugin manifest: an overlong description."
+  },
+  "pluginManifestFileMissing": "缺少 plugin.json",
+  "@pluginManifestFileMissing": {
+    "description": "Plugin package: a directory without plugin.json."
+  },
+  "pluginManifestReadFailed": "无法读取 plugin.json：{err}",
+  "@pluginManifestReadFailed": {
+    "description": "Plugin package: plugin.json cannot be read.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginManifestInvalidJSON": "plugin.json 格式错误：{err}",
+  "@pluginManifestInvalidJSON": {
+    "description": "Plugin package: plugin.json is not valid JSON.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginEntryNotFound": "插件入口 {entry} 不存在",
+  "@pluginEntryNotFound": {
+    "description": "Plugin package: the executable the manifest names is not there.",
+    "placeholders": {
+      "entry": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginEntryReadFailed": "无法读取插件入口 {entry}：{err}",
+  "@pluginEntryReadFailed": {
+    "description": "Plugin package: the executable the manifest names cannot be read.",
+    "placeholders": {
+      "entry": {
+        "type": "String"
+      },
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginDirCreateFailed": "无法创建插件目录：{err}",
+  "@pluginDirCreateFailed": {
+    "description": "Plugin repository: the plugin root cannot be created.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginDirReadFailed": "无法读取插件目录：{err}",
+  "@pluginDirReadFailed": {
+    "description": "Plugin repository: the plugin root cannot be listed.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginLegacyPackage": "这是旧版 C# 插件包（只有 entryAssembly）；请安装可执行插件包",
+  "@pluginLegacyPackage": {
+    "description": "Plugin repository: an old C# package with only entryAssembly."
+  },
+  "pluginDirIDMismatch": "目录名与插件标识 {id} 不一致；重新安装可修正",
+  "@pluginDirIDMismatch": {
+    "description": "Plugin repository: the folder name and the manifest id disagree.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginUpdateInstall": "将安装 {name} {version}。",
+  "@pluginUpdateInstall": {
+    "description": "Plugin install dialog: a fresh package will be installed.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginUpdateUpgrade": "将从 {from} 升级到 {to}。",
+  "@pluginUpdateUpgrade": {
+    "description": "Plugin install dialog: the package upgrades the installed one.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginUpdateReinstall": "包内版本与已安装的 {version} 相同，将重新安装。",
+  "@pluginUpdateReinstall": {
+    "description": "Plugin install dialog: the package has the installed version.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginUpdateDowngrade": "包内版本 {version} 低于已安装的 {installed}，继续将降级。",
+  "@pluginUpdateDowngrade": {
+    "description": "Plugin install dialog: the package is older than the installed one.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "installed": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginAlreadyInstalled": "插件 {id} 已安装；请先卸载或使用升级",
+  "@pluginAlreadyInstalled": {
+    "description": "Plugin install: the package is installed and upgrade was not asked.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginPackageIDMismatch": "包内标识不一致",
+  "@pluginPackageIDMismatch": {
+    "description": "Plugin install: the extracted manifest id differs from the package's."
+  },
+  "pluginInvalidID": "插件标识无效",
+  "@pluginInvalidID": {
+    "description": "Plugin uninstall: the id is not a valid package name."
+  },
+  "pluginDirOutsideRoot": "插件目录超出插件根目录",
+  "@pluginDirOutsideRoot": {
+    "description": "Plugin uninstall: the package directory escapes the plugin root."
+  },
+  "pluginDirDeleteFailed": "无法删除插件目录 {name}：{err}",
+  "@pluginDirDeleteFailed": {
+    "description": "Plugin uninstall: the package directory cannot be removed.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginPackageNotFound": "插件包不存在：{source}",
+  "@pluginPackageNotFound": {
+    "description": "Plugin install: the source file does not exist.",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginPackageReadFailed": "无法读取插件包：{err}",
+  "@pluginPackageReadFailed": {
+    "description": "Plugin install: the source cannot be read.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginPackageNotZip": "不是有效的 ZIP 插件包：{err}",
+  "@pluginPackageNotZip": {
+    "description": "Plugin install: the source is not a readable ZIP.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginPackageEntryCount": "插件包条目数量无效：{count} 个",
+  "@pluginPackageEntryCount": {
+    "description": "Plugin install: the ZIP has no entries or too many.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pluginManifestTooLarge": "插件清单过大：plugin.json 最大 1 MB",
+  "@pluginManifestTooLarge": {
+    "description": "Plugin install: plugin.json in the ZIP is too large."
+  },
+  "pluginManifestOpenFailed": "无法读取插件清单：{err}",
+  "@pluginManifestOpenFailed": {
+    "description": "Plugin install: plugin.json in the ZIP cannot be opened.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "pluginEntryNotInPackage": "插件入口 {entry} 不在包内",
+  "@pluginEntryNotInPackage": {
+    "description": "Plugin install: the ZIP does not hold the executable the manifest names.",
+    "placeholders": {
+      "entry": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginPackageMissingManifest": "插件包缺少 plugin.json",
+  "@pluginPackageMissingManifest": {
+    "description": "Plugin install: the ZIP has no plugin.json."
+  },
+  "pluginPackageTooManyEntries": "插件包条目过多",
+  "@pluginPackageTooManyEntries": {
+    "description": "Plugin install: the ZIP has too many entries to extract."
+  },
+  "pluginPackageSymlink": "插件包不能包含符号链接",
+  "@pluginPackageSymlink": {
+    "description": "Plugin install: the ZIP contains a symlink."
+  },
+  "pluginPackageInvalidPath": "插件包路径无效：{name}",
+  "@pluginPackageInvalidPath": {
+    "description": "Plugin install: a ZIP entry name is absolute or traverses.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pluginPackagePathOutside": "插件包路径超出目录",
+  "@pluginPackagePathOutside": {
+    "description": "Plugin install: a ZIP entry escapes the destination directory."
+  },
+  "pluginPackageFileTooLarge": "插件包单个文件过大",
+  "@pluginPackageFileTooLarge": {
+    "description": "Plugin install: one file in the ZIP is too large."
+  },
+  "pluginPackageSizeLimit": "插件包解压后超过大小上限",
+  "@pluginPackageSizeLimit": {
+    "description": "Plugin install: the ZIP exceeds the total size limit when extracted."
+  },
+  "launchActionHandledBySource": "此动作由对应来源处理。",
+  "@launchActionHandledBySource": {
+    "description": "Launch outcome: the action belongs to another source's handler."
+  },
+  "launchNoLocalLocation": "此条目没有本地位置。",
+  "@launchNoLocalLocation": {
+    "description": "Launch outcome: the entry has no path to open in Explorer."
+  },
+  "launchRunAsAppsOnly": "仅应用支持以管理员身份运行。",
+  "@launchRunAsAppsOnly": {
+    "description": "Launch outcome: only applications support the run-as-administrator action."
+  },
+  "launchUACCanceled": "用户取消了系统权限确认。",
+  "@launchUACCanceled": {
+    "description": "Launch outcome: the user dismissed the elevation prompt."
+  },
+  "launchShellExecuteFailed": "ShellExecuteEx 失败：{err}",
+  "@launchShellExecuteFailed": {
+    "description": "Launch outcome: ShellExecuteEx refused the request.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "launchShellAppsWarning": "系统应用列表暂不可用：{err}",
+  "@launchShellAppsWarning": {
+    "description": "Application catalog: the shell's installed-app list is unavailable.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "launchPackagedAppSubtitle": "应用包 {name}",
+  "@launchPackagedAppSubtitle": {
+    "description": "Application catalog: subtitle of a packaged (AppsFolder) application.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "launchWatchRootFailed": "无法监听应用目录 {root}：{err}",
+  "@launchWatchRootFailed": {
+    "description": "Application catalog: a watched application root cannot be watched.",
+    "placeholders": {
+      "root": {
+        "type": "String"
+      },
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "launchNotLaunchable": "不是可启动的应用",
+  "@launchNotLaunchable": {
+    "description": "Application catalog: the entry is not a launchable application."
+  },
+  "winWindowSubtitle": "运行中的窗口 · 切换到此窗口",
+  "@winWindowSubtitle": {
+    "description": "Window list: subtitle of a window whose process name is unknown."
+  },
+  "winSwitchToWindow": "{name} · 切换到此窗口",
+  "@winSwitchToWindow": {
+    "description": "Window list: subtitle naming the window's process.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "winClosedError": "该窗口已经关闭，请重新搜索。",
+  "@winClosedError": {
+    "description": "Window list: the window was closed before it could be activated."
+  },
+  "winForegroundDenied": "Windows 拒绝了前台切换。",
+  "@winForegroundDenied": {
+    "description": "Window list: Windows refused the foreground switch."
+  },
+  "everythingClientNotRunning": "Everything 客户端未运行；仅启动服务不支持 IPC。请启动客户端或关闭此来源。",
+  "@everythingClientNotRunning": {
+    "description": "Everything: no client window answers IPC."
+  },
+  "everythingReplySizeInvalid": "Everything 响应大小无效",
+  "@everythingReplySizeInvalid": {
+    "description": "Everything: the reply frame has an impossible size."
+  },
+  "everythingQueryRejected": "Everything 不接受查询，请检查客户端版本、权限和数据库状态",
+  "@everythingQueryRejected": {
+    "description": "Everything: the client did not accept the query."
+  },
+  "everythingMessageLoopExited": "Everything IPC 消息循环退出",
+  "@everythingMessageLoopExited": {
+    "description": "Everything: the IPC message loop ended unexpectedly."
+  },
+  "everythingResultHeaderIncomplete": "Everything 结果头不完整",
+  "@everythingResultHeaderIncomplete": {
+    "description": "Everything: the reply is shorter than its header."
+  },
+  "everythingResultCountInvalid": "Everything 结果计数无效",
+  "@everythingResultCountInvalid": {
+    "description": "Everything: the reply names an impossible result count."
+  },
+  "everythingStringOffsetInvalid": "Everything 字符串偏移无效",
+  "@everythingStringOffsetInvalid": {
+    "description": "Everything: a name offset points outside the reply."
+  },
+  "everythingStringNotTerminated": "Everything 字符串未终止",
+  "@everythingStringNotTerminated": {
+    "description": "Everything: a name in the reply is not null-terminated."
+  },
+  "storeConfigTooLarge": "配置文件超过 1 MiB",
+  "@storeConfigTooLarge": {
+    "description": "Settings store: settings.json above the size limit."
+  },
+  "storeConfigPackageTooLarge": "配置包超过 16 MiB",
+  "@storeConfigPackageTooLarge": {
+    "description": "Settings store: an imported configuration package above the size limit."
+  },
+  "storeConfigPackageInvalidCount": "配置包内容或个人规则数量无效",
+  "@storeConfigPackageInvalidCount": {
+    "description": "Settings store: an imported package with an impossible profile count."
+  },
+  "storeProfileInvalidFields": "个人规则包含无效字段",
+  "@storeProfileInvalidFields": {
+    "description": "Settings store: an imported personal rule with bad fields."
+  },
+  "storeProfileDuplicate": "个人规则包含重复条目",
+  "@storeProfileDuplicate": {
+    "description": "Settings store: an imported package lists one entry twice."
+  },
+  "storeThemeImageFormatUnsupported": "主题图片格式不受支持",
+  "@storeThemeImageFormatUnsupported": {
+    "description": "Theme store: the background image is not a supported format."
+  },
+  "storeThemeImageInvalidOrTooLarge": "主题图片格式不受支持或超过 30 MiB",
+  "@storeThemeImageInvalidOrTooLarge": {
+    "description": "Theme store: the background image is unreadable or too large to export."
+  },
+  "storeThemePackageEntries": "主题包只能包含 theme.json 和一张静态图片",
+  "@storeThemePackageEntries": {
+    "description": "Theme store: a theme ZIP with the wrong files."
+  },
+  "storeThemeJSONTooLarge": "主题描述超过 64 KiB",
+  "@storeThemeJSONTooLarge": {
+    "description": "Theme store: theme.json in the package is too large."
+  },
+  "storeThemeNonImageExtraFiles": "非图片主题不应包含其他文件",
+  "@storeThemeNonImageExtraFiles": {
+    "description": "Theme store: a theme without image background carries extra files."
+  },
+  "storeThemeImageNameInvalid": "主题图片须为包内的单个图片文件名",
+  "@storeThemeImageNameInvalid": {
+    "description": "Theme store: the image name in theme.json is not a plain file name."
+  },
+  "storeThemeImageMissing": "主题图片不存在",
+  "@storeThemeImageMissing": {
+    "description": "Theme store: the package does not hold the image theme.json names."
+  },
+  "storeThemeImageTooLarge": "主题图片超过 30 MiB",
+  "@storeThemeImageTooLarge": {
+    "description": "Theme store: the image in the package is above the size limit."
+  },
+  "storeFileIndexWatchFailed": "文件索引监听失败 {root}：{err}",
+  "@storeFileIndexWatchFailed": {
+    "description": "File index: a watched root cannot be watched.",
+    "placeholders": {
+      "root": {
+        "type": "String"
+      },
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "storeFileIndexUpdateFailed": "文件索引更新失败：{err}",
+  "@storeFileIndexUpdateFailed": {
+    "description": "File index: the rebuild after a change failed.",
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    }
+  },
+  "settingsPageGeneral": "常规",
+  "@settingsPageGeneral": {
+    "description": "Settings sidebar: the general page title."
+  },
+  "settingsPageAppearance": "外观",
+  "@settingsPageAppearance": {
+    "description": "Settings sidebar: the appearance page title."
+  },
+  "settingsPageFiles": "文件",
+  "@settingsPageFiles": {
+    "description": "Settings sidebar: the file index page title."
+  },
+  "settingsPageVolume": "音量",
+  "@settingsPageVolume": {
+    "description": "Settings sidebar: the volume page title."
+  },
+  "settingsPageSites": "站点搜索",
+  "@settingsPageSites": {
+    "description": "Settings sidebar: the site search page title."
+  },
+  "settingsPageLaunchItems": "启动项",
+  "@settingsPageLaunchItems": {
+    "description": "Settings sidebar: the launch items page title."
+  },
+  "settingsPagePlugins": "插件",
+  "@settingsPagePlugins": {
+    "description": "Settings sidebar: the plugins page title; also the fallback card title when the plugin runtime is missing."
+  },
+  "settingsPageOther": "其他",
+  "@settingsPageOther": {
+    "description": "Settings sidebar: the about page title."
+  },
+  "settingsAutoSave": "更改会自动保存",
+  "@settingsAutoSave": {
+    "description": "Settings footer: reassurance that every change saves itself."
+  },
+  "settingsFollowSystem": "跟随系统",
+  "@settingsFollowSystem": {
+    "description": "Settings appearance: the theme mode that follows the system, and the color well value when a color follows the system."
+  },
+  "settingsPlacementActiveScreen": "活动屏幕",
+  "@settingsPlacementActiveScreen": {
+    "description": "General page: popup position choice, the screen that is currently active."
+  },
+  "settingsPlacementMouseScreen": "鼠标所在屏幕",
+  "@settingsPlacementMouseScreen": {
+    "description": "General page: popup position choice, the screen that holds the mouse."
+  },
+  "settingsPlacementPrimaryScreen": "主屏幕",
+  "@settingsPlacementPrimaryScreen": {
+    "description": "General page: popup position choice, the primary screen."
+  },
+  "settingsThemeLight": "浅色",
+  "@settingsThemeLight": {
+    "description": "Appearance page: theme mode choice, light."
+  },
+  "settingsThemeDark": "深色",
+  "@settingsThemeDark": {
+    "description": "Appearance page: theme mode choice, dark."
+  },
+  "settingsBackgroundAcrylic": "亚克力",
+  "@settingsBackgroundAcrylic": {
+    "description": "Appearance page: background material choice, acrylic."
+  },
+  "settingsBackgroundMica": "云母",
+  "@settingsBackgroundMica": {
+    "description": "Appearance page: background material choice, mica."
+  },
+  "settingsBackgroundSolid": "纯色",
+  "@settingsBackgroundSolid": {
+    "description": "Appearance page: background material choice, solid color."
+  },
+  "settingsBackgroundGradient": "渐变",
+  "@settingsBackgroundGradient": {
+    "description": "Appearance page: background material choice, gradient."
+  },
+  "settingsBackgroundImage": "图片",
+  "@settingsBackgroundImage": {
+    "description": "Appearance page: background material choice, image."
+  },
+  "settingsGeneralWakeCard": "唤醒与启动",
+  "@settingsGeneralWakeCard": {
+    "description": "General page: card holding the hotkey and startup options."
+  },
+  "settingsHotkey": "热键",
+  "@settingsHotkey": {
+    "description": "General page: the hotkey dropdown label."
+  },
+  "settingsHotkeyActive": "当前生效：{hotkey}（所选热键被占用或未保存）",
+  "@settingsHotkeyActive": {
+    "description": "General page: hint under the hotkey dropdown when a different hotkey is currently registered.",
+    "placeholders": {
+      "hotkey": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsHideOnStartup": "启动时隐藏搜索框",
+  "@settingsHideOnStartup": {
+    "description": "General page: switch that hides the search panel at startup."
+  },
+  "settingsHideOnStartupHint": "关闭后开机进入桌面即显示面板",
+  "@settingsHideOnStartupHint": {
+    "description": "General page: hint of the hide-on-startup switch."
+  },
+  "settingsRunAtLogin": "开机启动",
+  "@settingsRunAtLogin": {
+    "description": "General page: switch that starts the launcher at login."
+  },
+  "settingsRunAtLoginHint": "登录系统后自动在后台运行",
+  "@settingsRunAtLoginHint": {
+    "description": "General page: hint of the start-at-login switch."
+  },
+  "settingsGeneralWindowCard": "窗口与结果",
+  "@settingsGeneralWindowCard": {
+    "description": "General page: card holding the popup position and result options."
+  },
+  "settingsPlacement": "弹出位置",
+  "@settingsPlacement": {
+    "description": "General page: the popup position dropdown label."
+  },
+  "settingsPlacementHint": "呼出面板时所在的屏幕",
+  "@settingsPlacementHint": {
+    "description": "General page: hint of the popup position dropdown."
+  },
+  "settingsMaxResults": "最大结果数",
+  "@settingsMaxResults": {
+    "description": "General page: the maximum results number field label."
+  },
+  "settingsMaxResultsHint": "每次搜索最多显示的条目",
+  "@settingsMaxResultsHint": {
+    "description": "General page: hint of the maximum results field."
+  },
+  "settingsShowRecent": "空搜索时显示最近打开",
+  "@settingsShowRecent": {
+    "description": "General page: switch that shows recent items on an empty search."
+  },
+  "settingsShowRecentHint": "未输入关键词时列出最近使用的条目",
+  "@settingsShowRecentHint": {
+    "description": "General page: hint of the show-recent switch."
+  },
+  "settingsThemeModeCard": "模式与背景",
+  "@settingsThemeModeCard": {
+    "description": "Appearance page: card holding the theme mode and background material dropdowns."
+  },
+  "settingsThemeMode": "模式",
+  "@settingsThemeMode": {
+    "description": "Appearance page: the theme mode dropdown label."
+  },
+  "settingsThemeModeHint": "浅色、深色或跟随系统",
+  "@settingsThemeModeHint": {
+    "description": "Appearance page: hint of the theme mode dropdown."
+  },
+  "settingsThemeBackground": "背景材质",
+  "@settingsThemeBackground": {
+    "description": "Appearance page: the background material dropdown label."
+  },
+  "settingsThemeBackgroundHint": "亚克力与云母模糊透出下层窗口",
+  "@settingsThemeBackgroundHint": {
+    "description": "Appearance page: hint of the background material dropdown."
+  },
+  "settingsThemeColorsCard": "颜色",
+  "@settingsThemeColorsCard": {
+    "description": "Appearance page: card holding the color wells."
+  },
+  "settingsAccentColor": "强调色",
+  "@settingsAccentColor": {
+    "description": "Appearance page: the accent color well label."
+  },
+  "settingsAccentColorHint": "按钮与选中行",
+  "@settingsAccentColorHint": {
+    "description": "Appearance page: hint of the accent color well."
+  },
+  "settingsTextColor": "文字色",
+  "@settingsTextColor": {
+    "description": "Appearance page: the text color well label."
+  },
+  "settingsTextColorHint": "留空跟随系统",
+  "@settingsTextColorHint": {
+    "description": "Appearance page: hint of the text color well."
+  },
+  "settingsBackgroundColor": "背景色",
+  "@settingsBackgroundColor": {
+    "description": "Appearance page: the background color well label."
+  },
+  "settingsBackgroundColorSolidHint": "纯色与渐变起点，留空跟随系统",
+  "@settingsBackgroundColorSolidHint": {
+    "description": "Appearance page: hint of the background color well for solid and gradient backgrounds."
+  },
+  "settingsBackgroundColorBlurHint": "模糊背景上的着色，留空跟随系统",
+  "@settingsBackgroundColorBlurHint": {
+    "description": "Appearance page: hint of the background color well for acrylic and mica backgrounds."
+  },
+  "settingsGradientEnd": "渐变终点",
+  "@settingsGradientEnd": {
+    "description": "Appearance page: the gradient end color well label."
+  },
+  "settingsGradientEndHint": "仅渐变背景使用",
+  "@settingsGradientEndHint": {
+    "description": "Appearance page: hint of the gradient end color well."
+  },
+  "settingsOpacity": "不透明度",
+  "@settingsOpacity": {
+    "description": "Appearance page: the opacity card title and its slider label."
+  },
+  "settingsOpacityHint": "0% 完全透明（只看到下层窗口），100% 完全不透明",
+  "@settingsOpacityHint": {
+    "description": "Appearance page: hint of the opacity slider for plain backgrounds."
+  },
+  "settingsOpacityBlurHint": "模糊材质的着色强度：0% 只保留模糊后景，100% 完全不透明",
+  "@settingsOpacityBlurHint": {
+    "description": "Appearance page: hint of the opacity slider for acrylic and mica backgrounds."
+  },
+  "settingsOpacityImageHint": "图片整体的不透明度，蒙版另算",
+  "@settingsOpacityImageHint": {
+    "description": "Appearance page: hint of the opacity slider for image backgrounds."
+  },
+  "settingsImageCard": "背景图片",
+  "@settingsImageCard": {
+    "description": "Appearance page: card holding the background image options."
+  },
+  "settingsImagePath": "图片路径",
+  "@settingsImagePath": {
+    "description": "Appearance page: the background image path field label."
+  },
+  "settingsImagePathHint": "背景材质为“图片”时使用",
+  "@settingsImagePathHint": {
+    "description": "Appearance page: hint of the background image path field."
+  },
+  "settingsImagePlaceholder": "选择一张图片",
+  "@settingsImagePlaceholder": {
+    "description": "Appearance page: placeholder of the background image path field."
+  },
+  "settingsImageChoose": "选择…",
+  "@settingsImageChoose": {
+    "description": "Appearance page: button that opens the background image picker."
+  },
+  "settingsImageCover": "图片铺满",
+  "@settingsImageCover": {
+    "description": "Appearance page: switch that fills the window with the background image."
+  },
+  "settingsImageCoverHint": "关闭则完整显示整张图片",
+  "@settingsImageCoverHint": {
+    "description": "Appearance page: hint of the image cover switch."
+  },
+  "settingsImageMask": "遮罩不透明度",
+  "@settingsImageMask": {
+    "description": "Appearance page: the mask opacity slider label over the background image."
+  },
+  "settingsImageMaskHint": "图片上的蒙版：越高图片越淡，0% 为原图",
+  "@settingsImageMaskHint": {
+    "description": "Appearance page: hint of the image mask slider."
+  },
+  "settingsImageBlur": "高斯模糊",
+  "@settingsImageBlur": {
+    "description": "Appearance page: the Gaussian blur slider label for the background image."
+  },
+  "settingsImageBlurHint": "0 – 24，0 为不模糊",
+  "@settingsImageBlurHint": {
+    "description": "Appearance page: hint of the image blur slider."
+  },
+  "settingsFontCard": "字体与圆角",
+  "@settingsFontCard": {
+    "description": "Appearance page: card holding the font and corner radius options."
+  },
+  "settingsFont": "字体",
+  "@settingsFont": {
+    "description": "Appearance page: the font family field label."
+  },
+  "settingsFontHint": "留空使用系统字体",
+  "@settingsFontHint": {
+    "description": "Appearance page: hint of the font family field."
+  },
+  "settingsFontSizeLabel": "字号",
+  "@settingsFontSizeLabel": {
+    "description": "Appearance page: the font size field label."
+  },
+  "settingsFontSizeHint": "12 – 32",
+  "@settingsFontSizeHint": {
+    "description": "Appearance page: allowed range of the font size field."
+  },
+  "settingsSearchHeight": "搜索框高度",
+  "@settingsSearchHeight": {
+    "description": "Appearance page: the search box height field label."
+  },
+  "settingsSearchHeightHint": "36 – 120，搜索行的整体高度",
+  "@settingsSearchHeightHint": {
+    "description": "Appearance page: hint of the search box height field."
+  },
+  "settingsRowPadding": "结果行高度",
+  "@settingsRowPadding": {
+    "description": "Appearance page: the result row height field label."
+  },
+  "settingsRowPaddingHint": "2 – 24，每个候选行的上下内边距，越大行越高",
+  "@settingsRowPaddingHint": {
+    "description": "Appearance page: hint of the result row height field."
+  },
+  "settingsCornerRadius": "圆角",
+  "@settingsCornerRadius": {
+    "description": "Appearance page: the corner radius field label."
+  },
+  "settingsCornerRadiusHint": "0 – 32",
+  "@settingsCornerRadiusHint": {
+    "description": "Appearance page: allowed range of the corner radius field."
+  },
+  "settingsThemeFileCard": "主题文件",
+  "@settingsThemeFileCard": {
+    "description": "Appearance page: card holding the theme export and import buttons."
+  },
+  "settingsExportTheme": "导出主题…",
+  "@settingsExportTheme": {
+    "description": "Appearance page: button that exports the current theme."
+  },
+  "settingsImportTheme": "导入主题…",
+  "@settingsImportTheme": {
+    "description": "Appearance page: button that imports a theme."
+  },
+  "settingsFilesIndexCard": "索引目录",
+  "@settingsFilesIndexCard": {
+    "description": "Files page: card holding the indexed directories options."
+  },
+  "settingsFilesDirectoriesHint": "目录（每行一个本地绝对路径）",
+  "@settingsFilesDirectoriesHint": {
+    "description": "Files page: hint above the indexed directories text area."
+  },
+  "settingsFilesExcluded": "排除目录",
+  "@settingsFilesExcluded": {
+    "description": "Files page: label above the excluded directories text area."
+  },
+  "settingsFilesMaxEntries": "最大条目数",
+  "@settingsFilesMaxEntries": {
+    "description": "Files page: the maximum entries number field label."
+  },
+  "settingsFilesMaxEntriesHint": "1000 – 500000",
+  "@settingsFilesMaxEntriesHint": {
+    "description": "Files page: allowed range of the maximum entries field."
+  },
+  "settingsFilesIncludeDirectories": "索引目录本身",
+  "@settingsFilesIncludeDirectories": {
+    "description": "Files page: switch that indexes the directories themselves."
+  },
+  "settingsFilesIncludeDirectoriesHint": "目录也作为可搜索结果",
+  "@settingsFilesIncludeDirectoriesHint": {
+    "description": "Files page: hint of the include-directories switch."
+  },
+  "settingsFilesEverything": "启用 Everything 连接器",
+  "@settingsFilesEverything": {
+    "description": "Files page: switch that enables the Everything connector."
+  },
+  "settingsFilesEverythingHint": "安装 Everything 时直接复用其索引",
+  "@settingsFilesEverythingHint": {
+    "description": "Files page: hint of the Everything connector switch."
+  },
+  "settingsFilesRebuild": "立即重建索引",
+  "@settingsFilesRebuild": {
+    "description": "Files page: button that rebuilds the file index at once."
+  },
+  "settingsVolumeCard": "屏幕边缘滚轮调节音量",
+  "@settingsVolumeCard": {
+    "description": "Volume page: card holding the screen-edge wheel volume options."
+  },
+  "settingsVolumeEnableHint": "在屏幕边缘滚动滚轮调节系统音量",
+  "@settingsVolumeEnableHint": {
+    "description": "Volume page: hint of the volume wheel enable switch."
+  },
+  "settingsVolumeEdges": "触发边缘",
+  "@settingsVolumeEdges": {
+    "description": "Volume page: the trigger edges label."
+  },
+  "settingsVolumeEdgesHint": "与相邻显示器相接的边不触发",
+  "@settingsVolumeEdgesHint": {
+    "description": "Volume page: hint of the trigger edges checkboxes."
+  },
+  "settingsVolumeEdgeTop": "上",
+  "@settingsVolumeEdgeTop": {
+    "description": "Volume page: the top edge checkbox label."
+  },
+  "settingsVolumeEdgeBottom": "下",
+  "@settingsVolumeEdgeBottom": {
+    "description": "Volume page: the bottom edge checkbox label."
+  },
+  "settingsVolumeEdgeLeft": "左",
+  "@settingsVolumeEdgeLeft": {
+    "description": "Volume page: the left edge checkbox label."
+  },
+  "settingsVolumeEdgeRight": "右",
+  "@settingsVolumeEdgeRight": {
+    "description": "Volume page: the right edge checkbox label."
+  },
+  "settingsVolumeThickness": "热区厚度",
+  "@settingsVolumeThickness": {
+    "description": "Volume page: the hot zone thickness number field label."
+  },
+  "settingsVolumeThicknessHint": "1 – 32 像素",
+  "@settingsVolumeThicknessHint": {
+    "description": "Volume page: allowed range of the hot zone thickness field."
+  },
+  "settingsVolumeStep": "每次步进",
+  "@settingsVolumeStep": {
+    "description": "Volume page: the step per scroll number field label."
+  },
+  "settingsVolumeStepHint": "1 – 10%",
+  "@settingsVolumeStepHint": {
+    "description": "Volume page: allowed range of the step per scroll field."
+  },
+  "settingsSitesCard": "站点搜索",
+  "@settingsSitesCard": {
+    "description": "Site search page: card holding the web search sites."
+  },
+  "settingsSitesHint": "输入“关键词 搜索词”即可在结果中追加该站点的搜索链接，模板中 '{query}' 会被替换为搜索词。",
+  "@settingsSitesHint": {
+    "description": "Site search page: explanation of the keyword and URL template fields."
+  },
+  "settingsSitesKeyword": "关键词",
+  "@settingsSitesKeyword": {
+    "description": "Site search page: placeholder of the site keyword field."
+  },
+  "settingsSitesName": "名称",
+  "@settingsSitesName": {
+    "description": "Site search page: placeholder of the site name field."
+  },
+  "settingsSitesURLPlaceholder": "https://…/'{query}'",
+  "@settingsSitesURLPlaceholder": {
+    "description": "Site search page: placeholder of the site URL template field."
+  },
+  "settingsSitesAdd": "添加站点",
+  "@settingsSitesAdd": {
+    "description": "Site search page: button that adds a site row."
+  },
+  "settingsItemsCard": "自定义启动项",
+  "@settingsItemsCard": {
+    "description": "Launch items page: card holding the custom launch items."
+  },
+  "settingsItemsName": "名称",
+  "@settingsItemsName": {
+    "description": "Launch items page: placeholder of the item name field."
+  },
+  "settingsItemsTarget": "目标路径或网址",
+  "@settingsItemsTarget": {
+    "description": "Launch items page: placeholder of the item target field."
+  },
+  "settingsItemsArguments": "参数",
+  "@settingsItemsArguments": {
+    "description": "Launch items page: placeholder of the item arguments field."
+  },
+  "settingsItemsAdd": "添加启动项",
+  "@settingsItemsAdd": {
+    "description": "Launch items page: button that adds a custom launch item."
+  },
+  "settingsWorkspacesCard": "工作区",
+  "@settingsWorkspacesCard": {
+    "description": "Launch items page: card holding the workspaces."
+  },
+  "settingsWorkspacesHint": "工作区按顺序打开下列启动项 ID 对应的程序。",
+  "@settingsWorkspacesHint": {
+    "description": "Launch items page: explanation of how workspaces open programs."
+  },
+  "settingsWorkspacesName": "名称",
+  "@settingsWorkspacesName": {
+    "description": "Launch items page: placeholder of the workspace name field."
+  },
+  "settingsWorkspacesAliases": "别名",
+  "@settingsWorkspacesAliases": {
+    "description": "Launch items page: placeholder of the workspace aliases field."
+  },
+  "settingsWorkspacesItemIDs": "启动项 ID，逗号分隔",
+  "@settingsWorkspacesItemIDs": {
+    "description": "Launch items page: placeholder of the workspace item IDs field."
+  },
+  "settingsWorkspacesAdd": "添加工作区",
+  "@settingsWorkspacesAdd": {
+    "description": "Launch items page: button that adds a workspace."
+  },
+  "settingsPluginsUninitialized": "插件运行时未初始化，请重启 FluentLauncher。",
+  "@settingsPluginsUninitialized": {
+    "description": "Plugins page: shown when the plugin runtime has not been initialized."
+  },
+  "settingsPluginsInstalledCard": "已安装插件",
+  "@settingsPluginsInstalledCard": {
+    "description": "Plugins page: card listing the installed plugins."
+  },
+  "settingsPluginsEmptyTitle": "还没有安装插件",
+  "@settingsPluginsEmptyTitle": {
+    "description": "Plugins page: title of the empty state."
+  },
+  "settingsPluginsEmptyHint1": "插件是启动器额外的搜索来源：装好并启用后，输入它的触发词（例如 echo、time），结果里就会直接出现它给出的答案，例如文本转换、时间戳、摘要。",
+  "@settingsPluginsEmptyHint1": {
+    "description": "Plugins page: first empty-state paragraph, what plugins are good for."
+  },
+  "settingsPluginsEmptyHint2": "插件以独立进程运行，只在需要时启动，空闲后自动回收，不影响常规搜索的速度。",
+  "@settingsPluginsEmptyHint2": {
+    "description": "Plugins page: second empty-state paragraph, how plugin processes run."
+  },
+  "settingsPluginsEmptyHint3": "官方示例可以在下面的「安装插件」里一键添加，第三方插件可以从 ZIP 包或目录安装。",
+  "@settingsPluginsEmptyHint3": {
+    "description": "Plugins page: third empty-state paragraph, where plugins come from."
+  },
+  "settingsPluginsRestart": "重启",
+  "@settingsPluginsRestart": {
+    "description": "Plugins page: button that restarts a paused or failed plugin."
+  },
+  "settingsPluginsVersion": "{id} · 版本 {version}",
+  "@settingsPluginsVersion": {
+    "description": "Plugins page: one installed plugin's id and version line.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsPluginsKeywords": "触发词：{keywords}",
+  "@settingsPluginsKeywords": {
+    "description": "Plugins page: the trigger words line of an installed plugin.",
+    "placeholders": {
+      "keywords": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsPluginsStderr": "错误输出：{stderr}",
+  "@settingsPluginsStderr": {
+    "description": "Plugins page: the tail of a plugin's error output.",
+    "placeholders": {
+      "stderr": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsPluginsGlobalQuery": "每次搜索都查询（无需触发词）",
+  "@settingsPluginsGlobalQuery": {
+    "description": "Plugins page: checkbox that queries the plugin on every search without trigger words."
+  },
+  "settingsPluginsInstallCard": "安装插件",
+  "@settingsPluginsInstallCard": {
+    "description": "Plugins page: card where plugins are installed from."
+  },
+  "settingsPluginsInstallHint": "官方示例随启动器提供，安装后立即可用；第三方插件需要是包含 plugin.json 的 ZIP 包，或已经解压好的目录。",
+  "@settingsPluginsInstallHint": {
+    "description": "Plugins page: explanation of the official examples and third-party package formats."
+  },
+  "settingsPluginsInstallZip": "安装 ZIP…",
+  "@settingsPluginsInstallZip": {
+    "description": "Plugins page: button that installs a plugin from a ZIP package."
+  },
+  "settingsPluginsInstallDir": "安装目录…",
+  "@settingsPluginsInstallDir": {
+    "description": "Plugins page: button that installs a plugin from a directory."
+  },
+  "settingsPluginsInstalledBadge": "已安装",
+  "@settingsPluginsInstalledBadge": {
+    "description": "Plugins page: badge on an official example that is already installed."
+  },
+  "settingsPluginsProblemsCard": "无法加载的插件包",
+  "@settingsPluginsProblemsCard": {
+    "description": "Plugins page: card listing plugin packages that could not be loaded."
+  },
+  "settingsPluginsProblemsHint": "这些目录不会被使用；修正后重启 FluentLauncher 重新扫描，或删除目录。",
+  "@settingsPluginsProblemsHint": {
+    "description": "Plugins page: hint under the list of broken plugin packages."
+  },
+  "settingsPluginsRuntimeCard": "运行诊断",
+  "@settingsPluginsRuntimeCard": {
+    "description": "Plugins page: card summing up the plugin runtime configuration."
+  },
+  "settingsPluginsRuntimeStats": "已启用 {enabled, number, ::group-off} 个插件，活动进程 {running, number, ::group-off} / {max, number, ::group-off} 个；进程空闲 {idle, number, ::group-off} 秒后回收，单次查询超时 {timeout, number, ::group-off} 毫秒。",
+  "@settingsPluginsRuntimeStats": {
+    "description": "Plugins page: how many plugins are enabled and how the runtime processes are limited.",
+    "placeholders": {
+      "enabled": {
+        "type": "int"
+      },
+      "running": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      },
+      "idle": {
+        "type": "int"
+      },
+      "timeout": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsPluginsTrustHint": "插件是受信任的本地代码，进程隔离能限制崩溃影响，但不等于安全沙箱；只安装来源可信的插件包。",
+  "@settingsPluginsTrustHint": {
+    "description": "Plugins page: warning that plugins are trusted local code."
+  },
+  "settingsAboutCard": "关于",
+  "@settingsAboutCard": {
+    "description": "Other page: card with the app name, version and data directory."
+  },
+  "settingsAboutDataDir": "数据目录：{dir}",
+  "@settingsAboutDataDir": {
+    "description": "Other page: the directory where the app keeps its data.",
+    "placeholders": {
+      "dir": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAboutHiddenCount": "隐藏条目：{count, number, ::group-off}",
+  "@settingsAboutHiddenCount": {
+    "description": "Other page: how many entries are hidden.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsDataCard": "配置与数据",
+  "@settingsDataCard": {
+    "description": "Other page: card holding the configuration and data buttons."
+  },
+  "settingsExportConfig": "导出配置…",
+  "@settingsExportConfig": {
+    "description": "Other page: button that exports the configuration."
+  },
+  "settingsImportConfig": "导入配置…",
+  "@settingsImportConfig": {
+    "description": "Other page: button that imports a configuration."
+  },
+  "settingsResetLearning": "重置学习记录",
+  "@settingsResetLearning": {
+    "description": "Other page: button that resets the usage learning data."
+  },
+  "settingsRestoreHidden": "恢复隐藏条目",
+  "@settingsRestoreHidden": {
+    "description": "Other page: button that unhides all hidden entries."
+  },
+  "settingsDialogBackgroundImage": "选择背景图片",
+  "@settingsDialogBackgroundImage": {
+    "description": "File dialog title: choosing the background image."
+  },
+  "settingsDialogPluginPackage": "选择插件包",
+  "@settingsDialogPluginPackage": {
+    "description": "File dialog title: choosing a plugin package to install."
+  },
+  "settingsDialogPluginPackageFilter": "插件包",
+  "@settingsDialogPluginPackageFilter": {
+    "description": "File dialog filter name: plugin package ZIP files."
+  },
+  "settingsDialogExportConfig": "导出配置",
+  "@settingsDialogExportConfig": {
+    "description": "File dialog title: exporting the configuration."
+  },
+  "settingsDialogImportConfig": "导入配置",
+  "@settingsDialogImportConfig": {
+    "description": "File dialog title: importing a configuration."
+  },
+  "settingsDialogExportTheme": "导出主题",
+  "@settingsDialogExportTheme": {
+    "description": "File dialog title: exporting the theme."
+  },
+  "settingsDialogImportTheme": "导入主题",
+  "@settingsDialogImportTheme": {
+    "description": "File dialog title: importing a theme."
+  },
+  "settingsDialogThemePackageFilter": "主题包",
+  "@settingsDialogThemePackageFilter": {
+    "description": "File dialog filter name: theme package ZIP files."
+  },
+  "pluginOfficialEchoName": "回显示例",
+  "@pluginOfficialEchoName": {
+    "description": "Settings, plugins page: install card name of the bundled echo example."
+  },
+  "pluginOfficialEchoSummary": "最小可用的插件：输入 echo 加文本，结果里原样返回，回车即可复制。",
+  "@pluginOfficialEchoSummary": {
+    "description": "Settings, plugins page: install card summary of the bundled echo example."
+  },
+  "pluginOfficialDevtoolsName": "开发工具",
+  "@pluginOfficialDevtoolsName": {
+    "description": "Settings, plugins page: install card name of the bundled devtools example."
+  },
+  "pluginOfficialDevtoolsSummary": "离线文本工具：时间戳与时区、UUID、JSON 校验与格式化、Base64 与 URL 编解码、摘要。",
+  "@pluginOfficialDevtoolsSummary": {
+    "description": "Settings, plugins page: install card summary of the bundled devtools example."
   }
 }

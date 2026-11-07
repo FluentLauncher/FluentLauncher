@@ -357,3 +357,7637 @@ func CommonBrowse() string { return In(i18n.Locale()).CommonBrowse() }
 func (msgs Messages) CommonBrowse() string {
 	return Catalog.Format(msgs.locale, "commonBrowse", nil)
 }
+
+// AppCannotReadSettings says "无法读取设置，使用默认配置：{err}"
+// in the language the app shows.
+//
+// Startup notice: the settings file could not be read; the defaults are
+// used.
+func AppCannotReadSettings(err any) string { return In(i18n.Locale()).AppCannotReadSettings(err) }
+
+// AppCannotReadSettings says "无法读取设置，使用默认配置：{err}"
+// in the language of msgs.
+//
+// Startup notice: the settings file could not be read; the defaults are
+// used.
+func (msgs Messages) AppCannotReadSettings(err any) string {
+	return Catalog.Format(msgs.locale, "appCannotReadSettings", map[string]any{"err": err})
+}
+
+// AppCannotOpenDatabase says "无法打开数据库：{err}"
+// in the language the app shows.
+//
+// Startup notice: the launcher database could not be opened.
+func AppCannotOpenDatabase(err any) string { return In(i18n.Locale()).AppCannotOpenDatabase(err) }
+
+// AppCannotOpenDatabase says "无法打开数据库：{err}"
+// in the language of msgs.
+//
+// Startup notice: the launcher database could not be opened.
+func (msgs Messages) AppCannotOpenDatabase(err any) string {
+	return Catalog.Format(msgs.locale, "appCannotOpenDatabase", map[string]any{"err": err})
+}
+
+// AppCannotReadProfiles says "无法读取个人规则：{err}"
+// in the language the app shows.
+//
+// Startup notice: the personal usage profiles could not be read from the
+// database.
+func AppCannotReadProfiles(err any) string { return In(i18n.Locale()).AppCannotReadProfiles(err) }
+
+// AppCannotReadProfiles says "无法读取个人规则：{err}"
+// in the language of msgs.
+//
+// Startup notice: the personal usage profiles could not be read from the
+// database.
+func (msgs Messages) AppCannotReadProfiles(err any) string {
+	return Catalog.Format(msgs.locale, "appCannotReadProfiles", map[string]any{"err": err})
+}
+
+// AppCannotReadFileIndex says "无法读取文件索引：{err}"
+// in the language the app shows.
+//
+// Startup notice: the cached file index could not be read.
+func AppCannotReadFileIndex(err any) string { return In(i18n.Locale()).AppCannotReadFileIndex(err) }
+
+// AppCannotReadFileIndex says "无法读取文件索引：{err}"
+// in the language of msgs.
+//
+// Startup notice: the cached file index could not be read.
+func (msgs Messages) AppCannotReadFileIndex(err any) string {
+	return Catalog.Format(msgs.locale, "appCannotReadFileIndex", map[string]any{"err": err})
+}
+
+// AppDiscoveryFailed says "应用发现失败：{err}"
+// in the language the app shows.
+//
+// Notice: discovering the installed applications failed.
+func AppDiscoveryFailed(err any) string { return In(i18n.Locale()).AppDiscoveryFailed(err) }
+
+// AppDiscoveryFailed says "应用发现失败：{err}"
+// in the language of msgs.
+//
+// Notice: discovering the installed applications failed.
+func (msgs Messages) AppDiscoveryFailed(err any) string {
+	return Catalog.Format(msgs.locale, "appDiscoveryFailed", map[string]any{"err": err})
+}
+
+// AppDiscoveredApps says "已发现 {count} 个应用"
+// in the language the app shows.
+//
+// Status bar: how many applications discovery found.
+func AppDiscoveredApps(count int) string { return In(i18n.Locale()).AppDiscoveredApps(count) }
+
+// AppDiscoveredApps says "已发现 {count} 个应用"
+// in the language of msgs.
+//
+// Status bar: how many applications discovery found.
+func (msgs Messages) AppDiscoveredApps(count int) string {
+	return Catalog.Format(msgs.locale, "appDiscoveredApps", map[string]any{"count": count})
+}
+
+// AppNoPathToCopy says "此条目没有可复制的路径"
+// in the language the app shows.
+//
+// Notice: the chosen entry has no path for the copy-path action.
+func AppNoPathToCopy() string { return In(i18n.Locale()).AppNoPathToCopy() }
+
+// AppNoPathToCopy says "此条目没有可复制的路径"
+// in the language of msgs.
+//
+// Notice: the chosen entry has no path for the copy-path action.
+func (msgs Messages) AppNoPathToCopy() string {
+	return Catalog.Format(msgs.locale, "appNoPathToCopy", nil)
+}
+
+// AppNoPluginAction says "该插件条目没有可执行动作"
+// in the language the app shows.
+//
+// Notice: the plugin entry offers no action to run.
+func AppNoPluginAction() string { return In(i18n.Locale()).AppNoPluginAction() }
+
+// AppNoPluginAction says "该插件条目没有可执行动作"
+// in the language of msgs.
+//
+// Notice: the plugin entry offers no action to run.
+func (msgs Messages) AppNoPluginAction() string {
+	return Catalog.Format(msgs.locale, "appNoPluginAction", nil)
+}
+
+// AppCanceled says "已取消"
+// in the language the app shows.
+//
+// Notice: the user canceled the launch.
+func AppCanceled() string { return In(i18n.Locale()).AppCanceled() }
+
+// AppCanceled says "已取消"
+// in the language of msgs.
+//
+// Notice: the user canceled the launch.
+func (msgs Messages) AppCanceled() string {
+	return Catalog.Format(msgs.locale, "appCanceled", nil)
+}
+
+// AppCannotOpenEntry says "无法打开“{title}”：{err}"
+// in the language the app shows.
+//
+// Notice: opening the chosen entry failed.
+func AppCannotOpenEntry(title string, err string) string {
+	return In(i18n.Locale()).AppCannotOpenEntry(title, err)
+}
+
+// AppCannotOpenEntry says "无法打开“{title}”：{err}"
+// in the language of msgs.
+//
+// Notice: opening the chosen entry failed.
+func (msgs Messages) AppCannotOpenEntry(title string, err string) string {
+	return Catalog.Format(msgs.locale, "appCannotOpenEntry", map[string]any{"title": title, "err": err})
+}
+
+// TrayShowSearch says "显示搜索"
+// in the language the app shows.
+//
+// Tray menu: show the search panel.
+func TrayShowSearch() string { return In(i18n.Locale()).TrayShowSearch() }
+
+// TrayShowSearch says "显示搜索"
+// in the language of msgs.
+//
+// Tray menu: show the search panel.
+func (msgs Messages) TrayShowSearch() string {
+	return Catalog.Format(msgs.locale, "trayShowSearch", nil)
+}
+
+// TraySettings says "设置"
+// in the language the app shows.
+//
+// Tray menu: open the settings window.
+func TraySettings() string { return In(i18n.Locale()).TraySettings() }
+
+// TraySettings says "设置"
+// in the language of msgs.
+//
+// Tray menu: open the settings window.
+func (msgs Messages) TraySettings() string {
+	return Catalog.Format(msgs.locale, "traySettings", nil)
+}
+
+// TrayRunAtLoginOn says "开机启动：开"
+// in the language the app shows.
+//
+// Tray menu: launching at login is currently on.
+func TrayRunAtLoginOn() string { return In(i18n.Locale()).TrayRunAtLoginOn() }
+
+// TrayRunAtLoginOn says "开机启动：开"
+// in the language of msgs.
+//
+// Tray menu: launching at login is currently on.
+func (msgs Messages) TrayRunAtLoginOn() string {
+	return Catalog.Format(msgs.locale, "trayRunAtLoginOn", nil)
+}
+
+// TrayRunAtLoginOff says "开机启动：关"
+// in the language the app shows.
+//
+// Tray menu: launching at login is currently off.
+func TrayRunAtLoginOff() string { return In(i18n.Locale()).TrayRunAtLoginOff() }
+
+// TrayRunAtLoginOff says "开机启动：关"
+// in the language of msgs.
+//
+// Tray menu: launching at login is currently off.
+func (msgs Messages) TrayRunAtLoginOff() string {
+	return Catalog.Format(msgs.locale, "trayRunAtLoginOff", nil)
+}
+
+// TrayQuit says "退出"
+// in the language the app shows.
+//
+// Tray menu: quit the launcher.
+func TrayQuit() string { return In(i18n.Locale()).TrayQuit() }
+
+// TrayQuit says "退出"
+// in the language of msgs.
+//
+// Tray menu: quit the launcher.
+func (msgs Messages) TrayQuit() string {
+	return Catalog.Format(msgs.locale, "trayQuit", nil)
+}
+
+// HotkeyOccupiedFallback says "热键 {hotkey} 被其他程序占用，已改用 {fallback}。"
+// in the language the app shows.
+//
+// Notice: the configured hotkey is taken by another program; a fallback was
+// registered instead.
+func HotkeyOccupiedFallback(hotkey string, fallback string) string {
+	return In(i18n.Locale()).HotkeyOccupiedFallback(hotkey, fallback)
+}
+
+// HotkeyOccupiedFallback says "热键 {hotkey} 被其他程序占用，已改用 {fallback}。"
+// in the language of msgs.
+//
+// Notice: the configured hotkey is taken by another program; a fallback was
+// registered instead.
+func (msgs Messages) HotkeyOccupiedFallback(hotkey string, fallback string) string {
+	return Catalog.Format(msgs.locale, "hotkeyOccupiedFallback", map[string]any{"hotkey": hotkey, "fallback": fallback})
+}
+
+// HotkeyAllOccupied says "全局热键全部被占用，请在设置中更换。"
+// in the language the app shows.
+//
+// Notice: every candidate global hotkey is taken; the user should pick
+// another one.
+func HotkeyAllOccupied() string { return In(i18n.Locale()).HotkeyAllOccupied() }
+
+// HotkeyAllOccupied says "全局热键全部被占用，请在设置中更换。"
+// in the language of msgs.
+//
+// Notice: every candidate global hotkey is taken; the user should pick
+// another one.
+func (msgs Messages) HotkeyAllOccupied() string {
+	return Catalog.Format(msgs.locale, "hotkeyAllOccupied", nil)
+}
+
+// StatusShowingResults says "当前显示 {count} 条"
+// in the language the app shows.
+//
+// Status bar: how many results the current search shows.
+func StatusShowingResults(count int) string { return In(i18n.Locale()).StatusShowingResults(count) }
+
+// StatusShowingResults says "当前显示 {count} 条"
+// in the language of msgs.
+//
+// Status bar: how many results the current search shows.
+func (msgs Messages) StatusShowingResults(count int) string {
+	return Catalog.Format(msgs.locale, "statusShowingResults", map[string]any{"count": count})
+}
+
+// PanelSearchPlaceholder says "搜索应用、文件、命令"
+// in the language the app shows.
+//
+// Main launcher panel: placeholder of the search box
+func PanelSearchPlaceholder() string { return In(i18n.Locale()).PanelSearchPlaceholder() }
+
+// PanelSearchPlaceholder says "搜索应用、文件、命令"
+// in the language of msgs.
+//
+// Main launcher panel: placeholder of the search box
+func (msgs Messages) PanelSearchPlaceholder() string {
+	return Catalog.Format(msgs.locale, "panelSearchPlaceholder", nil)
+}
+
+// PanelSearchLabel says "搜索"
+// in the language the app shows.
+//
+// Main launcher panel: accessible label of the search box
+func PanelSearchLabel() string { return In(i18n.Locale()).PanelSearchLabel() }
+
+// PanelSearchLabel says "搜索"
+// in the language of msgs.
+//
+// Main launcher panel: accessible label of the search box
+func (msgs Messages) PanelSearchLabel() string {
+	return Catalog.Format(msgs.locale, "panelSearchLabel", nil)
+}
+
+// PanelGripLabel says "拖动窗口"
+// in the language the app shows.
+//
+// Main launcher panel: label and tooltip of the grip that drags the window
+func PanelGripLabel() string { return In(i18n.Locale()).PanelGripLabel() }
+
+// PanelGripLabel says "拖动窗口"
+// in the language of msgs.
+//
+// Main launcher panel: label and tooltip of the grip that drags the window
+func (msgs Messages) PanelGripLabel() string {
+	return Catalog.Format(msgs.locale, "panelGripLabel", nil)
+}
+
+// PanelEmptySearch says "输入以搜索"
+// in the language the app shows.
+//
+// Main launcher panel: empty state when a non-empty query returned no
+// results
+func PanelEmptySearch() string { return In(i18n.Locale()).PanelEmptySearch() }
+
+// PanelEmptySearch says "输入以搜索"
+// in the language of msgs.
+//
+// Main launcher panel: empty state when a non-empty query returned no
+// results
+func (msgs Messages) PanelEmptySearch() string {
+	return Catalog.Format(msgs.locale, "panelEmptySearch", nil)
+}
+
+// PanelEmptyQuery says "输入以搜索应用、文件或命令"
+// in the language the app shows.
+//
+// Main launcher panel: empty state when the query is empty
+func PanelEmptyQuery() string { return In(i18n.Locale()).PanelEmptyQuery() }
+
+// PanelEmptyQuery says "输入以搜索应用、文件或命令"
+// in the language of msgs.
+//
+// Main launcher panel: empty state when the query is empty
+func (msgs Messages) PanelEmptyQuery() string {
+	return Catalog.Format(msgs.locale, "panelEmptyQuery", nil)
+}
+
+// PanelLoading says "正在读取应用…"
+// in the language the app shows.
+//
+// Main launcher panel: empty state while apps are still being read
+func PanelLoading() string { return In(i18n.Locale()).PanelLoading() }
+
+// PanelLoading says "正在读取应用…"
+// in the language of msgs.
+//
+// Main launcher panel: empty state while apps are still being read
+func (msgs Messages) PanelLoading() string {
+	return Catalog.Format(msgs.locale, "panelLoading", nil)
+}
+
+// PanelWorkspaceBadge says "工作区"
+// in the language the app shows.
+//
+// Main launcher panel: badge on result rows that are workspaces
+func PanelWorkspaceBadge() string { return In(i18n.Locale()).PanelWorkspaceBadge() }
+
+// PanelWorkspaceBadge says "工作区"
+// in the language of msgs.
+//
+// Main launcher panel: badge on result rows that are workspaces
+func (msgs Messages) PanelWorkspaceBadge() string {
+	return Catalog.Format(msgs.locale, "panelWorkspaceBadge", nil)
+}
+
+// PanelComposing says "组合 {value}"
+// in the language the app shows.
+//
+// Main launcher panel footer: whether the input method is composing
+func PanelComposing(value string) string { return In(i18n.Locale()).PanelComposing(value) }
+
+// PanelComposing says "组合 {value}"
+// in the language of msgs.
+//
+// Main launcher panel footer: whether the input method is composing
+func (msgs Messages) PanelComposing(value string) string {
+	return Catalog.Format(msgs.locale, "panelComposing", map[string]any{"value": value})
+}
+
+// PanelHint says "↑↓ 选择 · ↵ 打开 · Ctrl+K 动作 · Esc 清空/隐藏"
+// in the language the app shows.
+//
+// Main launcher panel footer: shortcut hint
+func PanelHint() string { return In(i18n.Locale()).PanelHint() }
+
+// PanelHint says "↑↓ 选择 · ↵ 打开 · Ctrl+K 动作 · Esc 清空/隐藏"
+// in the language of msgs.
+//
+// Main launcher panel footer: shortcut hint
+func (msgs Messages) PanelHint() string {
+	return Catalog.Format(msgs.locale, "panelHint", nil)
+}
+
+// PanelHintHotkey says "{hotkey} 呼出 · ↑↓ 选择 · ↵ 打开 · Ctrl+K 动作 · Esc 清空/隐藏"
+// in the language the app shows.
+//
+// Main launcher panel footer: shortcut hint prefixed by the active call
+// hotkey
+func PanelHintHotkey(hotkey string) string { return In(i18n.Locale()).PanelHintHotkey(hotkey) }
+
+// PanelHintHotkey says "{hotkey} 呼出 · ↑↓ 选择 · ↵ 打开 · Ctrl+K 动作 · Esc 清空/隐藏"
+// in the language of msgs.
+//
+// Main launcher panel footer: shortcut hint prefixed by the active call
+// hotkey
+func (msgs Messages) PanelHintHotkey(hotkey string) string {
+	return Catalog.Format(msgs.locale, "panelHintHotkey", map[string]any{"hotkey": hotkey})
+}
+
+// PanelActionsHint says "↑↓ 选择 · ↵ 执行 · Esc 返回"
+// in the language the app shows.
+//
+// Actions panel: footer shortcut hint
+func PanelActionsHint() string { return In(i18n.Locale()).PanelActionsHint() }
+
+// PanelActionsHint says "↑↓ 选择 · ↵ 执行 · Esc 返回"
+// in the language of msgs.
+//
+// Actions panel: footer shortcut hint
+func (msgs Messages) PanelActionsHint() string {
+	return Catalog.Format(msgs.locale, "panelActionsHint", nil)
+}
+
+// PanelPluginActionFailed says "插件动作失败：{err}"
+// in the language the app shows.
+//
+// Main launcher panel: notice when a plugin action fails
+func PanelPluginActionFailed(err string) string {
+	return In(i18n.Locale()).PanelPluginActionFailed(err)
+}
+
+// PanelPluginActionFailed says "插件动作失败：{err}"
+// in the language of msgs.
+//
+// Main launcher panel: notice when a plugin action fails
+func (msgs Messages) PanelPluginActionFailed(err string) string {
+	return Catalog.Format(msgs.locale, "panelPluginActionFailed", map[string]any{"err": err})
+}
+
+// PanelPluginRuntimeDisabled says "插件运行时未启用"
+// in the language the app shows.
+//
+// Main launcher panel: notice when the plugin runtime is not enabled
+func PanelPluginRuntimeDisabled() string { return In(i18n.Locale()).PanelPluginRuntimeDisabled() }
+
+// PanelPluginRuntimeDisabled says "插件运行时未启用"
+// in the language of msgs.
+//
+// Main launcher panel: notice when the plugin runtime is not enabled
+func (msgs Messages) PanelPluginRuntimeDisabled() string {
+	return Catalog.Format(msgs.locale, "panelPluginRuntimeDisabled", nil)
+}
+
+// PanelPluginActionDone says "已执行：{title}"
+// in the language the app shows.
+//
+// Main launcher panel footer: status after a plugin action executed
+func PanelPluginActionDone(title string) string {
+	return In(i18n.Locale()).PanelPluginActionDone(title)
+}
+
+// PanelPluginActionDone says "已执行：{title}"
+// in the language of msgs.
+//
+// Main launcher panel footer: status after a plugin action executed
+func (msgs Messages) PanelPluginActionDone(title string) string {
+	return Catalog.Format(msgs.locale, "panelPluginActionDone", map[string]any{"title": title})
+}
+
+// PanelPluginActionUnsupported says "不支持的插件动作。"
+// in the language the app shows.
+//
+// Main launcher panel: notice for an unknown plugin action kind
+func PanelPluginActionUnsupported() string { return In(i18n.Locale()).PanelPluginActionUnsupported() }
+
+// PanelPluginActionUnsupported says "不支持的插件动作。"
+// in the language of msgs.
+//
+// Main launcher panel: notice for an unknown plugin action kind
+func (msgs Messages) PanelPluginActionUnsupported() string {
+	return Catalog.Format(msgs.locale, "panelPluginActionUnsupported", nil)
+}
+
+// PromptPreviewTitle says "文本预览（只读）"
+// in the language the app shows.
+//
+// Prompt dialog: title of the read-only text preview
+func PromptPreviewTitle() string { return In(i18n.Locale()).PromptPreviewTitle() }
+
+// PromptPreviewTitle says "文本预览（只读）"
+// in the language of msgs.
+//
+// Prompt dialog: title of the read-only text preview
+func (msgs Messages) PromptPreviewTitle() string {
+	return Catalog.Format(msgs.locale, "promptPreviewTitle", nil)
+}
+
+// PromptAliasTitle says "设置别名（用分号分隔多个）"
+// in the language the app shows.
+//
+// Prompt dialog: title of the alias editor
+func PromptAliasTitle() string { return In(i18n.Locale()).PromptAliasTitle() }
+
+// PromptAliasTitle says "设置别名（用分号分隔多个）"
+// in the language of msgs.
+//
+// Prompt dialog: title of the alias editor
+func (msgs Messages) PromptAliasTitle() string {
+	return Catalog.Format(msgs.locale, "promptAliasTitle", nil)
+}
+
+// WorkspaceRunFailed says "工作区 {name}：{count} 个项目失败{details}"
+// in the language the app shows.
+//
+// Main launcher panel: notice when some workspace steps failed; details are
+// newline-prefixed lines
+func WorkspaceRunFailed(name string, count int, details string) string {
+	return In(i18n.Locale()).WorkspaceRunFailed(name, count, details)
+}
+
+// WorkspaceRunFailed says "工作区 {name}：{count} 个项目失败{details}"
+// in the language of msgs.
+//
+// Main launcher panel: notice when some workspace steps failed; details are
+// newline-prefixed lines
+func (msgs Messages) WorkspaceRunFailed(name string, count int, details string) string {
+	return Catalog.Format(msgs.locale, "workspaceRunFailed", map[string]any{"name": name, "count": count, "details": details})
+}
+
+// WorkspaceStepFailed says "{name}：{error}"
+// in the language the app shows.
+//
+// Main launcher panel: one detail line of a failed workspace step
+func WorkspaceStepFailed(name string, error string) string {
+	return In(i18n.Locale()).WorkspaceStepFailed(name, error)
+}
+
+// WorkspaceStepFailed says "{name}：{error}"
+// in the language of msgs.
+//
+// Main launcher panel: one detail line of a failed workspace step
+func (msgs Messages) WorkspaceStepFailed(name string, error string) string {
+	return Catalog.Format(msgs.locale, "workspaceStepFailed", map[string]any{"name": name, "error": error})
+}
+
+// WorkspaceDeleted says "工作区已删除，请重新查询。"
+// in the language the app shows.
+//
+// Main launcher panel: notice when the chosen workspace no longer exists
+func WorkspaceDeleted() string { return In(i18n.Locale()).WorkspaceDeleted() }
+
+// WorkspaceDeleted says "工作区已删除，请重新查询。"
+// in the language of msgs.
+//
+// Main launcher panel: notice when the chosen workspace no longer exists
+func (msgs Messages) WorkspaceDeleted() string {
+	return Catalog.Format(msgs.locale, "workspaceDeleted", nil)
+}
+
+// WorkspaceRetryStatus says "已重试：{name}"
+// in the language the app shows.
+//
+// Workspace result window: footer status after a successful retry
+func WorkspaceRetryStatus(name string) string { return In(i18n.Locale()).WorkspaceRetryStatus(name) }
+
+// WorkspaceRetryStatus says "已重试：{name}"
+// in the language of msgs.
+//
+// Workspace result window: footer status after a successful retry
+func (msgs Messages) WorkspaceRetryStatus(name string) string {
+	return Catalog.Format(msgs.locale, "workspaceRetryStatus", map[string]any{"name": name})
+}
+
+// WorkspaceRetryFailed says "重试失败：{error}"
+// in the language the app shows.
+//
+// Workspace result window: notice when a retry fails
+func WorkspaceRetryFailed(error string) string { return In(i18n.Locale()).WorkspaceRetryFailed(error) }
+
+// WorkspaceRetryFailed says "重试失败：{error}"
+// in the language of msgs.
+//
+// Workspace result window: notice when a retry fails
+func (msgs Messages) WorkspaceRetryFailed(error string) string {
+	return Catalog.Format(msgs.locale, "workspaceRetryFailed", map[string]any{"error": error})
+}
+
+// WorkspaceItemDeleted says "该启动项已删除。"
+// in the language the app shows.
+//
+// Workspace result window: notice when the launch item to retry no longer
+// exists
+func WorkspaceItemDeleted() string { return In(i18n.Locale()).WorkspaceItemDeleted() }
+
+// WorkspaceItemDeleted says "该启动项已删除。"
+// in the language of msgs.
+//
+// Workspace result window: notice when the launch item to retry no longer
+// exists
+func (msgs Messages) WorkspaceItemDeleted() string {
+	return Catalog.Format(msgs.locale, "workspaceItemDeleted", nil)
+}
+
+// VolumeWheelError says "无法启用边缘滚轮调音量：{err}"
+// in the language the app shows.
+//
+// Main launcher panel: notice when the edge wheel for volume cannot start
+func VolumeWheelError(err string) string { return In(i18n.Locale()).VolumeWheelError(err) }
+
+// VolumeWheelError says "无法启用边缘滚轮调音量：{err}"
+// in the language of msgs.
+//
+// Main launcher panel: notice when the edge wheel for volume cannot start
+func (msgs Messages) VolumeWheelError(err string) string {
+	return Catalog.Format(msgs.locale, "volumeWheelError", map[string]any{"err": err})
+}
+
+// SizePreviewHint says "拖动面板移动位置，拖边缘调整大小"
+// in the language the app shows.
+//
+// Settings, appearance page: hint above the panel size preview
+func SizePreviewHint() string { return In(i18n.Locale()).SizePreviewHint() }
+
+// SizePreviewHint says "拖动面板移动位置，拖边缘调整大小"
+// in the language of msgs.
+//
+// Settings, appearance page: hint above the panel size preview
+func (msgs Messages) SizePreviewHint() string {
+	return Catalog.Format(msgs.locale, "sizePreviewHint", nil)
+}
+
+// SizePreviewReset says "恢复默认"
+// in the language the app shows.
+//
+// Settings, appearance page: button restoring the panel size and position
+// defaults
+func SizePreviewReset() string { return In(i18n.Locale()).SizePreviewReset() }
+
+// SizePreviewReset says "恢复默认"
+// in the language of msgs.
+//
+// Settings, appearance page: button restoring the panel size and position
+// defaults
+func (msgs Messages) SizePreviewReset() string {
+	return Catalog.Format(msgs.locale, "sizePreviewReset", nil)
+}
+
+// SizePreviewLabel says "窗口尺寸与位置预览"
+// in the language the app shows.
+//
+// Settings, appearance page: accessible label of the panel size preview
+// canvas
+func SizePreviewLabel() string { return In(i18n.Locale()).SizePreviewLabel() }
+
+// SizePreviewLabel says "窗口尺寸与位置预览"
+// in the language of msgs.
+//
+// Settings, appearance page: accessible label of the panel size preview
+// canvas
+func (msgs Messages) SizePreviewLabel() string {
+	return Catalog.Format(msgs.locale, "sizePreviewLabel", nil)
+}
+
+// SizePreviewDimensions says "{width} × {height}"
+// in the language the app shows.
+//
+// Settings, appearance page: the draft panel size in DIPs next to the
+// preview
+func SizePreviewDimensions(width string, height string) string {
+	return In(i18n.Locale()).SizePreviewDimensions(width, height)
+}
+
+// SizePreviewDimensions says "{width} × {height}"
+// in the language of msgs.
+//
+// Settings, appearance page: the draft panel size in DIPs next to the
+// preview
+func (msgs Messages) SizePreviewDimensions(width string, height string) string {
+	return Catalog.Format(msgs.locale, "sizePreviewDimensions", map[string]any{"width": width, "height": height})
+}
+
+// CmdRunAsAdministrator says "以管理员身份运行"
+// in the language the app shows.
+//
+// Context menu command: run an application elevated.
+func CmdRunAsAdministrator() string { return In(i18n.Locale()).CmdRunAsAdministrator() }
+
+// CmdRunAsAdministrator says "以管理员身份运行"
+// in the language of msgs.
+//
+// Context menu command: run an application elevated.
+func (msgs Messages) CmdRunAsAdministrator() string {
+	return Catalog.Format(msgs.locale, "cmdRunAsAdministrator", nil)
+}
+
+// CmdOpenFileLocation says "打开文件位置"
+// in the language the app shows.
+//
+// Context menu command: open the folder containing the file.
+func CmdOpenFileLocation() string { return In(i18n.Locale()).CmdOpenFileLocation() }
+
+// CmdOpenFileLocation says "打开文件位置"
+// in the language of msgs.
+//
+// Context menu command: open the folder containing the file.
+func (msgs Messages) CmdOpenFileLocation() string {
+	return Catalog.Format(msgs.locale, "cmdOpenFileLocation", nil)
+}
+
+// CmdOpenInExplorer says "在资源管理器中打开"
+// in the language the app shows.
+//
+// Context menu command for directories: open in Explorer.
+func CmdOpenInExplorer() string { return In(i18n.Locale()).CmdOpenInExplorer() }
+
+// CmdOpenInExplorer says "在资源管理器中打开"
+// in the language of msgs.
+//
+// Context menu command for directories: open in Explorer.
+func (msgs Messages) CmdOpenInExplorer() string {
+	return Catalog.Format(msgs.locale, "cmdOpenInExplorer", nil)
+}
+
+// CmdCopyPath says "复制路径"
+// in the language the app shows.
+//
+// Context menu command: copy the local path of the entry.
+func CmdCopyPath() string { return In(i18n.Locale()).CmdCopyPath() }
+
+// CmdCopyPath says "复制路径"
+// in the language of msgs.
+//
+// Context menu command: copy the local path of the entry.
+func (msgs Messages) CmdCopyPath() string {
+	return Catalog.Format(msgs.locale, "cmdCopyPath", nil)
+}
+
+// CmdCopyUrl says "复制网址"
+// in the language the app shows.
+//
+// Context menu command: copy the URL of a web entry.
+func CmdCopyUrl() string { return In(i18n.Locale()).CmdCopyUrl() }
+
+// CmdCopyUrl says "复制网址"
+// in the language of msgs.
+//
+// Context menu command: copy the URL of a web entry.
+func (msgs Messages) CmdCopyUrl() string {
+	return Catalog.Format(msgs.locale, "cmdCopyUrl", nil)
+}
+
+// CmdViewTextPreview says "查看文本预览"
+// in the language the app shows.
+//
+// Context menu command: preview a plugin entry's text.
+func CmdViewTextPreview() string { return In(i18n.Locale()).CmdViewTextPreview() }
+
+// CmdViewTextPreview says "查看文本预览"
+// in the language of msgs.
+//
+// Context menu command: preview a plugin entry's text.
+func (msgs Messages) CmdViewTextPreview() string {
+	return Catalog.Format(msgs.locale, "cmdViewTextPreview", nil)
+}
+
+// CmdSetAlias says "设置别名"
+// in the language the app shows.
+//
+// Context menu command: set an alias for the entry.
+func CmdSetAlias() string { return In(i18n.Locale()).CmdSetAlias() }
+
+// CmdSetAlias says "设置别名"
+// in the language of msgs.
+//
+// Context menu command: set an alias for the entry.
+func (msgs Messages) CmdSetAlias() string {
+	return Catalog.Format(msgs.locale, "cmdSetAlias", nil)
+}
+
+// CmdPin says "固定到前面"
+// in the language the app shows.
+//
+// Context menu command: pin the entry to the front.
+func CmdPin() string { return In(i18n.Locale()).CmdPin() }
+
+// CmdPin says "固定到前面"
+// in the language of msgs.
+//
+// Context menu command: pin the entry to the front.
+func (msgs Messages) CmdPin() string {
+	return Catalog.Format(msgs.locale, "cmdPin", nil)
+}
+
+// CmdUnpin says "取消固定"
+// in the language the app shows.
+//
+// Context menu command: remove the entry's pin.
+func CmdUnpin() string { return In(i18n.Locale()).CmdUnpin() }
+
+// CmdUnpin says "取消固定"
+// in the language of msgs.
+//
+// Context menu command: remove the entry's pin.
+func (msgs Messages) CmdUnpin() string {
+	return Catalog.Format(msgs.locale, "cmdUnpin", nil)
+}
+
+// CmdHide says "不再显示此条目"
+// in the language the app shows.
+//
+// Context menu command: hide the entry from results.
+func CmdHide() string { return In(i18n.Locale()).CmdHide() }
+
+// CmdHide says "不再显示此条目"
+// in the language of msgs.
+//
+// Context menu command: hide the entry from results.
+func (msgs Messages) CmdHide() string {
+	return Catalog.Format(msgs.locale, "cmdHide", nil)
+}
+
+// CmdRestoreHidden says "恢复隐藏的条目"
+// in the language the app shows.
+//
+// Context menu command: restore all hidden entries.
+func CmdRestoreHidden() string { return In(i18n.Locale()).CmdRestoreHidden() }
+
+// CmdRestoreHidden says "恢复隐藏的条目"
+// in the language of msgs.
+//
+// Context menu command: restore all hidden entries.
+func (msgs Messages) CmdRestoreHidden() string {
+	return Catalog.Format(msgs.locale, "cmdRestoreHidden", nil)
+}
+
+// CmdOpenInBrowser says "在浏览器中打开"
+// in the language the app shows.
+//
+// Open command for URL entries.
+func CmdOpenInBrowser() string { return In(i18n.Locale()).CmdOpenInBrowser() }
+
+// CmdOpenInBrowser says "在浏览器中打开"
+// in the language of msgs.
+//
+// Open command for URL entries.
+func (msgs Messages) CmdOpenInBrowser() string {
+	return Catalog.Format(msgs.locale, "cmdOpenInBrowser", nil)
+}
+
+// CmdOpenFolder says "打开文件夹"
+// in the language the app shows.
+//
+// Open command for directory entries.
+func CmdOpenFolder() string { return In(i18n.Locale()).CmdOpenFolder() }
+
+// CmdOpenFolder says "打开文件夹"
+// in the language of msgs.
+//
+// Open command for directory entries.
+func (msgs Messages) CmdOpenFolder() string {
+	return Catalog.Format(msgs.locale, "cmdOpenFolder", nil)
+}
+
+// CmdCopyCalcResult says "复制计算结果"
+// in the language the app shows.
+//
+// Open command for calculation entries: copies the result.
+func CmdCopyCalcResult() string { return In(i18n.Locale()).CmdCopyCalcResult() }
+
+// CmdCopyCalcResult says "复制计算结果"
+// in the language of msgs.
+//
+// Open command for calculation entries: copies the result.
+func (msgs Messages) CmdCopyCalcResult() string {
+	return Catalog.Format(msgs.locale, "cmdCopyCalcResult", nil)
+}
+
+// CmdSwitchToWindow says "切换到此窗口"
+// in the language the app shows.
+//
+// Open command for window entries.
+func CmdSwitchToWindow() string { return In(i18n.Locale()).CmdSwitchToWindow() }
+
+// CmdSwitchToWindow says "切换到此窗口"
+// in the language of msgs.
+//
+// Open command for window entries.
+func (msgs Messages) CmdSwitchToWindow() string {
+	return Catalog.Format(msgs.locale, "cmdSwitchToWindow", nil)
+}
+
+// CmdOpenWorkspace says "依次打开工作区"
+// in the language the app shows.
+//
+// Open command for workspace entries.
+func CmdOpenWorkspace() string { return In(i18n.Locale()).CmdOpenWorkspace() }
+
+// CmdOpenWorkspace says "依次打开工作区"
+// in the language of msgs.
+//
+// Open command for workspace entries.
+func (msgs Messages) CmdOpenWorkspace() string {
+	return Catalog.Format(msgs.locale, "cmdOpenWorkspace", nil)
+}
+
+// CmdOpenAsAdministrator says "以管理员身份打开"
+// in the language the app shows.
+//
+// Open command for entries that always run elevated.
+func CmdOpenAsAdministrator() string { return In(i18n.Locale()).CmdOpenAsAdministrator() }
+
+// CmdOpenAsAdministrator says "以管理员身份打开"
+// in the language of msgs.
+//
+// Open command for entries that always run elevated.
+func (msgs Messages) CmdOpenAsAdministrator() string {
+	return Catalog.Format(msgs.locale, "cmdOpenAsAdministrator", nil)
+}
+
+// ResultSettings says "设置"
+// in the language the app shows.
+//
+// Built-in launcher result title that opens the settings window.
+func ResultSettings() string { return In(i18n.Locale()).ResultSettings() }
+
+// ResultSettings says "设置"
+// in the language of msgs.
+//
+// Built-in launcher result title that opens the settings window.
+func (msgs Messages) ResultSettings() string {
+	return Catalog.Format(msgs.locale, "resultSettings", nil)
+}
+
+// ResultCategoryWindowsSettings says "Windows 设置"
+// in the language the app shows.
+//
+// Result subtitle category: ms-settings pages.
+func ResultCategoryWindowsSettings() string { return In(i18n.Locale()).ResultCategoryWindowsSettings() }
+
+// ResultCategoryWindowsSettings says "Windows 设置"
+// in the language of msgs.
+//
+// Result subtitle category: ms-settings pages.
+func (msgs Messages) ResultCategoryWindowsSettings() string {
+	return Catalog.Format(msgs.locale, "resultCategoryWindowsSettings", nil)
+}
+
+// ResultCategoryWindowsTools says "Windows 工具"
+// in the language the app shows.
+//
+// Result subtitle category: ms-* and shell: tools.
+func ResultCategoryWindowsTools() string { return In(i18n.Locale()).ResultCategoryWindowsTools() }
+
+// ResultCategoryWindowsTools says "Windows 工具"
+// in the language of msgs.
+//
+// Result subtitle category: ms-* and shell: tools.
+func (msgs Messages) ResultCategoryWindowsTools() string {
+	return Catalog.Format(msgs.locale, "resultCategoryWindowsTools", nil)
+}
+
+// ResultCategorySystemFeatures says "系统功能"
+// in the language the app shows.
+//
+// Result subtitle category: other system URIs.
+func ResultCategorySystemFeatures() string { return In(i18n.Locale()).ResultCategorySystemFeatures() }
+
+// ResultCategorySystemFeatures says "系统功能"
+// in the language of msgs.
+//
+// Result subtitle category: other system URIs.
+func (msgs Messages) ResultCategorySystemFeatures() string {
+	return Catalog.Format(msgs.locale, "resultCategorySystemFeatures", nil)
+}
+
+// ResultCategoryControlPanel says "控制面板"
+// in the language the app shows.
+//
+// Result subtitle category: Control Panel items.
+func ResultCategoryControlPanel() string { return In(i18n.Locale()).ResultCategoryControlPanel() }
+
+// ResultCategoryControlPanel says "控制面板"
+// in the language of msgs.
+//
+// Result subtitle category: Control Panel items.
+func (msgs Messages) ResultCategoryControlPanel() string {
+	return Catalog.Format(msgs.locale, "resultCategoryControlPanel", nil)
+}
+
+// ResultCategoryAdminTools says "管理工具"
+// in the language the app shows.
+//
+// Result subtitle category: .msc administrative tools.
+func ResultCategoryAdminTools() string { return In(i18n.Locale()).ResultCategoryAdminTools() }
+
+// ResultCategoryAdminTools says "管理工具"
+// in the language of msgs.
+//
+// Result subtitle category: .msc administrative tools.
+func (msgs Messages) ResultCategoryAdminTools() string {
+	return Catalog.Format(msgs.locale, "resultCategoryAdminTools", nil)
+}
+
+// ResultCategorySystemTools says "系统工具"
+// in the language the app shows.
+//
+// Result subtitle category: other system tool executables.
+func ResultCategorySystemTools() string { return In(i18n.Locale()).ResultCategorySystemTools() }
+
+// ResultCategorySystemTools says "系统工具"
+// in the language of msgs.
+//
+// Result subtitle category: other system tool executables.
+func (msgs Messages) ResultCategorySystemTools() string {
+	return Catalog.Format(msgs.locale, "resultCategorySystemTools", nil)
+}
+
+// ResultSearchWeb says "搜索网页：{text}"
+// in the language the app shows.
+//
+// Result title for a web search with the query text.
+func ResultSearchWeb(text string) string { return In(i18n.Locale()).ResultSearchWeb(text) }
+
+// ResultSearchWeb says "搜索网页：{text}"
+// in the language of msgs.
+//
+// Result title for a web search with the query text.
+func (msgs Messages) ResultSearchWeb(text string) string {
+	return Catalog.Format(msgs.locale, "resultSearchWeb", map[string]any{"text": text})
+}
+
+// ResultOpenUrl says "打开网址"
+// in the language the app shows.
+//
+// Result subtitle: the row opens a typed URL.
+func ResultOpenUrl() string { return In(i18n.Locale()).ResultOpenUrl() }
+
+// ResultOpenUrl says "打开网址"
+// in the language of msgs.
+//
+// Result subtitle: the row opens a typed URL.
+func (msgs Messages) ResultOpenUrl() string {
+	return Catalog.Format(msgs.locale, "resultOpenUrl", nil)
+}
+
+// ResultOpenLocalPath says "打开本地路径"
+// in the language the app shows.
+//
+// Result subtitle: the row opens a typed local path.
+func ResultOpenLocalPath() string { return In(i18n.Locale()).ResultOpenLocalPath() }
+
+// ResultOpenLocalPath says "打开本地路径"
+// in the language of msgs.
+//
+// Result subtitle: the row opens a typed local path.
+func (msgs Messages) ResultOpenLocalPath() string {
+	return Catalog.Format(msgs.locale, "resultOpenLocalPath", nil)
+}
+
+// ResultCalcHint says "{text} · Enter 复制结果"
+// in the language the app shows.
+//
+// Calculation result subtitle: the expression and the Enter hint.
+func ResultCalcHint(text string) string { return In(i18n.Locale()).ResultCalcHint(text) }
+
+// ResultCalcHint says "{text} · Enter 复制结果"
+// in the language of msgs.
+//
+// Calculation result subtitle: the expression and the Enter hint.
+func (msgs Messages) ResultCalcHint(text string) string {
+	return Catalog.Format(msgs.locale, "resultCalcHint", map[string]any{"text": text})
+}
+
+// ResultWorkspaceSubtitle says "工作区 · 依次打开 {count} 个项目"
+// in the language the app shows.
+//
+// Workspace result subtitle with the number of items it opens.
+func ResultWorkspaceSubtitle(count int) string {
+	return In(i18n.Locale()).ResultWorkspaceSubtitle(count)
+}
+
+// ResultWorkspaceSubtitle says "工作区 · 依次打开 {count} 个项目"
+// in the language of msgs.
+//
+// Workspace result subtitle with the number of items it opens.
+func (msgs Messages) ResultWorkspaceSubtitle(count int) string {
+	return Catalog.Format(msgs.locale, "resultWorkspaceSubtitle", map[string]any{"count": count})
+}
+
+// ResultWorkspaceItemDeleted says "启动项已删除，请编辑此工作区。"
+// in the language the app shows.
+//
+// Workspace step error: the launch item no longer exists.
+func ResultWorkspaceItemDeleted() string { return In(i18n.Locale()).ResultWorkspaceItemDeleted() }
+
+// ResultWorkspaceItemDeleted says "启动项已删除，请编辑此工作区。"
+// in the language of msgs.
+//
+// Workspace step error: the launch item no longer exists.
+func (msgs Messages) ResultWorkspaceItemDeleted() string {
+	return Catalog.Format(msgs.locale, "resultWorkspaceItemDeleted", nil)
+}
+
+// ResultWorkspaceItemDisabled says "启动项已停用。"
+// in the language the app shows.
+//
+// Workspace step error: the launch item is disabled.
+func ResultWorkspaceItemDisabled() string { return In(i18n.Locale()).ResultWorkspaceItemDisabled() }
+
+// ResultWorkspaceItemDisabled says "启动项已停用。"
+// in the language of msgs.
+//
+// Workspace step error: the launch item is disabled.
+func (msgs Messages) ResultWorkspaceItemDisabled() string {
+	return Catalog.Format(msgs.locale, "resultWorkspaceItemDisabled", nil)
+}
+
+// ResultWorkspaceCanceled says "已取消。"
+// in the language the app shows.
+//
+// Workspace step error: the launch was canceled.
+func ResultWorkspaceCanceled() string { return In(i18n.Locale()).ResultWorkspaceCanceled() }
+
+// ResultWorkspaceCanceled says "已取消。"
+// in the language of msgs.
+//
+// Workspace step error: the launch was canceled.
+func (msgs Messages) ResultWorkspaceCanceled() string {
+	return Catalog.Format(msgs.locale, "resultWorkspaceCanceled", nil)
+}
+
+// ResultWorkspaceLaunchFailed says "启动失败。"
+// in the language the app shows.
+//
+// Workspace step error: the launch failed without details.
+func ResultWorkspaceLaunchFailed() string { return In(i18n.Locale()).ResultWorkspaceLaunchFailed() }
+
+// ResultWorkspaceLaunchFailed says "启动失败。"
+// in the language of msgs.
+//
+// Workspace step error: the launch failed without details.
+func (msgs Messages) ResultWorkspaceLaunchFailed() string {
+	return Catalog.Format(msgs.locale, "resultWorkspaceLaunchFailed", nil)
+}
+
+// ValidateVersion says "配置版本不受支持"
+// in the language the app shows.
+//
+// Settings validation: unsupported settings file version.
+func ValidateVersion() string { return In(i18n.Locale()).ValidateVersion() }
+
+// ValidateVersion says "配置版本不受支持"
+// in the language of msgs.
+//
+// Settings validation: unsupported settings file version.
+func (msgs Messages) ValidateVersion() string {
+	return Catalog.Format(msgs.locale, "validateVersion", nil)
+}
+
+// ValidateHotkey says "请选择受支持的热键"
+// in the language the app shows.
+//
+// Settings validation: unsupported hotkey.
+func ValidateHotkey() string { return In(i18n.Locale()).ValidateHotkey() }
+
+// ValidateHotkey says "请选择受支持的热键"
+// in the language of msgs.
+//
+// Settings validation: unsupported hotkey.
+func (msgs Messages) ValidateHotkey() string {
+	return Catalog.Format(msgs.locale, "validateHotkey", nil)
+}
+
+// ValidateWindowBounds says "窗口宽度须为 480–1600，高度 320–1200，结果数 5–200"
+// in the language the app shows.
+//
+// Settings validation: window size or result count out of range.
+func ValidateWindowBounds() string { return In(i18n.Locale()).ValidateWindowBounds() }
+
+// ValidateWindowBounds says "窗口宽度须为 480–1600，高度 320–1200，结果数 5–200"
+// in the language of msgs.
+//
+// Settings validation: window size or result count out of range.
+func (msgs Messages) ValidateWindowBounds() string {
+	return Catalog.Format(msgs.locale, "validateWindowBounds", nil)
+}
+
+// ValidateAnchor says "弹出位置须在 0–1 之间"
+// in the language the app shows.
+//
+// Settings validation: panel anchor position out of range.
+func ValidateAnchor() string { return In(i18n.Locale()).ValidateAnchor() }
+
+// ValidateAnchor says "弹出位置须在 0–1 之间"
+// in the language of msgs.
+//
+// Settings validation: panel anchor position out of range.
+func (msgs Messages) ValidateAnchor() string {
+	return Catalog.Format(msgs.locale, "validateAnchor", nil)
+}
+
+// ValidatePlacement says "窗口定位模式无效"
+// in the language the app shows.
+//
+// Settings validation: invalid window placement mode.
+func ValidatePlacement() string { return In(i18n.Locale()).ValidatePlacement() }
+
+// ValidatePlacement says "窗口定位模式无效"
+// in the language of msgs.
+//
+// Settings validation: invalid window placement mode.
+func (msgs Messages) ValidatePlacement() string {
+	return Catalog.Format(msgs.locale, "validatePlacement", nil)
+}
+
+// ValidateVolumeEdges says "屏幕边缘调音量须至少选择一条有效边缘"
+// in the language the app shows.
+//
+// Settings validation: the volume wheel needs at least one edge.
+func ValidateVolumeEdges() string { return In(i18n.Locale()).ValidateVolumeEdges() }
+
+// ValidateVolumeEdges says "屏幕边缘调音量须至少选择一条有效边缘"
+// in the language of msgs.
+//
+// Settings validation: the volume wheel needs at least one edge.
+func (msgs Messages) ValidateVolumeEdges() string {
+	return Catalog.Format(msgs.locale, "validateVolumeEdges", nil)
+}
+
+// ValidateVolumeWheelSize says "音量触发带厚度须为 1–32，步长须为 1–10"
+// in the language the app shows.
+//
+// Settings validation: volume wheel thickness or step out of range.
+func ValidateVolumeWheelSize() string { return In(i18n.Locale()).ValidateVolumeWheelSize() }
+
+// ValidateVolumeWheelSize says "音量触发带厚度须为 1–32，步长须为 1–10"
+// in the language of msgs.
+//
+// Settings validation: volume wheel thickness or step out of range.
+func (msgs Messages) ValidateVolumeWheelSize() string {
+	return Catalog.Format(msgs.locale, "validateVolumeWheelSize", nil)
+}
+
+// ValidateCustomItemsLimit says "自定义启动项不能超过 200 条"
+// in the language the app shows.
+//
+// Settings validation: too many custom launch items.
+func ValidateCustomItemsLimit() string { return In(i18n.Locale()).ValidateCustomItemsLimit() }
+
+// ValidateCustomItemsLimit says "自定义启动项不能超过 200 条"
+// in the language of msgs.
+//
+// Settings validation: too many custom launch items.
+func (msgs Messages) ValidateCustomItemsLimit() string {
+	return Catalog.Format(msgs.locale, "validateCustomItemsLimit", nil)
+}
+
+// ValidateSitesLimit says "站点搜索不能超过 50 条"
+// in the language the app shows.
+//
+// Settings validation: too many web search sites.
+func ValidateSitesLimit() string { return In(i18n.Locale()).ValidateSitesLimit() }
+
+// ValidateSitesLimit says "站点搜索不能超过 50 条"
+// in the language of msgs.
+//
+// Settings validation: too many web search sites.
+func (msgs Messages) ValidateSitesLimit() string {
+	return Catalog.Format(msgs.locale, "validateSitesLimit", nil)
+}
+
+// ValidateWorkspacesLimit says "工作区不能超过 50 个"
+// in the language the app shows.
+//
+// Settings validation: too many workspaces.
+func ValidateWorkspacesLimit() string { return In(i18n.Locale()).ValidateWorkspacesLimit() }
+
+// ValidateWorkspacesLimit says "工作区不能超过 50 个"
+// in the language of msgs.
+//
+// Settings validation: too many workspaces.
+func (msgs Messages) ValidateWorkspacesLimit() string {
+	return Catalog.Format(msgs.locale, "validateWorkspacesLimit", nil)
+}
+
+// ValidateWorkspaceIDDuplicate says "工作区标识重复"
+// in the language the app shows.
+//
+// Settings validation: two workspaces share an ID.
+func ValidateWorkspaceIDDuplicate() string { return In(i18n.Locale()).ValidateWorkspaceIDDuplicate() }
+
+// ValidateWorkspaceIDDuplicate says "工作区标识重复"
+// in the language of msgs.
+//
+// Settings validation: two workspaces share an ID.
+func (msgs Messages) ValidateWorkspaceIDDuplicate() string {
+	return Catalog.Format(msgs.locale, "validateWorkspaceIDDuplicate", nil)
+}
+
+// ValidateCustomItemIDDuplicate says "自定义启动项标识重复"
+// in the language the app shows.
+//
+// Settings validation: two custom items share an ID.
+func ValidateCustomItemIDDuplicate() string { return In(i18n.Locale()).ValidateCustomItemIDDuplicate() }
+
+// ValidateCustomItemIDDuplicate says "自定义启动项标识重复"
+// in the language of msgs.
+//
+// Settings validation: two custom items share an ID.
+func (msgs Messages) ValidateCustomItemIDDuplicate() string {
+	return Catalog.Format(msgs.locale, "validateCustomItemIDDuplicate", nil)
+}
+
+// ValidateFileIndexLimit says "文件索引上限须为 1,000–500,000"
+// in the language the app shows.
+//
+// Settings validation: file index entry limit out of range.
+func ValidateFileIndexLimit() string { return In(i18n.Locale()).ValidateFileIndexLimit() }
+
+// ValidateFileIndexLimit says "文件索引上限须为 1,000–500,000"
+// in the language of msgs.
+//
+// Settings validation: file index entry limit out of range.
+func (msgs Messages) ValidateFileIndexLimit() string {
+	return Catalog.Format(msgs.locale, "validateFileIndexLimit", nil)
+}
+
+// ValidatePluginOptions says "插件超时、结果数、空闲回收或进程数量超出允许范围"
+// in the language the app shows.
+//
+// Settings validation: plugin timeout, results, idle or process count out
+// of range.
+func ValidatePluginOptions() string { return In(i18n.Locale()).ValidatePluginOptions() }
+
+// ValidatePluginOptions says "插件超时、结果数、空闲回收或进程数量超出允许范围"
+// in the language of msgs.
+//
+// Settings validation: plugin timeout, results, idle or process count out
+// of range.
+func (msgs Messages) ValidatePluginOptions() string {
+	return Catalog.Format(msgs.locale, "validatePluginOptions", nil)
+}
+
+// ValidateWebTemplate says "网页搜索模板须为包含 '{query}' 的 HTTP/HTTPS 地址"
+// in the language the app shows.
+//
+// Settings validation: the web search template is not a valid HTTP/HTTPS
+// URL with {query}.
+func ValidateWebTemplate() string { return In(i18n.Locale()).ValidateWebTemplate() }
+
+// ValidateWebTemplate says "网页搜索模板须为包含 '{query}' 的 HTTP/HTTPS 地址"
+// in the language of msgs.
+//
+// Settings validation: the web search template is not a valid HTTP/HTTPS
+// URL with {query}.
+func (msgs Messages) ValidateWebTemplate() string {
+	return Catalog.Format(msgs.locale, "validateWebTemplate", nil)
+}
+
+// ValidateThemeMode says "主题模式无效"
+// in the language the app shows.
+//
+// Settings validation: invalid theme mode or background mode.
+func ValidateThemeMode() string { return In(i18n.Locale()).ValidateThemeMode() }
+
+// ValidateThemeMode says "主题模式无效"
+// in the language of msgs.
+//
+// Settings validation: invalid theme mode or background mode.
+func (msgs Messages) ValidateThemeMode() string {
+	return Catalog.Format(msgs.locale, "validateThemeMode", nil)
+}
+
+// ValidateThemeSizes says "主题尺寸、着色强度或模糊参数超出允许范围"
+// in the language the app shows.
+//
+// Settings validation: theme size, shading or blur value out of range.
+func ValidateThemeSizes() string { return In(i18n.Locale()).ValidateThemeSizes() }
+
+// ValidateThemeSizes says "主题尺寸、着色强度或模糊参数超出允许范围"
+// in the language of msgs.
+//
+// Settings validation: theme size, shading or blur value out of range.
+func (msgs Messages) ValidateThemeSizes() string {
+	return Catalog.Format(msgs.locale, "validateThemeSizes", nil)
+}
+
+// ValidateFontFamily says "字体名称无效"
+// in the language the app shows.
+//
+// Settings validation: empty or too long font name.
+func ValidateFontFamily() string { return In(i18n.Locale()).ValidateFontFamily() }
+
+// ValidateFontFamily says "字体名称无效"
+// in the language of msgs.
+//
+// Settings validation: empty or too long font name.
+func (msgs Messages) ValidateFontFamily() string {
+	return Catalog.Format(msgs.locale, "validateFontFamily", nil)
+}
+
+// ValidateColor says "颜色须为 #RRGGBB 或 #AARRGGBB，留空表示跟随系统"
+// in the language the app shows.
+//
+// Settings validation: a theme color is not #RRGGBB or #AARRGGBB.
+func ValidateColor() string { return In(i18n.Locale()).ValidateColor() }
+
+// ValidateColor says "颜色须为 #RRGGBB 或 #AARRGGBB，留空表示跟随系统"
+// in the language of msgs.
+//
+// Settings validation: a theme color is not #RRGGBB or #AARRGGBB.
+func (msgs Messages) ValidateColor() string {
+	return Catalog.Format(msgs.locale, "validateColor", nil)
+}
+
+// ValidateImagePath says "图片背景须指定本地绝对路径"
+// in the language the app shows.
+//
+// Settings validation: image background lacks a local absolute path.
+func ValidateImagePath() string { return In(i18n.Locale()).ValidateImagePath() }
+
+// ValidateImagePath says "图片背景须指定本地绝对路径"
+// in the language of msgs.
+//
+// Settings validation: image background lacks a local absolute path.
+func (msgs Messages) ValidateImagePath() string {
+	return Catalog.Format(msgs.locale, "validateImagePath", nil)
+}
+
+// ValidateDirectoryListLimit says "目录列表不能超过 100 项"
+// in the language the app shows.
+//
+// Settings validation: a directory list has more than 100 entries.
+func ValidateDirectoryListLimit() string { return In(i18n.Locale()).ValidateDirectoryListLimit() }
+
+// ValidateDirectoryListLimit says "目录列表不能超过 100 项"
+// in the language of msgs.
+//
+// Settings validation: a directory list has more than 100 entries.
+func (msgs Messages) ValidateDirectoryListLimit() string {
+	return Catalog.Format(msgs.locale, "validateDirectoryListLimit", nil)
+}
+
+// ValidateDirectoryPath says "后台索引仅支持本地绝对目录路径，不递归扫描网络共享"
+// in the language the app shows.
+//
+// Settings validation: an indexed directory is not a local absolute path.
+func ValidateDirectoryPath() string { return In(i18n.Locale()).ValidateDirectoryPath() }
+
+// ValidateDirectoryPath says "后台索引仅支持本地绝对目录路径，不递归扫描网络共享"
+// in the language of msgs.
+//
+// Settings validation: an indexed directory is not a local absolute path.
+func (msgs Messages) ValidateDirectoryPath() string {
+	return Catalog.Format(msgs.locale, "validateDirectoryPath", nil)
+}
+
+// ValidateScreenEdge says "无效的屏幕边缘：{edge}"
+// in the language the app shows.
+//
+// Settings parsing: an unrecognized screen edge name.
+func ValidateScreenEdge(edge string) string { return In(i18n.Locale()).ValidateScreenEdge(edge) }
+
+// ValidateScreenEdge says "无效的屏幕边缘：{edge}"
+// in the language of msgs.
+//
+// Settings parsing: an unrecognized screen edge name.
+func (msgs Messages) ValidateScreenEdge(edge string) string {
+	return Catalog.Format(msgs.locale, "validateScreenEdge", map[string]any{"edge": edge})
+}
+
+// ValidateScreenEdgesType says "屏幕边缘须为字符串或数字"
+// in the language the app shows.
+//
+// Settings parsing: screen edges are neither a string nor a number.
+func ValidateScreenEdgesType() string { return In(i18n.Locale()).ValidateScreenEdgesType() }
+
+// ValidateScreenEdgesType says "屏幕边缘须为字符串或数字"
+// in the language of msgs.
+//
+// Settings parsing: screen edges are neither a string nor a number.
+func (msgs Messages) ValidateScreenEdgesType() string {
+	return Catalog.Format(msgs.locale, "validateScreenEdgesType", nil)
+}
+
+// ValidateItemID says "启动项标识无效"
+// in the language the app shows.
+//
+// Custom item validation: invalid ID.
+func ValidateItemID() string { return In(i18n.Locale()).ValidateItemID() }
+
+// ValidateItemID says "启动项标识无效"
+// in the language of msgs.
+//
+// Custom item validation: invalid ID.
+func (msgs Messages) ValidateItemID() string {
+	return Catalog.Format(msgs.locale, "validateItemID", nil)
+}
+
+// ValidateItemName says "启动项名称不能为空，且不超过 100 个字符"
+// in the language the app shows.
+//
+// Custom item validation: empty or too long name.
+func ValidateItemName() string { return In(i18n.Locale()).ValidateItemName() }
+
+// ValidateItemName says "启动项名称不能为空，且不超过 100 个字符"
+// in the language of msgs.
+//
+// Custom item validation: empty or too long name.
+func (msgs Messages) ValidateItemName() string {
+	return Catalog.Format(msgs.locale, "validateItemName", nil)
+}
+
+// ValidateItemAliases says "启动项别名不能超过 500 个字符"
+// in the language the app shows.
+//
+// Custom item validation: aliases too long.
+func ValidateItemAliases() string { return In(i18n.Locale()).ValidateItemAliases() }
+
+// ValidateItemAliases says "启动项别名不能超过 500 个字符"
+// in the language of msgs.
+//
+// Custom item validation: aliases too long.
+func (msgs Messages) ValidateItemAliases() string {
+	return Catalog.Format(msgs.locale, "validateItemAliases", nil)
+}
+
+// ValidateItemArguments says "启动项参数不能超过 2000 个字符"
+// in the language the app shows.
+//
+// Custom item validation: arguments too long.
+func ValidateItemArguments() string { return In(i18n.Locale()).ValidateItemArguments() }
+
+// ValidateItemArguments says "启动项参数不能超过 2000 个字符"
+// in the language of msgs.
+//
+// Custom item validation: arguments too long.
+func (msgs Messages) ValidateItemArguments() string {
+	return Catalog.Format(msgs.locale, "validateItemArguments", nil)
+}
+
+// ValidateWorkingDirectory says "工作目录须为本地绝对路径，留空表示由系统决定"
+// in the language the app shows.
+//
+// Custom item validation: working directory is not a local absolute path.
+func ValidateWorkingDirectory() string { return In(i18n.Locale()).ValidateWorkingDirectory() }
+
+// ValidateWorkingDirectory says "工作目录须为本地绝对路径，留空表示由系统决定"
+// in the language of msgs.
+//
+// Custom item validation: working directory is not a local absolute path.
+func (msgs Messages) ValidateWorkingDirectory() string {
+	return Catalog.Format(msgs.locale, "validateWorkingDirectory", nil)
+}
+
+// ValidateItemTarget says "启动目标不能为空"
+// in the language the app shows.
+//
+// Custom item validation: empty launch target.
+func ValidateItemTarget() string { return In(i18n.Locale()).ValidateItemTarget() }
+
+// ValidateItemTarget says "启动目标不能为空"
+// in the language of msgs.
+//
+// Custom item validation: empty launch target.
+func (msgs Messages) ValidateItemTarget() string {
+	return Catalog.Format(msgs.locale, "validateItemTarget", nil)
+}
+
+// ValidateWebItemOptions says "网址启动项不支持参数、工作目录或管理员运行"
+// in the language the app shows.
+//
+// Custom item validation: URL items reject arguments, working directory or
+// elevation.
+func ValidateWebItemOptions() string { return In(i18n.Locale()).ValidateWebItemOptions() }
+
+// ValidateWebItemOptions says "网址启动项不支持参数、工作目录或管理员运行"
+// in the language of msgs.
+//
+// Custom item validation: URL items reject arguments, working directory or
+// elevation.
+func (msgs Messages) ValidateWebItemOptions() string {
+	return Catalog.Format(msgs.locale, "validateWebItemOptions", nil)
+}
+
+// ValidateItemTargetPath says "启动目标须为本地绝对路径或 HTTP/HTTPS 网址"
+// in the language the app shows.
+//
+// Custom item validation: target is neither a local path nor an HTTP/HTTPS
+// URL.
+func ValidateItemTargetPath() string { return In(i18n.Locale()).ValidateItemTargetPath() }
+
+// ValidateItemTargetPath says "启动目标须为本地绝对路径或 HTTP/HTTPS 网址"
+// in the language of msgs.
+//
+// Custom item validation: target is neither a local path nor an HTTP/HTTPS
+// URL.
+func (msgs Messages) ValidateItemTargetPath() string {
+	return Catalog.Format(msgs.locale, "validateItemTargetPath", nil)
+}
+
+// ValidateSiteKeyword says "站点关键词须为 1–32 个字符，不能包含空格或以 > 开头"
+// in the language the app shows.
+//
+// Site validation: keyword length or shape is invalid.
+func ValidateSiteKeyword() string { return In(i18n.Locale()).ValidateSiteKeyword() }
+
+// ValidateSiteKeyword says "站点关键词须为 1–32 个字符，不能包含空格或以 > 开头"
+// in the language of msgs.
+//
+// Site validation: keyword length or shape is invalid.
+func (msgs Messages) ValidateSiteKeyword() string {
+	return Catalog.Format(msgs.locale, "validateSiteKeyword", nil)
+}
+
+// ValidateSiteKeywordReserved says "站点关键词“{keyword}”与内置查询前缀冲突，请改用其他关键词"
+// in the language the app shows.
+//
+// Site validation: keyword collides with a built-in query prefix.
+func ValidateSiteKeywordReserved(keyword string) string {
+	return In(i18n.Locale()).ValidateSiteKeywordReserved(keyword)
+}
+
+// ValidateSiteKeywordReserved says "站点关键词“{keyword}”与内置查询前缀冲突，请改用其他关键词"
+// in the language of msgs.
+//
+// Site validation: keyword collides with a built-in query prefix.
+func (msgs Messages) ValidateSiteKeywordReserved(keyword string) string {
+	return Catalog.Format(msgs.locale, "validateSiteKeywordReserved", map[string]any{"keyword": keyword})
+}
+
+// ValidateSiteName says "站点名称不能为空，且不超过 100 个字符"
+// in the language the app shows.
+//
+// Site validation: empty or too long name.
+func ValidateSiteName() string { return In(i18n.Locale()).ValidateSiteName() }
+
+// ValidateSiteName says "站点名称不能为空，且不超过 100 个字符"
+// in the language of msgs.
+//
+// Site validation: empty or too long name.
+func (msgs Messages) ValidateSiteName() string {
+	return Catalog.Format(msgs.locale, "validateSiteName", nil)
+}
+
+// ValidateSiteUrl says "站点地址须为包含 '{query}' 的 HTTP/HTTPS 地址"
+// in the language the app shows.
+//
+// Site validation: URL template is not a valid HTTP/HTTPS URL with {query}.
+func ValidateSiteUrl() string { return In(i18n.Locale()).ValidateSiteUrl() }
+
+// ValidateSiteUrl says "站点地址须为包含 '{query}' 的 HTTP/HTTPS 地址"
+// in the language of msgs.
+//
+// Site validation: URL template is not a valid HTTP/HTTPS URL with {query}.
+func (msgs Messages) ValidateSiteUrl() string {
+	return Catalog.Format(msgs.locale, "validateSiteUrl", nil)
+}
+
+// ValidateSiteKeywordDuplicate says "站点关键词“{keyword}”重复，只有第一条会生效。"
+// in the language the app shows.
+//
+// Site conflict warning: duplicated keyword, only the first takes effect.
+func ValidateSiteKeywordDuplicate(keyword string) string {
+	return In(i18n.Locale()).ValidateSiteKeywordDuplicate(keyword)
+}
+
+// ValidateSiteKeywordDuplicate says "站点关键词“{keyword}”重复，只有第一条会生效。"
+// in the language of msgs.
+//
+// Site conflict warning: duplicated keyword, only the first takes effect.
+func (msgs Messages) ValidateSiteKeywordDuplicate(keyword string) string {
+	return Catalog.Format(msgs.locale, "validateSiteKeywordDuplicate", map[string]any{"keyword": keyword})
+}
+
+// ValidateSiteKeywordPluginClash says "站点关键词“{keyword}”与已启用插件的触发词相同，两者的结果会同时出现。"
+// in the language the app shows.
+//
+// Site conflict warning: keyword matches an enabled plugin trigger word.
+func ValidateSiteKeywordPluginClash(keyword string) string {
+	return In(i18n.Locale()).ValidateSiteKeywordPluginClash(keyword)
+}
+
+// ValidateSiteKeywordPluginClash says "站点关键词“{keyword}”与已启用插件的触发词相同，两者的结果会同时出现。"
+// in the language of msgs.
+//
+// Site conflict warning: keyword matches an enabled plugin trigger word.
+func (msgs Messages) ValidateSiteKeywordPluginClash(keyword string) string {
+	return Catalog.Format(msgs.locale, "validateSiteKeywordPluginClash", map[string]any{"keyword": keyword})
+}
+
+// ValidateWorkspaceID says "工作区标识无效"
+// in the language the app shows.
+//
+// Workspace validation: invalid ID.
+func ValidateWorkspaceID() string { return In(i18n.Locale()).ValidateWorkspaceID() }
+
+// ValidateWorkspaceID says "工作区标识无效"
+// in the language of msgs.
+//
+// Workspace validation: invalid ID.
+func (msgs Messages) ValidateWorkspaceID() string {
+	return Catalog.Format(msgs.locale, "validateWorkspaceID", nil)
+}
+
+// ValidateWorkspaceName says "工作区名称不能为空，且不超过 100 个字符"
+// in the language the app shows.
+//
+// Workspace validation: empty or too long name.
+func ValidateWorkspaceName() string { return In(i18n.Locale()).ValidateWorkspaceName() }
+
+// ValidateWorkspaceName says "工作区名称不能为空，且不超过 100 个字符"
+// in the language of msgs.
+//
+// Workspace validation: empty or too long name.
+func (msgs Messages) ValidateWorkspaceName() string {
+	return Catalog.Format(msgs.locale, "validateWorkspaceName", nil)
+}
+
+// ValidateWorkspaceAliases says "工作区别名不能超过 500 个字符"
+// in the language the app shows.
+//
+// Workspace validation: aliases too long.
+func ValidateWorkspaceAliases() string { return In(i18n.Locale()).ValidateWorkspaceAliases() }
+
+// ValidateWorkspaceAliases says "工作区别名不能超过 500 个字符"
+// in the language of msgs.
+//
+// Workspace validation: aliases too long.
+func (msgs Messages) ValidateWorkspaceAliases() string {
+	return Catalog.Format(msgs.locale, "validateWorkspaceAliases", nil)
+}
+
+// ValidateWorkspaceItems says "工作区须包含 1–50 个启动项"
+// in the language the app shows.
+//
+// Workspace validation: item count out of range.
+func ValidateWorkspaceItems() string { return In(i18n.Locale()).ValidateWorkspaceItems() }
+
+// ValidateWorkspaceItems says "工作区须包含 1–50 个启动项"
+// in the language of msgs.
+//
+// Workspace validation: item count out of range.
+func (msgs Messages) ValidateWorkspaceItems() string {
+	return Catalog.Format(msgs.locale, "validateWorkspaceItems", nil)
+}
+
+// ValidateWorkspaceItemIDs says "工作区的启动项不能为空或重复"
+// in the language the app shows.
+//
+// Workspace validation: an item ID is empty or duplicated.
+func ValidateWorkspaceItemIDs() string { return In(i18n.Locale()).ValidateWorkspaceItemIDs() }
+
+// ValidateWorkspaceItemIDs says "工作区的启动项不能为空或重复"
+// in the language of msgs.
+//
+// Workspace validation: an item ID is empty or duplicated.
+func (msgs Messages) ValidateWorkspaceItemIDs() string {
+	return Catalog.Format(msgs.locale, "validateWorkspaceItemIDs", nil)
+}
+
+// SysAboutYourPC says "关于此电脑"
+// in the language the app shows.
+//
+// System settings catalog: title of the About your PC entry.
+func SysAboutYourPC() string { return In(i18n.Locale()).SysAboutYourPC() }
+
+// SysAboutYourPC says "关于此电脑"
+// in the language of msgs.
+//
+// System settings catalog: title of the About your PC entry.
+func (msgs Messages) SysAboutYourPC() string {
+	return Catalog.Format(msgs.locale, "sysAboutYourPC", nil)
+}
+
+// SysSystemProperties says "系统属性"
+// in the language the app shows.
+//
+// System settings catalog: title of the System Properties entry.
+func SysSystemProperties() string { return In(i18n.Locale()).SysSystemProperties() }
+
+// SysSystemProperties says "系统属性"
+// in the language of msgs.
+//
+// System settings catalog: title of the System Properties entry.
+func (msgs Messages) SysSystemProperties() string {
+	return Catalog.Format(msgs.locale, "sysSystemProperties", nil)
+}
+
+// SysSystemInformation says "系统信息"
+// in the language the app shows.
+//
+// System settings catalog: title of the System Information entry.
+func SysSystemInformation() string { return In(i18n.Locale()).SysSystemInformation() }
+
+// SysSystemInformation says "系统信息"
+// in the language of msgs.
+//
+// System settings catalog: title of the System Information entry.
+func (msgs Messages) SysSystemInformation() string {
+	return Catalog.Format(msgs.locale, "sysSystemInformation", nil)
+}
+
+// SysNotificationsAndActions says "通知和操作"
+// in the language the app shows.
+//
+// System settings catalog: title of the Notifications entry.
+func SysNotificationsAndActions() string { return In(i18n.Locale()).SysNotificationsAndActions() }
+
+// SysNotificationsAndActions says "通知和操作"
+// in the language of msgs.
+//
+// System settings catalog: title of the Notifications entry.
+func (msgs Messages) SysNotificationsAndActions() string {
+	return Catalog.Format(msgs.locale, "sysNotificationsAndActions", nil)
+}
+
+// SysDisplay says "显示设置"
+// in the language the app shows.
+//
+// System settings catalog: title of the Display settings entry.
+func SysDisplay() string { return In(i18n.Locale()).SysDisplay() }
+
+// SysDisplay says "显示设置"
+// in the language of msgs.
+//
+// System settings catalog: title of the Display settings entry.
+func (msgs Messages) SysDisplay() string {
+	return Catalog.Format(msgs.locale, "sysDisplay", nil)
+}
+
+// SysAdvancedDisplay says "高级显示"
+// in the language the app shows.
+//
+// System settings catalog: title of the Advanced display entry.
+func SysAdvancedDisplay() string { return In(i18n.Locale()).SysAdvancedDisplay() }
+
+// SysAdvancedDisplay says "高级显示"
+// in the language of msgs.
+//
+// System settings catalog: title of the Advanced display entry.
+func (msgs Messages) SysAdvancedDisplay() string {
+	return Catalog.Format(msgs.locale, "sysAdvancedDisplay", nil)
+}
+
+// SysNightLight says "夜间模式"
+// in the language the app shows.
+//
+// System settings catalog: title of the Night light entry.
+func SysNightLight() string { return In(i18n.Locale()).SysNightLight() }
+
+// SysNightLight says "夜间模式"
+// in the language of msgs.
+//
+// System settings catalog: title of the Night light entry.
+func (msgs Messages) SysNightLight() string {
+	return Catalog.Format(msgs.locale, "sysNightLight", nil)
+}
+
+// SysGraphicsSettings says "图形设置"
+// in the language the app shows.
+//
+// System settings catalog: title of the Graphics settings entry.
+func SysGraphicsSettings() string { return In(i18n.Locale()).SysGraphicsSettings() }
+
+// SysGraphicsSettings says "图形设置"
+// in the language of msgs.
+//
+// System settings catalog: title of the Graphics settings entry.
+func (msgs Messages) SysGraphicsSettings() string {
+	return Catalog.Format(msgs.locale, "sysGraphicsSettings", nil)
+}
+
+// SysColorFilters says "颜色筛选"
+// in the language the app shows.
+//
+// System settings catalog: title of the Color filters entry.
+func SysColorFilters() string { return In(i18n.Locale()).SysColorFilters() }
+
+// SysColorFilters says "颜色筛选"
+// in the language of msgs.
+//
+// System settings catalog: title of the Color filters entry.
+func (msgs Messages) SysColorFilters() string {
+	return Catalog.Format(msgs.locale, "sysColorFilters", nil)
+}
+
+// SysSound says "声音设置"
+// in the language the app shows.
+//
+// System settings catalog: title of the Sound settings entry.
+func SysSound() string { return In(i18n.Locale()).SysSound() }
+
+// SysSound says "声音设置"
+// in the language of msgs.
+//
+// System settings catalog: title of the Sound settings entry.
+func (msgs Messages) SysSound() string {
+	return Catalog.Format(msgs.locale, "sysSound", nil)
+}
+
+// SysOutputDevices says "输出设备"
+// in the language the app shows.
+//
+// System settings catalog: title of the Output devices entry.
+func SysOutputDevices() string { return In(i18n.Locale()).SysOutputDevices() }
+
+// SysOutputDevices says "输出设备"
+// in the language of msgs.
+//
+// System settings catalog: title of the Output devices entry.
+func (msgs Messages) SysOutputDevices() string {
+	return Catalog.Format(msgs.locale, "sysOutputDevices", nil)
+}
+
+// SysAppVolume says "应用音量"
+// in the language the app shows.
+//
+// System settings catalog: title of the App volume entry.
+func SysAppVolume() string { return In(i18n.Locale()).SysAppVolume() }
+
+// SysAppVolume says "应用音量"
+// in the language of msgs.
+//
+// System settings catalog: title of the App volume entry.
+func (msgs Messages) SysAppVolume() string {
+	return Catalog.Format(msgs.locale, "sysAppVolume", nil)
+}
+
+// SysSoundControlPanel says "声音控制面板"
+// in the language the app shows.
+//
+// System settings catalog: title of the Sound Control Panel entry.
+func SysSoundControlPanel() string { return In(i18n.Locale()).SysSoundControlPanel() }
+
+// SysSoundControlPanel says "声音控制面板"
+// in the language of msgs.
+//
+// System settings catalog: title of the Sound Control Panel entry.
+func (msgs Messages) SysSoundControlPanel() string {
+	return Catalog.Format(msgs.locale, "sysSoundControlPanel", nil)
+}
+
+// SysSpeech says "语音"
+// in the language the app shows.
+//
+// System settings catalog: title of the Speech entry.
+func SysSpeech() string { return In(i18n.Locale()).SysSpeech() }
+
+// SysSpeech says "语音"
+// in the language of msgs.
+//
+// System settings catalog: title of the Speech entry.
+func (msgs Messages) SysSpeech() string {
+	return Catalog.Format(msgs.locale, "sysSpeech", nil)
+}
+
+// SysNetworkStatus says "网络状态"
+// in the language the app shows.
+//
+// System settings catalog: title of the Network status entry.
+func SysNetworkStatus() string { return In(i18n.Locale()).SysNetworkStatus() }
+
+// SysNetworkStatus says "网络状态"
+// in the language of msgs.
+//
+// System settings catalog: title of the Network status entry.
+func (msgs Messages) SysNetworkStatus() string {
+	return Catalog.Format(msgs.locale, "sysNetworkStatus", nil)
+}
+
+// SysWiFi says "Wi-Fi"
+// in the language the app shows.
+//
+// System settings catalog: title of the Wi-Fi entry.
+func SysWiFi() string { return In(i18n.Locale()).SysWiFi() }
+
+// SysWiFi says "Wi-Fi"
+// in the language of msgs.
+//
+// System settings catalog: title of the Wi-Fi entry.
+func (msgs Messages) SysWiFi() string {
+	return Catalog.Format(msgs.locale, "sysWiFi", nil)
+}
+
+// SysEthernet says "以太网"
+// in the language the app shows.
+//
+// System settings catalog: title of the Ethernet entry.
+func SysEthernet() string { return In(i18n.Locale()).SysEthernet() }
+
+// SysEthernet says "以太网"
+// in the language of msgs.
+//
+// System settings catalog: title of the Ethernet entry.
+func (msgs Messages) SysEthernet() string {
+	return Catalog.Format(msgs.locale, "sysEthernet", nil)
+}
+
+// SysNetworkConnections says "网络连接"
+// in the language the app shows.
+//
+// System settings catalog: title of the Network Connections entry.
+func SysNetworkConnections() string { return In(i18n.Locale()).SysNetworkConnections() }
+
+// SysNetworkConnections says "网络连接"
+// in the language of msgs.
+//
+// System settings catalog: title of the Network Connections entry.
+func (msgs Messages) SysNetworkConnections() string {
+	return Catalog.Format(msgs.locale, "sysNetworkConnections", nil)
+}
+
+// SysVPN says "VPN"
+// in the language the app shows.
+//
+// System settings catalog: title of the VPN entry.
+func SysVPN() string { return In(i18n.Locale()).SysVPN() }
+
+// SysVPN says "VPN"
+// in the language of msgs.
+//
+// System settings catalog: title of the VPN entry.
+func (msgs Messages) SysVPN() string {
+	return Catalog.Format(msgs.locale, "sysVPN", nil)
+}
+
+// SysProxy says "代理"
+// in the language the app shows.
+//
+// System settings catalog: title of the Proxy entry.
+func SysProxy() string { return In(i18n.Locale()).SysProxy() }
+
+// SysProxy says "代理"
+// in the language of msgs.
+//
+// System settings catalog: title of the Proxy entry.
+func (msgs Messages) SysProxy() string {
+	return Catalog.Format(msgs.locale, "sysProxy", nil)
+}
+
+// SysBluetooth says "蓝牙"
+// in the language the app shows.
+//
+// System settings catalog: title of the Bluetooth entry.
+func SysBluetooth() string { return In(i18n.Locale()).SysBluetooth() }
+
+// SysBluetooth says "蓝牙"
+// in the language of msgs.
+//
+// System settings catalog: title of the Bluetooth entry.
+func (msgs Messages) SysBluetooth() string {
+	return Catalog.Format(msgs.locale, "sysBluetooth", nil)
+}
+
+// SysConnectedDevices says "已连接设备"
+// in the language the app shows.
+//
+// System settings catalog: title of the Connected devices entry.
+func SysConnectedDevices() string { return In(i18n.Locale()).SysConnectedDevices() }
+
+// SysConnectedDevices says "已连接设备"
+// in the language of msgs.
+//
+// System settings catalog: title of the Connected devices entry.
+func (msgs Messages) SysConnectedDevices() string {
+	return Catalog.Format(msgs.locale, "sysConnectedDevices", nil)
+}
+
+// SysUSBSettings says "USB 设置"
+// in the language the app shows.
+//
+// System settings catalog: title of the USB settings entry.
+func SysUSBSettings() string { return In(i18n.Locale()).SysUSBSettings() }
+
+// SysUSBSettings says "USB 设置"
+// in the language of msgs.
+//
+// System settings catalog: title of the USB settings entry.
+func (msgs Messages) SysUSBSettings() string {
+	return Catalog.Format(msgs.locale, "sysUSBSettings", nil)
+}
+
+// SysPenAndInk says "触控笔和手写"
+// in the language the app shows.
+//
+// System settings catalog: title of the Pen & Windows Ink entry.
+func SysPenAndInk() string { return In(i18n.Locale()).SysPenAndInk() }
+
+// SysPenAndInk says "触控笔和手写"
+// in the language of msgs.
+//
+// System settings catalog: title of the Pen & Windows Ink entry.
+func (msgs Messages) SysPenAndInk() string {
+	return Catalog.Format(msgs.locale, "sysPenAndInk", nil)
+}
+
+// SysDeviceManager says "设备管理器"
+// in the language the app shows.
+//
+// System settings catalog: title of the Device Manager entry.
+func SysDeviceManager() string { return In(i18n.Locale()).SysDeviceManager() }
+
+// SysDeviceManager says "设备管理器"
+// in the language of msgs.
+//
+// System settings catalog: title of the Device Manager entry.
+func (msgs Messages) SysDeviceManager() string {
+	return Catalog.Format(msgs.locale, "sysDeviceManager", nil)
+}
+
+// SysPrintersAndScanners says "打印机和扫描仪"
+// in the language the app shows.
+//
+// System settings catalog: title of the Printers & scanners entry.
+func SysPrintersAndScanners() string { return In(i18n.Locale()).SysPrintersAndScanners() }
+
+// SysPrintersAndScanners says "打印机和扫描仪"
+// in the language of msgs.
+//
+// System settings catalog: title of the Printers & scanners entry.
+func (msgs Messages) SysPrintersAndScanners() string {
+	return Catalog.Format(msgs.locale, "sysPrintersAndScanners", nil)
+}
+
+// SysDevicesAndPrinters says "设备和打印机"
+// in the language the app shows.
+//
+// System settings catalog: title of the Devices and Printers entry.
+func SysDevicesAndPrinters() string { return In(i18n.Locale()).SysDevicesAndPrinters() }
+
+// SysDevicesAndPrinters says "设备和打印机"
+// in the language of msgs.
+//
+// System settings catalog: title of the Devices and Printers entry.
+func (msgs Messages) SysDevicesAndPrinters() string {
+	return Catalog.Format(msgs.locale, "sysDevicesAndPrinters", nil)
+}
+
+// SysFaxAndScan says "Windows 传真和扫描"
+// in the language the app shows.
+//
+// System settings catalog: title of the Windows Fax and Scan entry.
+func SysFaxAndScan() string { return In(i18n.Locale()).SysFaxAndScan() }
+
+// SysFaxAndScan says "Windows 传真和扫描"
+// in the language of msgs.
+//
+// System settings catalog: title of the Windows Fax and Scan entry.
+func (msgs Messages) SysFaxAndScan() string {
+	return Catalog.Format(msgs.locale, "sysFaxAndScan", nil)
+}
+
+// SysPowerAndBattery says "电源和电池"
+// in the language the app shows.
+//
+// System settings catalog: title of the Power & battery entry.
+func SysPowerAndBattery() string { return In(i18n.Locale()).SysPowerAndBattery() }
+
+// SysPowerAndBattery says "电源和电池"
+// in the language of msgs.
+//
+// System settings catalog: title of the Power & battery entry.
+func (msgs Messages) SysPowerAndBattery() string {
+	return Catalog.Format(msgs.locale, "sysPowerAndBattery", nil)
+}
+
+// SysPowerOptions says "电源选项"
+// in the language the app shows.
+//
+// System settings catalog: title of the Power Options entry.
+func SysPowerOptions() string { return In(i18n.Locale()).SysPowerOptions() }
+
+// SysPowerOptions says "电源选项"
+// in the language of msgs.
+//
+// System settings catalog: title of the Power Options entry.
+func (msgs Messages) SysPowerOptions() string {
+	return Catalog.Format(msgs.locale, "sysPowerOptions", nil)
+}
+
+// SysBatterySaver says "节电模式"
+// in the language the app shows.
+//
+// System settings catalog: title of the Battery saver entry.
+func SysBatterySaver() string { return In(i18n.Locale()).SysBatterySaver() }
+
+// SysBatterySaver says "节电模式"
+// in the language of msgs.
+//
+// System settings catalog: title of the Battery saver entry.
+func (msgs Messages) SysBatterySaver() string {
+	return Catalog.Format(msgs.locale, "sysBatterySaver", nil)
+}
+
+// SysWindowsUpdate says "Windows 更新"
+// in the language the app shows.
+//
+// System settings catalog: title of the Windows Update entry.
+func SysWindowsUpdate() string { return In(i18n.Locale()).SysWindowsUpdate() }
+
+// SysWindowsUpdate says "Windows 更新"
+// in the language of msgs.
+//
+// System settings catalog: title of the Windows Update entry.
+func (msgs Messages) SysWindowsUpdate() string {
+	return Catalog.Format(msgs.locale, "sysWindowsUpdate", nil)
+}
+
+// SysUpdateHistory says "更新历史记录"
+// in the language the app shows.
+//
+// System settings catalog: title of the Update history entry.
+func SysUpdateHistory() string { return In(i18n.Locale()).SysUpdateHistory() }
+
+// SysUpdateHistory says "更新历史记录"
+// in the language of msgs.
+//
+// System settings catalog: title of the Update history entry.
+func (msgs Messages) SysUpdateHistory() string {
+	return Catalog.Format(msgs.locale, "sysUpdateHistory", nil)
+}
+
+// SysWindowsSecurity says "Windows 安全中心"
+// in the language the app shows.
+//
+// System settings catalog: title of the Windows Security entry.
+func SysWindowsSecurity() string { return In(i18n.Locale()).SysWindowsSecurity() }
+
+// SysWindowsSecurity says "Windows 安全中心"
+// in the language of msgs.
+//
+// System settings catalog: title of the Windows Security entry.
+func (msgs Messages) SysWindowsSecurity() string {
+	return Catalog.Format(msgs.locale, "sysWindowsSecurity", nil)
+}
+
+// SysFirewall says "防火墙"
+// in the language the app shows.
+//
+// System settings catalog: title of the Windows Defender Firewall entry.
+func SysFirewall() string { return In(i18n.Locale()).SysFirewall() }
+
+// SysFirewall says "防火墙"
+// in the language of msgs.
+//
+// System settings catalog: title of the Windows Defender Firewall entry.
+func (msgs Messages) SysFirewall() string {
+	return Catalog.Format(msgs.locale, "sysFirewall", nil)
+}
+
+// SysRecovery says "恢复"
+// in the language the app shows.
+//
+// System settings catalog: title of the Recovery entry.
+func SysRecovery() string { return In(i18n.Locale()).SysRecovery() }
+
+// SysRecovery says "恢复"
+// in the language of msgs.
+//
+// System settings catalog: title of the Recovery entry.
+func (msgs Messages) SysRecovery() string {
+	return Catalog.Format(msgs.locale, "sysRecovery", nil)
+}
+
+// SysWindowsBackup says "Windows 备份"
+// in the language the app shows.
+//
+// System settings catalog: title of the Windows Backup entry.
+func SysWindowsBackup() string { return In(i18n.Locale()).SysWindowsBackup() }
+
+// SysWindowsBackup says "Windows 备份"
+// in the language of msgs.
+//
+// System settings catalog: title of the Windows Backup entry.
+func (msgs Messages) SysWindowsBackup() string {
+	return Catalog.Format(msgs.locale, "sysWindowsBackup", nil)
+}
+
+// SysYourInfo says "账户信息"
+// in the language the app shows.
+//
+// System settings catalog: title of the account info entry.
+func SysYourInfo() string { return In(i18n.Locale()).SysYourInfo() }
+
+// SysYourInfo says "账户信息"
+// in the language of msgs.
+//
+// System settings catalog: title of the account info entry.
+func (msgs Messages) SysYourInfo() string {
+	return Catalog.Format(msgs.locale, "sysYourInfo", nil)
+}
+
+// SysSignInOptions says "登录选项"
+// in the language the app shows.
+//
+// System settings catalog: title of the Sign-in options entry.
+func SysSignInOptions() string { return In(i18n.Locale()).SysSignInOptions() }
+
+// SysSignInOptions says "登录选项"
+// in the language of msgs.
+//
+// System settings catalog: title of the Sign-in options entry.
+func (msgs Messages) SysSignInOptions() string {
+	return Catalog.Format(msgs.locale, "sysSignInOptions", nil)
+}
+
+// SysOtherUsers says "其他用户"
+// in the language the app shows.
+//
+// System settings catalog: title of the Other users entry.
+func SysOtherUsers() string { return In(i18n.Locale()).SysOtherUsers() }
+
+// SysOtherUsers says "其他用户"
+// in the language of msgs.
+//
+// System settings catalog: title of the Other users entry.
+func (msgs Messages) SysOtherUsers() string {
+	return Catalog.Format(msgs.locale, "sysOtherUsers", nil)
+}
+
+// SysEmailAndAccounts says "电子邮件和账户"
+// in the language the app shows.
+//
+// System settings catalog: title of the Email & accounts entry.
+func SysEmailAndAccounts() string { return In(i18n.Locale()).SysEmailAndAccounts() }
+
+// SysEmailAndAccounts says "电子邮件和账户"
+// in the language of msgs.
+//
+// System settings catalog: title of the Email & accounts entry.
+func (msgs Messages) SysEmailAndAccounts() string {
+	return Catalog.Format(msgs.locale, "sysEmailAndAccounts", nil)
+}
+
+// SysSyncSettings says "同步设置"
+// in the language the app shows.
+//
+// System settings catalog: title of the Sync your settings entry.
+func SysSyncSettings() string { return In(i18n.Locale()).SysSyncSettings() }
+
+// SysSyncSettings says "同步设置"
+// in the language of msgs.
+//
+// System settings catalog: title of the Sync your settings entry.
+func (msgs Messages) SysSyncSettings() string {
+	return Catalog.Format(msgs.locale, "sysSyncSettings", nil)
+}
+
+// SysDateAndTime says "日期和时间"
+// in the language the app shows.
+//
+// System settings catalog: title of the Date & time entry.
+func SysDateAndTime() string { return In(i18n.Locale()).SysDateAndTime() }
+
+// SysDateAndTime says "日期和时间"
+// in the language of msgs.
+//
+// System settings catalog: title of the Date & time entry.
+func (msgs Messages) SysDateAndTime() string {
+	return Catalog.Format(msgs.locale, "sysDateAndTime", nil)
+}
+
+// SysDateAndTimeControlPanel says "日期和时间控制面板"
+// in the language the app shows.
+//
+// System settings catalog: title of the Date and Time control panel entry.
+func SysDateAndTimeControlPanel() string { return In(i18n.Locale()).SysDateAndTimeControlPanel() }
+
+// SysDateAndTimeControlPanel says "日期和时间控制面板"
+// in the language of msgs.
+//
+// System settings catalog: title of the Date and Time control panel entry.
+func (msgs Messages) SysDateAndTimeControlPanel() string {
+	return Catalog.Format(msgs.locale, "sysDateAndTimeControlPanel", nil)
+}
+
+// SysLanguageAndRegion says "语言和区域"
+// in the language the app shows.
+//
+// System settings catalog: title of the Language & region entry.
+func SysLanguageAndRegion() string { return In(i18n.Locale()).SysLanguageAndRegion() }
+
+// SysLanguageAndRegion says "语言和区域"
+// in the language of msgs.
+//
+// System settings catalog: title of the Language & region entry.
+func (msgs Messages) SysLanguageAndRegion() string {
+	return Catalog.Format(msgs.locale, "sysLanguageAndRegion", nil)
+}
+
+// SysRegionFormatting says "区域格式"
+// in the language the app shows.
+//
+// System settings catalog: title of the Region formatting entry.
+func SysRegionFormatting() string { return In(i18n.Locale()).SysRegionFormatting() }
+
+// SysRegionFormatting says "区域格式"
+// in the language of msgs.
+//
+// System settings catalog: title of the Region formatting entry.
+func (msgs Messages) SysRegionFormatting() string {
+	return Catalog.Format(msgs.locale, "sysRegionFormatting", nil)
+}
+
+// SysInstalledApps says "已安装的应用"
+// in the language the app shows.
+//
+// System settings catalog: title of the Installed apps entry.
+func SysInstalledApps() string { return In(i18n.Locale()).SysInstalledApps() }
+
+// SysInstalledApps says "已安装的应用"
+// in the language of msgs.
+//
+// System settings catalog: title of the Installed apps entry.
+func (msgs Messages) SysInstalledApps() string {
+	return Catalog.Format(msgs.locale, "sysInstalledApps", nil)
+}
+
+// SysDefaultApps says "默认应用"
+// in the language the app shows.
+//
+// System settings catalog: title of the Default apps entry.
+func SysDefaultApps() string { return In(i18n.Locale()).SysDefaultApps() }
+
+// SysDefaultApps says "默认应用"
+// in the language of msgs.
+//
+// System settings catalog: title of the Default apps entry.
+func (msgs Messages) SysDefaultApps() string {
+	return Catalog.Format(msgs.locale, "sysDefaultApps", nil)
+}
+
+// SysStartupApps says "启动应用"
+// in the language the app shows.
+//
+// System settings catalog: title of the Startup apps entry.
+func SysStartupApps() string { return In(i18n.Locale()).SysStartupApps() }
+
+// SysStartupApps says "启动应用"
+// in the language of msgs.
+//
+// System settings catalog: title of the Startup apps entry.
+func (msgs Messages) SysStartupApps() string {
+	return Catalog.Format(msgs.locale, "sysStartupApps", nil)
+}
+
+// SysOptionalFeatures says "可选功能"
+// in the language the app shows.
+//
+// System settings catalog: title of the Optional features entry.
+func SysOptionalFeatures() string { return In(i18n.Locale()).SysOptionalFeatures() }
+
+// SysOptionalFeatures says "可选功能"
+// in the language of msgs.
+//
+// System settings catalog: title of the Optional features entry.
+func (msgs Messages) SysOptionalFeatures() string {
+	return Catalog.Format(msgs.locale, "sysOptionalFeatures", nil)
+}
+
+// SysProgramsAndFeatures says "程序和功能"
+// in the language the app shows.
+//
+// System settings catalog: title of the Programs and Features entry.
+func SysProgramsAndFeatures() string { return In(i18n.Locale()).SysProgramsAndFeatures() }
+
+// SysProgramsAndFeatures says "程序和功能"
+// in the language of msgs.
+//
+// System settings catalog: title of the Programs and Features entry.
+func (msgs Messages) SysProgramsAndFeatures() string {
+	return Catalog.Format(msgs.locale, "sysProgramsAndFeatures", nil)
+}
+
+// SysMouse says "鼠标"
+// in the language the app shows.
+//
+// System settings catalog: title of the Mouse entry.
+func SysMouse() string { return In(i18n.Locale()).SysMouse() }
+
+// SysMouse says "鼠标"
+// in the language of msgs.
+//
+// System settings catalog: title of the Mouse entry.
+func (msgs Messages) SysMouse() string {
+	return Catalog.Format(msgs.locale, "sysMouse", nil)
+}
+
+// SysMouseProperties says "鼠标属性"
+// in the language the app shows.
+//
+// System settings catalog: title of the Mouse Properties entry.
+func SysMouseProperties() string { return In(i18n.Locale()).SysMouseProperties() }
+
+// SysMouseProperties says "鼠标属性"
+// in the language of msgs.
+//
+// System settings catalog: title of the Mouse Properties entry.
+func (msgs Messages) SysMouseProperties() string {
+	return Catalog.Format(msgs.locale, "sysMouseProperties", nil)
+}
+
+// SysKeyboard says "键盘"
+// in the language the app shows.
+//
+// System settings catalog: title of the Keyboard entry.
+func SysKeyboard() string { return In(i18n.Locale()).SysKeyboard() }
+
+// SysKeyboard says "键盘"
+// in the language of msgs.
+//
+// System settings catalog: title of the Keyboard entry.
+func (msgs Messages) SysKeyboard() string {
+	return Catalog.Format(msgs.locale, "sysKeyboard", nil)
+}
+
+// SysTyping says "输入"
+// in the language the app shows.
+//
+// System settings catalog: title of the Typing entry.
+func SysTyping() string { return In(i18n.Locale()).SysTyping() }
+
+// SysTyping says "输入"
+// in the language of msgs.
+//
+// System settings catalog: title of the Typing entry.
+func (msgs Messages) SysTyping() string {
+	return Catalog.Format(msgs.locale, "sysTyping", nil)
+}
+
+// SysTouchpad says "触摸板"
+// in the language the app shows.
+//
+// System settings catalog: title of the Touchpad entry.
+func SysTouchpad() string { return In(i18n.Locale()).SysTouchpad() }
+
+// SysTouchpad says "触摸板"
+// in the language of msgs.
+//
+// System settings catalog: title of the Touchpad entry.
+func (msgs Messages) SysTouchpad() string {
+	return Catalog.Format(msgs.locale, "sysTouchpad", nil)
+}
+
+// SysStorageSense says "存储感知"
+// in the language the app shows.
+//
+// System settings catalog: title of the Storage sense entry.
+func SysStorageSense() string { return In(i18n.Locale()).SysStorageSense() }
+
+// SysStorageSense says "存储感知"
+// in the language of msgs.
+//
+// System settings catalog: title of the Storage sense entry.
+func (msgs Messages) SysStorageSense() string {
+	return Catalog.Format(msgs.locale, "sysStorageSense", nil)
+}
+
+// SysDisksAndVolumes says "磁盘和卷"
+// in the language the app shows.
+//
+// System settings catalog: title of the Disks & volumes entry.
+func SysDisksAndVolumes() string { return In(i18n.Locale()).SysDisksAndVolumes() }
+
+// SysDisksAndVolumes says "磁盘和卷"
+// in the language of msgs.
+//
+// System settings catalog: title of the Disks & volumes entry.
+func (msgs Messages) SysDisksAndVolumes() string {
+	return Catalog.Format(msgs.locale, "sysDisksAndVolumes", nil)
+}
+
+// SysSaveLocations says "保存位置"
+// in the language the app shows.
+//
+// System settings catalog: title of the Save locations entry.
+func SysSaveLocations() string { return In(i18n.Locale()).SysSaveLocations() }
+
+// SysSaveLocations says "保存位置"
+// in the language of msgs.
+//
+// System settings catalog: title of the Save locations entry.
+func (msgs Messages) SysSaveLocations() string {
+	return Catalog.Format(msgs.locale, "sysSaveLocations", nil)
+}
+
+// SysDiskManagement says "磁盘管理"
+// in the language the app shows.
+//
+// System settings catalog: title of the Disk Management entry.
+func SysDiskManagement() string { return In(i18n.Locale()).SysDiskManagement() }
+
+// SysDiskManagement says "磁盘管理"
+// in the language of msgs.
+//
+// System settings catalog: title of the Disk Management entry.
+func (msgs Messages) SysDiskManagement() string {
+	return Catalog.Format(msgs.locale, "sysDiskManagement", nil)
+}
+
+// SysPrivacyAndSecurity says "隐私和安全性"
+// in the language the app shows.
+//
+// System settings catalog: title of the Privacy & security entry.
+func SysPrivacyAndSecurity() string { return In(i18n.Locale()).SysPrivacyAndSecurity() }
+
+// SysPrivacyAndSecurity says "隐私和安全性"
+// in the language of msgs.
+//
+// System settings catalog: title of the Privacy & security entry.
+func (msgs Messages) SysPrivacyAndSecurity() string {
+	return Catalog.Format(msgs.locale, "sysPrivacyAndSecurity", nil)
+}
+
+// SysLocationServices says "位置服务"
+// in the language the app shows.
+//
+// System settings catalog: title of the Location services entry.
+func SysLocationServices() string { return In(i18n.Locale()).SysLocationServices() }
+
+// SysLocationServices says "位置服务"
+// in the language of msgs.
+//
+// System settings catalog: title of the Location services entry.
+func (msgs Messages) SysLocationServices() string {
+	return Catalog.Format(msgs.locale, "sysLocationServices", nil)
+}
+
+// SysCamera says "相机"
+// in the language the app shows.
+//
+// System settings catalog: title of the Camera privacy entry.
+func SysCamera() string { return In(i18n.Locale()).SysCamera() }
+
+// SysCamera says "相机"
+// in the language of msgs.
+//
+// System settings catalog: title of the Camera privacy entry.
+func (msgs Messages) SysCamera() string {
+	return Catalog.Format(msgs.locale, "sysCamera", nil)
+}
+
+// SysMicrophone says "麦克风"
+// in the language the app shows.
+//
+// System settings catalog: title of the Microphone privacy entry.
+func SysMicrophone() string { return In(i18n.Locale()).SysMicrophone() }
+
+// SysMicrophone says "麦克风"
+// in the language of msgs.
+//
+// System settings catalog: title of the Microphone privacy entry.
+func (msgs Messages) SysMicrophone() string {
+	return Catalog.Format(msgs.locale, "sysMicrophone", nil)
+}
+
+// SysDiagnosticsAndFeedback says "诊断和反馈"
+// in the language the app shows.
+//
+// System settings catalog: title of the Diagnostics & feedback entry.
+func SysDiagnosticsAndFeedback() string { return In(i18n.Locale()).SysDiagnosticsAndFeedback() }
+
+// SysDiagnosticsAndFeedback says "诊断和反馈"
+// in the language of msgs.
+//
+// System settings catalog: title of the Diagnostics & feedback entry.
+func (msgs Messages) SysDiagnosticsAndFeedback() string {
+	return Catalog.Format(msgs.locale, "sysDiagnosticsAndFeedback", nil)
+}
+
+// SysForDevelopers says "开发者选项"
+// in the language the app shows.
+//
+// System settings catalog: title of the For developers entry.
+func SysForDevelopers() string { return In(i18n.Locale()).SysForDevelopers() }
+
+// SysForDevelopers says "开发者选项"
+// in the language of msgs.
+//
+// System settings catalog: title of the For developers entry.
+func (msgs Messages) SysForDevelopers() string {
+	return Catalog.Format(msgs.locale, "sysForDevelopers", nil)
+}
+
+// SysEnvironmentVariables says "环境变量"
+// in the language the app shows.
+//
+// System settings catalog: title of the Environment Variables entry.
+func SysEnvironmentVariables() string { return In(i18n.Locale()).SysEnvironmentVariables() }
+
+// SysEnvironmentVariables says "环境变量"
+// in the language of msgs.
+//
+// System settings catalog: title of the Environment Variables entry.
+func (msgs Messages) SysEnvironmentVariables() string {
+	return Catalog.Format(msgs.locale, "sysEnvironmentVariables", nil)
+}
+
+// SysSystemConfiguration says "系统配置"
+// in the language the app shows.
+//
+// System settings catalog: title of the System Configuration (msconfig)
+// entry.
+func SysSystemConfiguration() string { return In(i18n.Locale()).SysSystemConfiguration() }
+
+// SysSystemConfiguration says "系统配置"
+// in the language of msgs.
+//
+// System settings catalog: title of the System Configuration (msconfig)
+// entry.
+func (msgs Messages) SysSystemConfiguration() string {
+	return Catalog.Format(msgs.locale, "sysSystemConfiguration", nil)
+}
+
+// SysServices says "服务"
+// in the language the app shows.
+//
+// System settings catalog: title of the Services entry.
+func SysServices() string { return In(i18n.Locale()).SysServices() }
+
+// SysServices says "服务"
+// in the language of msgs.
+//
+// System settings catalog: title of the Services entry.
+func (msgs Messages) SysServices() string {
+	return Catalog.Format(msgs.locale, "sysServices", nil)
+}
+
+// SysEventViewer says "事件查看器"
+// in the language the app shows.
+//
+// System settings catalog: title of the Event Viewer entry.
+func SysEventViewer() string { return In(i18n.Locale()).SysEventViewer() }
+
+// SysEventViewer says "事件查看器"
+// in the language of msgs.
+//
+// System settings catalog: title of the Event Viewer entry.
+func (msgs Messages) SysEventViewer() string {
+	return Catalog.Format(msgs.locale, "sysEventViewer", nil)
+}
+
+// SysComputerManagement says "计算机管理"
+// in the language the app shows.
+//
+// System settings catalog: title of the Computer Management entry.
+func SysComputerManagement() string { return In(i18n.Locale()).SysComputerManagement() }
+
+// SysComputerManagement says "计算机管理"
+// in the language of msgs.
+//
+// System settings catalog: title of the Computer Management entry.
+func (msgs Messages) SysComputerManagement() string {
+	return Catalog.Format(msgs.locale, "sysComputerManagement", nil)
+}
+
+// SysTaskManager says "任务管理器"
+// in the language the app shows.
+//
+// System settings catalog: title of the Task Manager entry.
+func SysTaskManager() string { return In(i18n.Locale()).SysTaskManager() }
+
+// SysTaskManager says "任务管理器"
+// in the language of msgs.
+//
+// System settings catalog: title of the Task Manager entry.
+func (msgs Messages) SysTaskManager() string {
+	return Catalog.Format(msgs.locale, "sysTaskManager", nil)
+}
+
+// SysResourceMonitor says "资源监视器"
+// in the language the app shows.
+//
+// System settings catalog: title of the Resource Monitor entry.
+func SysResourceMonitor() string { return In(i18n.Locale()).SysResourceMonitor() }
+
+// SysResourceMonitor says "资源监视器"
+// in the language of msgs.
+//
+// System settings catalog: title of the Resource Monitor entry.
+func (msgs Messages) SysResourceMonitor() string {
+	return Catalog.Format(msgs.locale, "sysResourceMonitor", nil)
+}
+
+// SysRegistryEditor says "注册表编辑器"
+// in the language the app shows.
+//
+// System settings catalog: title of the Registry Editor entry.
+func SysRegistryEditor() string { return In(i18n.Locale()).SysRegistryEditor() }
+
+// SysRegistryEditor says "注册表编辑器"
+// in the language of msgs.
+//
+// System settings catalog: title of the Registry Editor entry.
+func (msgs Messages) SysRegistryEditor() string {
+	return Catalog.Format(msgs.locale, "sysRegistryEditor", nil)
+}
+
+// SysControlPanel says "控制面板"
+// in the language the app shows.
+//
+// System settings catalog: title of the Control Panel entry.
+func SysControlPanel() string { return In(i18n.Locale()).SysControlPanel() }
+
+// SysControlPanel says "控制面板"
+// in the language of msgs.
+//
+// System settings catalog: title of the Control Panel entry.
+func (msgs Messages) SysControlPanel() string {
+	return Catalog.Format(msgs.locale, "sysControlPanel", nil)
+}
+
+// SysAdministrativeTools says "管理工具"
+// in the language the app shows.
+//
+// System settings catalog: title of the Administrative Tools entry.
+func SysAdministrativeTools() string { return In(i18n.Locale()).SysAdministrativeTools() }
+
+// SysAdministrativeTools says "管理工具"
+// in the language of msgs.
+//
+// System settings catalog: title of the Administrative Tools entry.
+func (msgs Messages) SysAdministrativeTools() string {
+	return Catalog.Format(msgs.locale, "sysAdministrativeTools", nil)
+}
+
+// SysCredentialManager says "凭据管理器"
+// in the language the app shows.
+//
+// System settings catalog: title of the Credential Manager entry.
+func SysCredentialManager() string { return In(i18n.Locale()).SysCredentialManager() }
+
+// SysCredentialManager says "凭据管理器"
+// in the language of msgs.
+//
+// System settings catalog: title of the Credential Manager entry.
+func (msgs Messages) SysCredentialManager() string {
+	return Catalog.Format(msgs.locale, "sysCredentialManager", nil)
+}
+
+// SysFonts says "字体"
+// in the language the app shows.
+//
+// System settings catalog: title of the Fonts entry.
+func SysFonts() string { return In(i18n.Locale()).SysFonts() }
+
+// SysFonts says "字体"
+// in the language of msgs.
+//
+// System settings catalog: title of the Fonts entry.
+func (msgs Messages) SysFonts() string {
+	return Catalog.Format(msgs.locale, "sysFonts", nil)
+}
+
+// SysInternetOptions says "Internet 选项"
+// in the language the app shows.
+//
+// System settings catalog: title of the Internet Options entry.
+func SysInternetOptions() string { return In(i18n.Locale()).SysInternetOptions() }
+
+// SysInternetOptions says "Internet 选项"
+// in the language of msgs.
+//
+// System settings catalog: title of the Internet Options entry.
+func (msgs Messages) SysInternetOptions() string {
+	return Catalog.Format(msgs.locale, "sysInternetOptions", nil)
+}
+
+// SysCatSystem says "系统"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping system entries.
+func SysCatSystem() string { return In(i18n.Locale()).SysCatSystem() }
+
+// SysCatSystem says "系统"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping system entries.
+func (msgs Messages) SysCatSystem() string {
+	return Catalog.Format(msgs.locale, "sysCatSystem", nil)
+}
+
+// SysCatDisplay says "显示"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping display entries.
+func SysCatDisplay() string { return In(i18n.Locale()).SysCatDisplay() }
+
+// SysCatDisplay says "显示"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping display entries.
+func (msgs Messages) SysCatDisplay() string {
+	return Catalog.Format(msgs.locale, "sysCatDisplay", nil)
+}
+
+// SysCatSound says "声音"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping sound entries.
+func SysCatSound() string { return In(i18n.Locale()).SysCatSound() }
+
+// SysCatSound says "声音"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping sound entries.
+func (msgs Messages) SysCatSound() string {
+	return Catalog.Format(msgs.locale, "sysCatSound", nil)
+}
+
+// SysCatNetwork says "网络"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping network entries.
+func SysCatNetwork() string { return In(i18n.Locale()).SysCatNetwork() }
+
+// SysCatNetwork says "网络"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping network entries.
+func (msgs Messages) SysCatNetwork() string {
+	return Catalog.Format(msgs.locale, "sysCatNetwork", nil)
+}
+
+// SysCatBluetoothAndDevices says "蓝牙与设备"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping Bluetooth and device
+// entries.
+func SysCatBluetoothAndDevices() string { return In(i18n.Locale()).SysCatBluetoothAndDevices() }
+
+// SysCatBluetoothAndDevices says "蓝牙与设备"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping Bluetooth and device
+// entries.
+func (msgs Messages) SysCatBluetoothAndDevices() string {
+	return Catalog.Format(msgs.locale, "sysCatBluetoothAndDevices", nil)
+}
+
+// SysCatPrinters says "打印机"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping printer entries.
+func SysCatPrinters() string { return In(i18n.Locale()).SysCatPrinters() }
+
+// SysCatPrinters says "打印机"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping printer entries.
+func (msgs Messages) SysCatPrinters() string {
+	return Catalog.Format(msgs.locale, "sysCatPrinters", nil)
+}
+
+// SysCatPower says "电源"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping power entries.
+func SysCatPower() string { return In(i18n.Locale()).SysCatPower() }
+
+// SysCatPower says "电源"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping power entries.
+func (msgs Messages) SysCatPower() string {
+	return Catalog.Format(msgs.locale, "sysCatPower", nil)
+}
+
+// SysCatUpdateAndSecurity says "更新与安全"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping update and security
+// entries.
+func SysCatUpdateAndSecurity() string { return In(i18n.Locale()).SysCatUpdateAndSecurity() }
+
+// SysCatUpdateAndSecurity says "更新与安全"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping update and security
+// entries.
+func (msgs Messages) SysCatUpdateAndSecurity() string {
+	return Catalog.Format(msgs.locale, "sysCatUpdateAndSecurity", nil)
+}
+
+// SysCatAccounts says "账户"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping account entries.
+func SysCatAccounts() string { return In(i18n.Locale()).SysCatAccounts() }
+
+// SysCatAccounts says "账户"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping account entries.
+func (msgs Messages) SysCatAccounts() string {
+	return Catalog.Format(msgs.locale, "sysCatAccounts", nil)
+}
+
+// SysCatTimeAndLanguage says "时间与语言"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping time and language
+// entries.
+func SysCatTimeAndLanguage() string { return In(i18n.Locale()).SysCatTimeAndLanguage() }
+
+// SysCatTimeAndLanguage says "时间与语言"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping time and language
+// entries.
+func (msgs Messages) SysCatTimeAndLanguage() string {
+	return Catalog.Format(msgs.locale, "sysCatTimeAndLanguage", nil)
+}
+
+// SysCatAppsAndUninstall says "应用与卸载"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping apps and uninstall
+// entries.
+func SysCatAppsAndUninstall() string { return In(i18n.Locale()).SysCatAppsAndUninstall() }
+
+// SysCatAppsAndUninstall says "应用与卸载"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping apps and uninstall
+// entries.
+func (msgs Messages) SysCatAppsAndUninstall() string {
+	return Catalog.Format(msgs.locale, "sysCatAppsAndUninstall", nil)
+}
+
+// SysCatMouseAndKeyboard says "鼠标键盘"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping mouse and keyboard
+// entries.
+func SysCatMouseAndKeyboard() string { return In(i18n.Locale()).SysCatMouseAndKeyboard() }
+
+// SysCatMouseAndKeyboard says "鼠标键盘"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping mouse and keyboard
+// entries.
+func (msgs Messages) SysCatMouseAndKeyboard() string {
+	return Catalog.Format(msgs.locale, "sysCatMouseAndKeyboard", nil)
+}
+
+// SysCatStorage says "存储"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping storage entries.
+func SysCatStorage() string { return In(i18n.Locale()).SysCatStorage() }
+
+// SysCatStorage says "存储"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping storage entries.
+func (msgs Messages) SysCatStorage() string {
+	return Catalog.Format(msgs.locale, "sysCatStorage", nil)
+}
+
+// SysCatPrivacy says "隐私"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping privacy entries.
+func SysCatPrivacy() string { return In(i18n.Locale()).SysCatPrivacy() }
+
+// SysCatPrivacy says "隐私"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping privacy entries.
+func (msgs Messages) SysCatPrivacy() string {
+	return Catalog.Format(msgs.locale, "sysCatPrivacy", nil)
+}
+
+// SysCatDeveloperOptions says "开发者选项"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping developer entries.
+func SysCatDeveloperOptions() string { return In(i18n.Locale()).SysCatDeveloperOptions() }
+
+// SysCatDeveloperOptions says "开发者选项"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping developer entries.
+func (msgs Messages) SysCatDeveloperOptions() string {
+	return Catalog.Format(msgs.locale, "sysCatDeveloperOptions", nil)
+}
+
+// SysCatServices says "服务"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping services entries.
+func SysCatServices() string { return In(i18n.Locale()).SysCatServices() }
+
+// SysCatServices says "服务"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping services entries.
+func (msgs Messages) SysCatServices() string {
+	return Catalog.Format(msgs.locale, "sysCatServices", nil)
+}
+
+// SysCatTaskManager says "任务管理器"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping task manager entries.
+func SysCatTaskManager() string { return In(i18n.Locale()).SysCatTaskManager() }
+
+// SysCatTaskManager says "任务管理器"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping task manager entries.
+func (msgs Messages) SysCatTaskManager() string {
+	return Catalog.Format(msgs.locale, "sysCatTaskManager", nil)
+}
+
+// SysCatRegistryEditor says "注册表编辑器"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping registry editor entries.
+func SysCatRegistryEditor() string { return In(i18n.Locale()).SysCatRegistryEditor() }
+
+// SysCatRegistryEditor says "注册表编辑器"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping registry editor entries.
+func (msgs Messages) SysCatRegistryEditor() string {
+	return Catalog.Format(msgs.locale, "sysCatRegistryEditor", nil)
+}
+
+// SysCatControlPanel says "控制面板"
+// in the language the app shows.
+//
+// System settings catalog: category name grouping control panel entries.
+func SysCatControlPanel() string { return In(i18n.Locale()).SysCatControlPanel() }
+
+// SysCatControlPanel says "控制面板"
+// in the language of msgs.
+//
+// System settings catalog: category name grouping control panel entries.
+func (msgs Messages) SysCatControlPanel() string {
+	return Catalog.Format(msgs.locale, "sysCatControlPanel", nil)
+}
+
+// CmdOpen says "打开"
+// in the language the app shows.
+//
+// Context menu open command title.
+func CmdOpen() string { return In(i18n.Locale()).CmdOpen() }
+
+// CmdOpen says "打开"
+// in the language of msgs.
+//
+// Context menu open command title.
+func (msgs Messages) CmdOpen() string {
+	return Catalog.Format(msgs.locale, "cmdOpen", nil)
+}
+
+// PluginStateDisabled says "未启用"
+// in the language the app shows.
+//
+// Plugin page: status pill for a plugin the user turned off.
+func PluginStateDisabled() string { return In(i18n.Locale()).PluginStateDisabled() }
+
+// PluginStateDisabled says "未启用"
+// in the language of msgs.
+//
+// Plugin page: status pill for a plugin the user turned off.
+func (msgs Messages) PluginStateDisabled() string {
+	return Catalog.Format(msgs.locale, "pluginStateDisabled", nil)
+}
+
+// PluginStateRunning says "运行中"
+// in the language the app shows.
+//
+// Plugin page: status pill for a plugin whose process is answering.
+func PluginStateRunning() string { return In(i18n.Locale()).PluginStateRunning() }
+
+// PluginStateRunning says "运行中"
+// in the language of msgs.
+//
+// Plugin page: status pill for a plugin whose process is answering.
+func (msgs Messages) PluginStateRunning() string {
+	return Catalog.Format(msgs.locale, "pluginStateRunning", nil)
+}
+
+// PluginStatePaused says "已暂停"
+// in the language the app shows.
+//
+// Plugin page: status pill for a plugin paused after consecutive failures.
+func PluginStatePaused() string { return In(i18n.Locale()).PluginStatePaused() }
+
+// PluginStatePaused says "已暂停"
+// in the language of msgs.
+//
+// Plugin page: status pill for a plugin paused after consecutive failures.
+func (msgs Messages) PluginStatePaused() string {
+	return Catalog.Format(msgs.locale, "pluginStatePaused", nil)
+}
+
+// PluginStateFailed says "出错"
+// in the language the app shows.
+//
+// Plugin page: status pill for a plugin whose last attempt failed.
+func PluginStateFailed() string { return In(i18n.Locale()).PluginStateFailed() }
+
+// PluginStateFailed says "出错"
+// in the language of msgs.
+//
+// Plugin page: status pill for a plugin whose last attempt failed.
+func (msgs Messages) PluginStateFailed() string {
+	return Catalog.Format(msgs.locale, "pluginStateFailed", nil)
+}
+
+// PluginStateStopped says "已停止"
+// in the language the app shows.
+//
+// Plugin page: status pill for a plugin with no process running.
+func PluginStateStopped() string { return In(i18n.Locale()).PluginStateStopped() }
+
+// PluginStateStopped says "已停止"
+// in the language of msgs.
+//
+// Plugin page: status pill for a plugin with no process running.
+func (msgs Messages) PluginStateStopped() string {
+	return Catalog.Format(msgs.locale, "pluginStateStopped", nil)
+}
+
+// PluginProcessPID says "进程 {pid, number, ::group-off}"
+// in the language the app shows.
+//
+// Plugin page: runtime line fragment naming the plugin process.
+func PluginProcessPID(pid int) string { return In(i18n.Locale()).PluginProcessPID(pid) }
+
+// PluginProcessPID says "进程 {pid, number, ::group-off}"
+// in the language of msgs.
+//
+// Plugin page: runtime line fragment naming the plugin process.
+func (msgs Messages) PluginProcessPID(pid int) string {
+	return Catalog.Format(msgs.locale, "pluginProcessPID", map[string]any{"pid": pid})
+}
+
+// PluginStartupTime says "启动 {ms}"
+// in the language the app shows.
+//
+// Plugin page: runtime line fragment with the startup time.
+func PluginStartupTime(ms string) string { return In(i18n.Locale()).PluginStartupTime(ms) }
+
+// PluginStartupTime says "启动 {ms}"
+// in the language of msgs.
+//
+// Plugin page: runtime line fragment with the startup time.
+func (msgs Messages) PluginStartupTime(ms string) string {
+	return Catalog.Format(msgs.locale, "pluginStartupTime", map[string]any{"ms": ms})
+}
+
+// PluginQueryTime says "查询 {ms}"
+// in the language the app shows.
+//
+// Plugin page: runtime line fragment with the last query round trip.
+func PluginQueryTime(ms string) string { return In(i18n.Locale()).PluginQueryTime(ms) }
+
+// PluginQueryTime says "查询 {ms}"
+// in the language of msgs.
+//
+// Plugin page: runtime line fragment with the last query round trip.
+func (msgs Messages) PluginQueryTime(ms string) string {
+	return Catalog.Format(msgs.locale, "pluginQueryTime", map[string]any{"ms": ms})
+}
+
+// PluginLastUsed says "上次使用 {elapsed}"
+// in the language the app shows.
+//
+// Plugin page: runtime line fragment with the time since the last use.
+func PluginLastUsed(elapsed string) string { return In(i18n.Locale()).PluginLastUsed(elapsed) }
+
+// PluginLastUsed says "上次使用 {elapsed}"
+// in the language of msgs.
+//
+// Plugin page: runtime line fragment with the time since the last use.
+func (msgs Messages) PluginLastUsed(elapsed string) string {
+	return Catalog.Format(msgs.locale, "pluginLastUsed", map[string]any{"elapsed": elapsed})
+}
+
+// PluginConsecutiveFailures says "连续失败 {count} 次"
+// in the language the app shows.
+//
+// Plugin page: runtime line fragment counting consecutive failed queries.
+func PluginConsecutiveFailures(count int) string {
+	return In(i18n.Locale()).PluginConsecutiveFailures(count)
+}
+
+// PluginConsecutiveFailures says "连续失败 {count} 次"
+// in the language of msgs.
+//
+// Plugin page: runtime line fragment counting consecutive failed queries.
+func (msgs Messages) PluginConsecutiveFailures(count int) string {
+	return Catalog.Format(msgs.locale, "pluginConsecutiveFailures", map[string]any{"count": count})
+}
+
+// PluginDroppedResults says "丢弃 {count, number, ::group-off} 条结果"
+// in the language the app shows.
+//
+// Plugin page: runtime line fragment counting dropped results.
+func PluginDroppedResults(count int) string { return In(i18n.Locale()).PluginDroppedResults(count) }
+
+// PluginDroppedResults says "丢弃 {count, number, ::group-off} 条结果"
+// in the language of msgs.
+//
+// Plugin page: runtime line fragment counting dropped results.
+func (msgs Messages) PluginDroppedResults(count int) string {
+	return Catalog.Format(msgs.locale, "pluginDroppedResults", map[string]any{"count": count})
+}
+
+// PluginDisabledNote says "未启用，不会参与搜索。"
+// in the language the app shows.
+//
+// Plugin page: runtime line for a disabled plugin.
+func PluginDisabledNote() string { return In(i18n.Locale()).PluginDisabledNote() }
+
+// PluginDisabledNote says "未启用，不会参与搜索。"
+// in the language of msgs.
+//
+// Plugin page: runtime line for a disabled plugin.
+func (msgs Messages) PluginDisabledNote() string {
+	return Catalog.Format(msgs.locale, "pluginDisabledNote", nil)
+}
+
+// PluginNotRunNote says "尚未运行：首次搜索时启动，空闲后自动回收进程。"
+// in the language the app shows.
+//
+// Plugin page: runtime line for a plugin that has not run yet.
+func PluginNotRunNote() string { return In(i18n.Locale()).PluginNotRunNote() }
+
+// PluginNotRunNote says "尚未运行：首次搜索时启动，空闲后自动回收进程。"
+// in the language of msgs.
+//
+// Plugin page: runtime line for a plugin that has not run yet.
+func (msgs Messages) PluginNotRunNote() string {
+	return Catalog.Format(msgs.locale, "pluginNotRunNote", nil)
+}
+
+// PluginUnderOneMillis says "<1 毫秒"
+// in the language the app shows.
+//
+// Plugin page: a duration below one millisecond.
+func PluginUnderOneMillis() string { return In(i18n.Locale()).PluginUnderOneMillis() }
+
+// PluginUnderOneMillis says "<1 毫秒"
+// in the language of msgs.
+//
+// Plugin page: a duration below one millisecond.
+func (msgs Messages) PluginUnderOneMillis() string {
+	return Catalog.Format(msgs.locale, "pluginUnderOneMillis", nil)
+}
+
+// PluginMillis says "{value} 毫秒"
+// in the language the app shows.
+//
+// Plugin page: a duration in milliseconds.
+func PluginMillis(value string) string { return In(i18n.Locale()).PluginMillis(value) }
+
+// PluginMillis says "{value} 毫秒"
+// in the language of msgs.
+//
+// Plugin page: a duration in milliseconds.
+func (msgs Messages) PluginMillis(value string) string {
+	return Catalog.Format(msgs.locale, "pluginMillis", map[string]any{"value": value})
+}
+
+// PluginSeconds says "{value} 秒"
+// in the language the app shows.
+//
+// Plugin page: a duration in seconds.
+func PluginSeconds(value string) string { return In(i18n.Locale()).PluginSeconds(value) }
+
+// PluginSeconds says "{value} 秒"
+// in the language of msgs.
+//
+// Plugin page: a duration in seconds.
+func (msgs Messages) PluginSeconds(value string) string {
+	return Catalog.Format(msgs.locale, "pluginSeconds", map[string]any{"value": value})
+}
+
+// PluginElapsedJustNow says "刚刚"
+// in the language the app shows.
+//
+// Plugin page: elapsed time below one minute.
+func PluginElapsedJustNow() string { return In(i18n.Locale()).PluginElapsedJustNow() }
+
+// PluginElapsedJustNow says "刚刚"
+// in the language of msgs.
+//
+// Plugin page: elapsed time below one minute.
+func (msgs Messages) PluginElapsedJustNow() string {
+	return Catalog.Format(msgs.locale, "pluginElapsedJustNow", nil)
+}
+
+// PluginElapsedMinutes says "{count, number, ::group-off} 分钟前"
+// in the language the app shows.
+//
+// Plugin page: elapsed time in minutes.
+func PluginElapsedMinutes(count int) string { return In(i18n.Locale()).PluginElapsedMinutes(count) }
+
+// PluginElapsedMinutes says "{count, number, ::group-off} 分钟前"
+// in the language of msgs.
+//
+// Plugin page: elapsed time in minutes.
+func (msgs Messages) PluginElapsedMinutes(count int) string {
+	return Catalog.Format(msgs.locale, "pluginElapsedMinutes", map[string]any{"count": count})
+}
+
+// PluginElapsedHours says "{count, number, ::group-off} 小时前"
+// in the language the app shows.
+//
+// Plugin page: elapsed time in hours.
+func PluginElapsedHours(count int) string { return In(i18n.Locale()).PluginElapsedHours(count) }
+
+// PluginElapsedHours says "{count, number, ::group-off} 小时前"
+// in the language of msgs.
+//
+// Plugin page: elapsed time in hours.
+func (msgs Messages) PluginElapsedHours(count int) string {
+	return Catalog.Format(msgs.locale, "pluginElapsedHours", map[string]any{"count": count})
+}
+
+// PluginElapsedDays says "{count, number, ::group-off} 天前"
+// in the language the app shows.
+//
+// Plugin page: elapsed time in days.
+func PluginElapsedDays(count int) string { return In(i18n.Locale()).PluginElapsedDays(count) }
+
+// PluginElapsedDays says "{count, number, ::group-off} 天前"
+// in the language of msgs.
+//
+// Plugin page: elapsed time in days.
+func (msgs Messages) PluginElapsedDays(count int) string {
+	return Catalog.Format(msgs.locale, "pluginElapsedDays", map[string]any{"count": count})
+}
+
+// PluginQueryResultInvalid says "插件返回的结果格式错误：{err}"
+// in the language the app shows.
+//
+// Plugin client: the query reply is not valid JSON of the expected shape.
+func PluginQueryResultInvalid(err any) string { return In(i18n.Locale()).PluginQueryResultInvalid(err) }
+
+// PluginQueryResultInvalid says "插件返回的结果格式错误：{err}"
+// in the language of msgs.
+//
+// Plugin client: the query reply is not valid JSON of the expected shape.
+func (msgs Messages) PluginQueryResultInvalid(err any) string {
+	return Catalog.Format(msgs.locale, "pluginQueryResultInvalid", map[string]any{"err": err})
+}
+
+// PluginExecuteStartFailed says "无法启动插件执行动作：{err}"
+// in the language the app shows.
+//
+// Plugin client: the process cannot be started for an action.
+func PluginExecuteStartFailed(err any) string { return In(i18n.Locale()).PluginExecuteStartFailed(err) }
+
+// PluginExecuteStartFailed says "无法启动插件执行动作：{err}"
+// in the language of msgs.
+//
+// Plugin client: the process cannot be started for an action.
+func (msgs Messages) PluginExecuteStartFailed(err any) string {
+	return Catalog.Format(msgs.locale, "pluginExecuteStartFailed", map[string]any{"err": err})
+}
+
+// PluginClientClosed says "插件客户端已关闭"
+// in the language the app shows.
+//
+// Plugin client: requests refused after Close.
+func PluginClientClosed() string { return In(i18n.Locale()).PluginClientClosed() }
+
+// PluginClientClosed says "插件客户端已关闭"
+// in the language of msgs.
+//
+// Plugin client: requests refused after Close.
+func (msgs Messages) PluginClientClosed() string {
+	return Catalog.Format(msgs.locale, "pluginClientClosed", nil)
+}
+
+// PluginStdinPipeFailed says "无法连接插件进程输入：{err}"
+// in the language the app shows.
+//
+// Plugin client: cannot take the process's stdin pipe.
+func PluginStdinPipeFailed(err any) string { return In(i18n.Locale()).PluginStdinPipeFailed(err) }
+
+// PluginStdinPipeFailed says "无法连接插件进程输入：{err}"
+// in the language of msgs.
+//
+// Plugin client: cannot take the process's stdin pipe.
+func (msgs Messages) PluginStdinPipeFailed(err any) string {
+	return Catalog.Format(msgs.locale, "pluginStdinPipeFailed", map[string]any{"err": err})
+}
+
+// PluginStdoutPipeFailed says "无法连接插件进程输出：{err}"
+// in the language the app shows.
+//
+// Plugin client: cannot take the process's stdout pipe.
+func PluginStdoutPipeFailed(err any) string { return In(i18n.Locale()).PluginStdoutPipeFailed(err) }
+
+// PluginStdoutPipeFailed says "无法连接插件进程输出：{err}"
+// in the language of msgs.
+//
+// Plugin client: cannot take the process's stdout pipe.
+func (msgs Messages) PluginStdoutPipeFailed(err any) string {
+	return Catalog.Format(msgs.locale, "pluginStdoutPipeFailed", map[string]any{"err": err})
+}
+
+// PluginStderrPipeFailed says "无法连接插件进程错误输出：{err}"
+// in the language the app shows.
+//
+// Plugin client: cannot take the process's stderr pipe.
+func PluginStderrPipeFailed(err any) string { return In(i18n.Locale()).PluginStderrPipeFailed(err) }
+
+// PluginStderrPipeFailed says "无法连接插件进程错误输出：{err}"
+// in the language of msgs.
+//
+// Plugin client: cannot take the process's stderr pipe.
+func (msgs Messages) PluginStderrPipeFailed(err any) string {
+	return Catalog.Format(msgs.locale, "pluginStderrPipeFailed", map[string]any{"err": err})
+}
+
+// PluginProcessStartFailed says "无法启动插件进程：{err}"
+// in the language the app shows.
+//
+// Plugin client: the process cannot be started.
+func PluginProcessStartFailed(err any) string { return In(i18n.Locale()).PluginProcessStartFailed(err) }
+
+// PluginProcessStartFailed says "无法启动插件进程：{err}"
+// in the language of msgs.
+//
+// Plugin client: the process cannot be started.
+func (msgs Messages) PluginProcessStartFailed(err any) string {
+	return Catalog.Format(msgs.locale, "pluginProcessStartFailed", map[string]any{"err": err})
+}
+
+// PluginHandshakeFailed says "插件握手失败：{err}"
+// in the language the app shows.
+//
+// Plugin client: the initialize round trip failed.
+func PluginHandshakeFailed(err any) string { return In(i18n.Locale()).PluginHandshakeFailed(err) }
+
+// PluginHandshakeFailed says "插件握手失败：{err}"
+// in the language of msgs.
+//
+// Plugin client: the initialize round trip failed.
+func (msgs Messages) PluginHandshakeFailed(err any) string {
+	return Catalog.Format(msgs.locale, "pluginHandshakeFailed", map[string]any{"err": err})
+}
+
+// PluginHandshakeReplyInvalid says "插件握手回复格式错误"
+// in the language the app shows.
+//
+// Plugin client: the initialize reply is not valid JSON of the expected
+// shape.
+func PluginHandshakeReplyInvalid() string { return In(i18n.Locale()).PluginHandshakeReplyInvalid() }
+
+// PluginHandshakeReplyInvalid says "插件握手回复格式错误"
+// in the language of msgs.
+//
+// Plugin client: the initialize reply is not valid JSON of the expected
+// shape.
+func (msgs Messages) PluginHandshakeReplyInvalid() string {
+	return Catalog.Format(msgs.locale, "pluginHandshakeReplyInvalid", nil)
+}
+
+// PluginProcessNotStarted says "插件进程未启动"
+// in the language the app shows.
+//
+// Plugin client: a request was made with no process.
+func PluginProcessNotStarted() string { return In(i18n.Locale()).PluginProcessNotStarted() }
+
+// PluginProcessNotStarted says "插件进程未启动"
+// in the language of msgs.
+//
+// Plugin client: a request was made with no process.
+func (msgs Messages) PluginProcessNotStarted() string {
+	return Catalog.Format(msgs.locale, "pluginProcessNotStarted", nil)
+}
+
+// PluginSendQueryFailed says "无法向插件发送查询请求：{err}"
+// in the language the app shows.
+//
+// Plugin client: writing the query request failed.
+func PluginSendQueryFailed(err any) string { return In(i18n.Locale()).PluginSendQueryFailed(err) }
+
+// PluginSendQueryFailed says "无法向插件发送查询请求：{err}"
+// in the language of msgs.
+//
+// Plugin client: writing the query request failed.
+func (msgs Messages) PluginSendQueryFailed(err any) string {
+	return Catalog.Format(msgs.locale, "pluginSendQueryFailed", map[string]any{"err": err})
+}
+
+// PluginSendExecuteFailed says "无法向插件发送执行动作请求：{err}"
+// in the language the app shows.
+//
+// Plugin client: writing the action request failed.
+func PluginSendExecuteFailed(err any) string { return In(i18n.Locale()).PluginSendExecuteFailed(err) }
+
+// PluginSendExecuteFailed says "无法向插件发送执行动作请求：{err}"
+// in the language of msgs.
+//
+// Plugin client: writing the action request failed.
+func (msgs Messages) PluginSendExecuteFailed(err any) string {
+	return Catalog.Format(msgs.locale, "pluginSendExecuteFailed", map[string]any{"err": err})
+}
+
+// PluginSendInitializeFailed says "无法向插件发送初始化请求：{err}"
+// in the language the app shows.
+//
+// Plugin client: writing the initialize request failed.
+func PluginSendInitializeFailed(err any) string {
+	return In(i18n.Locale()).PluginSendInitializeFailed(err)
+}
+
+// PluginSendInitializeFailed says "无法向插件发送初始化请求：{err}"
+// in the language of msgs.
+//
+// Plugin client: writing the initialize request failed.
+func (msgs Messages) PluginSendInitializeFailed(err any) string {
+	return Catalog.Format(msgs.locale, "pluginSendInitializeFailed", map[string]any{"err": err})
+}
+
+// PluginExitedNoResult says "插件已退出，没有返回结果"
+// in the language the app shows.
+//
+// Plugin client: the process ended before answering.
+func PluginExitedNoResult() string { return In(i18n.Locale()).PluginExitedNoResult() }
+
+// PluginExitedNoResult says "插件已退出，没有返回结果"
+// in the language of msgs.
+//
+// Plugin client: the process ended before answering.
+func (msgs Messages) PluginExitedNoResult() string {
+	return Catalog.Format(msgs.locale, "pluginExitedNoResult", nil)
+}
+
+// PluginReadResponseFailed says "读取插件响应失败：{err}"
+// in the language the app shows.
+//
+// Plugin client: reading the reply frame failed.
+func PluginReadResponseFailed(err any) string { return In(i18n.Locale()).PluginReadResponseFailed(err) }
+
+// PluginReadResponseFailed says "读取插件响应失败：{err}"
+// in the language of msgs.
+//
+// Plugin client: reading the reply frame failed.
+func (msgs Messages) PluginReadResponseFailed(err any) string {
+	return Catalog.Format(msgs.locale, "pluginReadResponseFailed", map[string]any{"err": err})
+}
+
+// PluginResponseInvalidJSON says "插件响应不是合法 JSON：{err}"
+// in the language the app shows.
+//
+// Plugin client: the reply is not valid JSON.
+func PluginResponseInvalidJSON(err any) string {
+	return In(i18n.Locale()).PluginResponseInvalidJSON(err)
+}
+
+// PluginResponseInvalidJSON says "插件响应不是合法 JSON：{err}"
+// in the language of msgs.
+//
+// Plugin client: the reply is not valid JSON.
+func (msgs Messages) PluginResponseInvalidJSON(err any) string {
+	return Catalog.Format(msgs.locale, "pluginResponseInvalidJSON", map[string]any{"err": err})
+}
+
+// PluginResponseMismatch says "插件响应与请求不匹配"
+// in the language the app shows.
+//
+// Plugin client: the reply does not belong to the request.
+func PluginResponseMismatch() string { return In(i18n.Locale()).PluginResponseMismatch() }
+
+// PluginResponseMismatch says "插件响应与请求不匹配"
+// in the language of msgs.
+//
+// Plugin client: the reply does not belong to the request.
+func (msgs Messages) PluginResponseMismatch() string {
+	return Catalog.Format(msgs.locale, "pluginResponseMismatch", nil)
+}
+
+// PluginQueryTimeout says "插件查询超时（{ms, number, ::group-off} 毫秒）"
+// in the language the app shows.
+//
+// Plugin client: a query did not answer in time.
+func PluginQueryTimeout(ms int) string { return In(i18n.Locale()).PluginQueryTimeout(ms) }
+
+// PluginQueryTimeout says "插件查询超时（{ms, number, ::group-off} 毫秒）"
+// in the language of msgs.
+//
+// Plugin client: a query did not answer in time.
+func (msgs Messages) PluginQueryTimeout(ms int) string {
+	return Catalog.Format(msgs.locale, "pluginQueryTimeout", map[string]any{"ms": ms})
+}
+
+// PluginExecuteTimeout says "插件执行动作超时（{ms, number, ::group-off} 毫秒）"
+// in the language the app shows.
+//
+// Plugin client: an action did not answer in time.
+func PluginExecuteTimeout(ms int) string { return In(i18n.Locale()).PluginExecuteTimeout(ms) }
+
+// PluginExecuteTimeout says "插件执行动作超时（{ms, number, ::group-off} 毫秒）"
+// in the language of msgs.
+//
+// Plugin client: an action did not answer in time.
+func (msgs Messages) PluginExecuteTimeout(ms int) string {
+	return Catalog.Format(msgs.locale, "pluginExecuteTimeout", map[string]any{"ms": ms})
+}
+
+// PluginInitializeTimeout says "插件初始化超时（{ms, number, ::group-off} 毫秒）"
+// in the language the app shows.
+//
+// Plugin client: the handshake did not answer in time.
+func PluginInitializeTimeout(ms int) string { return In(i18n.Locale()).PluginInitializeTimeout(ms) }
+
+// PluginInitializeTimeout says "插件初始化超时（{ms, number, ::group-off} 毫秒）"
+// in the language of msgs.
+//
+// Plugin client: the handshake did not answer in time.
+func (msgs Messages) PluginInitializeTimeout(ms int) string {
+	return Catalog.Format(msgs.locale, "pluginInitializeTimeout", map[string]any{"ms": ms})
+}
+
+// PluginQueryCanceled says "插件查询已取消"
+// in the language the app shows.
+//
+// Plugin client: a query was canceled by a newer search.
+func PluginQueryCanceled() string { return In(i18n.Locale()).PluginQueryCanceled() }
+
+// PluginQueryCanceled says "插件查询已取消"
+// in the language of msgs.
+//
+// Plugin client: a query was canceled by a newer search.
+func (msgs Messages) PluginQueryCanceled() string {
+	return Catalog.Format(msgs.locale, "pluginQueryCanceled", nil)
+}
+
+// PluginExecuteCanceled says "插件执行动作已取消"
+// in the language the app shows.
+//
+// Plugin client: an action was canceled.
+func PluginExecuteCanceled() string { return In(i18n.Locale()).PluginExecuteCanceled() }
+
+// PluginExecuteCanceled says "插件执行动作已取消"
+// in the language of msgs.
+//
+// Plugin client: an action was canceled.
+func (msgs Messages) PluginExecuteCanceled() string {
+	return Catalog.Format(msgs.locale, "pluginExecuteCanceled", nil)
+}
+
+// PluginInitializeCanceled says "插件初始化已取消"
+// in the language the app shows.
+//
+// Plugin client: the handshake was canceled.
+func PluginInitializeCanceled() string { return In(i18n.Locale()).PluginInitializeCanceled() }
+
+// PluginInitializeCanceled says "插件初始化已取消"
+// in the language of msgs.
+//
+// Plugin client: the handshake was canceled.
+func (msgs Messages) PluginInitializeCanceled() string {
+	return Catalog.Format(msgs.locale, "pluginInitializeCanceled", nil)
+}
+
+// PluginPausedByFailures says "插件连续失败已暂停；请在设置的插件页重启它。"
+// in the language the app shows.
+//
+// Search result row: a plugin skipped because it was paused.
+func PluginPausedByFailures() string { return In(i18n.Locale()).PluginPausedByFailures() }
+
+// PluginPausedByFailures says "插件连续失败已暂停；请在设置的插件页重启它。"
+// in the language of msgs.
+//
+// Search result row: a plugin skipped because it was paused.
+func (msgs Messages) PluginPausedByFailures() string {
+	return Catalog.Format(msgs.locale, "pluginPausedByFailures", nil)
+}
+
+// PluginActiveProcessLimit says "插件活动进程已达上限，请稍后重试。"
+// in the language the app shows.
+//
+// Search result row: no slot for another plugin process.
+func PluginActiveProcessLimit() string { return In(i18n.Locale()).PluginActiveProcessLimit() }
+
+// PluginActiveProcessLimit says "插件活动进程已达上限，请稍后重试。"
+// in the language of msgs.
+//
+// Search result row: no slot for another plugin process.
+func (msgs Messages) PluginActiveProcessLimit() string {
+	return Catalog.Format(msgs.locale, "pluginActiveProcessLimit", nil)
+}
+
+// PluginPausedWithErrors says "插件连续 {count} 次查询失败，已暂停；请在设置中重启它。最近的错误：{message}"
+// in the language the app shows.
+//
+// Search result row: a plugin paused after too many failed queries, with
+// its last error.
+func PluginPausedWithErrors(count int, message string) string {
+	return In(i18n.Locale()).PluginPausedWithErrors(count, message)
+}
+
+// PluginPausedWithErrors says "插件连续 {count} 次查询失败，已暂停；请在设置中重启它。最近的错误：{message}"
+// in the language of msgs.
+//
+// Search result row: a plugin paused after too many failed queries, with
+// its last error.
+func (msgs Messages) PluginPausedWithErrors(count int, message string) string {
+	return Catalog.Format(msgs.locale, "pluginPausedWithErrors", map[string]any{"count": count, "message": message})
+}
+
+// PluginResultDropped says "结果被丢弃：{reason}"
+// in the language the app shows.
+//
+// Plugin diagnostics: a result refused by the protocol rules.
+func PluginResultDropped(reason string) string { return In(i18n.Locale()).PluginResultDropped(reason) }
+
+// PluginResultDropped says "结果被丢弃：{reason}"
+// in the language of msgs.
+//
+// Plugin diagnostics: a result refused by the protocol rules.
+func (msgs Messages) PluginResultDropped(reason string) string {
+	return Catalog.Format(msgs.locale, "pluginResultDropped", map[string]any{"reason": reason})
+}
+
+// PluginActionDropped says "动作被丢弃：{reason}"
+// in the language the app shows.
+//
+// Plugin diagnostics: an action refused by the protocol rules.
+func PluginActionDropped(reason string) string { return In(i18n.Locale()).PluginActionDropped(reason) }
+
+// PluginActionDropped says "动作被丢弃：{reason}"
+// in the language of msgs.
+//
+// Plugin diagnostics: an action refused by the protocol rules.
+func (msgs Messages) PluginActionDropped(reason string) string {
+	return Catalog.Format(msgs.locale, "pluginActionDropped", map[string]any{"reason": reason})
+}
+
+// PluginDisabledExecute says "插件 {id} 已停用，请在设置中启用后再执行"
+// in the language the app shows.
+//
+// Plugin manager: an action refused because the plugin is disabled.
+func PluginDisabledExecute(id string) string { return In(i18n.Locale()).PluginDisabledExecute(id) }
+
+// PluginDisabledExecute says "插件 {id} 已停用，请在设置中启用后再执行"
+// in the language of msgs.
+//
+// Plugin manager: an action refused because the plugin is disabled.
+func (msgs Messages) PluginDisabledExecute(id string) string {
+	return Catalog.Format(msgs.locale, "pluginDisabledExecute", map[string]any{"id": id})
+}
+
+// PluginProcessRecycled says "插件进程已回收，请重新搜索后再执行"
+// in the language the app shows.
+//
+// Plugin manager: an action refused because the plugin process is gone.
+func PluginProcessRecycled() string { return In(i18n.Locale()).PluginProcessRecycled() }
+
+// PluginProcessRecycled says "插件进程已回收，请重新搜索后再执行"
+// in the language of msgs.
+//
+// Plugin manager: an action refused because the plugin process is gone.
+func (msgs Messages) PluginProcessRecycled() string {
+	return Catalog.Format(msgs.locale, "pluginProcessRecycled", nil)
+}
+
+// PluginUnavailableTitle says "{name} 暂不可用"
+// in the language the app shows.
+//
+// Search result title: a plugin could not answer.
+func PluginUnavailableTitle(name string) string {
+	return In(i18n.Locale()).PluginUnavailableTitle(name)
+}
+
+// PluginUnavailableTitle says "{name} 暂不可用"
+// in the language of msgs.
+//
+// Search result title: a plugin could not answer.
+func (msgs Messages) PluginUnavailableTitle(name string) string {
+	return Catalog.Format(msgs.locale, "pluginUnavailableTitle", map[string]any{"name": name})
+}
+
+// PluginValidateResultNoID says "结果缺少 id"
+// in the language the app shows.
+//
+// Plugin diagnostics: a result without an id.
+func PluginValidateResultNoID() string { return In(i18n.Locale()).PluginValidateResultNoID() }
+
+// PluginValidateResultNoID says "结果缺少 id"
+// in the language of msgs.
+//
+// Plugin diagnostics: a result without an id.
+func (msgs Messages) PluginValidateResultNoID() string {
+	return Catalog.Format(msgs.locale, "pluginValidateResultNoID", nil)
+}
+
+// PluginValidateResultIDTooLong says "结果 id 超过 512 个字符"
+// in the language the app shows.
+//
+// Plugin diagnostics: a result with an overlong id.
+func PluginValidateResultIDTooLong() string { return In(i18n.Locale()).PluginValidateResultIDTooLong() }
+
+// PluginValidateResultIDTooLong says "结果 id 超过 512 个字符"
+// in the language of msgs.
+//
+// Plugin diagnostics: a result with an overlong id.
+func (msgs Messages) PluginValidateResultIDTooLong() string {
+	return Catalog.Format(msgs.locale, "pluginValidateResultIDTooLong", nil)
+}
+
+// PluginValidateResultNoTitle says "结果缺少标题"
+// in the language the app shows.
+//
+// Plugin diagnostics: a result without a title.
+func PluginValidateResultNoTitle() string { return In(i18n.Locale()).PluginValidateResultNoTitle() }
+
+// PluginValidateResultNoTitle says "结果缺少标题"
+// in the language of msgs.
+//
+// Plugin diagnostics: a result without a title.
+func (msgs Messages) PluginValidateResultNoTitle() string {
+	return Catalog.Format(msgs.locale, "pluginValidateResultNoTitle", nil)
+}
+
+// PluginValidateResultTitleTooLong says "结果标题超过 1000 个字符"
+// in the language the app shows.
+//
+// Plugin diagnostics: a result with an overlong title.
+func PluginValidateResultTitleTooLong() string {
+	return In(i18n.Locale()).PluginValidateResultTitleTooLong()
+}
+
+// PluginValidateResultTitleTooLong says "结果标题超过 1000 个字符"
+// in the language of msgs.
+//
+// Plugin diagnostics: a result with an overlong title.
+func (msgs Messages) PluginValidateResultTitleTooLong() string {
+	return Catalog.Format(msgs.locale, "pluginValidateResultTitleTooLong", nil)
+}
+
+// PluginValidateResultSubtitleTooLong says "结果副标题超过 4000 个字符"
+// in the language the app shows.
+//
+// Plugin diagnostics: a result with an overlong subtitle.
+func PluginValidateResultSubtitleTooLong() string {
+	return In(i18n.Locale()).PluginValidateResultSubtitleTooLong()
+}
+
+// PluginValidateResultSubtitleTooLong says "结果副标题超过 4000 个字符"
+// in the language of msgs.
+//
+// Plugin diagnostics: a result with an overlong subtitle.
+func (msgs Messages) PluginValidateResultSubtitleTooLong() string {
+	return Catalog.Format(msgs.locale, "pluginValidateResultSubtitleTooLong", nil)
+}
+
+// PluginValidateResultActionsTooMany says "一个结果最多 10 个动作"
+// in the language the app shows.
+//
+// Plugin diagnostics: a result with too many actions.
+func PluginValidateResultActionsTooMany() string {
+	return In(i18n.Locale()).PluginValidateResultActionsTooMany()
+}
+
+// PluginValidateResultActionsTooMany says "一个结果最多 10 个动作"
+// in the language of msgs.
+//
+// Plugin diagnostics: a result with too many actions.
+func (msgs Messages) PluginValidateResultActionsTooMany() string {
+	return Catalog.Format(msgs.locale, "pluginValidateResultActionsTooMany", nil)
+}
+
+// PluginValidateResultPreviewTooLong says "预览文本超过 16000 个字符"
+// in the language the app shows.
+//
+// Plugin diagnostics: a result with overlong preview text.
+func PluginValidateResultPreviewTooLong() string {
+	return In(i18n.Locale()).PluginValidateResultPreviewTooLong()
+}
+
+// PluginValidateResultPreviewTooLong says "预览文本超过 16000 个字符"
+// in the language of msgs.
+//
+// Plugin diagnostics: a result with overlong preview text.
+func (msgs Messages) PluginValidateResultPreviewTooLong() string {
+	return Catalog.Format(msgs.locale, "pluginValidateResultPreviewTooLong", nil)
+}
+
+// PluginValidateActionNoID says "动作缺少 id"
+// in the language the app shows.
+//
+// Plugin diagnostics: an action without an id.
+func PluginValidateActionNoID() string { return In(i18n.Locale()).PluginValidateActionNoID() }
+
+// PluginValidateActionNoID says "动作缺少 id"
+// in the language of msgs.
+//
+// Plugin diagnostics: an action without an id.
+func (msgs Messages) PluginValidateActionNoID() string {
+	return Catalog.Format(msgs.locale, "pluginValidateActionNoID", nil)
+}
+
+// PluginValidateActionIDTooLong says "动作 id 超过 200 个字符"
+// in the language the app shows.
+//
+// Plugin diagnostics: an action with an overlong id.
+func PluginValidateActionIDTooLong() string { return In(i18n.Locale()).PluginValidateActionIDTooLong() }
+
+// PluginValidateActionIDTooLong says "动作 id 超过 200 个字符"
+// in the language of msgs.
+//
+// Plugin diagnostics: an action with an overlong id.
+func (msgs Messages) PluginValidateActionIDTooLong() string {
+	return Catalog.Format(msgs.locale, "pluginValidateActionIDTooLong", nil)
+}
+
+// PluginValidateActionNoTitle says "动作缺少标题"
+// in the language the app shows.
+//
+// Plugin diagnostics: an action without a title.
+func PluginValidateActionNoTitle() string { return In(i18n.Locale()).PluginValidateActionNoTitle() }
+
+// PluginValidateActionNoTitle says "动作缺少标题"
+// in the language of msgs.
+//
+// Plugin diagnostics: an action without a title.
+func (msgs Messages) PluginValidateActionNoTitle() string {
+	return Catalog.Format(msgs.locale, "pluginValidateActionNoTitle", nil)
+}
+
+// PluginValidateActionTitleTooLong says "动作标题超过 200 个字符"
+// in the language the app shows.
+//
+// Plugin diagnostics: an action with an overlong title.
+func PluginValidateActionTitleTooLong() string {
+	return In(i18n.Locale()).PluginValidateActionTitleTooLong()
+}
+
+// PluginValidateActionTitleTooLong says "动作标题超过 200 个字符"
+// in the language of msgs.
+//
+// Plugin diagnostics: an action with an overlong title.
+func (msgs Messages) PluginValidateActionTitleTooLong() string {
+	return Catalog.Format(msgs.locale, "pluginValidateActionTitleTooLong", nil)
+}
+
+// PluginValidateActionValueTooLong says "动作值超过 16000 个字符"
+// in the language the app shows.
+//
+// Plugin diagnostics: an action with an overlong value.
+func PluginValidateActionValueTooLong() string {
+	return In(i18n.Locale()).PluginValidateActionValueTooLong()
+}
+
+// PluginValidateActionValueTooLong says "动作值超过 16000 个字符"
+// in the language of msgs.
+//
+// Plugin diagnostics: an action with an overlong value.
+func (msgs Messages) PluginValidateActionValueTooLong() string {
+	return Catalog.Format(msgs.locale, "pluginValidateActionValueTooLong", nil)
+}
+
+// PluginValidateActionOpenURL says "动作类型 openUrl 的值必须是 http 或 https 地址，当前为 \"{value}\""
+// in the language the app shows.
+//
+// Plugin diagnostics: an openUrl action whose value is not an http URL.
+func PluginValidateActionOpenURL(value string) string {
+	return In(i18n.Locale()).PluginValidateActionOpenURL(value)
+}
+
+// PluginValidateActionOpenURL says "动作类型 openUrl 的值必须是 http 或 https 地址，当前为 \"{value}\""
+// in the language of msgs.
+//
+// Plugin diagnostics: an openUrl action whose value is not an http URL.
+func (msgs Messages) PluginValidateActionOpenURL(value string) string {
+	return Catalog.Format(msgs.locale, "pluginValidateActionOpenURL", map[string]any{"value": value})
+}
+
+// PluginValidateActionOpenPath says "动作类型 openPath 的值必须是绝对路径，当前为 \"{value}\""
+// in the language the app shows.
+//
+// Plugin diagnostics: an openPath action whose value is not an absolute
+// path.
+func PluginValidateActionOpenPath(value string) string {
+	return In(i18n.Locale()).PluginValidateActionOpenPath(value)
+}
+
+// PluginValidateActionOpenPath says "动作类型 openPath 的值必须是绝对路径，当前为 \"{value}\""
+// in the language of msgs.
+//
+// Plugin diagnostics: an openPath action whose value is not an absolute
+// path.
+func (msgs Messages) PluginValidateActionOpenPath(value string) string {
+	return Catalog.Format(msgs.locale, "pluginValidateActionOpenPath", map[string]any{"value": value})
+}
+
+// PluginValidateActionKind says "不支持的动作类型 \"{kind}\""
+// in the language the app shows.
+//
+// Plugin diagnostics: an action with an unknown kind.
+func PluginValidateActionKind(kind string) string {
+	return In(i18n.Locale()).PluginValidateActionKind(kind)
+}
+
+// PluginValidateActionKind says "不支持的动作类型 \"{kind}\""
+// in the language of msgs.
+//
+// Plugin diagnostics: an action with an unknown kind.
+func (msgs Messages) PluginValidateActionKind(kind string) string {
+	return Catalog.Format(msgs.locale, "pluginValidateActionKind", map[string]any{"kind": kind})
+}
+
+// PluginHandshakeProtocolVersion says "插件使用协议版本 {version}，本启动器使用 {expected}"
+// in the language the app shows.
+//
+// Plugin handshake: the plugin speaks another protocol version.
+func PluginHandshakeProtocolVersion(version int, expected int) string {
+	return In(i18n.Locale()).PluginHandshakeProtocolVersion(version, expected)
+}
+
+// PluginHandshakeProtocolVersion says "插件使用协议版本 {version}，本启动器使用 {expected}"
+// in the language of msgs.
+//
+// Plugin handshake: the plugin speaks another protocol version.
+func (msgs Messages) PluginHandshakeProtocolVersion(version int, expected int) string {
+	return Catalog.Format(msgs.locale, "pluginHandshakeProtocolVersion", map[string]any{"version": version, "expected": expected})
+}
+
+// PluginHandshakeIDMismatch says "插件声明的标识是 \"{declared}\"，与包内 plugin.json 的 \"{expected}\" 不一致"
+// in the language the app shows.
+//
+// Plugin handshake: the plugin declares another id than its manifest.
+func PluginHandshakeIDMismatch(declared string, expected string) string {
+	return In(i18n.Locale()).PluginHandshakeIDMismatch(declared, expected)
+}
+
+// PluginHandshakeIDMismatch says "插件声明的标识是 \"{declared}\"，与包内 plugin.json 的 \"{expected}\" 不一致"
+// in the language of msgs.
+//
+// Plugin handshake: the plugin declares another id than its manifest.
+func (msgs Messages) PluginHandshakeIDMismatch(declared string, expected string) string {
+	return Catalog.Format(msgs.locale, "pluginHandshakeIDMismatch", map[string]any{"declared": declared, "expected": expected})
+}
+
+// PluginRPCError says "插件返回错误（{code, number, ::group-off}）：{message}"
+// in the language the app shows.
+//
+// Plugin protocol: the JSON-RPC error a plugin returned.
+func PluginRPCError(code int, message string) string {
+	return In(i18n.Locale()).PluginRPCError(code, message)
+}
+
+// PluginRPCError says "插件返回错误（{code, number, ::group-off}）：{message}"
+// in the language of msgs.
+//
+// Plugin protocol: the JSON-RPC error a plugin returned.
+func (msgs Messages) PluginRPCError(code int, message string) string {
+	return Catalog.Format(msgs.locale, "pluginRPCError", map[string]any{"code": code, "message": message})
+}
+
+// PluginFrameLengthInvalid says "插件消息长度无效：{length, number, ::group-off}"
+// in the language the app shows.
+//
+// Plugin protocol: a frame header with an impossible length.
+func PluginFrameLengthInvalid(length int) string {
+	return In(i18n.Locale()).PluginFrameLengthInvalid(length)
+}
+
+// PluginFrameLengthInvalid says "插件消息长度无效：{length, number, ::group-off}"
+// in the language of msgs.
+//
+// Plugin protocol: a frame header with an impossible length.
+func (msgs Messages) PluginFrameLengthInvalid(length int) string {
+	return Catalog.Format(msgs.locale, "pluginFrameLengthInvalid", map[string]any{"length": length})
+}
+
+// PluginFrameTooLarge says "插件消息超过大小上限"
+// in the language the app shows.
+//
+// Plugin protocol: a frame above the size limit.
+func PluginFrameTooLarge() string { return In(i18n.Locale()).PluginFrameTooLarge() }
+
+// PluginFrameTooLarge says "插件消息超过大小上限"
+// in the language of msgs.
+//
+// Plugin protocol: a frame above the size limit.
+func (msgs Messages) PluginFrameTooLarge() string {
+	return Catalog.Format(msgs.locale, "pluginFrameTooLarge", nil)
+}
+
+// PluginManifestIDInvalid says "插件标识 \"{id}\" 无效：只能包含字母、数字、点、减号和下划线，长度 1–100"
+// in the language the app shows.
+//
+// Plugin manifest: an id that cannot name a package.
+func PluginManifestIDInvalid(id string) string { return In(i18n.Locale()).PluginManifestIDInvalid(id) }
+
+// PluginManifestIDInvalid says "插件标识 \"{id}\" 无效：只能包含字母、数字、点、减号和下划线，长度 1–100"
+// in the language of msgs.
+//
+// Plugin manifest: an id that cannot name a package.
+func (msgs Messages) PluginManifestIDInvalid(id string) string {
+	return Catalog.Format(msgs.locale, "pluginManifestIDInvalid", map[string]any{"id": id})
+}
+
+// PluginManifestNameMissing says "插件缺少名称"
+// in the language the app shows.
+//
+// Plugin manifest: no name.
+func PluginManifestNameMissing() string { return In(i18n.Locale()).PluginManifestNameMissing() }
+
+// PluginManifestNameMissing says "插件缺少名称"
+// in the language of msgs.
+//
+// Plugin manifest: no name.
+func (msgs Messages) PluginManifestNameMissing() string {
+	return Catalog.Format(msgs.locale, "pluginManifestNameMissing", nil)
+}
+
+// PluginManifestNameTooLong says "插件名称过长：最多 200 个字符，当前 {count, number, ::group-off}"
+// in the language the app shows.
+//
+// Plugin manifest: an overlong name.
+func PluginManifestNameTooLong(count int) string {
+	return In(i18n.Locale()).PluginManifestNameTooLong(count)
+}
+
+// PluginManifestNameTooLong says "插件名称过长：最多 200 个字符，当前 {count, number, ::group-off}"
+// in the language of msgs.
+//
+// Plugin manifest: an overlong name.
+func (msgs Messages) PluginManifestNameTooLong(count int) string {
+	return Catalog.Format(msgs.locale, "pluginManifestNameTooLong", map[string]any{"count": count})
+}
+
+// PluginManifestVersionInvalid says "插件版本 \"{version}\" 无效：需要 2–4 段数字，例如 1.0.0"
+// in the language the app shows.
+//
+// Plugin manifest: a version that is not 2–4 numeric segments.
+func PluginManifestVersionInvalid(version string) string {
+	return In(i18n.Locale()).PluginManifestVersionInvalid(version)
+}
+
+// PluginManifestVersionInvalid says "插件版本 \"{version}\" 无效：需要 2–4 段数字，例如 1.0.0"
+// in the language of msgs.
+//
+// Plugin manifest: a version that is not 2–4 numeric segments.
+func (msgs Messages) PluginManifestVersionInvalid(version string) string {
+	return Catalog.Format(msgs.locale, "pluginManifestVersionInvalid", map[string]any{"version": version})
+}
+
+// PluginManifestProtocolVersion says "插件协议版本为 {version}，本启动器使用协议版本 {expected}；请更新插件或启动器"
+// in the language the app shows.
+//
+// Plugin manifest: the package declares another protocol version.
+func PluginManifestProtocolVersion(version int, expected int) string {
+	return In(i18n.Locale()).PluginManifestProtocolVersion(version, expected)
+}
+
+// PluginManifestProtocolVersion says "插件协议版本为 {version}，本启动器使用协议版本 {expected}；请更新插件或启动器"
+// in the language of msgs.
+//
+// Plugin manifest: the package declares another protocol version.
+func (msgs Messages) PluginManifestProtocolVersion(version int, expected int) string {
+	return Catalog.Format(msgs.locale, "pluginManifestProtocolVersion", map[string]any{"version": version, "expected": expected})
+}
+
+// PluginManifestEntryMissing says "插件缺少入口：请在 plugin.json 的 executable 中写出包内可执行文件名"
+// in the language the app shows.
+//
+// Plugin manifest: no executable or entryAssembly.
+func PluginManifestEntryMissing() string { return In(i18n.Locale()).PluginManifestEntryMissing() }
+
+// PluginManifestEntryMissing says "插件缺少入口：请在 plugin.json 的 executable 中写出包内可执行文件名"
+// in the language of msgs.
+//
+// Plugin manifest: no executable or entryAssembly.
+func (msgs Messages) PluginManifestEntryMissing() string {
+	return Catalog.Format(msgs.locale, "pluginManifestEntryMissing", nil)
+}
+
+// PluginManifestEntryInvalid says "插件入口 \"{entry}\" 无效：只能是包内的文件名，不能包含路径"
+// in the language the app shows.
+//
+// Plugin manifest: an entry that is not a plain file name.
+func PluginManifestEntryInvalid(entry string) string {
+	return In(i18n.Locale()).PluginManifestEntryInvalid(entry)
+}
+
+// PluginManifestEntryInvalid says "插件入口 \"{entry}\" 无效：只能是包内的文件名，不能包含路径"
+// in the language of msgs.
+//
+// Plugin manifest: an entry that is not a plain file name.
+func (msgs Messages) PluginManifestEntryInvalid(entry string) string {
+	return Catalog.Format(msgs.locale, "pluginManifestEntryInvalid", map[string]any{"entry": entry})
+}
+
+// PluginManifestKeywordsTooMany says "插件触发词过多：最多 20 个，当前 {count, number, ::group-off}"
+// in the language the app shows.
+//
+// Plugin manifest: too many keywords.
+func PluginManifestKeywordsTooMany(count int) string {
+	return In(i18n.Locale()).PluginManifestKeywordsTooMany(count)
+}
+
+// PluginManifestKeywordsTooMany says "插件触发词过多：最多 20 个，当前 {count, number, ::group-off}"
+// in the language of msgs.
+//
+// Plugin manifest: too many keywords.
+func (msgs Messages) PluginManifestKeywordsTooMany(count int) string {
+	return Catalog.Format(msgs.locale, "pluginManifestKeywordsTooMany", map[string]any{"count": count})
+}
+
+// PluginManifestKeywordInvalid says "插件触发词 \"{keyword}\" 无效：不能为空、不能含空白字符，最多 32 个字符"
+// in the language the app shows.
+//
+// Plugin manifest: a keyword that breaks the matching rules.
+func PluginManifestKeywordInvalid(keyword string) string {
+	return In(i18n.Locale()).PluginManifestKeywordInvalid(keyword)
+}
+
+// PluginManifestKeywordInvalid says "插件触发词 \"{keyword}\" 无效：不能为空、不能含空白字符，最多 32 个字符"
+// in the language of msgs.
+//
+// Plugin manifest: a keyword that breaks the matching rules.
+func (msgs Messages) PluginManifestKeywordInvalid(keyword string) string {
+	return Catalog.Format(msgs.locale, "pluginManifestKeywordInvalid", map[string]any{"keyword": keyword})
+}
+
+// PluginManifestKeywordDuplicate says "插件触发词 \"{keyword}\" 重复"
+// in the language the app shows.
+//
+// Plugin manifest: two keywords that match case-insensitively.
+func PluginManifestKeywordDuplicate(keyword string) string {
+	return In(i18n.Locale()).PluginManifestKeywordDuplicate(keyword)
+}
+
+// PluginManifestKeywordDuplicate says "插件触发词 \"{keyword}\" 重复"
+// in the language of msgs.
+//
+// Plugin manifest: two keywords that match case-insensitively.
+func (msgs Messages) PluginManifestKeywordDuplicate(keyword string) string {
+	return Catalog.Format(msgs.locale, "pluginManifestKeywordDuplicate", map[string]any{"keyword": keyword})
+}
+
+// PluginManifestPermissionsTooMany says "插件权限声明过多：最多 20 项，当前 {count, number, ::group-off}"
+// in the language the app shows.
+//
+// Plugin manifest: too many permission declarations.
+func PluginManifestPermissionsTooMany(count int) string {
+	return In(i18n.Locale()).PluginManifestPermissionsTooMany(count)
+}
+
+// PluginManifestPermissionsTooMany says "插件权限声明过多：最多 20 项，当前 {count, number, ::group-off}"
+// in the language of msgs.
+//
+// Plugin manifest: too many permission declarations.
+func (msgs Messages) PluginManifestPermissionsTooMany(count int) string {
+	return Catalog.Format(msgs.locale, "pluginManifestPermissionsTooMany", map[string]any{"count": count})
+}
+
+// PluginManifestDescriptionTooLong says "插件描述过长：最多 10000 个字符"
+// in the language the app shows.
+//
+// Plugin manifest: an overlong description.
+func PluginManifestDescriptionTooLong() string {
+	return In(i18n.Locale()).PluginManifestDescriptionTooLong()
+}
+
+// PluginManifestDescriptionTooLong says "插件描述过长：最多 10000 个字符"
+// in the language of msgs.
+//
+// Plugin manifest: an overlong description.
+func (msgs Messages) PluginManifestDescriptionTooLong() string {
+	return Catalog.Format(msgs.locale, "pluginManifestDescriptionTooLong", nil)
+}
+
+// PluginManifestFileMissing says "缺少 plugin.json"
+// in the language the app shows.
+//
+// Plugin package: a directory without plugin.json.
+func PluginManifestFileMissing() string { return In(i18n.Locale()).PluginManifestFileMissing() }
+
+// PluginManifestFileMissing says "缺少 plugin.json"
+// in the language of msgs.
+//
+// Plugin package: a directory without plugin.json.
+func (msgs Messages) PluginManifestFileMissing() string {
+	return Catalog.Format(msgs.locale, "pluginManifestFileMissing", nil)
+}
+
+// PluginManifestReadFailed says "无法读取 plugin.json：{err}"
+// in the language the app shows.
+//
+// Plugin package: plugin.json cannot be read.
+func PluginManifestReadFailed(err any) string { return In(i18n.Locale()).PluginManifestReadFailed(err) }
+
+// PluginManifestReadFailed says "无法读取 plugin.json：{err}"
+// in the language of msgs.
+//
+// Plugin package: plugin.json cannot be read.
+func (msgs Messages) PluginManifestReadFailed(err any) string {
+	return Catalog.Format(msgs.locale, "pluginManifestReadFailed", map[string]any{"err": err})
+}
+
+// PluginManifestInvalidJSON says "plugin.json 格式错误：{err}"
+// in the language the app shows.
+//
+// Plugin package: plugin.json is not valid JSON.
+func PluginManifestInvalidJSON(err any) string {
+	return In(i18n.Locale()).PluginManifestInvalidJSON(err)
+}
+
+// PluginManifestInvalidJSON says "plugin.json 格式错误：{err}"
+// in the language of msgs.
+//
+// Plugin package: plugin.json is not valid JSON.
+func (msgs Messages) PluginManifestInvalidJSON(err any) string {
+	return Catalog.Format(msgs.locale, "pluginManifestInvalidJSON", map[string]any{"err": err})
+}
+
+// PluginEntryNotFound says "插件入口 {entry} 不存在"
+// in the language the app shows.
+//
+// Plugin package: the executable the manifest names is not there.
+func PluginEntryNotFound(entry string) string { return In(i18n.Locale()).PluginEntryNotFound(entry) }
+
+// PluginEntryNotFound says "插件入口 {entry} 不存在"
+// in the language of msgs.
+//
+// Plugin package: the executable the manifest names is not there.
+func (msgs Messages) PluginEntryNotFound(entry string) string {
+	return Catalog.Format(msgs.locale, "pluginEntryNotFound", map[string]any{"entry": entry})
+}
+
+// PluginEntryReadFailed says "无法读取插件入口 {entry}：{err}"
+// in the language the app shows.
+//
+// Plugin package: the executable the manifest names cannot be read.
+func PluginEntryReadFailed(entry string, err any) string {
+	return In(i18n.Locale()).PluginEntryReadFailed(entry, err)
+}
+
+// PluginEntryReadFailed says "无法读取插件入口 {entry}：{err}"
+// in the language of msgs.
+//
+// Plugin package: the executable the manifest names cannot be read.
+func (msgs Messages) PluginEntryReadFailed(entry string, err any) string {
+	return Catalog.Format(msgs.locale, "pluginEntryReadFailed", map[string]any{"entry": entry, "err": err})
+}
+
+// PluginDirCreateFailed says "无法创建插件目录：{err}"
+// in the language the app shows.
+//
+// Plugin repository: the plugin root cannot be created.
+func PluginDirCreateFailed(err any) string { return In(i18n.Locale()).PluginDirCreateFailed(err) }
+
+// PluginDirCreateFailed says "无法创建插件目录：{err}"
+// in the language of msgs.
+//
+// Plugin repository: the plugin root cannot be created.
+func (msgs Messages) PluginDirCreateFailed(err any) string {
+	return Catalog.Format(msgs.locale, "pluginDirCreateFailed", map[string]any{"err": err})
+}
+
+// PluginDirReadFailed says "无法读取插件目录：{err}"
+// in the language the app shows.
+//
+// Plugin repository: the plugin root cannot be listed.
+func PluginDirReadFailed(err any) string { return In(i18n.Locale()).PluginDirReadFailed(err) }
+
+// PluginDirReadFailed says "无法读取插件目录：{err}"
+// in the language of msgs.
+//
+// Plugin repository: the plugin root cannot be listed.
+func (msgs Messages) PluginDirReadFailed(err any) string {
+	return Catalog.Format(msgs.locale, "pluginDirReadFailed", map[string]any{"err": err})
+}
+
+// PluginLegacyPackage says "这是旧版 C# 插件包（只有 entryAssembly）；请安装可执行插件包"
+// in the language the app shows.
+//
+// Plugin repository: an old C# package with only entryAssembly.
+func PluginLegacyPackage() string { return In(i18n.Locale()).PluginLegacyPackage() }
+
+// PluginLegacyPackage says "这是旧版 C# 插件包（只有 entryAssembly）；请安装可执行插件包"
+// in the language of msgs.
+//
+// Plugin repository: an old C# package with only entryAssembly.
+func (msgs Messages) PluginLegacyPackage() string {
+	return Catalog.Format(msgs.locale, "pluginLegacyPackage", nil)
+}
+
+// PluginDirIDMismatch says "目录名与插件标识 {id} 不一致；重新安装可修正"
+// in the language the app shows.
+//
+// Plugin repository: the folder name and the manifest id disagree.
+func PluginDirIDMismatch(id string) string { return In(i18n.Locale()).PluginDirIDMismatch(id) }
+
+// PluginDirIDMismatch says "目录名与插件标识 {id} 不一致；重新安装可修正"
+// in the language of msgs.
+//
+// Plugin repository: the folder name and the manifest id disagree.
+func (msgs Messages) PluginDirIDMismatch(id string) string {
+	return Catalog.Format(msgs.locale, "pluginDirIDMismatch", map[string]any{"id": id})
+}
+
+// PluginUpdateInstall says "将安装 {name} {version}。"
+// in the language the app shows.
+//
+// Plugin install dialog: a fresh package will be installed.
+func PluginUpdateInstall(name string, version string) string {
+	return In(i18n.Locale()).PluginUpdateInstall(name, version)
+}
+
+// PluginUpdateInstall says "将安装 {name} {version}。"
+// in the language of msgs.
+//
+// Plugin install dialog: a fresh package will be installed.
+func (msgs Messages) PluginUpdateInstall(name string, version string) string {
+	return Catalog.Format(msgs.locale, "pluginUpdateInstall", map[string]any{"name": name, "version": version})
+}
+
+// PluginUpdateUpgrade says "将从 {from} 升级到 {to}。"
+// in the language the app shows.
+//
+// Plugin install dialog: the package upgrades the installed one.
+func PluginUpdateUpgrade(from string, to string) string {
+	return In(i18n.Locale()).PluginUpdateUpgrade(from, to)
+}
+
+// PluginUpdateUpgrade says "将从 {from} 升级到 {to}。"
+// in the language of msgs.
+//
+// Plugin install dialog: the package upgrades the installed one.
+func (msgs Messages) PluginUpdateUpgrade(from string, to string) string {
+	return Catalog.Format(msgs.locale, "pluginUpdateUpgrade", map[string]any{"from": from, "to": to})
+}
+
+// PluginUpdateReinstall says "包内版本与已安装的 {version} 相同，将重新安装。"
+// in the language the app shows.
+//
+// Plugin install dialog: the package has the installed version.
+func PluginUpdateReinstall(version string) string {
+	return In(i18n.Locale()).PluginUpdateReinstall(version)
+}
+
+// PluginUpdateReinstall says "包内版本与已安装的 {version} 相同，将重新安装。"
+// in the language of msgs.
+//
+// Plugin install dialog: the package has the installed version.
+func (msgs Messages) PluginUpdateReinstall(version string) string {
+	return Catalog.Format(msgs.locale, "pluginUpdateReinstall", map[string]any{"version": version})
+}
+
+// PluginUpdateDowngrade says "包内版本 {version} 低于已安装的 {installed}，继续将降级。"
+// in the language the app shows.
+//
+// Plugin install dialog: the package is older than the installed one.
+func PluginUpdateDowngrade(version string, installed string) string {
+	return In(i18n.Locale()).PluginUpdateDowngrade(version, installed)
+}
+
+// PluginUpdateDowngrade says "包内版本 {version} 低于已安装的 {installed}，继续将降级。"
+// in the language of msgs.
+//
+// Plugin install dialog: the package is older than the installed one.
+func (msgs Messages) PluginUpdateDowngrade(version string, installed string) string {
+	return Catalog.Format(msgs.locale, "pluginUpdateDowngrade", map[string]any{"version": version, "installed": installed})
+}
+
+// PluginAlreadyInstalled says "插件 {id} 已安装；请先卸载或使用升级"
+// in the language the app shows.
+//
+// Plugin install: the package is installed and upgrade was not asked.
+func PluginAlreadyInstalled(id string) string { return In(i18n.Locale()).PluginAlreadyInstalled(id) }
+
+// PluginAlreadyInstalled says "插件 {id} 已安装；请先卸载或使用升级"
+// in the language of msgs.
+//
+// Plugin install: the package is installed and upgrade was not asked.
+func (msgs Messages) PluginAlreadyInstalled(id string) string {
+	return Catalog.Format(msgs.locale, "pluginAlreadyInstalled", map[string]any{"id": id})
+}
+
+// PluginPackageIDMismatch says "包内标识不一致"
+// in the language the app shows.
+//
+// Plugin install: the extracted manifest id differs from the package's.
+func PluginPackageIDMismatch() string { return In(i18n.Locale()).PluginPackageIDMismatch() }
+
+// PluginPackageIDMismatch says "包内标识不一致"
+// in the language of msgs.
+//
+// Plugin install: the extracted manifest id differs from the package's.
+func (msgs Messages) PluginPackageIDMismatch() string {
+	return Catalog.Format(msgs.locale, "pluginPackageIDMismatch", nil)
+}
+
+// PluginInvalidID says "插件标识无效"
+// in the language the app shows.
+//
+// Plugin uninstall: the id is not a valid package name.
+func PluginInvalidID() string { return In(i18n.Locale()).PluginInvalidID() }
+
+// PluginInvalidID says "插件标识无效"
+// in the language of msgs.
+//
+// Plugin uninstall: the id is not a valid package name.
+func (msgs Messages) PluginInvalidID() string {
+	return Catalog.Format(msgs.locale, "pluginInvalidID", nil)
+}
+
+// PluginDirOutsideRoot says "插件目录超出插件根目录"
+// in the language the app shows.
+//
+// Plugin uninstall: the package directory escapes the plugin root.
+func PluginDirOutsideRoot() string { return In(i18n.Locale()).PluginDirOutsideRoot() }
+
+// PluginDirOutsideRoot says "插件目录超出插件根目录"
+// in the language of msgs.
+//
+// Plugin uninstall: the package directory escapes the plugin root.
+func (msgs Messages) PluginDirOutsideRoot() string {
+	return Catalog.Format(msgs.locale, "pluginDirOutsideRoot", nil)
+}
+
+// PluginDirDeleteFailed says "无法删除插件目录 {name}：{err}"
+// in the language the app shows.
+//
+// Plugin uninstall: the package directory cannot be removed.
+func PluginDirDeleteFailed(name string, err any) string {
+	return In(i18n.Locale()).PluginDirDeleteFailed(name, err)
+}
+
+// PluginDirDeleteFailed says "无法删除插件目录 {name}：{err}"
+// in the language of msgs.
+//
+// Plugin uninstall: the package directory cannot be removed.
+func (msgs Messages) PluginDirDeleteFailed(name string, err any) string {
+	return Catalog.Format(msgs.locale, "pluginDirDeleteFailed", map[string]any{"name": name, "err": err})
+}
+
+// PluginPackageNotFound says "插件包不存在：{source}"
+// in the language the app shows.
+//
+// Plugin install: the source file does not exist.
+func PluginPackageNotFound(source string) string {
+	return In(i18n.Locale()).PluginPackageNotFound(source)
+}
+
+// PluginPackageNotFound says "插件包不存在：{source}"
+// in the language of msgs.
+//
+// Plugin install: the source file does not exist.
+func (msgs Messages) PluginPackageNotFound(source string) string {
+	return Catalog.Format(msgs.locale, "pluginPackageNotFound", map[string]any{"source": source})
+}
+
+// PluginPackageReadFailed says "无法读取插件包：{err}"
+// in the language the app shows.
+//
+// Plugin install: the source cannot be read.
+func PluginPackageReadFailed(err any) string { return In(i18n.Locale()).PluginPackageReadFailed(err) }
+
+// PluginPackageReadFailed says "无法读取插件包：{err}"
+// in the language of msgs.
+//
+// Plugin install: the source cannot be read.
+func (msgs Messages) PluginPackageReadFailed(err any) string {
+	return Catalog.Format(msgs.locale, "pluginPackageReadFailed", map[string]any{"err": err})
+}
+
+// PluginPackageNotZip says "不是有效的 ZIP 插件包：{err}"
+// in the language the app shows.
+//
+// Plugin install: the source is not a readable ZIP.
+func PluginPackageNotZip(err any) string { return In(i18n.Locale()).PluginPackageNotZip(err) }
+
+// PluginPackageNotZip says "不是有效的 ZIP 插件包：{err}"
+// in the language of msgs.
+//
+// Plugin install: the source is not a readable ZIP.
+func (msgs Messages) PluginPackageNotZip(err any) string {
+	return Catalog.Format(msgs.locale, "pluginPackageNotZip", map[string]any{"err": err})
+}
+
+// PluginPackageEntryCount says "插件包条目数量无效：{count} 个"
+// in the language the app shows.
+//
+// Plugin install: the ZIP has no entries or too many.
+func PluginPackageEntryCount(count int) string {
+	return In(i18n.Locale()).PluginPackageEntryCount(count)
+}
+
+// PluginPackageEntryCount says "插件包条目数量无效：{count} 个"
+// in the language of msgs.
+//
+// Plugin install: the ZIP has no entries or too many.
+func (msgs Messages) PluginPackageEntryCount(count int) string {
+	return Catalog.Format(msgs.locale, "pluginPackageEntryCount", map[string]any{"count": count})
+}
+
+// PluginManifestTooLarge says "插件清单过大：plugin.json 最大 1 MB"
+// in the language the app shows.
+//
+// Plugin install: plugin.json in the ZIP is too large.
+func PluginManifestTooLarge() string { return In(i18n.Locale()).PluginManifestTooLarge() }
+
+// PluginManifestTooLarge says "插件清单过大：plugin.json 最大 1 MB"
+// in the language of msgs.
+//
+// Plugin install: plugin.json in the ZIP is too large.
+func (msgs Messages) PluginManifestTooLarge() string {
+	return Catalog.Format(msgs.locale, "pluginManifestTooLarge", nil)
+}
+
+// PluginManifestOpenFailed says "无法读取插件清单：{err}"
+// in the language the app shows.
+//
+// Plugin install: plugin.json in the ZIP cannot be opened.
+func PluginManifestOpenFailed(err any) string { return In(i18n.Locale()).PluginManifestOpenFailed(err) }
+
+// PluginManifestOpenFailed says "无法读取插件清单：{err}"
+// in the language of msgs.
+//
+// Plugin install: plugin.json in the ZIP cannot be opened.
+func (msgs Messages) PluginManifestOpenFailed(err any) string {
+	return Catalog.Format(msgs.locale, "pluginManifestOpenFailed", map[string]any{"err": err})
+}
+
+// PluginEntryNotInPackage says "插件入口 {entry} 不在包内"
+// in the language the app shows.
+//
+// Plugin install: the ZIP does not hold the executable the manifest names.
+func PluginEntryNotInPackage(entry string) string {
+	return In(i18n.Locale()).PluginEntryNotInPackage(entry)
+}
+
+// PluginEntryNotInPackage says "插件入口 {entry} 不在包内"
+// in the language of msgs.
+//
+// Plugin install: the ZIP does not hold the executable the manifest names.
+func (msgs Messages) PluginEntryNotInPackage(entry string) string {
+	return Catalog.Format(msgs.locale, "pluginEntryNotInPackage", map[string]any{"entry": entry})
+}
+
+// PluginPackageMissingManifest says "插件包缺少 plugin.json"
+// in the language the app shows.
+//
+// Plugin install: the ZIP has no plugin.json.
+func PluginPackageMissingManifest() string { return In(i18n.Locale()).PluginPackageMissingManifest() }
+
+// PluginPackageMissingManifest says "插件包缺少 plugin.json"
+// in the language of msgs.
+//
+// Plugin install: the ZIP has no plugin.json.
+func (msgs Messages) PluginPackageMissingManifest() string {
+	return Catalog.Format(msgs.locale, "pluginPackageMissingManifest", nil)
+}
+
+// PluginPackageTooManyEntries says "插件包条目过多"
+// in the language the app shows.
+//
+// Plugin install: the ZIP has too many entries to extract.
+func PluginPackageTooManyEntries() string { return In(i18n.Locale()).PluginPackageTooManyEntries() }
+
+// PluginPackageTooManyEntries says "插件包条目过多"
+// in the language of msgs.
+//
+// Plugin install: the ZIP has too many entries to extract.
+func (msgs Messages) PluginPackageTooManyEntries() string {
+	return Catalog.Format(msgs.locale, "pluginPackageTooManyEntries", nil)
+}
+
+// PluginPackageSymlink says "插件包不能包含符号链接"
+// in the language the app shows.
+//
+// Plugin install: the ZIP contains a symlink.
+func PluginPackageSymlink() string { return In(i18n.Locale()).PluginPackageSymlink() }
+
+// PluginPackageSymlink says "插件包不能包含符号链接"
+// in the language of msgs.
+//
+// Plugin install: the ZIP contains a symlink.
+func (msgs Messages) PluginPackageSymlink() string {
+	return Catalog.Format(msgs.locale, "pluginPackageSymlink", nil)
+}
+
+// PluginPackageInvalidPath says "插件包路径无效：{name}"
+// in the language the app shows.
+//
+// Plugin install: a ZIP entry name is absolute or traverses.
+func PluginPackageInvalidPath(name string) string {
+	return In(i18n.Locale()).PluginPackageInvalidPath(name)
+}
+
+// PluginPackageInvalidPath says "插件包路径无效：{name}"
+// in the language of msgs.
+//
+// Plugin install: a ZIP entry name is absolute or traverses.
+func (msgs Messages) PluginPackageInvalidPath(name string) string {
+	return Catalog.Format(msgs.locale, "pluginPackageInvalidPath", map[string]any{"name": name})
+}
+
+// PluginPackagePathOutside says "插件包路径超出目录"
+// in the language the app shows.
+//
+// Plugin install: a ZIP entry escapes the destination directory.
+func PluginPackagePathOutside() string { return In(i18n.Locale()).PluginPackagePathOutside() }
+
+// PluginPackagePathOutside says "插件包路径超出目录"
+// in the language of msgs.
+//
+// Plugin install: a ZIP entry escapes the destination directory.
+func (msgs Messages) PluginPackagePathOutside() string {
+	return Catalog.Format(msgs.locale, "pluginPackagePathOutside", nil)
+}
+
+// PluginPackageFileTooLarge says "插件包单个文件过大"
+// in the language the app shows.
+//
+// Plugin install: one file in the ZIP is too large.
+func PluginPackageFileTooLarge() string { return In(i18n.Locale()).PluginPackageFileTooLarge() }
+
+// PluginPackageFileTooLarge says "插件包单个文件过大"
+// in the language of msgs.
+//
+// Plugin install: one file in the ZIP is too large.
+func (msgs Messages) PluginPackageFileTooLarge() string {
+	return Catalog.Format(msgs.locale, "pluginPackageFileTooLarge", nil)
+}
+
+// PluginPackageSizeLimit says "插件包解压后超过大小上限"
+// in the language the app shows.
+//
+// Plugin install: the ZIP exceeds the total size limit when extracted.
+func PluginPackageSizeLimit() string { return In(i18n.Locale()).PluginPackageSizeLimit() }
+
+// PluginPackageSizeLimit says "插件包解压后超过大小上限"
+// in the language of msgs.
+//
+// Plugin install: the ZIP exceeds the total size limit when extracted.
+func (msgs Messages) PluginPackageSizeLimit() string {
+	return Catalog.Format(msgs.locale, "pluginPackageSizeLimit", nil)
+}
+
+// LaunchActionHandledBySource says "此动作由对应来源处理。"
+// in the language the app shows.
+//
+// Launch outcome: the action belongs to another source's handler.
+func LaunchActionHandledBySource() string { return In(i18n.Locale()).LaunchActionHandledBySource() }
+
+// LaunchActionHandledBySource says "此动作由对应来源处理。"
+// in the language of msgs.
+//
+// Launch outcome: the action belongs to another source's handler.
+func (msgs Messages) LaunchActionHandledBySource() string {
+	return Catalog.Format(msgs.locale, "launchActionHandledBySource", nil)
+}
+
+// LaunchNoLocalLocation says "此条目没有本地位置。"
+// in the language the app shows.
+//
+// Launch outcome: the entry has no path to open in Explorer.
+func LaunchNoLocalLocation() string { return In(i18n.Locale()).LaunchNoLocalLocation() }
+
+// LaunchNoLocalLocation says "此条目没有本地位置。"
+// in the language of msgs.
+//
+// Launch outcome: the entry has no path to open in Explorer.
+func (msgs Messages) LaunchNoLocalLocation() string {
+	return Catalog.Format(msgs.locale, "launchNoLocalLocation", nil)
+}
+
+// LaunchRunAsAppsOnly says "仅应用支持以管理员身份运行。"
+// in the language the app shows.
+//
+// Launch outcome: only applications support the run-as-administrator
+// action.
+func LaunchRunAsAppsOnly() string { return In(i18n.Locale()).LaunchRunAsAppsOnly() }
+
+// LaunchRunAsAppsOnly says "仅应用支持以管理员身份运行。"
+// in the language of msgs.
+//
+// Launch outcome: only applications support the run-as-administrator
+// action.
+func (msgs Messages) LaunchRunAsAppsOnly() string {
+	return Catalog.Format(msgs.locale, "launchRunAsAppsOnly", nil)
+}
+
+// LaunchUACCanceled says "用户取消了系统权限确认。"
+// in the language the app shows.
+//
+// Launch outcome: the user dismissed the elevation prompt.
+func LaunchUACCanceled() string { return In(i18n.Locale()).LaunchUACCanceled() }
+
+// LaunchUACCanceled says "用户取消了系统权限确认。"
+// in the language of msgs.
+//
+// Launch outcome: the user dismissed the elevation prompt.
+func (msgs Messages) LaunchUACCanceled() string {
+	return Catalog.Format(msgs.locale, "launchUACCanceled", nil)
+}
+
+// LaunchShellExecuteFailed says "ShellExecuteEx 失败：{err}"
+// in the language the app shows.
+//
+// Launch outcome: ShellExecuteEx refused the request.
+func LaunchShellExecuteFailed(err any) string { return In(i18n.Locale()).LaunchShellExecuteFailed(err) }
+
+// LaunchShellExecuteFailed says "ShellExecuteEx 失败：{err}"
+// in the language of msgs.
+//
+// Launch outcome: ShellExecuteEx refused the request.
+func (msgs Messages) LaunchShellExecuteFailed(err any) string {
+	return Catalog.Format(msgs.locale, "launchShellExecuteFailed", map[string]any{"err": err})
+}
+
+// LaunchShellAppsWarning says "系统应用列表暂不可用：{err}"
+// in the language the app shows.
+//
+// Application catalog: the shell's installed-app list is unavailable.
+func LaunchShellAppsWarning(err any) string { return In(i18n.Locale()).LaunchShellAppsWarning(err) }
+
+// LaunchShellAppsWarning says "系统应用列表暂不可用：{err}"
+// in the language of msgs.
+//
+// Application catalog: the shell's installed-app list is unavailable.
+func (msgs Messages) LaunchShellAppsWarning(err any) string {
+	return Catalog.Format(msgs.locale, "launchShellAppsWarning", map[string]any{"err": err})
+}
+
+// LaunchPackagedAppSubtitle says "应用包 {name}"
+// in the language the app shows.
+//
+// Application catalog: subtitle of a packaged (AppsFolder) application.
+func LaunchPackagedAppSubtitle(name string) string {
+	return In(i18n.Locale()).LaunchPackagedAppSubtitle(name)
+}
+
+// LaunchPackagedAppSubtitle says "应用包 {name}"
+// in the language of msgs.
+//
+// Application catalog: subtitle of a packaged (AppsFolder) application.
+func (msgs Messages) LaunchPackagedAppSubtitle(name string) string {
+	return Catalog.Format(msgs.locale, "launchPackagedAppSubtitle", map[string]any{"name": name})
+}
+
+// LaunchWatchRootFailed says "无法监听应用目录 {root}：{err}"
+// in the language the app shows.
+//
+// Application catalog: a watched application root cannot be watched.
+func LaunchWatchRootFailed(root string, err any) string {
+	return In(i18n.Locale()).LaunchWatchRootFailed(root, err)
+}
+
+// LaunchWatchRootFailed says "无法监听应用目录 {root}：{err}"
+// in the language of msgs.
+//
+// Application catalog: a watched application root cannot be watched.
+func (msgs Messages) LaunchWatchRootFailed(root string, err any) string {
+	return Catalog.Format(msgs.locale, "launchWatchRootFailed", map[string]any{"root": root, "err": err})
+}
+
+// LaunchNotLaunchable says "不是可启动的应用"
+// in the language the app shows.
+//
+// Application catalog: the entry is not a launchable application.
+func LaunchNotLaunchable() string { return In(i18n.Locale()).LaunchNotLaunchable() }
+
+// LaunchNotLaunchable says "不是可启动的应用"
+// in the language of msgs.
+//
+// Application catalog: the entry is not a launchable application.
+func (msgs Messages) LaunchNotLaunchable() string {
+	return Catalog.Format(msgs.locale, "launchNotLaunchable", nil)
+}
+
+// WinWindowSubtitle says "运行中的窗口 · 切换到此窗口"
+// in the language the app shows.
+//
+// Window list: subtitle of a window whose process name is unknown.
+func WinWindowSubtitle() string { return In(i18n.Locale()).WinWindowSubtitle() }
+
+// WinWindowSubtitle says "运行中的窗口 · 切换到此窗口"
+// in the language of msgs.
+//
+// Window list: subtitle of a window whose process name is unknown.
+func (msgs Messages) WinWindowSubtitle() string {
+	return Catalog.Format(msgs.locale, "winWindowSubtitle", nil)
+}
+
+// WinSwitchToWindow says "{name} · 切换到此窗口"
+// in the language the app shows.
+//
+// Window list: subtitle naming the window's process.
+func WinSwitchToWindow(name string) string { return In(i18n.Locale()).WinSwitchToWindow(name) }
+
+// WinSwitchToWindow says "{name} · 切换到此窗口"
+// in the language of msgs.
+//
+// Window list: subtitle naming the window's process.
+func (msgs Messages) WinSwitchToWindow(name string) string {
+	return Catalog.Format(msgs.locale, "winSwitchToWindow", map[string]any{"name": name})
+}
+
+// WinClosedError says "该窗口已经关闭，请重新搜索。"
+// in the language the app shows.
+//
+// Window list: the window was closed before it could be activated.
+func WinClosedError() string { return In(i18n.Locale()).WinClosedError() }
+
+// WinClosedError says "该窗口已经关闭，请重新搜索。"
+// in the language of msgs.
+//
+// Window list: the window was closed before it could be activated.
+func (msgs Messages) WinClosedError() string {
+	return Catalog.Format(msgs.locale, "winClosedError", nil)
+}
+
+// WinForegroundDenied says "Windows 拒绝了前台切换。"
+// in the language the app shows.
+//
+// Window list: Windows refused the foreground switch.
+func WinForegroundDenied() string { return In(i18n.Locale()).WinForegroundDenied() }
+
+// WinForegroundDenied says "Windows 拒绝了前台切换。"
+// in the language of msgs.
+//
+// Window list: Windows refused the foreground switch.
+func (msgs Messages) WinForegroundDenied() string {
+	return Catalog.Format(msgs.locale, "winForegroundDenied", nil)
+}
+
+// EverythingClientNotRunning says "Everything 客户端未运行；仅启动服务不支持 IPC。请启动客户端或关闭此来源。"
+// in the language the app shows.
+//
+// Everything: no client window answers IPC.
+func EverythingClientNotRunning() string { return In(i18n.Locale()).EverythingClientNotRunning() }
+
+// EverythingClientNotRunning says "Everything 客户端未运行；仅启动服务不支持 IPC。请启动客户端或关闭此来源。"
+// in the language of msgs.
+//
+// Everything: no client window answers IPC.
+func (msgs Messages) EverythingClientNotRunning() string {
+	return Catalog.Format(msgs.locale, "everythingClientNotRunning", nil)
+}
+
+// EverythingReplySizeInvalid says "Everything 响应大小无效"
+// in the language the app shows.
+//
+// Everything: the reply frame has an impossible size.
+func EverythingReplySizeInvalid() string { return In(i18n.Locale()).EverythingReplySizeInvalid() }
+
+// EverythingReplySizeInvalid says "Everything 响应大小无效"
+// in the language of msgs.
+//
+// Everything: the reply frame has an impossible size.
+func (msgs Messages) EverythingReplySizeInvalid() string {
+	return Catalog.Format(msgs.locale, "everythingReplySizeInvalid", nil)
+}
+
+// EverythingQueryRejected says "Everything 不接受查询，请检查客户端版本、权限和数据库状态"
+// in the language the app shows.
+//
+// Everything: the client did not accept the query.
+func EverythingQueryRejected() string { return In(i18n.Locale()).EverythingQueryRejected() }
+
+// EverythingQueryRejected says "Everything 不接受查询，请检查客户端版本、权限和数据库状态"
+// in the language of msgs.
+//
+// Everything: the client did not accept the query.
+func (msgs Messages) EverythingQueryRejected() string {
+	return Catalog.Format(msgs.locale, "everythingQueryRejected", nil)
+}
+
+// EverythingMessageLoopExited says "Everything IPC 消息循环退出"
+// in the language the app shows.
+//
+// Everything: the IPC message loop ended unexpectedly.
+func EverythingMessageLoopExited() string { return In(i18n.Locale()).EverythingMessageLoopExited() }
+
+// EverythingMessageLoopExited says "Everything IPC 消息循环退出"
+// in the language of msgs.
+//
+// Everything: the IPC message loop ended unexpectedly.
+func (msgs Messages) EverythingMessageLoopExited() string {
+	return Catalog.Format(msgs.locale, "everythingMessageLoopExited", nil)
+}
+
+// EverythingResultHeaderIncomplete says "Everything 结果头不完整"
+// in the language the app shows.
+//
+// Everything: the reply is shorter than its header.
+func EverythingResultHeaderIncomplete() string {
+	return In(i18n.Locale()).EverythingResultHeaderIncomplete()
+}
+
+// EverythingResultHeaderIncomplete says "Everything 结果头不完整"
+// in the language of msgs.
+//
+// Everything: the reply is shorter than its header.
+func (msgs Messages) EverythingResultHeaderIncomplete() string {
+	return Catalog.Format(msgs.locale, "everythingResultHeaderIncomplete", nil)
+}
+
+// EverythingResultCountInvalid says "Everything 结果计数无效"
+// in the language the app shows.
+//
+// Everything: the reply names an impossible result count.
+func EverythingResultCountInvalid() string { return In(i18n.Locale()).EverythingResultCountInvalid() }
+
+// EverythingResultCountInvalid says "Everything 结果计数无效"
+// in the language of msgs.
+//
+// Everything: the reply names an impossible result count.
+func (msgs Messages) EverythingResultCountInvalid() string {
+	return Catalog.Format(msgs.locale, "everythingResultCountInvalid", nil)
+}
+
+// EverythingStringOffsetInvalid says "Everything 字符串偏移无效"
+// in the language the app shows.
+//
+// Everything: a name offset points outside the reply.
+func EverythingStringOffsetInvalid() string { return In(i18n.Locale()).EverythingStringOffsetInvalid() }
+
+// EverythingStringOffsetInvalid says "Everything 字符串偏移无效"
+// in the language of msgs.
+//
+// Everything: a name offset points outside the reply.
+func (msgs Messages) EverythingStringOffsetInvalid() string {
+	return Catalog.Format(msgs.locale, "everythingStringOffsetInvalid", nil)
+}
+
+// EverythingStringNotTerminated says "Everything 字符串未终止"
+// in the language the app shows.
+//
+// Everything: a name in the reply is not null-terminated.
+func EverythingStringNotTerminated() string { return In(i18n.Locale()).EverythingStringNotTerminated() }
+
+// EverythingStringNotTerminated says "Everything 字符串未终止"
+// in the language of msgs.
+//
+// Everything: a name in the reply is not null-terminated.
+func (msgs Messages) EverythingStringNotTerminated() string {
+	return Catalog.Format(msgs.locale, "everythingStringNotTerminated", nil)
+}
+
+// StoreConfigTooLarge says "配置文件超过 1 MiB"
+// in the language the app shows.
+//
+// Settings store: settings.json above the size limit.
+func StoreConfigTooLarge() string { return In(i18n.Locale()).StoreConfigTooLarge() }
+
+// StoreConfigTooLarge says "配置文件超过 1 MiB"
+// in the language of msgs.
+//
+// Settings store: settings.json above the size limit.
+func (msgs Messages) StoreConfigTooLarge() string {
+	return Catalog.Format(msgs.locale, "storeConfigTooLarge", nil)
+}
+
+// StoreConfigPackageTooLarge says "配置包超过 16 MiB"
+// in the language the app shows.
+//
+// Settings store: an imported configuration package above the size limit.
+func StoreConfigPackageTooLarge() string { return In(i18n.Locale()).StoreConfigPackageTooLarge() }
+
+// StoreConfigPackageTooLarge says "配置包超过 16 MiB"
+// in the language of msgs.
+//
+// Settings store: an imported configuration package above the size limit.
+func (msgs Messages) StoreConfigPackageTooLarge() string {
+	return Catalog.Format(msgs.locale, "storeConfigPackageTooLarge", nil)
+}
+
+// StoreConfigPackageInvalidCount says "配置包内容或个人规则数量无效"
+// in the language the app shows.
+//
+// Settings store: an imported package with an impossible profile count.
+func StoreConfigPackageInvalidCount() string {
+	return In(i18n.Locale()).StoreConfigPackageInvalidCount()
+}
+
+// StoreConfigPackageInvalidCount says "配置包内容或个人规则数量无效"
+// in the language of msgs.
+//
+// Settings store: an imported package with an impossible profile count.
+func (msgs Messages) StoreConfigPackageInvalidCount() string {
+	return Catalog.Format(msgs.locale, "storeConfigPackageInvalidCount", nil)
+}
+
+// StoreProfileInvalidFields says "个人规则包含无效字段"
+// in the language the app shows.
+//
+// Settings store: an imported personal rule with bad fields.
+func StoreProfileInvalidFields() string { return In(i18n.Locale()).StoreProfileInvalidFields() }
+
+// StoreProfileInvalidFields says "个人规则包含无效字段"
+// in the language of msgs.
+//
+// Settings store: an imported personal rule with bad fields.
+func (msgs Messages) StoreProfileInvalidFields() string {
+	return Catalog.Format(msgs.locale, "storeProfileInvalidFields", nil)
+}
+
+// StoreProfileDuplicate says "个人规则包含重复条目"
+// in the language the app shows.
+//
+// Settings store: an imported package lists one entry twice.
+func StoreProfileDuplicate() string { return In(i18n.Locale()).StoreProfileDuplicate() }
+
+// StoreProfileDuplicate says "个人规则包含重复条目"
+// in the language of msgs.
+//
+// Settings store: an imported package lists one entry twice.
+func (msgs Messages) StoreProfileDuplicate() string {
+	return Catalog.Format(msgs.locale, "storeProfileDuplicate", nil)
+}
+
+// StoreThemeImageFormatUnsupported says "主题图片格式不受支持"
+// in the language the app shows.
+//
+// Theme store: the background image is not a supported format.
+func StoreThemeImageFormatUnsupported() string {
+	return In(i18n.Locale()).StoreThemeImageFormatUnsupported()
+}
+
+// StoreThemeImageFormatUnsupported says "主题图片格式不受支持"
+// in the language of msgs.
+//
+// Theme store: the background image is not a supported format.
+func (msgs Messages) StoreThemeImageFormatUnsupported() string {
+	return Catalog.Format(msgs.locale, "storeThemeImageFormatUnsupported", nil)
+}
+
+// StoreThemeImageInvalidOrTooLarge says "主题图片格式不受支持或超过 30 MiB"
+// in the language the app shows.
+//
+// Theme store: the background image is unreadable or too large to export.
+func StoreThemeImageInvalidOrTooLarge() string {
+	return In(i18n.Locale()).StoreThemeImageInvalidOrTooLarge()
+}
+
+// StoreThemeImageInvalidOrTooLarge says "主题图片格式不受支持或超过 30 MiB"
+// in the language of msgs.
+//
+// Theme store: the background image is unreadable or too large to export.
+func (msgs Messages) StoreThemeImageInvalidOrTooLarge() string {
+	return Catalog.Format(msgs.locale, "storeThemeImageInvalidOrTooLarge", nil)
+}
+
+// StoreThemePackageEntries says "主题包只能包含 theme.json 和一张静态图片"
+// in the language the app shows.
+//
+// Theme store: a theme ZIP with the wrong files.
+func StoreThemePackageEntries() string { return In(i18n.Locale()).StoreThemePackageEntries() }
+
+// StoreThemePackageEntries says "主题包只能包含 theme.json 和一张静态图片"
+// in the language of msgs.
+//
+// Theme store: a theme ZIP with the wrong files.
+func (msgs Messages) StoreThemePackageEntries() string {
+	return Catalog.Format(msgs.locale, "storeThemePackageEntries", nil)
+}
+
+// StoreThemeJSONTooLarge says "主题描述超过 64 KiB"
+// in the language the app shows.
+//
+// Theme store: theme.json in the package is too large.
+func StoreThemeJSONTooLarge() string { return In(i18n.Locale()).StoreThemeJSONTooLarge() }
+
+// StoreThemeJSONTooLarge says "主题描述超过 64 KiB"
+// in the language of msgs.
+//
+// Theme store: theme.json in the package is too large.
+func (msgs Messages) StoreThemeJSONTooLarge() string {
+	return Catalog.Format(msgs.locale, "storeThemeJSONTooLarge", nil)
+}
+
+// StoreThemeNonImageExtraFiles says "非图片主题不应包含其他文件"
+// in the language the app shows.
+//
+// Theme store: a theme without image background carries extra files.
+func StoreThemeNonImageExtraFiles() string { return In(i18n.Locale()).StoreThemeNonImageExtraFiles() }
+
+// StoreThemeNonImageExtraFiles says "非图片主题不应包含其他文件"
+// in the language of msgs.
+//
+// Theme store: a theme without image background carries extra files.
+func (msgs Messages) StoreThemeNonImageExtraFiles() string {
+	return Catalog.Format(msgs.locale, "storeThemeNonImageExtraFiles", nil)
+}
+
+// StoreThemeImageNameInvalid says "主题图片须为包内的单个图片文件名"
+// in the language the app shows.
+//
+// Theme store: the image name in theme.json is not a plain file name.
+func StoreThemeImageNameInvalid() string { return In(i18n.Locale()).StoreThemeImageNameInvalid() }
+
+// StoreThemeImageNameInvalid says "主题图片须为包内的单个图片文件名"
+// in the language of msgs.
+//
+// Theme store: the image name in theme.json is not a plain file name.
+func (msgs Messages) StoreThemeImageNameInvalid() string {
+	return Catalog.Format(msgs.locale, "storeThemeImageNameInvalid", nil)
+}
+
+// StoreThemeImageMissing says "主题图片不存在"
+// in the language the app shows.
+//
+// Theme store: the package does not hold the image theme.json names.
+func StoreThemeImageMissing() string { return In(i18n.Locale()).StoreThemeImageMissing() }
+
+// StoreThemeImageMissing says "主题图片不存在"
+// in the language of msgs.
+//
+// Theme store: the package does not hold the image theme.json names.
+func (msgs Messages) StoreThemeImageMissing() string {
+	return Catalog.Format(msgs.locale, "storeThemeImageMissing", nil)
+}
+
+// StoreThemeImageTooLarge says "主题图片超过 30 MiB"
+// in the language the app shows.
+//
+// Theme store: the image in the package is above the size limit.
+func StoreThemeImageTooLarge() string { return In(i18n.Locale()).StoreThemeImageTooLarge() }
+
+// StoreThemeImageTooLarge says "主题图片超过 30 MiB"
+// in the language of msgs.
+//
+// Theme store: the image in the package is above the size limit.
+func (msgs Messages) StoreThemeImageTooLarge() string {
+	return Catalog.Format(msgs.locale, "storeThemeImageTooLarge", nil)
+}
+
+// StoreFileIndexWatchFailed says "文件索引监听失败 {root}：{err}"
+// in the language the app shows.
+//
+// File index: a watched root cannot be watched.
+func StoreFileIndexWatchFailed(root string, err any) string {
+	return In(i18n.Locale()).StoreFileIndexWatchFailed(root, err)
+}
+
+// StoreFileIndexWatchFailed says "文件索引监听失败 {root}：{err}"
+// in the language of msgs.
+//
+// File index: a watched root cannot be watched.
+func (msgs Messages) StoreFileIndexWatchFailed(root string, err any) string {
+	return Catalog.Format(msgs.locale, "storeFileIndexWatchFailed", map[string]any{"root": root, "err": err})
+}
+
+// StoreFileIndexUpdateFailed says "文件索引更新失败：{err}"
+// in the language the app shows.
+//
+// File index: the rebuild after a change failed.
+func StoreFileIndexUpdateFailed(err any) string {
+	return In(i18n.Locale()).StoreFileIndexUpdateFailed(err)
+}
+
+// StoreFileIndexUpdateFailed says "文件索引更新失败：{err}"
+// in the language of msgs.
+//
+// File index: the rebuild after a change failed.
+func (msgs Messages) StoreFileIndexUpdateFailed(err any) string {
+	return Catalog.Format(msgs.locale, "storeFileIndexUpdateFailed", map[string]any{"err": err})
+}
+
+// SettingsPageGeneral says "常规"
+// in the language the app shows.
+//
+// Settings sidebar: the general page title.
+func SettingsPageGeneral() string { return In(i18n.Locale()).SettingsPageGeneral() }
+
+// SettingsPageGeneral says "常规"
+// in the language of msgs.
+//
+// Settings sidebar: the general page title.
+func (msgs Messages) SettingsPageGeneral() string {
+	return Catalog.Format(msgs.locale, "settingsPageGeneral", nil)
+}
+
+// SettingsPageAppearance says "外观"
+// in the language the app shows.
+//
+// Settings sidebar: the appearance page title.
+func SettingsPageAppearance() string { return In(i18n.Locale()).SettingsPageAppearance() }
+
+// SettingsPageAppearance says "外观"
+// in the language of msgs.
+//
+// Settings sidebar: the appearance page title.
+func (msgs Messages) SettingsPageAppearance() string {
+	return Catalog.Format(msgs.locale, "settingsPageAppearance", nil)
+}
+
+// SettingsPageFiles says "文件"
+// in the language the app shows.
+//
+// Settings sidebar: the file index page title.
+func SettingsPageFiles() string { return In(i18n.Locale()).SettingsPageFiles() }
+
+// SettingsPageFiles says "文件"
+// in the language of msgs.
+//
+// Settings sidebar: the file index page title.
+func (msgs Messages) SettingsPageFiles() string {
+	return Catalog.Format(msgs.locale, "settingsPageFiles", nil)
+}
+
+// SettingsPageVolume says "音量"
+// in the language the app shows.
+//
+// Settings sidebar: the volume page title.
+func SettingsPageVolume() string { return In(i18n.Locale()).SettingsPageVolume() }
+
+// SettingsPageVolume says "音量"
+// in the language of msgs.
+//
+// Settings sidebar: the volume page title.
+func (msgs Messages) SettingsPageVolume() string {
+	return Catalog.Format(msgs.locale, "settingsPageVolume", nil)
+}
+
+// SettingsPageSites says "站点搜索"
+// in the language the app shows.
+//
+// Settings sidebar: the site search page title.
+func SettingsPageSites() string { return In(i18n.Locale()).SettingsPageSites() }
+
+// SettingsPageSites says "站点搜索"
+// in the language of msgs.
+//
+// Settings sidebar: the site search page title.
+func (msgs Messages) SettingsPageSites() string {
+	return Catalog.Format(msgs.locale, "settingsPageSites", nil)
+}
+
+// SettingsPageLaunchItems says "启动项"
+// in the language the app shows.
+//
+// Settings sidebar: the launch items page title.
+func SettingsPageLaunchItems() string { return In(i18n.Locale()).SettingsPageLaunchItems() }
+
+// SettingsPageLaunchItems says "启动项"
+// in the language of msgs.
+//
+// Settings sidebar: the launch items page title.
+func (msgs Messages) SettingsPageLaunchItems() string {
+	return Catalog.Format(msgs.locale, "settingsPageLaunchItems", nil)
+}
+
+// SettingsPagePlugins says "插件"
+// in the language the app shows.
+//
+// Settings sidebar: the plugins page title; also the fallback card title
+// when the plugin runtime is missing.
+func SettingsPagePlugins() string { return In(i18n.Locale()).SettingsPagePlugins() }
+
+// SettingsPagePlugins says "插件"
+// in the language of msgs.
+//
+// Settings sidebar: the plugins page title; also the fallback card title
+// when the plugin runtime is missing.
+func (msgs Messages) SettingsPagePlugins() string {
+	return Catalog.Format(msgs.locale, "settingsPagePlugins", nil)
+}
+
+// SettingsPageOther says "其他"
+// in the language the app shows.
+//
+// Settings sidebar: the about page title.
+func SettingsPageOther() string { return In(i18n.Locale()).SettingsPageOther() }
+
+// SettingsPageOther says "其他"
+// in the language of msgs.
+//
+// Settings sidebar: the about page title.
+func (msgs Messages) SettingsPageOther() string {
+	return Catalog.Format(msgs.locale, "settingsPageOther", nil)
+}
+
+// SettingsAutoSave says "更改会自动保存"
+// in the language the app shows.
+//
+// Settings footer: reassurance that every change saves itself.
+func SettingsAutoSave() string { return In(i18n.Locale()).SettingsAutoSave() }
+
+// SettingsAutoSave says "更改会自动保存"
+// in the language of msgs.
+//
+// Settings footer: reassurance that every change saves itself.
+func (msgs Messages) SettingsAutoSave() string {
+	return Catalog.Format(msgs.locale, "settingsAutoSave", nil)
+}
+
+// SettingsFollowSystem says "跟随系统"
+// in the language the app shows.
+//
+// Settings appearance: the theme mode that follows the system, and the
+// color well value when a color follows the system.
+func SettingsFollowSystem() string { return In(i18n.Locale()).SettingsFollowSystem() }
+
+// SettingsFollowSystem says "跟随系统"
+// in the language of msgs.
+//
+// Settings appearance: the theme mode that follows the system, and the
+// color well value when a color follows the system.
+func (msgs Messages) SettingsFollowSystem() string {
+	return Catalog.Format(msgs.locale, "settingsFollowSystem", nil)
+}
+
+// SettingsPlacementActiveScreen says "活动屏幕"
+// in the language the app shows.
+//
+// General page: popup position choice, the screen that is currently active.
+func SettingsPlacementActiveScreen() string { return In(i18n.Locale()).SettingsPlacementActiveScreen() }
+
+// SettingsPlacementActiveScreen says "活动屏幕"
+// in the language of msgs.
+//
+// General page: popup position choice, the screen that is currently active.
+func (msgs Messages) SettingsPlacementActiveScreen() string {
+	return Catalog.Format(msgs.locale, "settingsPlacementActiveScreen", nil)
+}
+
+// SettingsPlacementMouseScreen says "鼠标所在屏幕"
+// in the language the app shows.
+//
+// General page: popup position choice, the screen that holds the mouse.
+func SettingsPlacementMouseScreen() string { return In(i18n.Locale()).SettingsPlacementMouseScreen() }
+
+// SettingsPlacementMouseScreen says "鼠标所在屏幕"
+// in the language of msgs.
+//
+// General page: popup position choice, the screen that holds the mouse.
+func (msgs Messages) SettingsPlacementMouseScreen() string {
+	return Catalog.Format(msgs.locale, "settingsPlacementMouseScreen", nil)
+}
+
+// SettingsPlacementPrimaryScreen says "主屏幕"
+// in the language the app shows.
+//
+// General page: popup position choice, the primary screen.
+func SettingsPlacementPrimaryScreen() string {
+	return In(i18n.Locale()).SettingsPlacementPrimaryScreen()
+}
+
+// SettingsPlacementPrimaryScreen says "主屏幕"
+// in the language of msgs.
+//
+// General page: popup position choice, the primary screen.
+func (msgs Messages) SettingsPlacementPrimaryScreen() string {
+	return Catalog.Format(msgs.locale, "settingsPlacementPrimaryScreen", nil)
+}
+
+// SettingsThemeLight says "浅色"
+// in the language the app shows.
+//
+// Appearance page: theme mode choice, light.
+func SettingsThemeLight() string { return In(i18n.Locale()).SettingsThemeLight() }
+
+// SettingsThemeLight says "浅色"
+// in the language of msgs.
+//
+// Appearance page: theme mode choice, light.
+func (msgs Messages) SettingsThemeLight() string {
+	return Catalog.Format(msgs.locale, "settingsThemeLight", nil)
+}
+
+// SettingsThemeDark says "深色"
+// in the language the app shows.
+//
+// Appearance page: theme mode choice, dark.
+func SettingsThemeDark() string { return In(i18n.Locale()).SettingsThemeDark() }
+
+// SettingsThemeDark says "深色"
+// in the language of msgs.
+//
+// Appearance page: theme mode choice, dark.
+func (msgs Messages) SettingsThemeDark() string {
+	return Catalog.Format(msgs.locale, "settingsThemeDark", nil)
+}
+
+// SettingsBackgroundAcrylic says "亚克力"
+// in the language the app shows.
+//
+// Appearance page: background material choice, acrylic.
+func SettingsBackgroundAcrylic() string { return In(i18n.Locale()).SettingsBackgroundAcrylic() }
+
+// SettingsBackgroundAcrylic says "亚克力"
+// in the language of msgs.
+//
+// Appearance page: background material choice, acrylic.
+func (msgs Messages) SettingsBackgroundAcrylic() string {
+	return Catalog.Format(msgs.locale, "settingsBackgroundAcrylic", nil)
+}
+
+// SettingsBackgroundMica says "云母"
+// in the language the app shows.
+//
+// Appearance page: background material choice, mica.
+func SettingsBackgroundMica() string { return In(i18n.Locale()).SettingsBackgroundMica() }
+
+// SettingsBackgroundMica says "云母"
+// in the language of msgs.
+//
+// Appearance page: background material choice, mica.
+func (msgs Messages) SettingsBackgroundMica() string {
+	return Catalog.Format(msgs.locale, "settingsBackgroundMica", nil)
+}
+
+// SettingsBackgroundSolid says "纯色"
+// in the language the app shows.
+//
+// Appearance page: background material choice, solid color.
+func SettingsBackgroundSolid() string { return In(i18n.Locale()).SettingsBackgroundSolid() }
+
+// SettingsBackgroundSolid says "纯色"
+// in the language of msgs.
+//
+// Appearance page: background material choice, solid color.
+func (msgs Messages) SettingsBackgroundSolid() string {
+	return Catalog.Format(msgs.locale, "settingsBackgroundSolid", nil)
+}
+
+// SettingsBackgroundGradient says "渐变"
+// in the language the app shows.
+//
+// Appearance page: background material choice, gradient.
+func SettingsBackgroundGradient() string { return In(i18n.Locale()).SettingsBackgroundGradient() }
+
+// SettingsBackgroundGradient says "渐变"
+// in the language of msgs.
+//
+// Appearance page: background material choice, gradient.
+func (msgs Messages) SettingsBackgroundGradient() string {
+	return Catalog.Format(msgs.locale, "settingsBackgroundGradient", nil)
+}
+
+// SettingsBackgroundImage says "图片"
+// in the language the app shows.
+//
+// Appearance page: background material choice, image.
+func SettingsBackgroundImage() string { return In(i18n.Locale()).SettingsBackgroundImage() }
+
+// SettingsBackgroundImage says "图片"
+// in the language of msgs.
+//
+// Appearance page: background material choice, image.
+func (msgs Messages) SettingsBackgroundImage() string {
+	return Catalog.Format(msgs.locale, "settingsBackgroundImage", nil)
+}
+
+// SettingsGeneralWakeCard says "唤醒与启动"
+// in the language the app shows.
+//
+// General page: card holding the hotkey and startup options.
+func SettingsGeneralWakeCard() string { return In(i18n.Locale()).SettingsGeneralWakeCard() }
+
+// SettingsGeneralWakeCard says "唤醒与启动"
+// in the language of msgs.
+//
+// General page: card holding the hotkey and startup options.
+func (msgs Messages) SettingsGeneralWakeCard() string {
+	return Catalog.Format(msgs.locale, "settingsGeneralWakeCard", nil)
+}
+
+// SettingsHotkey says "热键"
+// in the language the app shows.
+//
+// General page: the hotkey dropdown label.
+func SettingsHotkey() string { return In(i18n.Locale()).SettingsHotkey() }
+
+// SettingsHotkey says "热键"
+// in the language of msgs.
+//
+// General page: the hotkey dropdown label.
+func (msgs Messages) SettingsHotkey() string {
+	return Catalog.Format(msgs.locale, "settingsHotkey", nil)
+}
+
+// SettingsHotkeyActive says "当前生效：{hotkey}（所选热键被占用或未保存）"
+// in the language the app shows.
+//
+// General page: hint under the hotkey dropdown when a different hotkey is
+// currently registered.
+func SettingsHotkeyActive(hotkey string) string {
+	return In(i18n.Locale()).SettingsHotkeyActive(hotkey)
+}
+
+// SettingsHotkeyActive says "当前生效：{hotkey}（所选热键被占用或未保存）"
+// in the language of msgs.
+//
+// General page: hint under the hotkey dropdown when a different hotkey is
+// currently registered.
+func (msgs Messages) SettingsHotkeyActive(hotkey string) string {
+	return Catalog.Format(msgs.locale, "settingsHotkeyActive", map[string]any{"hotkey": hotkey})
+}
+
+// SettingsHideOnStartup says "启动时隐藏搜索框"
+// in the language the app shows.
+//
+// General page: switch that hides the search panel at startup.
+func SettingsHideOnStartup() string { return In(i18n.Locale()).SettingsHideOnStartup() }
+
+// SettingsHideOnStartup says "启动时隐藏搜索框"
+// in the language of msgs.
+//
+// General page: switch that hides the search panel at startup.
+func (msgs Messages) SettingsHideOnStartup() string {
+	return Catalog.Format(msgs.locale, "settingsHideOnStartup", nil)
+}
+
+// SettingsHideOnStartupHint says "关闭后开机进入桌面即显示面板"
+// in the language the app shows.
+//
+// General page: hint of the hide-on-startup switch.
+func SettingsHideOnStartupHint() string { return In(i18n.Locale()).SettingsHideOnStartupHint() }
+
+// SettingsHideOnStartupHint says "关闭后开机进入桌面即显示面板"
+// in the language of msgs.
+//
+// General page: hint of the hide-on-startup switch.
+func (msgs Messages) SettingsHideOnStartupHint() string {
+	return Catalog.Format(msgs.locale, "settingsHideOnStartupHint", nil)
+}
+
+// SettingsRunAtLogin says "开机启动"
+// in the language the app shows.
+//
+// General page: switch that starts the launcher at login.
+func SettingsRunAtLogin() string { return In(i18n.Locale()).SettingsRunAtLogin() }
+
+// SettingsRunAtLogin says "开机启动"
+// in the language of msgs.
+//
+// General page: switch that starts the launcher at login.
+func (msgs Messages) SettingsRunAtLogin() string {
+	return Catalog.Format(msgs.locale, "settingsRunAtLogin", nil)
+}
+
+// SettingsRunAtLoginHint says "登录系统后自动在后台运行"
+// in the language the app shows.
+//
+// General page: hint of the start-at-login switch.
+func SettingsRunAtLoginHint() string { return In(i18n.Locale()).SettingsRunAtLoginHint() }
+
+// SettingsRunAtLoginHint says "登录系统后自动在后台运行"
+// in the language of msgs.
+//
+// General page: hint of the start-at-login switch.
+func (msgs Messages) SettingsRunAtLoginHint() string {
+	return Catalog.Format(msgs.locale, "settingsRunAtLoginHint", nil)
+}
+
+// SettingsGeneralWindowCard says "窗口与结果"
+// in the language the app shows.
+//
+// General page: card holding the popup position and result options.
+func SettingsGeneralWindowCard() string { return In(i18n.Locale()).SettingsGeneralWindowCard() }
+
+// SettingsGeneralWindowCard says "窗口与结果"
+// in the language of msgs.
+//
+// General page: card holding the popup position and result options.
+func (msgs Messages) SettingsGeneralWindowCard() string {
+	return Catalog.Format(msgs.locale, "settingsGeneralWindowCard", nil)
+}
+
+// SettingsPlacement says "弹出位置"
+// in the language the app shows.
+//
+// General page: the popup position dropdown label.
+func SettingsPlacement() string { return In(i18n.Locale()).SettingsPlacement() }
+
+// SettingsPlacement says "弹出位置"
+// in the language of msgs.
+//
+// General page: the popup position dropdown label.
+func (msgs Messages) SettingsPlacement() string {
+	return Catalog.Format(msgs.locale, "settingsPlacement", nil)
+}
+
+// SettingsPlacementHint says "呼出面板时所在的屏幕"
+// in the language the app shows.
+//
+// General page: hint of the popup position dropdown.
+func SettingsPlacementHint() string { return In(i18n.Locale()).SettingsPlacementHint() }
+
+// SettingsPlacementHint says "呼出面板时所在的屏幕"
+// in the language of msgs.
+//
+// General page: hint of the popup position dropdown.
+func (msgs Messages) SettingsPlacementHint() string {
+	return Catalog.Format(msgs.locale, "settingsPlacementHint", nil)
+}
+
+// SettingsMaxResults says "最大结果数"
+// in the language the app shows.
+//
+// General page: the maximum results number field label.
+func SettingsMaxResults() string { return In(i18n.Locale()).SettingsMaxResults() }
+
+// SettingsMaxResults says "最大结果数"
+// in the language of msgs.
+//
+// General page: the maximum results number field label.
+func (msgs Messages) SettingsMaxResults() string {
+	return Catalog.Format(msgs.locale, "settingsMaxResults", nil)
+}
+
+// SettingsMaxResultsHint says "每次搜索最多显示的条目"
+// in the language the app shows.
+//
+// General page: hint of the maximum results field.
+func SettingsMaxResultsHint() string { return In(i18n.Locale()).SettingsMaxResultsHint() }
+
+// SettingsMaxResultsHint says "每次搜索最多显示的条目"
+// in the language of msgs.
+//
+// General page: hint of the maximum results field.
+func (msgs Messages) SettingsMaxResultsHint() string {
+	return Catalog.Format(msgs.locale, "settingsMaxResultsHint", nil)
+}
+
+// SettingsShowRecent says "空搜索时显示最近打开"
+// in the language the app shows.
+//
+// General page: switch that shows recent items on an empty search.
+func SettingsShowRecent() string { return In(i18n.Locale()).SettingsShowRecent() }
+
+// SettingsShowRecent says "空搜索时显示最近打开"
+// in the language of msgs.
+//
+// General page: switch that shows recent items on an empty search.
+func (msgs Messages) SettingsShowRecent() string {
+	return Catalog.Format(msgs.locale, "settingsShowRecent", nil)
+}
+
+// SettingsShowRecentHint says "未输入关键词时列出最近使用的条目"
+// in the language the app shows.
+//
+// General page: hint of the show-recent switch.
+func SettingsShowRecentHint() string { return In(i18n.Locale()).SettingsShowRecentHint() }
+
+// SettingsShowRecentHint says "未输入关键词时列出最近使用的条目"
+// in the language of msgs.
+//
+// General page: hint of the show-recent switch.
+func (msgs Messages) SettingsShowRecentHint() string {
+	return Catalog.Format(msgs.locale, "settingsShowRecentHint", nil)
+}
+
+// SettingsThemeModeCard says "模式与背景"
+// in the language the app shows.
+//
+// Appearance page: card holding the theme mode and background material
+// dropdowns.
+func SettingsThemeModeCard() string { return In(i18n.Locale()).SettingsThemeModeCard() }
+
+// SettingsThemeModeCard says "模式与背景"
+// in the language of msgs.
+//
+// Appearance page: card holding the theme mode and background material
+// dropdowns.
+func (msgs Messages) SettingsThemeModeCard() string {
+	return Catalog.Format(msgs.locale, "settingsThemeModeCard", nil)
+}
+
+// SettingsThemeMode says "模式"
+// in the language the app shows.
+//
+// Appearance page: the theme mode dropdown label.
+func SettingsThemeMode() string { return In(i18n.Locale()).SettingsThemeMode() }
+
+// SettingsThemeMode says "模式"
+// in the language of msgs.
+//
+// Appearance page: the theme mode dropdown label.
+func (msgs Messages) SettingsThemeMode() string {
+	return Catalog.Format(msgs.locale, "settingsThemeMode", nil)
+}
+
+// SettingsThemeModeHint says "浅色、深色或跟随系统"
+// in the language the app shows.
+//
+// Appearance page: hint of the theme mode dropdown.
+func SettingsThemeModeHint() string { return In(i18n.Locale()).SettingsThemeModeHint() }
+
+// SettingsThemeModeHint says "浅色、深色或跟随系统"
+// in the language of msgs.
+//
+// Appearance page: hint of the theme mode dropdown.
+func (msgs Messages) SettingsThemeModeHint() string {
+	return Catalog.Format(msgs.locale, "settingsThemeModeHint", nil)
+}
+
+// SettingsThemeBackground says "背景材质"
+// in the language the app shows.
+//
+// Appearance page: the background material dropdown label.
+func SettingsThemeBackground() string { return In(i18n.Locale()).SettingsThemeBackground() }
+
+// SettingsThemeBackground says "背景材质"
+// in the language of msgs.
+//
+// Appearance page: the background material dropdown label.
+func (msgs Messages) SettingsThemeBackground() string {
+	return Catalog.Format(msgs.locale, "settingsThemeBackground", nil)
+}
+
+// SettingsThemeBackgroundHint says "亚克力与云母模糊透出下层窗口"
+// in the language the app shows.
+//
+// Appearance page: hint of the background material dropdown.
+func SettingsThemeBackgroundHint() string { return In(i18n.Locale()).SettingsThemeBackgroundHint() }
+
+// SettingsThemeBackgroundHint says "亚克力与云母模糊透出下层窗口"
+// in the language of msgs.
+//
+// Appearance page: hint of the background material dropdown.
+func (msgs Messages) SettingsThemeBackgroundHint() string {
+	return Catalog.Format(msgs.locale, "settingsThemeBackgroundHint", nil)
+}
+
+// SettingsThemeColorsCard says "颜色"
+// in the language the app shows.
+//
+// Appearance page: card holding the color wells.
+func SettingsThemeColorsCard() string { return In(i18n.Locale()).SettingsThemeColorsCard() }
+
+// SettingsThemeColorsCard says "颜色"
+// in the language of msgs.
+//
+// Appearance page: card holding the color wells.
+func (msgs Messages) SettingsThemeColorsCard() string {
+	return Catalog.Format(msgs.locale, "settingsThemeColorsCard", nil)
+}
+
+// SettingsAccentColor says "强调色"
+// in the language the app shows.
+//
+// Appearance page: the accent color well label.
+func SettingsAccentColor() string { return In(i18n.Locale()).SettingsAccentColor() }
+
+// SettingsAccentColor says "强调色"
+// in the language of msgs.
+//
+// Appearance page: the accent color well label.
+func (msgs Messages) SettingsAccentColor() string {
+	return Catalog.Format(msgs.locale, "settingsAccentColor", nil)
+}
+
+// SettingsAccentColorHint says "按钮与选中行"
+// in the language the app shows.
+//
+// Appearance page: hint of the accent color well.
+func SettingsAccentColorHint() string { return In(i18n.Locale()).SettingsAccentColorHint() }
+
+// SettingsAccentColorHint says "按钮与选中行"
+// in the language of msgs.
+//
+// Appearance page: hint of the accent color well.
+func (msgs Messages) SettingsAccentColorHint() string {
+	return Catalog.Format(msgs.locale, "settingsAccentColorHint", nil)
+}
+
+// SettingsTextColor says "文字色"
+// in the language the app shows.
+//
+// Appearance page: the text color well label.
+func SettingsTextColor() string { return In(i18n.Locale()).SettingsTextColor() }
+
+// SettingsTextColor says "文字色"
+// in the language of msgs.
+//
+// Appearance page: the text color well label.
+func (msgs Messages) SettingsTextColor() string {
+	return Catalog.Format(msgs.locale, "settingsTextColor", nil)
+}
+
+// SettingsTextColorHint says "留空跟随系统"
+// in the language the app shows.
+//
+// Appearance page: hint of the text color well.
+func SettingsTextColorHint() string { return In(i18n.Locale()).SettingsTextColorHint() }
+
+// SettingsTextColorHint says "留空跟随系统"
+// in the language of msgs.
+//
+// Appearance page: hint of the text color well.
+func (msgs Messages) SettingsTextColorHint() string {
+	return Catalog.Format(msgs.locale, "settingsTextColorHint", nil)
+}
+
+// SettingsBackgroundColor says "背景色"
+// in the language the app shows.
+//
+// Appearance page: the background color well label.
+func SettingsBackgroundColor() string { return In(i18n.Locale()).SettingsBackgroundColor() }
+
+// SettingsBackgroundColor says "背景色"
+// in the language of msgs.
+//
+// Appearance page: the background color well label.
+func (msgs Messages) SettingsBackgroundColor() string {
+	return Catalog.Format(msgs.locale, "settingsBackgroundColor", nil)
+}
+
+// SettingsBackgroundColorSolidHint says "纯色与渐变起点，留空跟随系统"
+// in the language the app shows.
+//
+// Appearance page: hint of the background color well for solid and gradient
+// backgrounds.
+func SettingsBackgroundColorSolidHint() string {
+	return In(i18n.Locale()).SettingsBackgroundColorSolidHint()
+}
+
+// SettingsBackgroundColorSolidHint says "纯色与渐变起点，留空跟随系统"
+// in the language of msgs.
+//
+// Appearance page: hint of the background color well for solid and gradient
+// backgrounds.
+func (msgs Messages) SettingsBackgroundColorSolidHint() string {
+	return Catalog.Format(msgs.locale, "settingsBackgroundColorSolidHint", nil)
+}
+
+// SettingsBackgroundColorBlurHint says "模糊背景上的着色，留空跟随系统"
+// in the language the app shows.
+//
+// Appearance page: hint of the background color well for acrylic and mica
+// backgrounds.
+func SettingsBackgroundColorBlurHint() string {
+	return In(i18n.Locale()).SettingsBackgroundColorBlurHint()
+}
+
+// SettingsBackgroundColorBlurHint says "模糊背景上的着色，留空跟随系统"
+// in the language of msgs.
+//
+// Appearance page: hint of the background color well for acrylic and mica
+// backgrounds.
+func (msgs Messages) SettingsBackgroundColorBlurHint() string {
+	return Catalog.Format(msgs.locale, "settingsBackgroundColorBlurHint", nil)
+}
+
+// SettingsGradientEnd says "渐变终点"
+// in the language the app shows.
+//
+// Appearance page: the gradient end color well label.
+func SettingsGradientEnd() string { return In(i18n.Locale()).SettingsGradientEnd() }
+
+// SettingsGradientEnd says "渐变终点"
+// in the language of msgs.
+//
+// Appearance page: the gradient end color well label.
+func (msgs Messages) SettingsGradientEnd() string {
+	return Catalog.Format(msgs.locale, "settingsGradientEnd", nil)
+}
+
+// SettingsGradientEndHint says "仅渐变背景使用"
+// in the language the app shows.
+//
+// Appearance page: hint of the gradient end color well.
+func SettingsGradientEndHint() string { return In(i18n.Locale()).SettingsGradientEndHint() }
+
+// SettingsGradientEndHint says "仅渐变背景使用"
+// in the language of msgs.
+//
+// Appearance page: hint of the gradient end color well.
+func (msgs Messages) SettingsGradientEndHint() string {
+	return Catalog.Format(msgs.locale, "settingsGradientEndHint", nil)
+}
+
+// SettingsOpacity says "不透明度"
+// in the language the app shows.
+//
+// Appearance page: the opacity card title and its slider label.
+func SettingsOpacity() string { return In(i18n.Locale()).SettingsOpacity() }
+
+// SettingsOpacity says "不透明度"
+// in the language of msgs.
+//
+// Appearance page: the opacity card title and its slider label.
+func (msgs Messages) SettingsOpacity() string {
+	return Catalog.Format(msgs.locale, "settingsOpacity", nil)
+}
+
+// SettingsOpacityHint says "0% 完全透明（只看到下层窗口），100% 完全不透明"
+// in the language the app shows.
+//
+// Appearance page: hint of the opacity slider for plain backgrounds.
+func SettingsOpacityHint() string { return In(i18n.Locale()).SettingsOpacityHint() }
+
+// SettingsOpacityHint says "0% 完全透明（只看到下层窗口），100% 完全不透明"
+// in the language of msgs.
+//
+// Appearance page: hint of the opacity slider for plain backgrounds.
+func (msgs Messages) SettingsOpacityHint() string {
+	return Catalog.Format(msgs.locale, "settingsOpacityHint", nil)
+}
+
+// SettingsOpacityBlurHint says "模糊材质的着色强度：0% 只保留模糊后景，100% 完全不透明"
+// in the language the app shows.
+//
+// Appearance page: hint of the opacity slider for acrylic and mica
+// backgrounds.
+func SettingsOpacityBlurHint() string { return In(i18n.Locale()).SettingsOpacityBlurHint() }
+
+// SettingsOpacityBlurHint says "模糊材质的着色强度：0% 只保留模糊后景，100% 完全不透明"
+// in the language of msgs.
+//
+// Appearance page: hint of the opacity slider for acrylic and mica
+// backgrounds.
+func (msgs Messages) SettingsOpacityBlurHint() string {
+	return Catalog.Format(msgs.locale, "settingsOpacityBlurHint", nil)
+}
+
+// SettingsOpacityImageHint says "图片整体的不透明度，蒙版另算"
+// in the language the app shows.
+//
+// Appearance page: hint of the opacity slider for image backgrounds.
+func SettingsOpacityImageHint() string { return In(i18n.Locale()).SettingsOpacityImageHint() }
+
+// SettingsOpacityImageHint says "图片整体的不透明度，蒙版另算"
+// in the language of msgs.
+//
+// Appearance page: hint of the opacity slider for image backgrounds.
+func (msgs Messages) SettingsOpacityImageHint() string {
+	return Catalog.Format(msgs.locale, "settingsOpacityImageHint", nil)
+}
+
+// SettingsImageCard says "背景图片"
+// in the language the app shows.
+//
+// Appearance page: card holding the background image options.
+func SettingsImageCard() string { return In(i18n.Locale()).SettingsImageCard() }
+
+// SettingsImageCard says "背景图片"
+// in the language of msgs.
+//
+// Appearance page: card holding the background image options.
+func (msgs Messages) SettingsImageCard() string {
+	return Catalog.Format(msgs.locale, "settingsImageCard", nil)
+}
+
+// SettingsImagePath says "图片路径"
+// in the language the app shows.
+//
+// Appearance page: the background image path field label.
+func SettingsImagePath() string { return In(i18n.Locale()).SettingsImagePath() }
+
+// SettingsImagePath says "图片路径"
+// in the language of msgs.
+//
+// Appearance page: the background image path field label.
+func (msgs Messages) SettingsImagePath() string {
+	return Catalog.Format(msgs.locale, "settingsImagePath", nil)
+}
+
+// SettingsImagePathHint says "背景材质为“图片”时使用"
+// in the language the app shows.
+//
+// Appearance page: hint of the background image path field.
+func SettingsImagePathHint() string { return In(i18n.Locale()).SettingsImagePathHint() }
+
+// SettingsImagePathHint says "背景材质为“图片”时使用"
+// in the language of msgs.
+//
+// Appearance page: hint of the background image path field.
+func (msgs Messages) SettingsImagePathHint() string {
+	return Catalog.Format(msgs.locale, "settingsImagePathHint", nil)
+}
+
+// SettingsImagePlaceholder says "选择一张图片"
+// in the language the app shows.
+//
+// Appearance page: placeholder of the background image path field.
+func SettingsImagePlaceholder() string { return In(i18n.Locale()).SettingsImagePlaceholder() }
+
+// SettingsImagePlaceholder says "选择一张图片"
+// in the language of msgs.
+//
+// Appearance page: placeholder of the background image path field.
+func (msgs Messages) SettingsImagePlaceholder() string {
+	return Catalog.Format(msgs.locale, "settingsImagePlaceholder", nil)
+}
+
+// SettingsImageChoose says "选择…"
+// in the language the app shows.
+//
+// Appearance page: button that opens the background image picker.
+func SettingsImageChoose() string { return In(i18n.Locale()).SettingsImageChoose() }
+
+// SettingsImageChoose says "选择…"
+// in the language of msgs.
+//
+// Appearance page: button that opens the background image picker.
+func (msgs Messages) SettingsImageChoose() string {
+	return Catalog.Format(msgs.locale, "settingsImageChoose", nil)
+}
+
+// SettingsImageCover says "图片铺满"
+// in the language the app shows.
+//
+// Appearance page: switch that fills the window with the background image.
+func SettingsImageCover() string { return In(i18n.Locale()).SettingsImageCover() }
+
+// SettingsImageCover says "图片铺满"
+// in the language of msgs.
+//
+// Appearance page: switch that fills the window with the background image.
+func (msgs Messages) SettingsImageCover() string {
+	return Catalog.Format(msgs.locale, "settingsImageCover", nil)
+}
+
+// SettingsImageCoverHint says "关闭则完整显示整张图片"
+// in the language the app shows.
+//
+// Appearance page: hint of the image cover switch.
+func SettingsImageCoverHint() string { return In(i18n.Locale()).SettingsImageCoverHint() }
+
+// SettingsImageCoverHint says "关闭则完整显示整张图片"
+// in the language of msgs.
+//
+// Appearance page: hint of the image cover switch.
+func (msgs Messages) SettingsImageCoverHint() string {
+	return Catalog.Format(msgs.locale, "settingsImageCoverHint", nil)
+}
+
+// SettingsImageMask says "遮罩不透明度"
+// in the language the app shows.
+//
+// Appearance page: the mask opacity slider label over the background image.
+func SettingsImageMask() string { return In(i18n.Locale()).SettingsImageMask() }
+
+// SettingsImageMask says "遮罩不透明度"
+// in the language of msgs.
+//
+// Appearance page: the mask opacity slider label over the background image.
+func (msgs Messages) SettingsImageMask() string {
+	return Catalog.Format(msgs.locale, "settingsImageMask", nil)
+}
+
+// SettingsImageMaskHint says "图片上的蒙版：越高图片越淡，0% 为原图"
+// in the language the app shows.
+//
+// Appearance page: hint of the image mask slider.
+func SettingsImageMaskHint() string { return In(i18n.Locale()).SettingsImageMaskHint() }
+
+// SettingsImageMaskHint says "图片上的蒙版：越高图片越淡，0% 为原图"
+// in the language of msgs.
+//
+// Appearance page: hint of the image mask slider.
+func (msgs Messages) SettingsImageMaskHint() string {
+	return Catalog.Format(msgs.locale, "settingsImageMaskHint", nil)
+}
+
+// SettingsImageBlur says "高斯模糊"
+// in the language the app shows.
+//
+// Appearance page: the Gaussian blur slider label for the background image.
+func SettingsImageBlur() string { return In(i18n.Locale()).SettingsImageBlur() }
+
+// SettingsImageBlur says "高斯模糊"
+// in the language of msgs.
+//
+// Appearance page: the Gaussian blur slider label for the background image.
+func (msgs Messages) SettingsImageBlur() string {
+	return Catalog.Format(msgs.locale, "settingsImageBlur", nil)
+}
+
+// SettingsImageBlurHint says "0 – 24，0 为不模糊"
+// in the language the app shows.
+//
+// Appearance page: hint of the image blur slider.
+func SettingsImageBlurHint() string { return In(i18n.Locale()).SettingsImageBlurHint() }
+
+// SettingsImageBlurHint says "0 – 24，0 为不模糊"
+// in the language of msgs.
+//
+// Appearance page: hint of the image blur slider.
+func (msgs Messages) SettingsImageBlurHint() string {
+	return Catalog.Format(msgs.locale, "settingsImageBlurHint", nil)
+}
+
+// SettingsFontCard says "字体与圆角"
+// in the language the app shows.
+//
+// Appearance page: card holding the font and corner radius options.
+func SettingsFontCard() string { return In(i18n.Locale()).SettingsFontCard() }
+
+// SettingsFontCard says "字体与圆角"
+// in the language of msgs.
+//
+// Appearance page: card holding the font and corner radius options.
+func (msgs Messages) SettingsFontCard() string {
+	return Catalog.Format(msgs.locale, "settingsFontCard", nil)
+}
+
+// SettingsFont says "字体"
+// in the language the app shows.
+//
+// Appearance page: the font family field label.
+func SettingsFont() string { return In(i18n.Locale()).SettingsFont() }
+
+// SettingsFont says "字体"
+// in the language of msgs.
+//
+// Appearance page: the font family field label.
+func (msgs Messages) SettingsFont() string {
+	return Catalog.Format(msgs.locale, "settingsFont", nil)
+}
+
+// SettingsFontHint says "留空使用系统字体"
+// in the language the app shows.
+//
+// Appearance page: hint of the font family field.
+func SettingsFontHint() string { return In(i18n.Locale()).SettingsFontHint() }
+
+// SettingsFontHint says "留空使用系统字体"
+// in the language of msgs.
+//
+// Appearance page: hint of the font family field.
+func (msgs Messages) SettingsFontHint() string {
+	return Catalog.Format(msgs.locale, "settingsFontHint", nil)
+}
+
+// SettingsFontSizeLabel says "字号"
+// in the language the app shows.
+//
+// Appearance page: the font size field label.
+func SettingsFontSizeLabel() string { return In(i18n.Locale()).SettingsFontSizeLabel() }
+
+// SettingsFontSizeLabel says "字号"
+// in the language of msgs.
+//
+// Appearance page: the font size field label.
+func (msgs Messages) SettingsFontSizeLabel() string {
+	return Catalog.Format(msgs.locale, "settingsFontSizeLabel", nil)
+}
+
+// SettingsFontSizeHint says "12 – 32"
+// in the language the app shows.
+//
+// Appearance page: allowed range of the font size field.
+func SettingsFontSizeHint() string { return In(i18n.Locale()).SettingsFontSizeHint() }
+
+// SettingsFontSizeHint says "12 – 32"
+// in the language of msgs.
+//
+// Appearance page: allowed range of the font size field.
+func (msgs Messages) SettingsFontSizeHint() string {
+	return Catalog.Format(msgs.locale, "settingsFontSizeHint", nil)
+}
+
+// SettingsSearchHeight says "搜索框高度"
+// in the language the app shows.
+//
+// Appearance page: the search box height field label.
+func SettingsSearchHeight() string { return In(i18n.Locale()).SettingsSearchHeight() }
+
+// SettingsSearchHeight says "搜索框高度"
+// in the language of msgs.
+//
+// Appearance page: the search box height field label.
+func (msgs Messages) SettingsSearchHeight() string {
+	return Catalog.Format(msgs.locale, "settingsSearchHeight", nil)
+}
+
+// SettingsSearchHeightHint says "36 – 120，搜索行的整体高度"
+// in the language the app shows.
+//
+// Appearance page: hint of the search box height field.
+func SettingsSearchHeightHint() string { return In(i18n.Locale()).SettingsSearchHeightHint() }
+
+// SettingsSearchHeightHint says "36 – 120，搜索行的整体高度"
+// in the language of msgs.
+//
+// Appearance page: hint of the search box height field.
+func (msgs Messages) SettingsSearchHeightHint() string {
+	return Catalog.Format(msgs.locale, "settingsSearchHeightHint", nil)
+}
+
+// SettingsRowPadding says "结果行高度"
+// in the language the app shows.
+//
+// Appearance page: the result row height field label.
+func SettingsRowPadding() string { return In(i18n.Locale()).SettingsRowPadding() }
+
+// SettingsRowPadding says "结果行高度"
+// in the language of msgs.
+//
+// Appearance page: the result row height field label.
+func (msgs Messages) SettingsRowPadding() string {
+	return Catalog.Format(msgs.locale, "settingsRowPadding", nil)
+}
+
+// SettingsRowPaddingHint says "2 – 24，每个候选行的上下内边距，越大行越高"
+// in the language the app shows.
+//
+// Appearance page: hint of the result row height field.
+func SettingsRowPaddingHint() string { return In(i18n.Locale()).SettingsRowPaddingHint() }
+
+// SettingsRowPaddingHint says "2 – 24，每个候选行的上下内边距，越大行越高"
+// in the language of msgs.
+//
+// Appearance page: hint of the result row height field.
+func (msgs Messages) SettingsRowPaddingHint() string {
+	return Catalog.Format(msgs.locale, "settingsRowPaddingHint", nil)
+}
+
+// SettingsCornerRadius says "圆角"
+// in the language the app shows.
+//
+// Appearance page: the corner radius field label.
+func SettingsCornerRadius() string { return In(i18n.Locale()).SettingsCornerRadius() }
+
+// SettingsCornerRadius says "圆角"
+// in the language of msgs.
+//
+// Appearance page: the corner radius field label.
+func (msgs Messages) SettingsCornerRadius() string {
+	return Catalog.Format(msgs.locale, "settingsCornerRadius", nil)
+}
+
+// SettingsCornerRadiusHint says "0 – 32"
+// in the language the app shows.
+//
+// Appearance page: allowed range of the corner radius field.
+func SettingsCornerRadiusHint() string { return In(i18n.Locale()).SettingsCornerRadiusHint() }
+
+// SettingsCornerRadiusHint says "0 – 32"
+// in the language of msgs.
+//
+// Appearance page: allowed range of the corner radius field.
+func (msgs Messages) SettingsCornerRadiusHint() string {
+	return Catalog.Format(msgs.locale, "settingsCornerRadiusHint", nil)
+}
+
+// SettingsThemeFileCard says "主题文件"
+// in the language the app shows.
+//
+// Appearance page: card holding the theme export and import buttons.
+func SettingsThemeFileCard() string { return In(i18n.Locale()).SettingsThemeFileCard() }
+
+// SettingsThemeFileCard says "主题文件"
+// in the language of msgs.
+//
+// Appearance page: card holding the theme export and import buttons.
+func (msgs Messages) SettingsThemeFileCard() string {
+	return Catalog.Format(msgs.locale, "settingsThemeFileCard", nil)
+}
+
+// SettingsExportTheme says "导出主题…"
+// in the language the app shows.
+//
+// Appearance page: button that exports the current theme.
+func SettingsExportTheme() string { return In(i18n.Locale()).SettingsExportTheme() }
+
+// SettingsExportTheme says "导出主题…"
+// in the language of msgs.
+//
+// Appearance page: button that exports the current theme.
+func (msgs Messages) SettingsExportTheme() string {
+	return Catalog.Format(msgs.locale, "settingsExportTheme", nil)
+}
+
+// SettingsImportTheme says "导入主题…"
+// in the language the app shows.
+//
+// Appearance page: button that imports a theme.
+func SettingsImportTheme() string { return In(i18n.Locale()).SettingsImportTheme() }
+
+// SettingsImportTheme says "导入主题…"
+// in the language of msgs.
+//
+// Appearance page: button that imports a theme.
+func (msgs Messages) SettingsImportTheme() string {
+	return Catalog.Format(msgs.locale, "settingsImportTheme", nil)
+}
+
+// SettingsFilesIndexCard says "索引目录"
+// in the language the app shows.
+//
+// Files page: card holding the indexed directories options.
+func SettingsFilesIndexCard() string { return In(i18n.Locale()).SettingsFilesIndexCard() }
+
+// SettingsFilesIndexCard says "索引目录"
+// in the language of msgs.
+//
+// Files page: card holding the indexed directories options.
+func (msgs Messages) SettingsFilesIndexCard() string {
+	return Catalog.Format(msgs.locale, "settingsFilesIndexCard", nil)
+}
+
+// SettingsFilesDirectoriesHint says "目录（每行一个本地绝对路径）"
+// in the language the app shows.
+//
+// Files page: hint above the indexed directories text area.
+func SettingsFilesDirectoriesHint() string { return In(i18n.Locale()).SettingsFilesDirectoriesHint() }
+
+// SettingsFilesDirectoriesHint says "目录（每行一个本地绝对路径）"
+// in the language of msgs.
+//
+// Files page: hint above the indexed directories text area.
+func (msgs Messages) SettingsFilesDirectoriesHint() string {
+	return Catalog.Format(msgs.locale, "settingsFilesDirectoriesHint", nil)
+}
+
+// SettingsFilesExcluded says "排除目录"
+// in the language the app shows.
+//
+// Files page: label above the excluded directories text area.
+func SettingsFilesExcluded() string { return In(i18n.Locale()).SettingsFilesExcluded() }
+
+// SettingsFilesExcluded says "排除目录"
+// in the language of msgs.
+//
+// Files page: label above the excluded directories text area.
+func (msgs Messages) SettingsFilesExcluded() string {
+	return Catalog.Format(msgs.locale, "settingsFilesExcluded", nil)
+}
+
+// SettingsFilesMaxEntries says "最大条目数"
+// in the language the app shows.
+//
+// Files page: the maximum entries number field label.
+func SettingsFilesMaxEntries() string { return In(i18n.Locale()).SettingsFilesMaxEntries() }
+
+// SettingsFilesMaxEntries says "最大条目数"
+// in the language of msgs.
+//
+// Files page: the maximum entries number field label.
+func (msgs Messages) SettingsFilesMaxEntries() string {
+	return Catalog.Format(msgs.locale, "settingsFilesMaxEntries", nil)
+}
+
+// SettingsFilesMaxEntriesHint says "1000 – 500000"
+// in the language the app shows.
+//
+// Files page: allowed range of the maximum entries field.
+func SettingsFilesMaxEntriesHint() string { return In(i18n.Locale()).SettingsFilesMaxEntriesHint() }
+
+// SettingsFilesMaxEntriesHint says "1000 – 500000"
+// in the language of msgs.
+//
+// Files page: allowed range of the maximum entries field.
+func (msgs Messages) SettingsFilesMaxEntriesHint() string {
+	return Catalog.Format(msgs.locale, "settingsFilesMaxEntriesHint", nil)
+}
+
+// SettingsFilesIncludeDirectories says "索引目录本身"
+// in the language the app shows.
+//
+// Files page: switch that indexes the directories themselves.
+func SettingsFilesIncludeDirectories() string {
+	return In(i18n.Locale()).SettingsFilesIncludeDirectories()
+}
+
+// SettingsFilesIncludeDirectories says "索引目录本身"
+// in the language of msgs.
+//
+// Files page: switch that indexes the directories themselves.
+func (msgs Messages) SettingsFilesIncludeDirectories() string {
+	return Catalog.Format(msgs.locale, "settingsFilesIncludeDirectories", nil)
+}
+
+// SettingsFilesIncludeDirectoriesHint says "目录也作为可搜索结果"
+// in the language the app shows.
+//
+// Files page: hint of the include-directories switch.
+func SettingsFilesIncludeDirectoriesHint() string {
+	return In(i18n.Locale()).SettingsFilesIncludeDirectoriesHint()
+}
+
+// SettingsFilesIncludeDirectoriesHint says "目录也作为可搜索结果"
+// in the language of msgs.
+//
+// Files page: hint of the include-directories switch.
+func (msgs Messages) SettingsFilesIncludeDirectoriesHint() string {
+	return Catalog.Format(msgs.locale, "settingsFilesIncludeDirectoriesHint", nil)
+}
+
+// SettingsFilesEverything says "启用 Everything 连接器"
+// in the language the app shows.
+//
+// Files page: switch that enables the Everything connector.
+func SettingsFilesEverything() string { return In(i18n.Locale()).SettingsFilesEverything() }
+
+// SettingsFilesEverything says "启用 Everything 连接器"
+// in the language of msgs.
+//
+// Files page: switch that enables the Everything connector.
+func (msgs Messages) SettingsFilesEverything() string {
+	return Catalog.Format(msgs.locale, "settingsFilesEverything", nil)
+}
+
+// SettingsFilesEverythingHint says "安装 Everything 时直接复用其索引"
+// in the language the app shows.
+//
+// Files page: hint of the Everything connector switch.
+func SettingsFilesEverythingHint() string { return In(i18n.Locale()).SettingsFilesEverythingHint() }
+
+// SettingsFilesEverythingHint says "安装 Everything 时直接复用其索引"
+// in the language of msgs.
+//
+// Files page: hint of the Everything connector switch.
+func (msgs Messages) SettingsFilesEverythingHint() string {
+	return Catalog.Format(msgs.locale, "settingsFilesEverythingHint", nil)
+}
+
+// SettingsFilesRebuild says "立即重建索引"
+// in the language the app shows.
+//
+// Files page: button that rebuilds the file index at once.
+func SettingsFilesRebuild() string { return In(i18n.Locale()).SettingsFilesRebuild() }
+
+// SettingsFilesRebuild says "立即重建索引"
+// in the language of msgs.
+//
+// Files page: button that rebuilds the file index at once.
+func (msgs Messages) SettingsFilesRebuild() string {
+	return Catalog.Format(msgs.locale, "settingsFilesRebuild", nil)
+}
+
+// SettingsVolumeCard says "屏幕边缘滚轮调节音量"
+// in the language the app shows.
+//
+// Volume page: card holding the screen-edge wheel volume options.
+func SettingsVolumeCard() string { return In(i18n.Locale()).SettingsVolumeCard() }
+
+// SettingsVolumeCard says "屏幕边缘滚轮调节音量"
+// in the language of msgs.
+//
+// Volume page: card holding the screen-edge wheel volume options.
+func (msgs Messages) SettingsVolumeCard() string {
+	return Catalog.Format(msgs.locale, "settingsVolumeCard", nil)
+}
+
+// SettingsVolumeEnableHint says "在屏幕边缘滚动滚轮调节系统音量"
+// in the language the app shows.
+//
+// Volume page: hint of the volume wheel enable switch.
+func SettingsVolumeEnableHint() string { return In(i18n.Locale()).SettingsVolumeEnableHint() }
+
+// SettingsVolumeEnableHint says "在屏幕边缘滚动滚轮调节系统音量"
+// in the language of msgs.
+//
+// Volume page: hint of the volume wheel enable switch.
+func (msgs Messages) SettingsVolumeEnableHint() string {
+	return Catalog.Format(msgs.locale, "settingsVolumeEnableHint", nil)
+}
+
+// SettingsVolumeEdges says "触发边缘"
+// in the language the app shows.
+//
+// Volume page: the trigger edges label.
+func SettingsVolumeEdges() string { return In(i18n.Locale()).SettingsVolumeEdges() }
+
+// SettingsVolumeEdges says "触发边缘"
+// in the language of msgs.
+//
+// Volume page: the trigger edges label.
+func (msgs Messages) SettingsVolumeEdges() string {
+	return Catalog.Format(msgs.locale, "settingsVolumeEdges", nil)
+}
+
+// SettingsVolumeEdgesHint says "与相邻显示器相接的边不触发"
+// in the language the app shows.
+//
+// Volume page: hint of the trigger edges checkboxes.
+func SettingsVolumeEdgesHint() string { return In(i18n.Locale()).SettingsVolumeEdgesHint() }
+
+// SettingsVolumeEdgesHint says "与相邻显示器相接的边不触发"
+// in the language of msgs.
+//
+// Volume page: hint of the trigger edges checkboxes.
+func (msgs Messages) SettingsVolumeEdgesHint() string {
+	return Catalog.Format(msgs.locale, "settingsVolumeEdgesHint", nil)
+}
+
+// SettingsVolumeEdgeTop says "上"
+// in the language the app shows.
+//
+// Volume page: the top edge checkbox label.
+func SettingsVolumeEdgeTop() string { return In(i18n.Locale()).SettingsVolumeEdgeTop() }
+
+// SettingsVolumeEdgeTop says "上"
+// in the language of msgs.
+//
+// Volume page: the top edge checkbox label.
+func (msgs Messages) SettingsVolumeEdgeTop() string {
+	return Catalog.Format(msgs.locale, "settingsVolumeEdgeTop", nil)
+}
+
+// SettingsVolumeEdgeBottom says "下"
+// in the language the app shows.
+//
+// Volume page: the bottom edge checkbox label.
+func SettingsVolumeEdgeBottom() string { return In(i18n.Locale()).SettingsVolumeEdgeBottom() }
+
+// SettingsVolumeEdgeBottom says "下"
+// in the language of msgs.
+//
+// Volume page: the bottom edge checkbox label.
+func (msgs Messages) SettingsVolumeEdgeBottom() string {
+	return Catalog.Format(msgs.locale, "settingsVolumeEdgeBottom", nil)
+}
+
+// SettingsVolumeEdgeLeft says "左"
+// in the language the app shows.
+//
+// Volume page: the left edge checkbox label.
+func SettingsVolumeEdgeLeft() string { return In(i18n.Locale()).SettingsVolumeEdgeLeft() }
+
+// SettingsVolumeEdgeLeft says "左"
+// in the language of msgs.
+//
+// Volume page: the left edge checkbox label.
+func (msgs Messages) SettingsVolumeEdgeLeft() string {
+	return Catalog.Format(msgs.locale, "settingsVolumeEdgeLeft", nil)
+}
+
+// SettingsVolumeEdgeRight says "右"
+// in the language the app shows.
+//
+// Volume page: the right edge checkbox label.
+func SettingsVolumeEdgeRight() string { return In(i18n.Locale()).SettingsVolumeEdgeRight() }
+
+// SettingsVolumeEdgeRight says "右"
+// in the language of msgs.
+//
+// Volume page: the right edge checkbox label.
+func (msgs Messages) SettingsVolumeEdgeRight() string {
+	return Catalog.Format(msgs.locale, "settingsVolumeEdgeRight", nil)
+}
+
+// SettingsVolumeThickness says "热区厚度"
+// in the language the app shows.
+//
+// Volume page: the hot zone thickness number field label.
+func SettingsVolumeThickness() string { return In(i18n.Locale()).SettingsVolumeThickness() }
+
+// SettingsVolumeThickness says "热区厚度"
+// in the language of msgs.
+//
+// Volume page: the hot zone thickness number field label.
+func (msgs Messages) SettingsVolumeThickness() string {
+	return Catalog.Format(msgs.locale, "settingsVolumeThickness", nil)
+}
+
+// SettingsVolumeThicknessHint says "1 – 32 像素"
+// in the language the app shows.
+//
+// Volume page: allowed range of the hot zone thickness field.
+func SettingsVolumeThicknessHint() string { return In(i18n.Locale()).SettingsVolumeThicknessHint() }
+
+// SettingsVolumeThicknessHint says "1 – 32 像素"
+// in the language of msgs.
+//
+// Volume page: allowed range of the hot zone thickness field.
+func (msgs Messages) SettingsVolumeThicknessHint() string {
+	return Catalog.Format(msgs.locale, "settingsVolumeThicknessHint", nil)
+}
+
+// SettingsVolumeStep says "每次步进"
+// in the language the app shows.
+//
+// Volume page: the step per scroll number field label.
+func SettingsVolumeStep() string { return In(i18n.Locale()).SettingsVolumeStep() }
+
+// SettingsVolumeStep says "每次步进"
+// in the language of msgs.
+//
+// Volume page: the step per scroll number field label.
+func (msgs Messages) SettingsVolumeStep() string {
+	return Catalog.Format(msgs.locale, "settingsVolumeStep", nil)
+}
+
+// SettingsVolumeStepHint says "1 – 10%"
+// in the language the app shows.
+//
+// Volume page: allowed range of the step per scroll field.
+func SettingsVolumeStepHint() string { return In(i18n.Locale()).SettingsVolumeStepHint() }
+
+// SettingsVolumeStepHint says "1 – 10%"
+// in the language of msgs.
+//
+// Volume page: allowed range of the step per scroll field.
+func (msgs Messages) SettingsVolumeStepHint() string {
+	return Catalog.Format(msgs.locale, "settingsVolumeStepHint", nil)
+}
+
+// SettingsSitesCard says "站点搜索"
+// in the language the app shows.
+//
+// Site search page: card holding the web search sites.
+func SettingsSitesCard() string { return In(i18n.Locale()).SettingsSitesCard() }
+
+// SettingsSitesCard says "站点搜索"
+// in the language of msgs.
+//
+// Site search page: card holding the web search sites.
+func (msgs Messages) SettingsSitesCard() string {
+	return Catalog.Format(msgs.locale, "settingsSitesCard", nil)
+}
+
+// SettingsSitesHint says "输入“关键词 搜索词”即可在结果中追加该站点的搜索链接，模板中 '{query}' …"
+// in the language the app shows.
+//
+// Site search page: explanation of the keyword and URL template fields.
+func SettingsSitesHint() string { return In(i18n.Locale()).SettingsSitesHint() }
+
+// SettingsSitesHint says "输入“关键词 搜索词”即可在结果中追加该站点的搜索链接，模板中 '{query}' …"
+// in the language of msgs.
+//
+// Site search page: explanation of the keyword and URL template fields.
+func (msgs Messages) SettingsSitesHint() string {
+	return Catalog.Format(msgs.locale, "settingsSitesHint", nil)
+}
+
+// SettingsSitesKeyword says "关键词"
+// in the language the app shows.
+//
+// Site search page: placeholder of the site keyword field.
+func SettingsSitesKeyword() string { return In(i18n.Locale()).SettingsSitesKeyword() }
+
+// SettingsSitesKeyword says "关键词"
+// in the language of msgs.
+//
+// Site search page: placeholder of the site keyword field.
+func (msgs Messages) SettingsSitesKeyword() string {
+	return Catalog.Format(msgs.locale, "settingsSitesKeyword", nil)
+}
+
+// SettingsSitesName says "名称"
+// in the language the app shows.
+//
+// Site search page: placeholder of the site name field.
+func SettingsSitesName() string { return In(i18n.Locale()).SettingsSitesName() }
+
+// SettingsSitesName says "名称"
+// in the language of msgs.
+//
+// Site search page: placeholder of the site name field.
+func (msgs Messages) SettingsSitesName() string {
+	return Catalog.Format(msgs.locale, "settingsSitesName", nil)
+}
+
+// SettingsSitesURLPlaceholder says "https://…/'{query}'"
+// in the language the app shows.
+//
+// Site search page: placeholder of the site URL template field.
+func SettingsSitesURLPlaceholder() string { return In(i18n.Locale()).SettingsSitesURLPlaceholder() }
+
+// SettingsSitesURLPlaceholder says "https://…/'{query}'"
+// in the language of msgs.
+//
+// Site search page: placeholder of the site URL template field.
+func (msgs Messages) SettingsSitesURLPlaceholder() string {
+	return Catalog.Format(msgs.locale, "settingsSitesURLPlaceholder", nil)
+}
+
+// SettingsSitesAdd says "添加站点"
+// in the language the app shows.
+//
+// Site search page: button that adds a site row.
+func SettingsSitesAdd() string { return In(i18n.Locale()).SettingsSitesAdd() }
+
+// SettingsSitesAdd says "添加站点"
+// in the language of msgs.
+//
+// Site search page: button that adds a site row.
+func (msgs Messages) SettingsSitesAdd() string {
+	return Catalog.Format(msgs.locale, "settingsSitesAdd", nil)
+}
+
+// SettingsItemsCard says "自定义启动项"
+// in the language the app shows.
+//
+// Launch items page: card holding the custom launch items.
+func SettingsItemsCard() string { return In(i18n.Locale()).SettingsItemsCard() }
+
+// SettingsItemsCard says "自定义启动项"
+// in the language of msgs.
+//
+// Launch items page: card holding the custom launch items.
+func (msgs Messages) SettingsItemsCard() string {
+	return Catalog.Format(msgs.locale, "settingsItemsCard", nil)
+}
+
+// SettingsItemsName says "名称"
+// in the language the app shows.
+//
+// Launch items page: placeholder of the item name field.
+func SettingsItemsName() string { return In(i18n.Locale()).SettingsItemsName() }
+
+// SettingsItemsName says "名称"
+// in the language of msgs.
+//
+// Launch items page: placeholder of the item name field.
+func (msgs Messages) SettingsItemsName() string {
+	return Catalog.Format(msgs.locale, "settingsItemsName", nil)
+}
+
+// SettingsItemsTarget says "目标路径或网址"
+// in the language the app shows.
+//
+// Launch items page: placeholder of the item target field.
+func SettingsItemsTarget() string { return In(i18n.Locale()).SettingsItemsTarget() }
+
+// SettingsItemsTarget says "目标路径或网址"
+// in the language of msgs.
+//
+// Launch items page: placeholder of the item target field.
+func (msgs Messages) SettingsItemsTarget() string {
+	return Catalog.Format(msgs.locale, "settingsItemsTarget", nil)
+}
+
+// SettingsItemsArguments says "参数"
+// in the language the app shows.
+//
+// Launch items page: placeholder of the item arguments field.
+func SettingsItemsArguments() string { return In(i18n.Locale()).SettingsItemsArguments() }
+
+// SettingsItemsArguments says "参数"
+// in the language of msgs.
+//
+// Launch items page: placeholder of the item arguments field.
+func (msgs Messages) SettingsItemsArguments() string {
+	return Catalog.Format(msgs.locale, "settingsItemsArguments", nil)
+}
+
+// SettingsItemsAdd says "添加启动项"
+// in the language the app shows.
+//
+// Launch items page: button that adds a custom launch item.
+func SettingsItemsAdd() string { return In(i18n.Locale()).SettingsItemsAdd() }
+
+// SettingsItemsAdd says "添加启动项"
+// in the language of msgs.
+//
+// Launch items page: button that adds a custom launch item.
+func (msgs Messages) SettingsItemsAdd() string {
+	return Catalog.Format(msgs.locale, "settingsItemsAdd", nil)
+}
+
+// SettingsWorkspacesCard says "工作区"
+// in the language the app shows.
+//
+// Launch items page: card holding the workspaces.
+func SettingsWorkspacesCard() string { return In(i18n.Locale()).SettingsWorkspacesCard() }
+
+// SettingsWorkspacesCard says "工作区"
+// in the language of msgs.
+//
+// Launch items page: card holding the workspaces.
+func (msgs Messages) SettingsWorkspacesCard() string {
+	return Catalog.Format(msgs.locale, "settingsWorkspacesCard", nil)
+}
+
+// SettingsWorkspacesHint says "工作区按顺序打开下列启动项 ID 对应的程序。"
+// in the language the app shows.
+//
+// Launch items page: explanation of how workspaces open programs.
+func SettingsWorkspacesHint() string { return In(i18n.Locale()).SettingsWorkspacesHint() }
+
+// SettingsWorkspacesHint says "工作区按顺序打开下列启动项 ID 对应的程序。"
+// in the language of msgs.
+//
+// Launch items page: explanation of how workspaces open programs.
+func (msgs Messages) SettingsWorkspacesHint() string {
+	return Catalog.Format(msgs.locale, "settingsWorkspacesHint", nil)
+}
+
+// SettingsWorkspacesName says "名称"
+// in the language the app shows.
+//
+// Launch items page: placeholder of the workspace name field.
+func SettingsWorkspacesName() string { return In(i18n.Locale()).SettingsWorkspacesName() }
+
+// SettingsWorkspacesName says "名称"
+// in the language of msgs.
+//
+// Launch items page: placeholder of the workspace name field.
+func (msgs Messages) SettingsWorkspacesName() string {
+	return Catalog.Format(msgs.locale, "settingsWorkspacesName", nil)
+}
+
+// SettingsWorkspacesAliases says "别名"
+// in the language the app shows.
+//
+// Launch items page: placeholder of the workspace aliases field.
+func SettingsWorkspacesAliases() string { return In(i18n.Locale()).SettingsWorkspacesAliases() }
+
+// SettingsWorkspacesAliases says "别名"
+// in the language of msgs.
+//
+// Launch items page: placeholder of the workspace aliases field.
+func (msgs Messages) SettingsWorkspacesAliases() string {
+	return Catalog.Format(msgs.locale, "settingsWorkspacesAliases", nil)
+}
+
+// SettingsWorkspacesItemIDs says "启动项 ID，逗号分隔"
+// in the language the app shows.
+//
+// Launch items page: placeholder of the workspace item IDs field.
+func SettingsWorkspacesItemIDs() string { return In(i18n.Locale()).SettingsWorkspacesItemIDs() }
+
+// SettingsWorkspacesItemIDs says "启动项 ID，逗号分隔"
+// in the language of msgs.
+//
+// Launch items page: placeholder of the workspace item IDs field.
+func (msgs Messages) SettingsWorkspacesItemIDs() string {
+	return Catalog.Format(msgs.locale, "settingsWorkspacesItemIDs", nil)
+}
+
+// SettingsWorkspacesAdd says "添加工作区"
+// in the language the app shows.
+//
+// Launch items page: button that adds a workspace.
+func SettingsWorkspacesAdd() string { return In(i18n.Locale()).SettingsWorkspacesAdd() }
+
+// SettingsWorkspacesAdd says "添加工作区"
+// in the language of msgs.
+//
+// Launch items page: button that adds a workspace.
+func (msgs Messages) SettingsWorkspacesAdd() string {
+	return Catalog.Format(msgs.locale, "settingsWorkspacesAdd", nil)
+}
+
+// SettingsPluginsUninitialized says "插件运行时未初始化，请重启 FluentLauncher。"
+// in the language the app shows.
+//
+// Plugins page: shown when the plugin runtime has not been initialized.
+func SettingsPluginsUninitialized() string { return In(i18n.Locale()).SettingsPluginsUninitialized() }
+
+// SettingsPluginsUninitialized says "插件运行时未初始化，请重启 FluentLauncher。"
+// in the language of msgs.
+//
+// Plugins page: shown when the plugin runtime has not been initialized.
+func (msgs Messages) SettingsPluginsUninitialized() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsUninitialized", nil)
+}
+
+// SettingsPluginsInstalledCard says "已安装插件"
+// in the language the app shows.
+//
+// Plugins page: card listing the installed plugins.
+func SettingsPluginsInstalledCard() string { return In(i18n.Locale()).SettingsPluginsInstalledCard() }
+
+// SettingsPluginsInstalledCard says "已安装插件"
+// in the language of msgs.
+//
+// Plugins page: card listing the installed plugins.
+func (msgs Messages) SettingsPluginsInstalledCard() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsInstalledCard", nil)
+}
+
+// SettingsPluginsEmptyTitle says "还没有安装插件"
+// in the language the app shows.
+//
+// Plugins page: title of the empty state.
+func SettingsPluginsEmptyTitle() string { return In(i18n.Locale()).SettingsPluginsEmptyTitle() }
+
+// SettingsPluginsEmptyTitle says "还没有安装插件"
+// in the language of msgs.
+//
+// Plugins page: title of the empty state.
+func (msgs Messages) SettingsPluginsEmptyTitle() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsEmptyTitle", nil)
+}
+
+// SettingsPluginsEmptyHint1 says "插件是启动器额外的搜索来源：装好并启用后，输入它的触发词（例如 echo、time…"
+// in the language the app shows.
+//
+// Plugins page: first empty-state paragraph, what plugins are good for.
+func SettingsPluginsEmptyHint1() string { return In(i18n.Locale()).SettingsPluginsEmptyHint1() }
+
+// SettingsPluginsEmptyHint1 says "插件是启动器额外的搜索来源：装好并启用后，输入它的触发词（例如 echo、time…"
+// in the language of msgs.
+//
+// Plugins page: first empty-state paragraph, what plugins are good for.
+func (msgs Messages) SettingsPluginsEmptyHint1() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsEmptyHint1", nil)
+}
+
+// SettingsPluginsEmptyHint2 says "插件以独立进程运行，只在需要时启动，空闲后自动回收，不影响常规搜索的速度。"
+// in the language the app shows.
+//
+// Plugins page: second empty-state paragraph, how plugin processes run.
+func SettingsPluginsEmptyHint2() string { return In(i18n.Locale()).SettingsPluginsEmptyHint2() }
+
+// SettingsPluginsEmptyHint2 says "插件以独立进程运行，只在需要时启动，空闲后自动回收，不影响常规搜索的速度。"
+// in the language of msgs.
+//
+// Plugins page: second empty-state paragraph, how plugin processes run.
+func (msgs Messages) SettingsPluginsEmptyHint2() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsEmptyHint2", nil)
+}
+
+// SettingsPluginsEmptyHint3 says "官方示例可以在下面的「安装插件」里一键添加，第三方插件可以从 ZIP 包或目录安装。"
+// in the language the app shows.
+//
+// Plugins page: third empty-state paragraph, where plugins come from.
+func SettingsPluginsEmptyHint3() string { return In(i18n.Locale()).SettingsPluginsEmptyHint3() }
+
+// SettingsPluginsEmptyHint3 says "官方示例可以在下面的「安装插件」里一键添加，第三方插件可以从 ZIP 包或目录安装。"
+// in the language of msgs.
+//
+// Plugins page: third empty-state paragraph, where plugins come from.
+func (msgs Messages) SettingsPluginsEmptyHint3() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsEmptyHint3", nil)
+}
+
+// SettingsPluginsRestart says "重启"
+// in the language the app shows.
+//
+// Plugins page: button that restarts a paused or failed plugin.
+func SettingsPluginsRestart() string { return In(i18n.Locale()).SettingsPluginsRestart() }
+
+// SettingsPluginsRestart says "重启"
+// in the language of msgs.
+//
+// Plugins page: button that restarts a paused or failed plugin.
+func (msgs Messages) SettingsPluginsRestart() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsRestart", nil)
+}
+
+// SettingsPluginsVersion says "{id} · 版本 {version}"
+// in the language the app shows.
+//
+// Plugins page: one installed plugin's id and version line.
+func SettingsPluginsVersion(id string, version string) string {
+	return In(i18n.Locale()).SettingsPluginsVersion(id, version)
+}
+
+// SettingsPluginsVersion says "{id} · 版本 {version}"
+// in the language of msgs.
+//
+// Plugins page: one installed plugin's id and version line.
+func (msgs Messages) SettingsPluginsVersion(id string, version string) string {
+	return Catalog.Format(msgs.locale, "settingsPluginsVersion", map[string]any{"id": id, "version": version})
+}
+
+// SettingsPluginsKeywords says "触发词：{keywords}"
+// in the language the app shows.
+//
+// Plugins page: the trigger words line of an installed plugin.
+func SettingsPluginsKeywords(keywords string) string {
+	return In(i18n.Locale()).SettingsPluginsKeywords(keywords)
+}
+
+// SettingsPluginsKeywords says "触发词：{keywords}"
+// in the language of msgs.
+//
+// Plugins page: the trigger words line of an installed plugin.
+func (msgs Messages) SettingsPluginsKeywords(keywords string) string {
+	return Catalog.Format(msgs.locale, "settingsPluginsKeywords", map[string]any{"keywords": keywords})
+}
+
+// SettingsPluginsStderr says "错误输出：{stderr}"
+// in the language the app shows.
+//
+// Plugins page: the tail of a plugin's error output.
+func SettingsPluginsStderr(stderr string) string {
+	return In(i18n.Locale()).SettingsPluginsStderr(stderr)
+}
+
+// SettingsPluginsStderr says "错误输出：{stderr}"
+// in the language of msgs.
+//
+// Plugins page: the tail of a plugin's error output.
+func (msgs Messages) SettingsPluginsStderr(stderr string) string {
+	return Catalog.Format(msgs.locale, "settingsPluginsStderr", map[string]any{"stderr": stderr})
+}
+
+// SettingsPluginsGlobalQuery says "每次搜索都查询（无需触发词）"
+// in the language the app shows.
+//
+// Plugins page: checkbox that queries the plugin on every search without
+// trigger words.
+func SettingsPluginsGlobalQuery() string { return In(i18n.Locale()).SettingsPluginsGlobalQuery() }
+
+// SettingsPluginsGlobalQuery says "每次搜索都查询（无需触发词）"
+// in the language of msgs.
+//
+// Plugins page: checkbox that queries the plugin on every search without
+// trigger words.
+func (msgs Messages) SettingsPluginsGlobalQuery() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsGlobalQuery", nil)
+}
+
+// SettingsPluginsInstallCard says "安装插件"
+// in the language the app shows.
+//
+// Plugins page: card where plugins are installed from.
+func SettingsPluginsInstallCard() string { return In(i18n.Locale()).SettingsPluginsInstallCard() }
+
+// SettingsPluginsInstallCard says "安装插件"
+// in the language of msgs.
+//
+// Plugins page: card where plugins are installed from.
+func (msgs Messages) SettingsPluginsInstallCard() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsInstallCard", nil)
+}
+
+// SettingsPluginsInstallHint says "官方示例随启动器提供，安装后立即可用；第三方插件需要是包含 plugin.json 的 ZIP …"
+// in the language the app shows.
+//
+// Plugins page: explanation of the official examples and third-party
+// package formats.
+func SettingsPluginsInstallHint() string { return In(i18n.Locale()).SettingsPluginsInstallHint() }
+
+// SettingsPluginsInstallHint says "官方示例随启动器提供，安装后立即可用；第三方插件需要是包含 plugin.json 的 ZIP …"
+// in the language of msgs.
+//
+// Plugins page: explanation of the official examples and third-party
+// package formats.
+func (msgs Messages) SettingsPluginsInstallHint() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsInstallHint", nil)
+}
+
+// SettingsPluginsInstallZip says "安装 ZIP…"
+// in the language the app shows.
+//
+// Plugins page: button that installs a plugin from a ZIP package.
+func SettingsPluginsInstallZip() string { return In(i18n.Locale()).SettingsPluginsInstallZip() }
+
+// SettingsPluginsInstallZip says "安装 ZIP…"
+// in the language of msgs.
+//
+// Plugins page: button that installs a plugin from a ZIP package.
+func (msgs Messages) SettingsPluginsInstallZip() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsInstallZip", nil)
+}
+
+// SettingsPluginsInstallDir says "安装目录…"
+// in the language the app shows.
+//
+// Plugins page: button that installs a plugin from a directory.
+func SettingsPluginsInstallDir() string { return In(i18n.Locale()).SettingsPluginsInstallDir() }
+
+// SettingsPluginsInstallDir says "安装目录…"
+// in the language of msgs.
+//
+// Plugins page: button that installs a plugin from a directory.
+func (msgs Messages) SettingsPluginsInstallDir() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsInstallDir", nil)
+}
+
+// SettingsPluginsInstalledBadge says "已安装"
+// in the language the app shows.
+//
+// Plugins page: badge on an official example that is already installed.
+func SettingsPluginsInstalledBadge() string { return In(i18n.Locale()).SettingsPluginsInstalledBadge() }
+
+// SettingsPluginsInstalledBadge says "已安装"
+// in the language of msgs.
+//
+// Plugins page: badge on an official example that is already installed.
+func (msgs Messages) SettingsPluginsInstalledBadge() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsInstalledBadge", nil)
+}
+
+// SettingsPluginsProblemsCard says "无法加载的插件包"
+// in the language the app shows.
+//
+// Plugins page: card listing plugin packages that could not be loaded.
+func SettingsPluginsProblemsCard() string { return In(i18n.Locale()).SettingsPluginsProblemsCard() }
+
+// SettingsPluginsProblemsCard says "无法加载的插件包"
+// in the language of msgs.
+//
+// Plugins page: card listing plugin packages that could not be loaded.
+func (msgs Messages) SettingsPluginsProblemsCard() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsProblemsCard", nil)
+}
+
+// SettingsPluginsProblemsHint says "这些目录不会被使用；修正后重启 FluentLauncher 重新扫描，或删除目录。"
+// in the language the app shows.
+//
+// Plugins page: hint under the list of broken plugin packages.
+func SettingsPluginsProblemsHint() string { return In(i18n.Locale()).SettingsPluginsProblemsHint() }
+
+// SettingsPluginsProblemsHint says "这些目录不会被使用；修正后重启 FluentLauncher 重新扫描，或删除目录。"
+// in the language of msgs.
+//
+// Plugins page: hint under the list of broken plugin packages.
+func (msgs Messages) SettingsPluginsProblemsHint() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsProblemsHint", nil)
+}
+
+// SettingsPluginsRuntimeCard says "运行诊断"
+// in the language the app shows.
+//
+// Plugins page: card summing up the plugin runtime configuration.
+func SettingsPluginsRuntimeCard() string { return In(i18n.Locale()).SettingsPluginsRuntimeCard() }
+
+// SettingsPluginsRuntimeCard says "运行诊断"
+// in the language of msgs.
+//
+// Plugins page: card summing up the plugin runtime configuration.
+func (msgs Messages) SettingsPluginsRuntimeCard() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsRuntimeCard", nil)
+}
+
+// SettingsPluginsRuntimeStats says "已启用 {enabled, number, ::group-off} 个插件，活动进程 {running, number, ::group-off} / {max, number, ::gr…"
+// in the language the app shows.
+//
+// Plugins page: how many plugins are enabled and how the runtime processes
+// are limited.
+func SettingsPluginsRuntimeStats(enabled int, running int, max int, idle int, timeout int) string {
+	return In(i18n.Locale()).SettingsPluginsRuntimeStats(enabled, running, max, idle, timeout)
+}
+
+// SettingsPluginsRuntimeStats says "已启用 {enabled, number, ::group-off} 个插件，活动进程 {running, number, ::group-off} / {max, number, ::gr…"
+// in the language of msgs.
+//
+// Plugins page: how many plugins are enabled and how the runtime processes
+// are limited.
+func (msgs Messages) SettingsPluginsRuntimeStats(enabled int, running int, max int, idle int, timeout int) string {
+	return Catalog.Format(msgs.locale, "settingsPluginsRuntimeStats", map[string]any{"enabled": enabled, "running": running, "max": max, "idle": idle, "timeout": timeout})
+}
+
+// SettingsPluginsTrustHint says "…"
+// in the language the app shows.
+//
+// Plugins page: warning that plugins are trusted local code.
+func SettingsPluginsTrustHint() string { return In(i18n.Locale()).SettingsPluginsTrustHint() }
+
+// SettingsPluginsTrustHint says "…"
+// in the language of msgs.
+//
+// Plugins page: warning that plugins are trusted local code.
+func (msgs Messages) SettingsPluginsTrustHint() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsTrustHint", nil)
+}
+
+// SettingsAboutCard says "关于"
+// in the language the app shows.
+//
+// Other page: card with the app name, version and data directory.
+func SettingsAboutCard() string { return In(i18n.Locale()).SettingsAboutCard() }
+
+// SettingsAboutCard says "关于"
+// in the language of msgs.
+//
+// Other page: card with the app name, version and data directory.
+func (msgs Messages) SettingsAboutCard() string {
+	return Catalog.Format(msgs.locale, "settingsAboutCard", nil)
+}
+
+// SettingsAboutDataDir says "数据目录：{dir}"
+// in the language the app shows.
+//
+// Other page: the directory where the app keeps its data.
+func SettingsAboutDataDir(dir string) string { return In(i18n.Locale()).SettingsAboutDataDir(dir) }
+
+// SettingsAboutDataDir says "数据目录：{dir}"
+// in the language of msgs.
+//
+// Other page: the directory where the app keeps its data.
+func (msgs Messages) SettingsAboutDataDir(dir string) string {
+	return Catalog.Format(msgs.locale, "settingsAboutDataDir", map[string]any{"dir": dir})
+}
+
+// SettingsAboutHiddenCount says "隐藏条目：{count, number, ::group-off}"
+// in the language the app shows.
+//
+// Other page: how many entries are hidden.
+func SettingsAboutHiddenCount(count int) string {
+	return In(i18n.Locale()).SettingsAboutHiddenCount(count)
+}
+
+// SettingsAboutHiddenCount says "隐藏条目：{count, number, ::group-off}"
+// in the language of msgs.
+//
+// Other page: how many entries are hidden.
+func (msgs Messages) SettingsAboutHiddenCount(count int) string {
+	return Catalog.Format(msgs.locale, "settingsAboutHiddenCount", map[string]any{"count": count})
+}
+
+// SettingsDataCard says "配置与数据"
+// in the language the app shows.
+//
+// Other page: card holding the configuration and data buttons.
+func SettingsDataCard() string { return In(i18n.Locale()).SettingsDataCard() }
+
+// SettingsDataCard says "配置与数据"
+// in the language of msgs.
+//
+// Other page: card holding the configuration and data buttons.
+func (msgs Messages) SettingsDataCard() string {
+	return Catalog.Format(msgs.locale, "settingsDataCard", nil)
+}
+
+// SettingsExportConfig says "导出配置…"
+// in the language the app shows.
+//
+// Other page: button that exports the configuration.
+func SettingsExportConfig() string { return In(i18n.Locale()).SettingsExportConfig() }
+
+// SettingsExportConfig says "导出配置…"
+// in the language of msgs.
+//
+// Other page: button that exports the configuration.
+func (msgs Messages) SettingsExportConfig() string {
+	return Catalog.Format(msgs.locale, "settingsExportConfig", nil)
+}
+
+// SettingsImportConfig says "导入配置…"
+// in the language the app shows.
+//
+// Other page: button that imports a configuration.
+func SettingsImportConfig() string { return In(i18n.Locale()).SettingsImportConfig() }
+
+// SettingsImportConfig says "导入配置…"
+// in the language of msgs.
+//
+// Other page: button that imports a configuration.
+func (msgs Messages) SettingsImportConfig() string {
+	return Catalog.Format(msgs.locale, "settingsImportConfig", nil)
+}
+
+// SettingsResetLearning says "重置学习记录"
+// in the language the app shows.
+//
+// Other page: button that resets the usage learning data.
+func SettingsResetLearning() string { return In(i18n.Locale()).SettingsResetLearning() }
+
+// SettingsResetLearning says "重置学习记录"
+// in the language of msgs.
+//
+// Other page: button that resets the usage learning data.
+func (msgs Messages) SettingsResetLearning() string {
+	return Catalog.Format(msgs.locale, "settingsResetLearning", nil)
+}
+
+// SettingsRestoreHidden says "恢复隐藏条目"
+// in the language the app shows.
+//
+// Other page: button that unhides all hidden entries.
+func SettingsRestoreHidden() string { return In(i18n.Locale()).SettingsRestoreHidden() }
+
+// SettingsRestoreHidden says "恢复隐藏条目"
+// in the language of msgs.
+//
+// Other page: button that unhides all hidden entries.
+func (msgs Messages) SettingsRestoreHidden() string {
+	return Catalog.Format(msgs.locale, "settingsRestoreHidden", nil)
+}
+
+// SettingsDialogBackgroundImage says "选择背景图片"
+// in the language the app shows.
+//
+// File dialog title: choosing the background image.
+func SettingsDialogBackgroundImage() string { return In(i18n.Locale()).SettingsDialogBackgroundImage() }
+
+// SettingsDialogBackgroundImage says "选择背景图片"
+// in the language of msgs.
+//
+// File dialog title: choosing the background image.
+func (msgs Messages) SettingsDialogBackgroundImage() string {
+	return Catalog.Format(msgs.locale, "settingsDialogBackgroundImage", nil)
+}
+
+// SettingsDialogPluginPackage says "选择插件包"
+// in the language the app shows.
+//
+// File dialog title: choosing a plugin package to install.
+func SettingsDialogPluginPackage() string { return In(i18n.Locale()).SettingsDialogPluginPackage() }
+
+// SettingsDialogPluginPackage says "选择插件包"
+// in the language of msgs.
+//
+// File dialog title: choosing a plugin package to install.
+func (msgs Messages) SettingsDialogPluginPackage() string {
+	return Catalog.Format(msgs.locale, "settingsDialogPluginPackage", nil)
+}
+
+// SettingsDialogPluginPackageFilter says "插件包"
+// in the language the app shows.
+//
+// File dialog filter name: plugin package ZIP files.
+func SettingsDialogPluginPackageFilter() string {
+	return In(i18n.Locale()).SettingsDialogPluginPackageFilter()
+}
+
+// SettingsDialogPluginPackageFilter says "插件包"
+// in the language of msgs.
+//
+// File dialog filter name: plugin package ZIP files.
+func (msgs Messages) SettingsDialogPluginPackageFilter() string {
+	return Catalog.Format(msgs.locale, "settingsDialogPluginPackageFilter", nil)
+}
+
+// SettingsDialogExportConfig says "导出配置"
+// in the language the app shows.
+//
+// File dialog title: exporting the configuration.
+func SettingsDialogExportConfig() string { return In(i18n.Locale()).SettingsDialogExportConfig() }
+
+// SettingsDialogExportConfig says "导出配置"
+// in the language of msgs.
+//
+// File dialog title: exporting the configuration.
+func (msgs Messages) SettingsDialogExportConfig() string {
+	return Catalog.Format(msgs.locale, "settingsDialogExportConfig", nil)
+}
+
+// SettingsDialogImportConfig says "导入配置"
+// in the language the app shows.
+//
+// File dialog title: importing a configuration.
+func SettingsDialogImportConfig() string { return In(i18n.Locale()).SettingsDialogImportConfig() }
+
+// SettingsDialogImportConfig says "导入配置"
+// in the language of msgs.
+//
+// File dialog title: importing a configuration.
+func (msgs Messages) SettingsDialogImportConfig() string {
+	return Catalog.Format(msgs.locale, "settingsDialogImportConfig", nil)
+}
+
+// SettingsDialogExportTheme says "导出主题"
+// in the language the app shows.
+//
+// File dialog title: exporting the theme.
+func SettingsDialogExportTheme() string { return In(i18n.Locale()).SettingsDialogExportTheme() }
+
+// SettingsDialogExportTheme says "导出主题"
+// in the language of msgs.
+//
+// File dialog title: exporting the theme.
+func (msgs Messages) SettingsDialogExportTheme() string {
+	return Catalog.Format(msgs.locale, "settingsDialogExportTheme", nil)
+}
+
+// SettingsDialogImportTheme says "导入主题"
+// in the language the app shows.
+//
+// File dialog title: importing a theme.
+func SettingsDialogImportTheme() string { return In(i18n.Locale()).SettingsDialogImportTheme() }
+
+// SettingsDialogImportTheme says "导入主题"
+// in the language of msgs.
+//
+// File dialog title: importing a theme.
+func (msgs Messages) SettingsDialogImportTheme() string {
+	return Catalog.Format(msgs.locale, "settingsDialogImportTheme", nil)
+}
+
+// SettingsDialogThemePackageFilter says "主题包"
+// in the language the app shows.
+//
+// File dialog filter name: theme package ZIP files.
+func SettingsDialogThemePackageFilter() string {
+	return In(i18n.Locale()).SettingsDialogThemePackageFilter()
+}
+
+// SettingsDialogThemePackageFilter says "主题包"
+// in the language of msgs.
+//
+// File dialog filter name: theme package ZIP files.
+func (msgs Messages) SettingsDialogThemePackageFilter() string {
+	return Catalog.Format(msgs.locale, "settingsDialogThemePackageFilter", nil)
+}
+
+// PluginOfficialEchoName says "回显示例"
+// in the language the app shows.
+//
+// Settings, plugins page: install card name of the bundled echo example.
+func PluginOfficialEchoName() string { return In(i18n.Locale()).PluginOfficialEchoName() }
+
+// PluginOfficialEchoName says "回显示例"
+// in the language of msgs.
+//
+// Settings, plugins page: install card name of the bundled echo example.
+func (msgs Messages) PluginOfficialEchoName() string {
+	return Catalog.Format(msgs.locale, "pluginOfficialEchoName", nil)
+}
+
+// PluginOfficialEchoSummary says "最小可用的插件：输入 echo 加文本，结果里原样返回，回车即可复制。"
+// in the language the app shows.
+//
+// Settings, plugins page: install card summary of the bundled echo example.
+func PluginOfficialEchoSummary() string { return In(i18n.Locale()).PluginOfficialEchoSummary() }
+
+// PluginOfficialEchoSummary says "最小可用的插件：输入 echo 加文本，结果里原样返回，回车即可复制。"
+// in the language of msgs.
+//
+// Settings, plugins page: install card summary of the bundled echo example.
+func (msgs Messages) PluginOfficialEchoSummary() string {
+	return Catalog.Format(msgs.locale, "pluginOfficialEchoSummary", nil)
+}
+
+// PluginOfficialDevtoolsName says "开发工具"
+// in the language the app shows.
+//
+// Settings, plugins page: install card name of the bundled devtools
+// example.
+func PluginOfficialDevtoolsName() string { return In(i18n.Locale()).PluginOfficialDevtoolsName() }
+
+// PluginOfficialDevtoolsName says "开发工具"
+// in the language of msgs.
+//
+// Settings, plugins page: install card name of the bundled devtools
+// example.
+func (msgs Messages) PluginOfficialDevtoolsName() string {
+	return Catalog.Format(msgs.locale, "pluginOfficialDevtoolsName", nil)
+}
+
+// PluginOfficialDevtoolsSummary says "离线文本工具：时间戳与时区、UUID、JSON 校验与格式化、Base64 与 URL 编解码、摘要。"
+// in the language the app shows.
+//
+// Settings, plugins page: install card summary of the bundled devtools
+// example.
+func PluginOfficialDevtoolsSummary() string { return In(i18n.Locale()).PluginOfficialDevtoolsSummary() }
+
+// PluginOfficialDevtoolsSummary says "离线文本工具：时间戳与时区、UUID、JSON 校验与格式化、Base64 与 URL 编解码、摘要。"
+// in the language of msgs.
+//
+// Settings, plugins page: install card summary of the bundled devtools
+// example.
+func (msgs Messages) PluginOfficialDevtoolsSummary() string {
+	return Catalog.Format(msgs.locale, "pluginOfficialDevtoolsSummary", nil)
+}

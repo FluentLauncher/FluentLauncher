@@ -14,6 +14,7 @@ import (
 	"golang.org/x/sys/windows"
 
 	"fluentlauncher/internal/core/model"
+	"fluentlauncher/locales"
 )
 
 var (
@@ -61,12 +62,12 @@ func List(ctx context.Context) ([]model.Entry, error) {
 			return 1
 		}
 		exe := processPath(pid)
-		subtitle := "运行中的窗口 · 切换到此窗口"
+		subtitle := locales.WinWindowSubtitle()
 		var aliases []string
 		if exe != "" {
 			name := filepath.Base(exe)
 			name = name[:len(name)-len(filepath.Ext(name))]
-			subtitle = name + " · 切换到此窗口"
+			subtitle = locales.WinSwitchToWindow(name)
 			if name != "" {
 				aliases = []string{name}
 			}
@@ -146,7 +147,7 @@ func processPath(pid uint32) string {
 func Activate(handleText string) model.Outcome {
 	value, err := strconv.ParseUint(handleText, 10, 64)
 	if err != nil || value == 0 || !boolCall(procIsWindow, uintptr(value)) {
-		return model.Outcome{Error: "该窗口已经关闭，请重新搜索。"}
+		return model.Outcome{Error: locales.WinClosedError()}
 	}
 	hwnd := uintptr(value)
 	if boolCall(procIsIconic, hwnd) {
@@ -173,7 +174,7 @@ func Activate(handleText string) model.Outcome {
 	if now == hwnd {
 		return model.Outcome{Succeeded: true}
 	}
-	return model.Outcome{Error: "Windows 拒绝了前台切换。"}
+	return model.Outcome{Error: locales.WinForegroundDenied()}
 }
 
 func boolCall(proc *windows.LazyProc, args ...uintptr) bool {

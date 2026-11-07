@@ -38,6 +38,9 @@ func (t Target) Display() string {
 
 // Entry is one Windows settings page or control panel item.
 type Entry struct {
+	// Key is the stable identifier used to look up the localized title and
+	// category; see l10n.go. It is "sys" plus a CamelCase name.
+	Key string
 	// Title is the Chinese title the result row shows.
 	Title string
 	// Latin is the English name or alias, so "display" finds 显示设置.

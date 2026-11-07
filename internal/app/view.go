@@ -1,7 +1,7 @@
 package app
 
 import (
-	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/egoist/mygo"
@@ -9,6 +9,7 @@ import (
 
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/locales"
 )
 
 var searchIcon = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`))
@@ -61,7 +62,7 @@ func (a *App) view(c *ui.Context) {
 			searchRow.Children(func() {
 				ui.Icon(c, searchIcon).FontSize(20).TextColor(theme.TextMuted)
 				in := ui.TextInputBase(c, &a.query).Bind(&a.input).Grow(1).FontSize(22).
-					Placeholder("搜索应用、文件、命令").Label("搜索")
+					Placeholder(locales.PanelSearchPlaceholder()).Label(locales.PanelSearchLabel())
 				if in.Changed() {
 					a.notice = ""
 					a.updateResults()
@@ -84,7 +85,7 @@ func (a *App) view(c *ui.Context) {
 // window moves with the pointer, and the app remembers where it was left so
 // that the next one opens there.
 func (a *App) panelGrip(c *ui.Context, theme *ui.Theme) {
-	grip := ui.Box(c).Size(16, 22).Radius(4).Label("拖动窗口").Tooltip("拖动窗口").Cursor(ui.CursorMove)
+	grip := ui.Box(c).Size(16, 22).Radius(4).Label(locales.PanelGripLabel()).Tooltip(locales.PanelGripLabel()).Cursor(ui.CursorMove)
 	grip.Draw(func(p *ui.Painter, r ui.Rect) {
 		color := theme.TextMuted.Alpha(0.65)
 		for row := 0; row < 3; row++ {
@@ -131,12 +132,12 @@ func (a *App) resultsArea(c *ui.Context, theme *ui.Theme) {
 	ui.Themed(c, &rowTheme).Grow(1).Background(ui.Transparent).Children(func() {
 		list := ui.List(c, &a.list, len(a.results), func(i int) { a.row(c, theme, i) }).Grow(1).Padding(6).Children(func() {
 			if len(a.results) == 0 {
-				message := "输入以搜索"
+				message := locales.PanelEmptySearch()
 				if strings.TrimSpace(a.query) == "" {
-					message = "输入以搜索应用、文件或命令"
+					message = locales.PanelEmptyQuery()
 				}
 				if a.loading {
-					message = "正在读取应用…"
+					message = locales.PanelLoading()
 				}
 				ui.Text(c, message).TextColor(theme.TextMuted).Padding(16)
 			}
@@ -176,7 +177,7 @@ func (a *App) row(c *ui.Context, theme *ui.Theme, index int) {
 			}
 		})
 		if item.Entry.Kind == model.Workspace {
-			ui.Text(c, "工作区").FontSize(10).TextColor(muted)
+			ui.Text(c, locales.PanelWorkspaceBadge()).FontSize(10).TextColor(muted)
 		}
 	})
 	if row.RightClicked() {
@@ -202,12 +203,12 @@ func (a *App) footer(c *ui.Context, theme *ui.Theme) {
 	if a.mem != "" {
 		parts = append(parts, a.mem)
 	}
-	parts = append(parts, fmt.Sprintf("组合 %v", a.composing))
+	parts = append(parts, locales.PanelComposing(strconv.FormatBool(a.composing)))
 	ui.Row(c).Padding(8, 16).Gap(12).Children(func() {
 		ui.Text(c, strings.Join(parts, " · ")).FontSize(11).TextColor(theme.TextMuted).Grow(1).SingleLine()
-		hint := "↑↓ 选择 · ↵ 打开 · Ctrl+K 动作 · Esc 清空/隐藏"
+		hint := locales.PanelHint()
 		if a.hotkeyActive != "" {
-			hint = a.hotkeyActive + " 呼出 · " + hint
+			hint = locales.PanelHintHotkey(a.hotkeyActive)
 		}
 		ui.Text(c, hint).FontSize(11).TextColor(theme.TextMuted)
 	})
@@ -235,10 +236,10 @@ func (a *App) drawPrompt(c *ui.Context, theme *ui.Theme) {
 			return
 		}
 		ui.Row(c).Gap(8).Children(func() {
-			if ui.PrimaryButton(c, "保存").Clicked() {
+			if ui.PrimaryButton(c, locales.CommonSave()).Clicked() {
 				a.savePrompt()
 			}
-			if ui.Button(c, "取消").Clicked() {
+			if ui.Button(c, locales.CommonCancel()).Clicked() {
 				a.promptOpen = false
 				a.input.Focus()
 			}
@@ -295,7 +296,7 @@ func (a *App) drawActions(c *ui.Context, theme *ui.Theme) {
 		})
 		ui.Divider(c)
 		ui.Row(c).Padding(8, 16).Children(func() {
-			ui.Text(c, "↑↓ 选择 · ↵ 执行 · Esc 返回").FontSize(11).TextColor(theme.TextMuted)
+			ui.Text(c, locales.PanelActionsHint()).FontSize(11).TextColor(theme.TextMuted)
 		})
 	})
 }

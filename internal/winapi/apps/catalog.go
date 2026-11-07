@@ -19,6 +19,7 @@ import (
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/settings"
 	"fluentlauncher/internal/winapi/shortcut"
+	"fluentlauncher/locales"
 )
 
 // Catalog lists Start menu, desktop and portable applications. Installed
@@ -72,7 +73,7 @@ func (c *Catalog) Discover(ctx context.Context) ([]model.Entry, error) {
 
 	installed, err := mygo.Shell.InstalledApps()
 	if err != nil {
-		c.setWarning("系统应用列表暂不可用：" + err.Error())
+		c.setWarning(locales.LaunchShellAppsWarning(err))
 	}
 	for _, app := range installed {
 		if err := ctx.Err(); err != nil {
@@ -190,7 +191,7 @@ func appSubtitle(path string) string {
 	if i := strings.LastIndex(name, "_"); i > 0 {
 		name = name[:i]
 	}
-	return "应用包 " + name
+	return locales.LaunchPackagedAppSubtitle(name)
 }
 
 func appID(identity, arguments string) string {
@@ -208,7 +209,7 @@ func (c *Catalog) Close() {
 	}
 }
 
-var errNoApplication = errors.New("不是可启动的应用")
+var errNoApplication = errors.New(locales.LaunchNotLaunchable())
 
 // Watch starts coarse hints-only watches on the application roots. A change
 // means "rediscover", not which file changed; the app debounces it.
@@ -252,7 +253,7 @@ func (c *Catalog) watchRoot(ctx context.Context, root string, recursive bool) {
 		HintsOnly: true,
 	})
 	if err != nil {
-		c.setWarning("无法监听应用目录 " + root + "：" + err.Error())
+		c.setWarning(locales.LaunchWatchRootFailed(root, err))
 		return
 	}
 	defer watcher.Close()

@@ -137,7 +137,7 @@ func TestSettingsSaveAutomatically(t *testing.T) {
 }
 func TestSettingsViewBuilds(t *testing.T) {
 	a := &App{settings: settings.Default(), settingsDraft: settings.Default()}
-	for page := range settingPages {
+	for page := range settingPages() {
 		a.settingsPage = page
 		_ = ui.NewTester(a.settingsView, 900, 660)
 	}

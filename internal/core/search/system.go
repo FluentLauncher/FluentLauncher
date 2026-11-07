@@ -8,6 +8,7 @@ import (
 
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/systemsearch"
+	"fluentlauncher/locales"
 )
 
 // SystemProvider exposes the Windows settings, Control Panel and system tool
@@ -36,8 +37,8 @@ func (SystemProvider) Search(ctx context.Context, q Query, limit int) ([]model.R
 		target := entry.Target
 		result := model.Entry{
 			ID:           systemID(target),
-			Title:        entry.Title,
-			Subtitle:     entry.Category + " · " + targetKind(target),
+			Title:        systemsearch.DisplayTitle(entry),
+			Subtitle:     systemsearch.DisplayCategory(entry) + " · " + targetKind(target),
 			LaunchTarget: target.File,
 			Arguments:    target.Arguments,
 			IconPath:     targetIcon(target),
@@ -60,20 +61,20 @@ func targetKind(target systemsearch.Target) string {
 	switch {
 	case target.URI:
 		if strings.HasPrefix(file, "ms-settings:") {
-			return "Windows 设置"
+			return locales.ResultCategoryWindowsSettings()
 		}
 		if strings.HasPrefix(file, "ms-") || strings.HasPrefix(file, "shell:") {
-			return "Windows 工具"
+			return locales.ResultCategoryWindowsTools()
 		}
-		return "系统功能"
+		return locales.ResultCategorySystemFeatures()
 	case strings.HasSuffix(file, ".cpl"):
-		return "控制面板"
+		return locales.ResultCategoryControlPanel()
 	case strings.HasSuffix(file, ".msc"):
-		return "管理工具"
+		return locales.ResultCategoryAdminTools()
 	case strings.EqualFold(file, "control.exe"):
-		return "控制面板"
+		return locales.ResultCategoryControlPanel()
 	}
-	return "系统工具"
+	return locales.ResultCategorySystemTools()
 }
 
 // targetIcon is the file whose icon the row shows. A bare program name such as

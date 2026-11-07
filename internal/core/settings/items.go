@@ -1,13 +1,14 @@
 package settings
 
 import (
-	"fmt"
+	"errors"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"fluentlauncher/internal/core/model"
+	"fluentlauncher/locales"
 )
 
 // CustomLaunchItem is a user-defined launcher entry.
@@ -40,31 +41,31 @@ func NewCustomItemID() string {
 
 func (c CustomLaunchItem) Validate() error {
 	if !validID(c.ID) {
-		return fmt.Errorf("启动项标识无效")
+		return errors.New(locales.ValidateItemID())
 	}
 	if strings.TrimSpace(c.Name) == "" || len(c.Name) > 100 {
-		return fmt.Errorf("启动项名称不能为空，且不超过 100 个字符")
+		return errors.New(locales.ValidateItemName())
 	}
 	if len(c.Aliases) > 500 {
-		return fmt.Errorf("启动项别名不能超过 500 个字符")
+		return errors.New(locales.ValidateItemAliases())
 	}
 	if len(c.Arguments) > 2000 {
-		return fmt.Errorf("启动项参数不能超过 2000 个字符")
+		return errors.New(locales.ValidateItemArguments())
 	}
 	if c.WorkingDirectory != "" && !isLocalPath(c.WorkingDirectory) {
-		return fmt.Errorf("工作目录须为本地绝对路径，留空表示由系统决定")
+		return errors.New(locales.ValidateWorkingDirectory())
 	}
 	if strings.TrimSpace(c.Target) == "" || len(c.Target) > 2000 {
-		return fmt.Errorf("启动目标不能为空")
+		return errors.New(locales.ValidateItemTarget())
 	}
 	if IsWebTarget(c.Target) {
 		if c.RunAsAdministrator || c.Arguments != "" || c.WorkingDirectory != "" {
-			return fmt.Errorf("网址启动项不支持参数、工作目录或管理员运行")
+			return errors.New(locales.ValidateWebItemOptions())
 		}
 		return nil
 	}
 	if !isLocalPath(c.Target) {
-		return fmt.Errorf("启动目标须为本地绝对路径或 HTTP/HTTPS 网址")
+		return errors.New(locales.ValidateItemTargetPath())
 	}
 	return nil
 }
@@ -152,18 +153,18 @@ func (w *WebSearchSite) UnmarshalJSON(data []byte) error {
 func (w WebSearchSite) Validate() error {
 	if len(w.Keyword) < 1 || len(w.Keyword) > 32 || strings.ContainsAny(w.Keyword, " \t\r\n") ||
 		strings.HasPrefix(w.Keyword, ">") {
-		return fmt.Errorf("站点关键词须为 1–32 个字符，不能包含空格或以 > 开头")
+		return errors.New(locales.ValidateSiteKeyword())
 	}
 	for _, reserved := range ReservedKeywords {
 		if strings.EqualFold(w.Keyword, reserved) {
-			return fmt.Errorf("站点关键词“%s”与内置查询前缀冲突，请改用其他关键词", w.Keyword)
+			return errors.New(locales.ValidateSiteKeywordReserved(w.Keyword))
 		}
 	}
 	if strings.TrimSpace(w.Name) == "" || len(w.Name) > 100 {
-		return fmt.Errorf("站点名称不能为空，且不超过 100 个字符")
+		return errors.New(locales.ValidateSiteName())
 	}
 	if !ValidURLTemplate(w.URLTemplate) {
-		return fmt.Errorf("站点地址须为包含 {query} 的 HTTP/HTTPS 地址")
+		return errors.New(locales.ValidateSiteUrl())
 	}
 	return nil
 }
@@ -211,10 +212,10 @@ func SiteConflicts(sites []WebSearchSite, pluginKeywords []string) []string {
 	for _, site := range sites {
 		key := strings.ToLower(site.Keyword)
 		if seen[key] {
-			warnings = append(warnings, fmt.Sprintf("站点关键词“%s”重复，只有第一条会生效。", site.Keyword))
+			warnings = append(warnings, locales.ValidateSiteKeywordDuplicate(site.Keyword))
 		}
 		if plugins[key] {
-			warnings = append(warnings, fmt.Sprintf("站点关键词“%s”与已启用插件的触发词相同，两者的结果会同时出现。", site.Keyword))
+			warnings = append(warnings, locales.ValidateSiteKeywordPluginClash(site.Keyword))
 		}
 		seen[key] = true
 	}
@@ -248,25 +249,25 @@ func NewWorkspaceID() string {
 
 func (w Workspace) Validate() error {
 	if !validID(w.ID) {
-		return fmt.Errorf("工作区标识无效")
+		return errors.New(locales.ValidateWorkspaceID())
 	}
 	if strings.TrimSpace(w.Name) == "" || len(w.Name) > 100 {
-		return fmt.Errorf("工作区名称不能为空，且不超过 100 个字符")
+		return errors.New(locales.ValidateWorkspaceName())
 	}
 	if len(w.Aliases) > 500 {
-		return fmt.Errorf("工作区别名不能超过 500 个字符")
+		return errors.New(locales.ValidateWorkspaceAliases())
 	}
 	if len(w.ItemIDs) < 1 || len(w.ItemIDs) > 50 {
-		return fmt.Errorf("工作区须包含 1–50 个启动项")
+		return errors.New(locales.ValidateWorkspaceItems())
 	}
 	seen := map[string]bool{}
 	for _, id := range w.ItemIDs {
 		if strings.TrimSpace(id) == "" {
-			return fmt.Errorf("工作区的启动项不能为空或重复")
+			return errors.New(locales.ValidateWorkspaceItemIDs())
 		}
 		key := strings.ToLower(id)
 		if seen[key] {
-			return fmt.Errorf("工作区的启动项不能为空或重复")
+			return errors.New(locales.ValidateWorkspaceItemIDs())
 		}
 		seen[key] = true
 	}
@@ -277,7 +278,7 @@ func (w Workspace) ToEntry(itemCount int) model.Entry {
 	return model.Entry{
 		ID:           WorkspaceSourceID + ":" + w.ID,
 		Title:        w.Name,
-		Subtitle:     fmt.Sprintf("工作区 · 依次打开 %d 个项目", itemCount),
+		Subtitle:     locales.ResultWorkspaceSubtitle(itemCount),
 		LaunchTarget: w.ID,
 		Kind:         model.Workspace,
 		SourceID:     WorkspaceSourceID,
@@ -308,22 +309,22 @@ func RunWorkspace(w Workspace, items []CustomLaunchItem,
 	for _, id := range w.ItemIDs {
 		item, ok := byID[strings.ToLower(id)]
 		if !ok {
-			steps = append(steps, WorkspaceStep{ItemID: id, Name: id, Error: "启动项已删除，请编辑此工作区。"})
+			steps = append(steps, WorkspaceStep{ItemID: id, Name: id, Error: locales.ResultWorkspaceItemDeleted()})
 			continue
 		}
 		if !item.Enabled {
-			steps = append(steps, WorkspaceStep{ItemID: id, Name: item.Name, Error: "启动项已停用。"})
+			steps = append(steps, WorkspaceStep{ItemID: id, Name: item.Name, Error: locales.ResultWorkspaceItemDisabled()})
 			continue
 		}
 		outcome := launch(item)
 		step := WorkspaceStep{ItemID: id, Name: item.Name, Succeeded: outcome.Succeeded}
 		if !outcome.Succeeded {
 			if outcome.Canceled {
-				step.Error = "已取消。"
+				step.Error = locales.ResultWorkspaceCanceled()
 			} else if outcome.Error != "" {
 				step.Error = outcome.Error
 			} else {
-				step.Error = "启动失败。"
+				step.Error = locales.ResultWorkspaceLaunchFailed()
 			}
 		}
 		steps = append(steps, step)

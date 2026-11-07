@@ -1,5 +1,7 @@
 package plugin
 
+import "fluentlauncher/locales"
+
 // OfficialPlugin describes one of the example plugins that ship with the
 // launcher. The install area lists them by name and one line of purpose before
 // any of them is installed, which is text the page cannot take from the
@@ -21,13 +23,13 @@ func OfficialPlugins() []OfficialPlugin {
 	return []OfficialPlugin{
 		{
 			ID:      "official.echo",
-			Name:    "回显示例",
-			Summary: "最小可用的插件：输入 echo 加文本，结果里原样返回，回车即可复制。",
+			Name:    locales.PluginOfficialEchoName(),
+			Summary: locales.PluginOfficialEchoSummary(),
 		},
 		{
 			ID:      "official.devtools",
-			Name:    "开发工具",
-			Summary: "离线文本工具：时间戳与时区、UUID、JSON 校验与格式化、Base64 与 URL 编解码、摘要。",
+			Name:    locales.PluginOfficialDevtoolsName(),
+			Summary: locales.PluginOfficialDevtoolsSummary(),
 		},
 	}
 }

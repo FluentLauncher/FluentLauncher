@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"fluentlauncher/internal/core/model"
@@ -67,7 +66,7 @@ func (a *App) runAction() {
 	case search.CommandPluginPreview:
 		a.actionsOpen = false
 		a.promptOpen = true
-		a.promptTitle = "文本预览（只读）"
+		a.promptTitle = locales.PromptPreviewTitle()
 		a.promptValue = entry.PreviewText
 		a.promptEntry = ""
 		a.promptReadOnly = true
@@ -75,7 +74,7 @@ func (a *App) runAction() {
 	case search.CommandSetAlias:
 		a.actionsOpen = false
 		a.promptOpen = true
-		a.promptTitle = "设置别名（用分号分隔多个）"
+		a.promptTitle = locales.PromptAliasTitle()
 		a.promptValue = a.profile(entry.ID).Alias
 		a.promptEntry = entry.ID
 		a.promptReadOnly = false
@@ -134,7 +133,7 @@ func (a *App) runWorkspace(workspaceID string) {
 		}
 	}
 	if workspace == nil {
-		a.notice = "工作区已删除，请重新查询。"
+		a.notice = locales.WorkspaceDeleted()
 		return
 	}
 	steps := settings.RunWorkspace(*workspace, a.settings.CustomItems, func(item settings.CustomLaunchItem) model.Outcome {
@@ -154,10 +153,10 @@ func (a *App) runWorkspace(workspaceID string) {
 	var details strings.Builder
 	for _, step := range steps {
 		if !step.Succeeded {
-			fmt.Fprintf(&details, "\n%s：%s", step.Name, step.Error)
+			details.WriteString("\n" + locales.WorkspaceStepFailed(step.Name, step.Error))
 		}
 	}
-	a.notice = fmt.Sprintf("工作区 %s：%d 个项目失败%s", workspace.Name, failed, details.String())
+	a.notice = locales.WorkspaceRunFailed(workspace.Name, failed, details.String())
 	a.hidePanel()
 	a.showWorkspaceResult(workspace.Name, steps)
 }
@@ -204,13 +203,13 @@ func (a *App) workspaceView(c *ui.Context) {
 					ui.Text(c, step.Name).Grow(1).SingleLine()
 					if !step.Succeeded {
 						ui.Text(c, step.Error).FontSize(11).TextColor(theme.TextMuted).SingleLine()
-						if compactButton(c, "重试").Clicked() {
+						if compactButton(c, locales.CommonRetry()).Clicked() {
 							a.retryWorkspaceItem(step.ItemID)
 						}
 					}
 				})
 			}
-			if compactButton(c, "关闭").Clicked() {
+			if compactButton(c, locales.CommonClose()).Clicked() {
 				a.workspaceWin.Close()
 			}
 		})
@@ -222,14 +221,14 @@ func (a *App) retryWorkspaceItem(itemID string) {
 		if strings.EqualFold(item.ID, itemID) {
 			outcome := apps.Launch(context.Background(), item.ToEntry(), model.Open)
 			if outcome.Succeeded {
-				a.status = "已重试：" + item.Name
+				a.status = locales.WorkspaceRetryStatus(item.Name)
 			} else {
-				a.notice = "重试失败：" + outcome.Error
+				a.notice = locales.WorkspaceRetryFailed(outcome.Error)
 			}
 			return
 		}
 	}
-	a.notice = "该启动项已删除。"
+	a.notice = locales.WorkspaceItemDeleted()
 }
 
 func (a *App) executePluginAction(entry model.Entry, action model.Action) {
@@ -248,23 +247,23 @@ func (a *App) executePluginAction(entry model.Entry, action model.Action) {
 			ID: "plugin-action", Title: action.Title, LaunchTarget: action.Value, Kind: kind,
 		}, model.Open)
 		if !outcome.Succeeded {
-			a.notice = "插件动作失败：" + outcome.Error
+			a.notice = locales.PanelPluginActionFailed(outcome.Error)
 			return
 		}
 		a.hidePanel()
 		return
 	case "invoke":
 		if a.plugins == nil {
-			a.notice = "插件运行时未启用"
+			a.notice = locales.PanelPluginRuntimeDisabled()
 			return
 		}
 		if err := a.plugins.Execute(context.Background(), entry, action); err != nil {
-			a.notice = "插件动作失败：" + err.Error()
+			a.notice = locales.PanelPluginActionFailed(err.Error())
 			return
 		}
-		a.status = "已执行：" + action.Title
+		a.status = locales.PanelPluginActionDone(action.Title)
 		a.hidePanel()
 		return
 	}
-	a.notice = "不支持的插件动作。"
+	a.notice = locales.PanelPluginActionUnsupported()
 }

@@ -3,13 +3,13 @@ package store
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
 
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/locales"
 )
 
 const maxSettingsBytes = 1 << 20
@@ -37,7 +37,7 @@ func (c *ConfigStore) Load() (settings.LauncherSettings, error) {
 	defer c.mu.Unlock()
 	if info, err := os.Stat(c.path); err == nil {
 		if info.Size() > maxSettingsBytes {
-			return settings.LauncherSettings{}, fmt.Errorf("配置文件超过 1 MiB")
+			return settings.LauncherSettings{}, errors.New(locales.StoreConfigTooLarge())
 		}
 		data, err := os.ReadFile(c.path)
 		if err != nil {
@@ -119,7 +119,7 @@ func (c *ConfigStore) write(value settings.LauncherSettings) error {
 		return err
 	}
 	if len(data) > maxSettingsBytes {
-		return fmt.Errorf("配置文件超过 1 MiB")
+		return errors.New(locales.StoreConfigTooLarge())
 	}
 	if err := os.MkdirAll(c.dir, 0o755); err != nil {
 		return err
@@ -175,7 +175,7 @@ func (c *ConfigStore) Import(path string) (ConfigurationPackage, error) {
 		return ConfigurationPackage{}, err
 	}
 	if info.Size() > 16<<20 {
-		return ConfigurationPackage{}, fmt.Errorf("配置包超过 16 MiB")
+		return ConfigurationPackage{}, errors.New(locales.StoreConfigPackageTooLarge())
 	}
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -190,17 +190,17 @@ func (c *ConfigStore) Import(path string) (ConfigurationPackage, error) {
 		return ConfigurationPackage{}, err
 	}
 	if pkg.Profiles == nil || len(pkg.Profiles) > 20000 {
-		return ConfigurationPackage{}, fmt.Errorf("配置包内容或个人规则数量无效")
+		return ConfigurationPackage{}, errors.New(locales.StoreConfigPackageInvalidCount())
 	}
 	seen := map[string]bool{}
 	for _, profile := range pkg.Profiles {
 		if profile.EntryID == "" || len(profile.EntryID) > 2048 || len(profile.Alias) > 500 ||
 			profile.UseCount < 0 {
-			return ConfigurationPackage{}, fmt.Errorf("个人规则包含无效字段")
+			return ConfigurationPackage{}, errors.New(locales.StoreProfileInvalidFields())
 		}
 		key := profile.EntryID
 		if seen[key] {
-			return ConfigurationPackage{}, fmt.Errorf("个人规则包含重复条目")
+			return ConfigurationPackage{}, errors.New(locales.StoreProfileDuplicate())
 		}
 		seen[key] = true
 	}

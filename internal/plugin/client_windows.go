@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"fluentlauncher/internal/plugin/protocol"
+	"fluentlauncher/locales"
 )
 
 const (
@@ -80,7 +81,7 @@ func (c *Client) Query(ctx context.Context, query protocol.Query, timeout time.D
 		return protocol.QueryResult{}, err
 	}
 	start := time.Now()
-	raw, err := c.requestLocked(ctx, "query", "查询", query, timeout)
+	raw, err := c.requestLocked(ctx, "query", reqQuery, query, timeout)
 	if err != nil {
 		c.fail(err, ctx)
 		if ctx.Err() == nil {
@@ -90,7 +91,7 @@ func (c *Client) Query(ctx context.Context, query protocol.Query, timeout time.D
 	}
 	var result protocol.QueryResult
 	if err := json.Unmarshal(raw, &result); err != nil {
-		wrapped := fmt.Errorf("插件返回的结果格式错误：%w", err)
+		wrapped := errors.New(locales.PluginQueryResultInvalid(err))
 		c.fail(wrapped, ctx)
 		c.stopLocked()
 		return protocol.QueryResult{}, wrapped
@@ -107,9 +108,9 @@ func (c *Client) Execute(ctx context.Context, request protocol.ExecuteRequest, t
 	defer c.opMu.Unlock()
 	if err := c.startLocked(ctx); err != nil {
 		c.fail(err, ctx)
-		return fmt.Errorf("无法启动插件执行动作：%w", err)
+		return errors.New(locales.PluginExecuteStartFailed(err))
 	}
-	if _, err := c.requestLocked(ctx, "execute", "执行动作", request, timeout); err != nil {
+	if _, err := c.requestLocked(ctx, "execute", reqExecute, request, timeout); err != nil {
 		c.fail(err, ctx)
 		if ctx.Err() == nil {
 			c.stopLocked()
@@ -148,7 +149,7 @@ func (c *Client) fail(err error, ctx context.Context) {
 
 func (c *Client) startLocked(ctx context.Context) error {
 	if c.closed {
-		return errors.New("插件客户端已关闭")
+		return errors.New(locales.PluginClientClosed())
 	}
 	if c.cmd != nil && c.cmd.Process != nil {
 		return nil
@@ -160,15 +161,15 @@ func (c *Client) startLocked(ctx context.Context) error {
 	command.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: 0x08000000}
 	stdin, err := command.StdinPipe()
 	if err != nil {
-		return fmt.Errorf("无法连接插件进程输入：%w", err)
+		return errors.New(locales.PluginStdinPipeFailed(err))
 	}
 	stdout, err := command.StdoutPipe()
 	if err != nil {
-		return fmt.Errorf("无法连接插件进程输出：%w", err)
+		return errors.New(locales.PluginStdoutPipeFailed(err))
 	}
 	stderr, err := command.StderrPipe()
 	if err != nil {
-		return fmt.Errorf("无法连接插件进程错误输出：%w", err)
+		return errors.New(locales.PluginStderrPipeFailed(err))
 	}
 	job, err := newJob()
 	if err != nil {
@@ -176,7 +177,7 @@ func (c *Client) startLocked(ctx context.Context) error {
 	}
 	if err := command.Start(); err != nil {
 		job.Close()
-		return fmt.Errorf("无法启动插件进程：%w", err)
+		return errors.New(locales.PluginProcessStartFailed(err))
 	}
 	if err := job.assign(command.Process); err != nil {
 		job.Close()
@@ -188,15 +189,15 @@ func (c *Client) startLocked(ctx context.Context) error {
 	c.stderr = ""
 	c.stderrMu.Unlock()
 	go c.readStderr(stderr)
-	raw, err := c.requestLocked(ctx, "initialize", "初始化", nil, handshakeTimeout)
+	raw, err := c.requestLocked(ctx, "initialize", reqInitialize, nil, handshakeTimeout)
 	if err != nil {
 		c.stopLocked()
-		return fmt.Errorf("插件握手失败：%w", err)
+		return errors.New(locales.PluginHandshakeFailed(err))
 	}
 	var initialized protocol.InitializeResult
 	if err := json.Unmarshal(raw, &initialized); err != nil {
 		c.stopLocked()
-		return errors.New("插件握手回复格式错误")
+		return errors.New(locales.PluginHandshakeReplyInvalid())
 	}
 	if err := handshakeError(initialized, c.id); err != nil {
 		c.stopLocked()
@@ -212,12 +213,38 @@ func (c *Client) startLocked(ctx context.Context) error {
 	return nil
 }
 
-// requestLocked writes one request and reads its answer. label names the
-// request in the messages the user sees, which is why it is separate from the
-// wire method: "插件查询超时" tells more than "plugin query timed out".
-func (c *Client) requestLocked(ctx context.Context, method, label string, params any, timeout time.Duration) (json.RawMessage, error) {
+// requestText is the set of messages one kind of request uses when it fails:
+// the kind names the request in what the user sees, which is why it is
+// separate from the wire method: "插件查询超时" tells more than "plugin query
+// timed out".
+type requestText struct {
+	send    func(err error) string
+	timeout func(ms int64) string
+	cancel  func() string
+}
+
+var (
+	reqQuery = requestText{
+		send:    func(err error) string { return locales.PluginSendQueryFailed(err) },
+		timeout: func(ms int64) string { return locales.PluginQueryTimeout(int(ms)) },
+		cancel:  func() string { return locales.PluginQueryCanceled() },
+	}
+	reqExecute = requestText{
+		send:    func(err error) string { return locales.PluginSendExecuteFailed(err) },
+		timeout: func(ms int64) string { return locales.PluginExecuteTimeout(int(ms)) },
+		cancel:  func() string { return locales.PluginExecuteCanceled() },
+	}
+	reqInitialize = requestText{
+		send:    func(err error) string { return locales.PluginSendInitializeFailed(err) },
+		timeout: func(ms int64) string { return locales.PluginInitializeTimeout(int(ms)) },
+		cancel:  func() string { return locales.PluginInitializeCanceled() },
+	}
+)
+
+// requestLocked writes one request and reads its answer.
+func (c *Client) requestLocked(ctx context.Context, method string, text requestText, params any, timeout time.Duration) (json.RawMessage, error) {
 	if c.cmd == nil || c.stdin == nil || c.stdout == nil {
-		return nil, errors.New("插件进程未启动")
+		return nil, errors.New(locales.PluginProcessNotStarted())
 	}
 	id := atomic.AddInt64(&c.requestID, 1)
 	var rawParams json.RawMessage
@@ -237,7 +264,7 @@ func (c *Client) requestLocked(ctx context.Context, method, label string, params
 	err = protocol.Write(c.stdin, payload)
 	c.writeMu.Unlock()
 	if err != nil {
-		return nil, fmt.Errorf("无法向插件发送%s请求：%w", label, err)
+		return nil, errors.New(text.send(err))
 	}
 
 	read := make(chan frameResult, 1)
@@ -251,9 +278,9 @@ func (c *Client) requestLocked(ctx context.Context, method, label string, params
 	case result := <-read:
 		if result.err != nil {
 			if errors.Is(result.err, io.EOF) {
-				return nil, errors.New("插件已退出，没有返回结果")
+				return nil, errors.New(locales.PluginExitedNoResult())
 			}
-			return nil, fmt.Errorf("读取插件响应失败：%w", result.err)
+			return nil, errors.New(locales.PluginReadResponseFailed(result.err))
 		}
 		var response struct {
 			JSONRPC string             `json:"jsonrpc"`
@@ -262,10 +289,10 @@ func (c *Client) requestLocked(ctx context.Context, method, label string, params
 			Error   *protocol.RPCError `json:"error"`
 		}
 		if err := json.Unmarshal(result.payload, &response); err != nil {
-			return nil, fmt.Errorf("插件响应不是合法 JSON：%w", err)
+			return nil, errors.New(locales.PluginResponseInvalidJSON(err))
 		}
 		if response.JSONRPC != "2.0" || string(response.ID) != string(request.ID) {
-			return nil, errors.New("插件响应与请求不匹配")
+			return nil, errors.New(locales.PluginResponseMismatch())
 		}
 		if response.Error != nil {
 			return nil, response.Error
@@ -276,11 +303,11 @@ func (c *Client) requestLocked(ctx context.Context, method, label string, params
 		// will send anyway: a search replaced by the next keystroke must not
 		// cost a process restart.
 		c.cancel(id)
-		return nil, c.afterCancel(read, label)
+		return nil, c.afterCancel(read, text)
 	case <-timer.C:
 		c.cancel(id)
 		c.stopLocked()
-		return nil, fmt.Errorf("插件%s超时（%d 毫秒）", label, timeout.Milliseconds())
+		return nil, errors.New(text.timeout(timeout.Milliseconds()))
 	}
 }
 
@@ -295,7 +322,7 @@ type frameResult struct {
 // afterCancel waits for the answer to a canceled request and keeps the process
 // when it comes; one that stays silent is stopped, because its late frames
 // could be taken for answers to the next request.
-func (c *Client) afterCancel(read <-chan frameResult, label string) error {
+func (c *Client) afterCancel(read <-chan frameResult, text requestText) error {
 	timer := time.NewTimer(cancelGrace)
 	defer timer.Stop()
 	select {
@@ -303,7 +330,7 @@ func (c *Client) afterCancel(read <-chan frameResult, label string) error {
 	case <-timer.C:
 		c.stopLocked()
 	}
-	return fmt.Errorf("插件%s已取消", label)
+	return errors.New(text.cancel())
 }
 
 func (c *Client) cancel(id int64) {

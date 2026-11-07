@@ -5,7 +5,6 @@ package plugin
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"path/filepath"
 	"sort"
@@ -17,6 +16,7 @@ import (
 	"fluentlauncher/internal/core/search"
 	"fluentlauncher/internal/core/settings"
 	"fluentlauncher/internal/plugin/protocol"
+	"fluentlauncher/locales"
 )
 
 // maxConsecutiveFailures is how many failed queries a plugin gets before the
@@ -168,13 +168,13 @@ func (m *Manager) searchOne(ctx context.Context, registration protocol.Registrat
 	}
 	if m.paused[id] {
 		m.mu.Unlock()
-		return []model.Result{errorResult(id, registration.Manifest.Name, "插件连续失败已暂停；请在设置的插件页重启它。")}
+		return []model.Result{errorResult(id, registration.Manifest.Name, locales.PluginPausedByFailures())}
 	}
 	sess := m.sessions[id]
 	if sess == nil {
 		if len(m.sessions) >= options.MaxActiveProcesses {
 			m.mu.Unlock()
-			return []model.Result{errorResult(id, registration.Manifest.Name, "插件活动进程已达上限，请稍后重试。")}
+			return []model.Result{errorResult(id, registration.Manifest.Name, locales.PluginActiveProcessLimit())}
 		}
 		sess = &session{client: NewClient(registration.Path(), id)}
 		m.sessions[id] = sess
@@ -215,7 +215,7 @@ func (m *Manager) searchOne(ctx context.Context, registration protocol.Registrat
 		m.mu.Unlock()
 		message := err.Error()
 		if paused {
-			message = fmt.Sprintf("插件连续 %d 次查询失败，已暂停；请在设置中重启它。最近的错误：%s", failures, message)
+			message = locales.PluginPausedWithErrors(failures, message)
 		}
 		return []model.Result{errorResult(id, registration.Manifest.Name, message)}
 	}
@@ -228,7 +228,7 @@ func (m *Manager) searchOne(ctx context.Context, registration protocol.Registrat
 		if reason, ok := validateResult(item); !ok {
 			dropped++
 			if dropNote == "" {
-				dropNote = "结果被丢弃：" + reason
+				dropNote = locales.PluginResultDropped(reason)
 			}
 			continue
 		}
@@ -237,7 +237,7 @@ func (m *Manager) searchOne(ctx context.Context, registration protocol.Registrat
 			if reason, ok := validateAction(action); !ok {
 				dropped++
 				if dropNote == "" {
-					dropNote = "动作被丢弃：" + reason
+					dropNote = locales.PluginActionDropped(reason)
 				}
 				continue
 			}
@@ -280,11 +280,11 @@ func (m *Manager) Execute(ctx context.Context, entry model.Entry, action model.A
 	options := m.options
 	if !containsFold(options.EnabledIDs, entry.PluginID) {
 		m.mu.Unlock()
-		return fmt.Errorf("插件 %s 已停用，请在设置中启用后再执行", entry.PluginID)
+		return errors.New(locales.PluginDisabledExecute(entry.PluginID))
 	}
 	if sess == nil {
 		m.mu.Unlock()
-		return errors.New("插件进程已回收，请重新搜索后再执行")
+		return errors.New(locales.PluginProcessRecycled())
 	}
 	sess.busy++
 	if sess.idle != nil {
@@ -450,7 +450,7 @@ func (m *Manager) has(id string) bool {
 func errorResult(id, name, message string) model.Result {
 	return model.Result{Entry: model.Entry{
 		ID:       "plugin-error:" + id,
-		Title:    name + " 暂不可用",
+		Title:    locales.PluginUnavailableTitle(name),
 		Subtitle: message,
 		Kind:     model.Plugin,
 		SourceID: "plugins",
@@ -464,19 +464,19 @@ func errorResult(id, name, message string) model.Result {
 func validateResult(result protocol.Result) (string, bool) {
 	switch {
 	case result.ID == "":
-		return "结果缺少 id", false
+		return locales.PluginValidateResultNoID(), false
 	case len(result.ID) > 512:
-		return "结果 id 超过 512 个字符", false
+		return locales.PluginValidateResultIDTooLong(), false
 	case strings.TrimSpace(result.Title) == "":
-		return "结果缺少标题", false
+		return locales.PluginValidateResultNoTitle(), false
 	case len(result.Title) > 1000:
-		return "结果标题超过 1000 个字符", false
+		return locales.PluginValidateResultTitleTooLong(), false
 	case len(result.Subtitle) > 4000:
-		return "结果副标题超过 4000 个字符", false
+		return locales.PluginValidateResultSubtitleTooLong(), false
 	case len(result.Actions) > 10:
-		return "一个结果最多 10 个动作", false
+		return locales.PluginValidateResultActionsTooMany(), false
 	case len(result.PreviewText) > 16000:
-		return "预览文本超过 16000 个字符", false
+		return locales.PluginValidateResultPreviewTooLong(), false
 	}
 	return "", true
 }
@@ -484,15 +484,15 @@ func validateResult(result protocol.Result) (string, bool) {
 func validateAction(action protocol.Action) (string, bool) {
 	switch {
 	case action.ID == "":
-		return "动作缺少 id", false
+		return locales.PluginValidateActionNoID(), false
 	case len(action.ID) > 200:
-		return "动作 id 超过 200 个字符", false
+		return locales.PluginValidateActionIDTooLong(), false
 	case strings.TrimSpace(action.Title) == "":
-		return "动作缺少标题", false
+		return locales.PluginValidateActionNoTitle(), false
 	case len(action.Title) > 200:
-		return "动作标题超过 200 个字符", false
+		return locales.PluginValidateActionTitleTooLong(), false
 	case len(action.Value) > 16000:
-		return "动作值超过 16000 个字符", false
+		return locales.PluginValidateActionValueTooLong(), false
 	}
 	switch action.Kind {
 	case protocol.KindCopyText, protocol.KindInvoke:
@@ -501,14 +501,14 @@ func validateAction(action protocol.Action) (string, bool) {
 		if strings.HasPrefix(action.Value, "http://") || strings.HasPrefix(action.Value, "https://") {
 			return "", true
 		}
-		return fmt.Sprintf("动作类型 openUrl 的值必须是 http 或 https 地址，当前为 %q", truncate(action.Value, 80)), false
+		return locales.PluginValidateActionOpenURL(truncate(action.Value, 80)), false
 	case protocol.KindOpenPath:
 		if filepath.IsAbs(action.Value) {
 			return "", true
 		}
-		return fmt.Sprintf("动作类型 openPath 的值必须是绝对路径，当前为 %q", truncate(action.Value, 80)), false
+		return locales.PluginValidateActionOpenPath(truncate(action.Value, 80)), false
 	default:
-		return fmt.Sprintf("不支持的动作类型 %q", action.Kind), false
+		return locales.PluginValidateActionKind(action.Kind), false
 	}
 }
 

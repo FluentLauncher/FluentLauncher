@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"fluentlauncher/internal/core/model"
+	"fluentlauncher/locales"
 )
 
 type Command uint8
@@ -33,37 +34,37 @@ type CommandItem struct {
 func CommandsFor(entry model.Entry, pinned, anyHidden bool) []CommandItem {
 	commands := []CommandItem{{Command: CommandOpen, Title: openTitle(entry)}}
 	if entry.Kind == model.Application && !entry.RunElevated {
-		commands = append(commands, CommandItem{Command: CommandRunAsAdministrator, Title: "以管理员身份运行"})
+		commands = append(commands, CommandItem{Command: CommandRunAsAdministrator, Title: locales.CmdRunAsAdministrator()})
 	}
 	if hasLocalPath(entry) {
-		title := "打开文件位置"
+		title := locales.CmdOpenFileLocation()
 		if entry.Kind == model.Directory {
-			title = "在资源管理器中打开"
+			title = locales.CmdOpenInExplorer()
 		}
 		commands = append(commands,
 			CommandItem{Command: CommandOpenLocation, Title: title},
-			CommandItem{Command: CommandCopyPath, Title: "复制路径"})
+			CommandItem{Command: CommandCopyPath, Title: locales.CmdCopyPath()})
 	} else if entry.Kind == model.URL {
-		commands = append(commands, CommandItem{Command: CommandCopyPath, Title: "复制网址"})
+		commands = append(commands, CommandItem{Command: CommandCopyPath, Title: locales.CmdCopyUrl()})
 	}
 	for _, action := range entry.Actions {
 		commands = append(commands, CommandItem{Command: CommandPluginAction, Title: action.Title, Value: action.ID})
 	}
 	if entry.PreviewText != "" {
-		commands = append(commands, CommandItem{Command: CommandPluginPreview, Title: "查看文本预览"})
+		commands = append(commands, CommandItem{Command: CommandPluginPreview, Title: locales.CmdViewTextPreview()})
 	}
 	if learns(entry) {
-		pinTitle := "固定到前面"
+		pinTitle := locales.CmdPin()
 		if pinned {
-			pinTitle = "取消固定"
+			pinTitle = locales.CmdUnpin()
 		}
 		commands = append(commands,
-			CommandItem{Command: CommandSetAlias, Title: "设置别名"},
+			CommandItem{Command: CommandSetAlias, Title: locales.CmdSetAlias()},
 			CommandItem{Command: CommandTogglePinned, Title: pinTitle},
-			CommandItem{Command: CommandHide, Title: "不再显示此条目"})
+			CommandItem{Command: CommandHide, Title: locales.CmdHide()})
 	}
 	if anyHidden {
-		commands = append(commands, CommandItem{Command: CommandRestoreHidden, Title: "恢复隐藏的条目"})
+		commands = append(commands, CommandItem{Command: CommandRestoreHidden, Title: locales.CmdRestoreHidden()})
 	}
 	return commands
 }
@@ -71,22 +72,22 @@ func CommandsFor(entry model.Entry, pinned, anyHidden bool) []CommandItem {
 func openTitle(entry model.Entry) string {
 	switch entry.Kind {
 	case model.URL:
-		return "在浏览器中打开"
+		return locales.CmdOpenInBrowser()
 	case model.Directory:
-		return "打开文件夹"
+		return locales.CmdOpenFolder()
 	case model.Calculation:
-		return "复制计算结果"
+		return locales.CmdCopyCalcResult()
 	case model.Command:
-		return "打开"
+		return locales.CmdOpen()
 	case model.Window:
-		return "切换到此窗口"
+		return locales.CmdSwitchToWindow()
 	case model.Workspace:
-		return "依次打开工作区"
+		return locales.CmdOpenWorkspace()
 	}
 	if entry.RunElevated {
-		return "以管理员身份打开"
+		return locales.CmdOpenAsAdministrator()
 	}
-	return "打开"
+	return locales.CmdOpen()
 }
 
 func hasLocalPath(entry model.Entry) bool {

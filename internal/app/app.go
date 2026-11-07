@@ -4,7 +4,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"math"
 	"os"
@@ -188,7 +187,7 @@ func (a *App) ready() {
 	a.config = store.NewConfigStore(a.dataDir)
 	a.themes = store.NewThemeStore(filepath.Join(a.dataDir, "themes"))
 	if value, err := a.config.Load(); err != nil {
-		a.notice = "无法读取设置，使用默认配置：" + err.Error()
+		a.notice = locales.AppCannotReadSettings(err)
 	} else {
 		a.settings = value
 	}
@@ -327,7 +326,7 @@ func (a *App) ready() {
 	if os.Getenv("FL_DEBUG_OPEN_SETTINGS") == "1" {
 		if value := os.Getenv("FL_DEBUG_SETTINGS_PAGE"); value != "" {
 			if page, err := strconv.Atoi(value); err == nil {
-				a.settingsPage = min(max(page, 0), len(settingPages)-1)
+				a.settingsPage = min(max(page, 0), len(settingPages())-1)
 			}
 		}
 		a.openSettings()
@@ -360,13 +359,13 @@ func (a *App) loadDatabase() {
 	path := filepath.Join(a.dataDir, "data", "launcher.db")
 	db, err := store.OpenDB(context.Background(), path)
 	if err != nil {
-		a.notice = "无法打开数据库：" + err.Error()
+		a.notice = locales.AppCannotOpenDatabase(err)
 		return
 	}
 	a.db = db
 	profiles, err := db.LoadProfiles(context.Background())
 	if err != nil {
-		a.notice = "无法读取个人规则：" + err.Error()
+		a.notice = locales.AppCannotReadProfiles(err)
 		return
 	}
 	a.profiles = profiles
@@ -420,7 +419,7 @@ func (a *App) loadFileCache() {
 	}
 	cached, err := a.fileIndex.LoadCached(context.Background(), a.settings.Files)
 	if err != nil {
-		a.notice = "无法读取文件索引：" + err.Error()
+		a.notice = locales.AppCannotReadFileIndex(err)
 		return
 	}
 	a.fileEngine.ReplaceEntries(cached, a.profileMap())
@@ -447,11 +446,11 @@ func (a *App) refreshApps() {
 			a.loading = false
 			a.lastDiscovery = time.Now()
 			if err != nil {
-				a.notice = "应用发现失败：" + err.Error()
+				a.notice = locales.AppDiscoveryFailed(err)
 				return
 			}
 			a.appEngine.ReplaceEntries(entries, a.profileMap())
-			a.status = fmt.Sprintf("已发现 %d 个应用", len(entries))
+			a.status = locales.AppDiscoveredApps(len(entries))
 			log.Printf("apps: %d in %dms", len(entries), ms)
 			a.updateResults()
 		})
@@ -609,13 +608,13 @@ func (a *App) setUpTray() {
 // plain rows whose label states the value: a check box would reserve a mark
 // column that leaves an empty gutter beside every item.
 func (a *App) trayMenu() *mygo.Menu {
-	loginLabel := "开机启动：关"
+	loginLabel := locales.TrayRunAtLoginOff()
 	if a.settings.RunAtLogin {
-		loginLabel = "开机启动：开"
+		loginLabel = locales.TrayRunAtLoginOn()
 	}
 	return mygo.NewMenu([]*mygo.MenuItem{
-		{Label: "显示搜索", Click: func(*mygo.MenuItem, *mygo.Window) { a.show() }},
-		{Label: "设置", Click: func(*mygo.MenuItem, *mygo.Window) { a.openSettings() }},
+		{Label: locales.TrayShowSearch(), Click: func(*mygo.MenuItem, *mygo.Window) { a.show() }},
+		{Label: locales.TraySettings(), Click: func(*mygo.MenuItem, *mygo.Window) { a.openSettings() }},
 		mygo.Separator(),
 		{Label: loginLabel, Click: func(*mygo.MenuItem, *mygo.Window) {
 			a.settings.RunAtLogin = !a.settings.RunAtLogin
@@ -627,7 +626,7 @@ func (a *App) trayMenu() *mygo.Menu {
 			}
 		}},
 		mygo.Separator(),
-		{Label: "退出", Click: func(*mygo.MenuItem, *mygo.Window) { mygo.App.Quit() }},
+		{Label: locales.TrayQuit(), Click: func(*mygo.MenuItem, *mygo.Window) { mygo.App.Quit() }},
 	})
 }
 
@@ -667,7 +666,7 @@ func (a *App) registerHotkey() {
 			log.Printf("hotkey: %s", shortcut)
 			a.hotkeyActive = shortcut
 			if shortcut != a.settings.Hotkey {
-				a.hotkeyNotice = fmt.Sprintf("热键 %s 被其他程序占用，已改用 %s。", a.settings.Hotkey, shortcut)
+				a.hotkeyNotice = locales.HotkeyOccupiedFallback(a.settings.Hotkey, shortcut)
 			} else {
 				a.hotkeyNotice = ""
 			}
@@ -676,7 +675,7 @@ func (a *App) registerHotkey() {
 		log.Printf("hotkey %s: %v", shortcut, err)
 	}
 	a.hotkeyActive = ""
-	a.hotkeyNotice = "全局热键全部被占用，请在设置中更换。"
+	a.hotkeyNotice = locales.HotkeyAllOccupied()
 }
 
 func (a *App) applyOpenAtLogin() {
@@ -986,7 +985,7 @@ func (a *App) statusLine(batches []search.Batch) string {
 	if a.status != "" {
 		parts = append(parts, a.status)
 	}
-	parts = append(parts, fmt.Sprintf("当前显示 %d 条", len(a.results)))
+	parts = append(parts, locales.StatusShowingResults(len(a.results)))
 	for _, batch := range batches {
 		if batch.Error != "" {
 			parts = append(parts, batch.SourceID+": "+batch.Error)
@@ -1037,7 +1036,7 @@ func (a *App) executeSelected(action model.EntryAction) {
 	}
 	if action == model.CopyPath {
 		if entry.LaunchTarget == "" {
-			a.notice = "此条目没有可复制的路径"
+			a.notice = locales.AppNoPathToCopy()
 			return
 		}
 		mygo.Clipboard.WriteText(entry.LaunchTarget)
@@ -1055,7 +1054,7 @@ func (a *App) executeSelected(action model.EntryAction) {
 	}
 	if entry.Kind == model.Plugin {
 		if len(entry.Actions) == 0 {
-			a.notice = "该插件条目没有可执行动作"
+			a.notice = locales.AppNoPluginAction()
 			return
 		}
 		a.executePluginAction(entry, entry.Actions[0])
@@ -1070,10 +1069,10 @@ func (a *App) executeSelected(action model.EntryAction) {
 		return
 	}
 	if outcome.Canceled {
-		a.notice = "已取消"
+		a.notice = locales.AppCanceled()
 		return
 	}
-	a.notice = fmt.Sprintf("无法打开“%s”：%s", entry.Title, outcome.Error)
+	a.notice = locales.AppCannotOpenEntry(entry.Title, outcome.Error)
 	a.updateResults()
 }
 

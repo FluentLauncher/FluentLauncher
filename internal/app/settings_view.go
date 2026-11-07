@@ -21,7 +21,20 @@ import (
 	"fluentlauncher/locales"
 )
 
-var settingPages = []string{"常规", "外观", "文件", "音量", "站点搜索", "启动项", "插件", "其他"}
+// settingPages returns the sidebar's page titles, localized per frame so a
+// language change shows at once.
+func settingPages() []string {
+	return []string{
+		locales.SettingsPageGeneral(),
+		locales.SettingsPageAppearance(),
+		locales.SettingsPageFiles(),
+		locales.SettingsPageVolume(),
+		locales.SettingsPageSites(),
+		locales.SettingsPageLaunchItems(),
+		locales.SettingsPagePlugins(),
+		locales.SettingsPageOther(),
+	}
+}
 
 // pageIcons are the sidebar's line icons, one per settings page.
 var pageIcons = []*ui.SVG{
@@ -47,7 +60,8 @@ func (a *App) settingsView(c *ui.Context) {
 	a.applyUITheme(&theme)
 	theme.FontSize = settingsFontSize
 	c.SetTheme(&theme)
-	a.settingsPage = min(max(a.settingsPage, 0), len(settingPages)-1)
+	pages := settingPages()
+	a.settingsPage = min(max(a.settingsPage, 0), len(pages)-1)
 
 	a.drawShell(c, &theme, func() {
 		a.captionBar(c, &theme, locales.SettingsWindowTitle(), a.settingsWin)
@@ -55,7 +69,7 @@ func (a *App) settingsView(c *ui.Context) {
 			a.settingsSidebar(c, &theme)
 			ui.Column(c).Grow(1).FillHeight().Children(func() {
 				ui.Row(c).Padding(20, 24).AlignItems(ui.Center).Children(func() {
-					ui.Text(c, settingPages[a.settingsPage]).FontSize(20).Bold().TextColor(theme.Text).Grow(1)
+					ui.Text(c, pages[a.settingsPage]).FontSize(20).Bold().TextColor(theme.Text).Grow(1)
 				})
 				ui.Divider(c)
 				ui.Scroll(c).Grow(1).Children(func() {
@@ -88,7 +102,7 @@ func (a *App) settingsView(c *ui.Context) {
 					if a.settingsError != "" {
 						ui.Text(c, a.settingsError).FontSize(12).TextColor(theme.Danger)
 					} else {
-						ui.Text(c, "更改会自动保存").FontSize(11).TextColor(theme.TextMuted)
+						ui.Text(c, locales.SettingsAutoSave()).FontSize(11).TextColor(theme.TextMuted)
 					}
 				})
 			})
@@ -106,7 +120,7 @@ func (a *App) settingsSidebar(c *ui.Context, theme *ui.Theme) {
 	hover := a.settingsHover
 	next := -1
 	ui.Column(c).Width(208).FillHeight().Padding(8, 12).Gap(2).Children(func() {
-		for i, name := range settingPages {
+		for i, name := range settingPages() {
 			background := ui.Transparent
 			text := theme.Text
 			if i == a.settingsPage {
@@ -273,7 +287,7 @@ func (a *App) themedSelect(c *ui.Context, key, label, hint string, options []str
 }
 
 // colorRow edits an optional hex color with a color well; an empty value
-// keeps the system color and can be restored with 重置. A background color
+// keeps the system color and can be restored with the reset button. A background color
 // is stored without alpha: the opacity slider is what makes the window
 // see-through, so a color of its own cannot make it translucent twice.
 func (a *App) colorRow(c *ui.Context, label, hint string, value *string, fallback ui.Color, opaque bool) {
@@ -293,12 +307,12 @@ func (a *App) colorRow(c *ui.Context, label, hint string, value *string, fallbac
 				}
 				*value = hexOf(picked)
 			}
-			shown := "跟随系统"
+			shown := locales.SettingsFollowSystem()
 			if *value != "" {
 				shown = hexOf(picked)
 			}
 			ui.Text(c, shown).FontSize(12).TextColor(theme.TextMuted).Width(90).SingleLine()
-			if *value != "" && compactButton(c, "重置").Clicked() {
+			if *value != "" && compactButton(c, locales.CommonReset()).Clicked() {
 				*value = ""
 			}
 		})
@@ -334,33 +348,51 @@ func (a *App) sliderRow(c *ui.Context, label, hint string, value *float64, lo, h
 	})
 }
 
-var placementChoices = []struct {
+// placementChoices returns the popup position options with labels for the
+// current language; building them per frame keeps the label of each value in
+// the same slice position.
+func placementChoices() []struct {
 	label string
 	value settings.WindowPlacement
-}{
-	{"活动屏幕", settings.PlacementActiveScreen},
-	{"鼠标所在屏幕", settings.PlacementMouseScreen},
-	{"主屏幕", settings.PlacementPrimaryScreen},
+} {
+	return []struct {
+		label string
+		value settings.WindowPlacement
+	}{
+		{locales.SettingsPlacementActiveScreen(), settings.PlacementActiveScreen},
+		{locales.SettingsPlacementMouseScreen(), settings.PlacementMouseScreen},
+		{locales.SettingsPlacementPrimaryScreen(), settings.PlacementPrimaryScreen},
+	}
 }
 
-var themeModeChoices = []struct {
+func themeModeChoices() []struct {
 	label string
 	value settings.ThemeMode
-}{
-	{"跟随系统", settings.ThemeSystem},
-	{"浅色", settings.ThemeLight},
-	{"深色", settings.ThemeDark},
+} {
+	return []struct {
+		label string
+		value settings.ThemeMode
+	}{
+		{locales.SettingsFollowSystem(), settings.ThemeSystem},
+		{locales.SettingsThemeLight(), settings.ThemeLight},
+		{locales.SettingsThemeDark(), settings.ThemeDark},
+	}
 }
 
-var backgroundChoices = []struct {
+func backgroundChoices() []struct {
 	label string
 	value settings.BackgroundMode
-}{
-	{"亚克力", settings.BackgroundAcrylic},
-	{"云母", settings.BackgroundMica},
-	{"纯色", settings.BackgroundSolid},
-	{"渐变", settings.BackgroundGradient},
-	{"图片", settings.BackgroundImage},
+} {
+	return []struct {
+		label string
+		value settings.BackgroundMode
+	}{
+		{locales.SettingsBackgroundAcrylic(), settings.BackgroundAcrylic},
+		{locales.SettingsBackgroundMica(), settings.BackgroundMica},
+		{locales.SettingsBackgroundSolid(), settings.BackgroundSolid},
+		{locales.SettingsBackgroundGradient(), settings.BackgroundGradient},
+		{locales.SettingsBackgroundImage(), settings.BackgroundImage},
+	}
 }
 
 func choiceLabels[T any](choices []struct {
@@ -406,101 +438,104 @@ func (a *App) generalPage(c *ui.Context) {
 			}
 		})
 	})
-	settingCard(c, "唤醒与启动", func(c *ui.Context) {
+	settingCard(c, locales.SettingsGeneralWakeCard(), func(c *ui.Context) {
 		hotkeyHint := ""
 		if a.hotkeyActive != "" && a.hotkeyActive != a.settingsDraft.Hotkey {
-			hotkeyHint = "当前生效：" + a.hotkeyActive + "（所选热键被占用或未保存）"
+			hotkeyHint = locales.SettingsHotkeyActive(a.hotkeyActive)
 		}
-		a.themedSelect(c, "hotkey", "热键", hotkeyHint, []string{"Alt+Space", "Ctrl+Alt+Space", "Ctrl+Space"},
+		a.themedSelect(c, "hotkey", locales.SettingsHotkey(), hotkeyHint, []string{"Alt+Space", "Ctrl+Alt+Space", "Ctrl+Space"},
 			a.settingsDraft.Hotkey, func(label string) { a.settingsDraft.Hotkey = label })
-		a.switchRow(c, "启动时隐藏搜索框", "关闭后开机进入桌面即显示面板", &a.settingsDraft.HideOnStartup)
-		a.switchRow(c, "开机启动", "登录系统后自动在后台运行", &a.settingsDraft.RunAtLogin)
+		a.switchRow(c, locales.SettingsHideOnStartup(), locales.SettingsHideOnStartupHint(), &a.settingsDraft.HideOnStartup)
+		a.switchRow(c, locales.SettingsRunAtLogin(), locales.SettingsRunAtLoginHint(), &a.settingsDraft.RunAtLogin)
 	})
-	settingCard(c, "窗口与结果", func(c *ui.Context) {
-		placementLabel := placementChoices[0].label
-		for _, choice := range placementChoices {
+	settingCard(c, locales.SettingsGeneralWindowCard(), func(c *ui.Context) {
+		placements := placementChoices()
+		placementLabel := placements[0].label
+		for _, choice := range placements {
 			if choice.value == a.settingsDraft.Placement {
 				placementLabel = choice.label
 			}
 		}
-		a.themedSelect(c, "placement", "弹出位置", "呼出面板时所在的屏幕", choiceLabels(placementChoices), placementLabel, func(label string) {
-			for _, choice := range placementChoices {
+		a.themedSelect(c, "placement", locales.SettingsPlacement(), locales.SettingsPlacementHint(), choiceLabels(placements), placementLabel, func(label string) {
+			for _, choice := range placements {
 				if choice.label == label {
 					a.settingsDraft.Placement = choice.value
 				}
 			}
 		})
 		a.panelSizePreview(c)
-		a.numberRow(c, "最大结果数", "每次搜索最多显示的条目", &a.settingsDraft.MaxResults, 5, 200, 5)
-		a.switchRow(c, "空搜索时显示最近打开", "未输入关键词时列出最近使用的条目", &a.settingsDraft.ShowRecentEntries)
+		a.numberRow(c, locales.SettingsMaxResults(), locales.SettingsMaxResultsHint(), &a.settingsDraft.MaxResults, 5, 200, 5)
+		a.switchRow(c, locales.SettingsShowRecent(), locales.SettingsShowRecentHint(), &a.settingsDraft.ShowRecentEntries)
 	})
 }
 
 func (a *App) appearancePage(c *ui.Context) {
 	draft := &a.settingsDraft.Theme
 	background := draft.Background
-	settingCard(c, "模式与背景", func(c *ui.Context) {
-		modeLabel := themeModeChoices[0].label
-		for _, choice := range themeModeChoices {
+	settingCard(c, locales.SettingsThemeModeCard(), func(c *ui.Context) {
+		modes := themeModeChoices()
+		modeLabel := modes[0].label
+		for _, choice := range modes {
 			if choice.value == draft.Mode {
 				modeLabel = choice.label
 			}
 		}
-		a.themedSelect(c, "mode", "模式", "浅色、深色或跟随系统", choiceLabels(themeModeChoices), modeLabel, func(label string) {
-			for _, choice := range themeModeChoices {
+		a.themedSelect(c, "mode", locales.SettingsThemeMode(), locales.SettingsThemeModeHint(), choiceLabels(modes), modeLabel, func(label string) {
+			for _, choice := range modes {
 				if choice.label == label {
 					draft.Mode = choice.value
 				}
 			}
 		})
-		backgroundLabel := backgroundChoices[0].label
-		for _, choice := range backgroundChoices {
+		backgrounds := backgroundChoices()
+		backgroundLabel := backgrounds[0].label
+		for _, choice := range backgrounds {
 			if choice.value == background {
 				backgroundLabel = choice.label
 			}
 		}
-		a.themedSelect(c, "background", "背景材质", "亚克力与云母模糊透出下层窗口", choiceLabels(backgroundChoices), backgroundLabel, func(label string) {
-			for _, choice := range backgroundChoices {
+		a.themedSelect(c, "background", locales.SettingsThemeBackground(), locales.SettingsThemeBackgroundHint(), choiceLabels(backgrounds), backgroundLabel, func(label string) {
+			for _, choice := range backgrounds {
 				if choice.label == label {
 					draft.Background = choice.value
 				}
 			}
 		})
 	})
-	settingCard(c, "颜色", func(c *ui.Context) {
+	settingCard(c, locales.SettingsThemeColorsCard(), func(c *ui.Context) {
 		theme := c.Theme()
-		a.colorRow(c, "强调色", "按钮与选中行", &draft.AccentColor, theme.Accent, false)
-		a.colorRow(c, "文字色", "留空跟随系统", &draft.ForegroundColor, theme.Text, false)
+		a.colorRow(c, locales.SettingsAccentColor(), locales.SettingsAccentColorHint(), &draft.AccentColor, theme.Accent, false)
+		a.colorRow(c, locales.SettingsTextColor(), locales.SettingsTextColorHint(), &draft.ForegroundColor, theme.Text, false)
 		switch background {
 		case settings.BackgroundSolid, settings.BackgroundGradient:
-			a.colorRow(c, "背景色", "纯色与渐变起点，留空跟随系统", &draft.BackgroundColor, theme.Background, true)
+			a.colorRow(c, locales.SettingsBackgroundColor(), locales.SettingsBackgroundColorSolidHint(), &draft.BackgroundColor, theme.Background, true)
 		case settings.BackgroundAcrylic, settings.BackgroundMica:
-			a.colorRow(c, "背景色", "模糊背景上的着色，留空跟随系统", &draft.BackgroundColor, theme.Background, true)
+			a.colorRow(c, locales.SettingsBackgroundColor(), locales.SettingsBackgroundColorBlurHint(), &draft.BackgroundColor, theme.Background, true)
 		}
 		if background == settings.BackgroundGradient {
-			a.colorRow(c, "渐变终点", "仅渐变背景使用", &draft.GradientColor, theme.Surface, true)
+			a.colorRow(c, locales.SettingsGradientEnd(), locales.SettingsGradientEndHint(), &draft.GradientColor, theme.Surface, true)
 		}
 	})
-	settingCard(c, "不透明度", func(c *ui.Context) {
-		hint := "0% 完全透明（只看到下层窗口），100% 完全不透明"
+	settingCard(c, locales.SettingsOpacity(), func(c *ui.Context) {
+		hint := locales.SettingsOpacityHint()
 		switch background {
 		case settings.BackgroundAcrylic, settings.BackgroundMica:
-			hint = "模糊材质的着色强度：0% 只保留模糊后景，100% 完全不透明"
+			hint = locales.SettingsOpacityBlurHint()
 		case settings.BackgroundImage:
-			hint = "图片整体的不透明度，蒙版另算"
+			hint = locales.SettingsOpacityImageHint()
 		}
-		a.sliderRow(c, "不透明度", hint, &draft.Opacity, 0, 1, func(v float64) string {
+		a.sliderRow(c, locales.SettingsOpacity(), hint, &draft.Opacity, 0, 1, func(v float64) string {
 			return fmt.Sprintf("%.0f%%", v*100)
 		})
 	})
 	if background == settings.BackgroundImage {
-		settingCard(c, "背景图片", func(c *ui.Context) {
-			settingRow(c, "图片路径", "背景材质为“图片”时使用", func(c *ui.Context) {
+		settingCard(c, locales.SettingsImageCard(), func(c *ui.Context) {
+			settingRow(c, locales.SettingsImagePath(), locales.SettingsImagePathHint(), func(c *ui.Context) {
 				ui.Row(c).Gap(8).Children(func() {
-					ui.TextInput(c, &draft.ImagePath).Placeholder("选择一张图片").Width(260).FontSize(13)
-					if compactButton(c, "选择…").Clicked() {
+					ui.TextInput(c, &draft.ImagePath).Placeholder(locales.SettingsImagePlaceholder()).Width(260).FontSize(13)
+					if compactButton(c, locales.SettingsImageChoose()).Clicked() {
 						go func() {
-							path, err := mygo.Dialog.Open(mygo.OpenDialogOptions{Title: "选择背景图片"})
+							path, err := mygo.Dialog.Open(mygo.OpenDialogOptions{Title: locales.SettingsDialogBackgroundImage()})
 							if err == nil && len(path) > 0 {
 								a.settingsWin.Update(func() { draft.ImagePath = path[0] })
 							}
@@ -508,8 +543,8 @@ func (a *App) appearancePage(c *ui.Context) {
 					}
 				})
 			})
-			a.switchRow(c, "图片铺满", "关闭则完整显示整张图片", &draft.ImageCover)
-			a.sliderRow(c, "遮罩不透明度", "图片上的蒙版：越高图片越淡，0% 为原图", &draft.ImageMaskOpacity, 0, 0.9, func(v float64) string {
+			a.switchRow(c, locales.SettingsImageCover(), locales.SettingsImageCoverHint(), &draft.ImageCover)
+			a.sliderRow(c, locales.SettingsImageMask(), locales.SettingsImageMaskHint(), &draft.ImageMaskOpacity, 0, 0.9, func(v float64) string {
 				return fmt.Sprintf("%.0f%%", v*100)
 			})
 			if draft.ImageBlur != a.blurSliderInt {
@@ -519,24 +554,24 @@ func (a *App) appearancePage(c *ui.Context) {
 				a.blurSliderInt = int(a.blurSlider)
 				draft.ImageBlur = a.blurSliderInt
 			}
-			a.sliderRow(c, "高斯模糊", "0 – 24，0 为不模糊", &a.blurSlider, 0, 24, func(v float64) string {
+			a.sliderRow(c, locales.SettingsImageBlur(), locales.SettingsImageBlurHint(), &a.blurSlider, 0, 24, func(v float64) string {
 				return fmt.Sprintf("%.0f", v)
 			})
 		})
 	}
-	settingCard(c, "字体与圆角", func(c *ui.Context) {
-		a.textRow(c, "字体", "留空使用系统字体", "Segoe UI Variable", &draft.FontFamily, 240)
-		a.floatRow(c, "字号", "12 – 32", &draft.FontSize, 12, 32, 1)
-		a.floatRow(c, "搜索框高度", "36 – 120，搜索行的整体高度", &draft.SearchHeight, 36, 120, 2)
-		a.floatRow(c, "结果行高度", "2 – 24，每个候选行的上下内边距，越大行越高", &draft.RowPadding, 2, 24, 1)
-		a.floatRow(c, "圆角", "0 – 32", &draft.CornerRadius, 0, 32, 1)
+	settingCard(c, locales.SettingsFontCard(), func(c *ui.Context) {
+		a.textRow(c, locales.SettingsFont(), locales.SettingsFontHint(), "Segoe UI Variable", &draft.FontFamily, 240)
+		a.floatRow(c, locales.SettingsFontSizeLabel(), locales.SettingsFontSizeHint(), &draft.FontSize, 12, 32, 1)
+		a.floatRow(c, locales.SettingsSearchHeight(), locales.SettingsSearchHeightHint(), &draft.SearchHeight, 36, 120, 2)
+		a.floatRow(c, locales.SettingsRowPadding(), locales.SettingsRowPaddingHint(), &draft.RowPadding, 2, 24, 1)
+		a.floatRow(c, locales.SettingsCornerRadius(), locales.SettingsCornerRadiusHint(), &draft.CornerRadius, 0, 32, 1)
 	})
-	settingCard(c, "主题文件", func(c *ui.Context) {
+	settingCard(c, locales.SettingsThemeFileCard(), func(c *ui.Context) {
 		ui.Row(c).Gap(8).Children(func() {
-			if compactButton(c, "导出主题…").Clicked() {
+			if compactButton(c, locales.SettingsExportTheme()).Clicked() {
 				go a.exportTheme()
 			}
-			if compactButton(c, "导入主题…").Clicked() {
+			if compactButton(c, locales.SettingsImportTheme()).Clicked() {
 				go a.importTheme()
 			}
 		})
@@ -551,26 +586,26 @@ func (a *App) appearancePage(c *ui.Context) {
 }
 
 func (a *App) filesPage(c *ui.Context) {
-	settingCard(c, "索引目录", func(c *ui.Context) {
+	settingCard(c, locales.SettingsFilesIndexCard(), func(c *ui.Context) {
 		ui.Column(c).Gap(4).Children(func() {
-			ui.Text(c, "目录（每行一个本地绝对路径）").FontSize(12).TextColor(c.Theme().TextMuted)
+			ui.Text(c, locales.SettingsFilesDirectoriesHint()).FontSize(12).TextColor(c.Theme().TextMuted)
 			directories := strings.Join(a.settingsDraft.Files.Directories, "\n")
 			if ui.TextArea(c, &directories).Lines(4, 8).Height(110).Changed() {
 				a.settingsDraft.Files.Directories = splitLines(directories)
 			}
 		})
 		ui.Column(c).Gap(4).Children(func() {
-			ui.Text(c, "排除目录").FontSize(12).TextColor(c.Theme().TextMuted)
+			ui.Text(c, locales.SettingsFilesExcluded()).FontSize(12).TextColor(c.Theme().TextMuted)
 			excluded := strings.Join(a.settingsDraft.Files.ExcludedDirectories, "\n")
 			if ui.TextArea(c, &excluded).Lines(2, 6).Height(70).Changed() {
 				a.settingsDraft.Files.ExcludedDirectories = splitLines(excluded)
 			}
 		})
-		a.numberRow(c, "最大条目数", "1000 – 500000", &a.settingsDraft.Files.MaxEntries, 1000, 500000, 1000)
-		a.switchRow(c, "索引目录本身", "目录也作为可搜索结果", &a.settingsDraft.Files.IncludeDirectories)
-		a.switchRow(c, "启用 Everything 连接器", "安装 Everything 时直接复用其索引", &a.settingsDraft.Files.EnableEverything)
+		a.numberRow(c, locales.SettingsFilesMaxEntries(), locales.SettingsFilesMaxEntriesHint(), &a.settingsDraft.Files.MaxEntries, 1000, 500000, 1000)
+		a.switchRow(c, locales.SettingsFilesIncludeDirectories(), locales.SettingsFilesIncludeDirectoriesHint(), &a.settingsDraft.Files.IncludeDirectories)
+		a.switchRow(c, locales.SettingsFilesEverything(), locales.SettingsFilesEverythingHint(), &a.settingsDraft.Files.EnableEverything)
 		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-			if compactButton(c, "立即重建索引").Clicked() && a.fileIndex != nil {
+			if compactButton(c, locales.SettingsFilesRebuild()).Clicked() && a.fileIndex != nil {
 				go func() {
 					if err := a.fileIndex.Rebuild(context.Background()); err != nil {
 						a.settingsWin.Update(func() { a.settingsError = err.Error() })
@@ -585,88 +620,88 @@ func (a *App) filesPage(c *ui.Context) {
 }
 
 func (a *App) volumePage(c *ui.Context) {
-	settingCard(c, "屏幕边缘滚轮调节音量", func(c *ui.Context) {
-		a.switchRow(c, "启用", "在屏幕边缘滚动滚轮调节系统音量", &a.settingsDraft.VolumeWheel.Enabled)
+	settingCard(c, locales.SettingsVolumeCard(), func(c *ui.Context) {
+		a.switchRow(c, locales.CommonEnable(), locales.SettingsVolumeEnableHint(), &a.settingsDraft.VolumeWheel.Enabled)
 		edges := a.settingsDraft.VolumeWheel.Edges
 		top, bottom := edges&settings.EdgeTop != 0, edges&settings.EdgeBottom != 0
 		left, right := edges&settings.EdgeLeft != 0, edges&settings.EdgeRight != 0
-		settingRow(c, "触发边缘", "与相邻显示器相接的边不触发", func(c *ui.Context) {
+		settingRow(c, locales.SettingsVolumeEdges(), locales.SettingsVolumeEdgesHint(), func(c *ui.Context) {
 			ui.Row(c).Gap(16).Children(func() {
-				ui.Checkbox(c, &top, "上")
-				ui.Checkbox(c, &bottom, "下")
-				ui.Checkbox(c, &left, "左")
-				ui.Checkbox(c, &right, "右")
+				ui.Checkbox(c, &top, locales.SettingsVolumeEdgeTop())
+				ui.Checkbox(c, &bottom, locales.SettingsVolumeEdgeBottom())
+				ui.Checkbox(c, &left, locales.SettingsVolumeEdgeLeft())
+				ui.Checkbox(c, &right, locales.SettingsVolumeEdgeRight())
 			})
 		})
 		a.settingsDraft.VolumeWheel.Edges = edgeMask(top, bottom, left, right)
-		a.numberRow(c, "热区厚度", "1 – 32 像素", &a.settingsDraft.VolumeWheel.ThicknessDip, 1, 32, 1)
-		a.numberRow(c, "每次步进", "1 – 10%", &a.settingsDraft.VolumeWheel.StepPercent, 1, 10, 1)
+		a.numberRow(c, locales.SettingsVolumeThickness(), locales.SettingsVolumeThicknessHint(), &a.settingsDraft.VolumeWheel.ThicknessDip, 1, 32, 1)
+		a.numberRow(c, locales.SettingsVolumeStep(), locales.SettingsVolumeStepHint(), &a.settingsDraft.VolumeWheel.StepPercent, 1, 10, 1)
 	})
 }
 
 func (a *App) sitesPage(c *ui.Context) {
-	settingCard(c, "站点搜索", func(c *ui.Context) {
-		ui.Text(c, "输入“关键词 搜索词”即可在结果中追加该站点的搜索链接，模板中 {query} 会被替换为搜索词。").
+	settingCard(c, locales.SettingsSitesCard(), func(c *ui.Context) {
+		ui.Text(c, locales.SettingsSitesHint()).
 			FontSize(12).TextColor(c.Theme().TextMuted)
 		for i := range a.settingsDraft.WebSites {
 			site := &a.settingsDraft.WebSites[i]
 			ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-				ui.TextInput(c, &site.Keyword).Placeholder("关键词").Width(90)
-				ui.TextInput(c, &site.Name).Placeholder("名称").Width(130)
-				ui.TextInput(c, &site.URLTemplate).Placeholder("https://…/{query}").Grow(1)
+				ui.TextInput(c, &site.Keyword).Placeholder(locales.SettingsSitesKeyword()).Width(90)
+				ui.TextInput(c, &site.Name).Placeholder(locales.SettingsSitesName()).Width(130)
+				ui.TextInput(c, &site.URLTemplate).Placeholder(locales.SettingsSitesURLPlaceholder()).Grow(1)
 				ui.Switch(c, &site.Enabled)
-				if compactButton(c, "删除").Clicked() {
+				if compactButton(c, locales.CommonDelete()).Clicked() {
 					a.settingsDraft.WebSites = append(a.settingsDraft.WebSites[:i], a.settingsDraft.WebSites[i+1:]...)
 					return
 				}
 			})
 		}
-		if compactButton(c, "添加站点").Clicked() {
+		if compactButton(c, locales.SettingsSitesAdd()).Clicked() {
 			a.settingsDraft.WebSites = append(a.settingsDraft.WebSites, settings.WebSearchSite{Enabled: true})
 		}
 	})
 }
 
 func (a *App) launchItemsPage(c *ui.Context) {
-	settingCard(c, "自定义启动项", func(c *ui.Context) {
+	settingCard(c, locales.SettingsItemsCard(), func(c *ui.Context) {
 		for i := range a.settingsDraft.CustomItems {
 			item := &a.settingsDraft.CustomItems[i]
 			ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-				ui.TextInput(c, &item.Name).Placeholder("名称").Width(140)
-				ui.TextInput(c, &item.Target).Placeholder("目标路径或网址").Grow(1)
-				ui.TextInput(c, &item.Arguments).Placeholder("参数").Width(120)
+				ui.TextInput(c, &item.Name).Placeholder(locales.SettingsItemsName()).Width(140)
+				ui.TextInput(c, &item.Target).Placeholder(locales.SettingsItemsTarget()).Grow(1)
+				ui.TextInput(c, &item.Arguments).Placeholder(locales.SettingsItemsArguments()).Width(120)
 				ui.Switch(c, &item.Enabled)
-				if compactButton(c, "删除").Clicked() {
+				if compactButton(c, locales.CommonDelete()).Clicked() {
 					a.settingsDraft.CustomItems = append(a.settingsDraft.CustomItems[:i], a.settingsDraft.CustomItems[i+1:]...)
 					return
 				}
 			})
 		}
-		if compactButton(c, "添加启动项").Clicked() {
+		if compactButton(c, locales.SettingsItemsAdd()).Clicked() {
 			a.settingsDraft.CustomItems = append(a.settingsDraft.CustomItems, settings.CustomLaunchItem{
 				ID: settings.NewCustomItemID(), Enabled: true,
 			})
 		}
 	})
-	settingCard(c, "工作区", func(c *ui.Context) {
-		ui.Text(c, "工作区按顺序打开下列启动项 ID 对应的程序。").FontSize(12).TextColor(c.Theme().TextMuted)
+	settingCard(c, locales.SettingsWorkspacesCard(), func(c *ui.Context) {
+		ui.Text(c, locales.SettingsWorkspacesHint()).FontSize(12).TextColor(c.Theme().TextMuted)
 		for i := range a.settingsDraft.Workspaces {
 			workspace := &a.settingsDraft.Workspaces[i]
 			items := strings.Join(workspace.ItemIDs, ",")
 			ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-				ui.TextInput(c, &workspace.Name).Placeholder("名称").Width(140)
-				ui.TextInput(c, &workspace.Aliases).Placeholder("别名").Width(100)
-				if ui.TextInput(c, &items).Placeholder("启动项 ID，逗号分隔").Changed() {
+				ui.TextInput(c, &workspace.Name).Placeholder(locales.SettingsWorkspacesName()).Width(140)
+				ui.TextInput(c, &workspace.Aliases).Placeholder(locales.SettingsWorkspacesAliases()).Width(100)
+				if ui.TextInput(c, &items).Placeholder(locales.SettingsWorkspacesItemIDs()).Changed() {
 					workspace.ItemIDs = splitComma(items)
 				}
 				ui.Switch(c, &workspace.Enabled)
-				if compactButton(c, "删除").Clicked() {
+				if compactButton(c, locales.CommonDelete()).Clicked() {
 					a.settingsDraft.Workspaces = append(a.settingsDraft.Workspaces[:i], a.settingsDraft.Workspaces[i+1:]...)
 					return
 				}
 			})
 		}
-		if compactButton(c, "添加工作区").Clicked() {
+		if compactButton(c, locales.SettingsWorkspacesAdd()).Clicked() {
 			a.settingsDraft.Workspaces = append(a.settingsDraft.Workspaces, settings.Workspace{ID: settings.NewWorkspaceID(), Enabled: true})
 		}
 	})
@@ -675,8 +710,8 @@ func (a *App) launchItemsPage(c *ui.Context) {
 func (a *App) pluginsPage(c *ui.Context) {
 	theme := c.Theme()
 	if a.pluginRepo == nil || a.plugins == nil {
-		settingCard(c, "插件", func(c *ui.Context) {
-			ui.Text(c, "插件运行时未初始化，请重启 FluentLauncher。").
+		settingCard(c, locales.SettingsPagePlugins(), func(c *ui.Context) {
+			ui.Text(c, locales.SettingsPluginsUninitialized()).
 				FontSize(12).TextColor(theme.TextMuted)
 		})
 		return
@@ -692,7 +727,7 @@ func (a *App) pluginsPage(c *ui.Context) {
 // name and its condition on the first line, then id, version, description and
 // the numbers the runtime kept, so nothing has to be read out of one long line.
 func (a *App) installedPluginsCard(c *ui.Context, theme *ui.Theme, statuses []plugin.Status) {
-	settingCard(c, "已安装插件", func(c *ui.Context) {
+	settingCard(c, locales.SettingsPluginsInstalledCard(), func(c *ui.Context) {
 		if len(statuses) == 0 {
 			a.emptyPluginsHint(c, theme)
 			return
@@ -707,13 +742,12 @@ func (a *App) installedPluginsCard(c *ui.Context, theme *ui.Theme, statuses []pl
 // "nothing here" leaves the user with no reason to install one.
 func (a *App) emptyPluginsHint(c *ui.Context, theme *ui.Theme) {
 	ui.Column(c).Gap(4).Children(func() {
-		ui.Text(c, "还没有安装插件").FontSize(13).Bold().TextColor(theme.Text)
-		ui.Text(c, "插件是启动器额外的搜索来源：装好并启用后，输入它的触发词（例如 echo、time），"+
-			"结果里就会直接出现它给出的答案，例如文本转换、时间戳、摘要。").
+		ui.Text(c, locales.SettingsPluginsEmptyTitle()).FontSize(13).Bold().TextColor(theme.Text)
+		ui.Text(c, locales.SettingsPluginsEmptyHint1()).
 			FontSize(12).TextColor(theme.TextMuted).Wrap()
-		ui.Text(c, "插件以独立进程运行，只在需要时启动，空闲后自动回收，不影响常规搜索的速度。").
+		ui.Text(c, locales.SettingsPluginsEmptyHint2()).
 			FontSize(12).TextColor(theme.TextMuted).Wrap()
-		ui.Text(c, "官方示例可以在下面的「安装插件」里一键添加，第三方插件可以从 ZIP 包或目录安装。").
+		ui.Text(c, locales.SettingsPluginsEmptyHint3()).
 			FontSize(12).TextColor(theme.TextMuted).Wrap()
 	})
 }
@@ -731,25 +765,25 @@ func (a *App) pluginEntry(c *ui.Context, theme *ui.Theme, status plugin.Status) 
 			ui.Text(c, manifest.Name).FontSize(13).Bold().TextColor(theme.Text).Grow(1).SingleLine()
 			pluginStatePill(c, theme, status.State())
 			if status.State() == plugin.StatePaused || status.State() == plugin.StateFailed {
-				if compactButton(c, "重启").Clicked() {
+				if compactButton(c, locales.SettingsPluginsRestart()).Clicked() {
 					a.plugins.Restart(manifest.ID)
 					a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins)
 				}
 			}
-			if compactButton(c, "卸载").Clicked() {
+			if compactButton(c, locales.CommonUninstall()).Clicked() {
 				a.uninstallPlugin(manifest.ID)
 			}
 			if ui.Switch(c, &enabled).Changed() {
 				a.setPluginEnabled(manifest.ID, enabled)
 			}
 		})
-		ui.Text(c, manifest.ID+" · 版本 "+manifest.Version).
+		ui.Text(c, locales.SettingsPluginsVersion(manifest.ID, manifest.Version)).
 			FontSize(11).TextColor(theme.TextMuted).SingleLine()
 		if description := strings.TrimSpace(manifest.Description); description != "" {
 			ui.Text(c, description).FontSize(12).TextColor(theme.TextMuted).Wrap()
 		}
 		if len(manifest.Keywords) > 0 {
-			ui.Text(c, "触发词："+strings.Join(manifest.Keywords, "、")).
+			ui.Text(c, locales.SettingsPluginsKeywords(strings.Join(manifest.Keywords, "、"))).
 				FontSize(11).TextColor(theme.TextMuted).Wrap()
 		}
 		ui.Text(c, status.RuntimeText()).FontSize(11).TextColor(theme.TextMuted).Wrap()
@@ -760,13 +794,13 @@ func (a *App) pluginEntry(c *ui.Context, theme *ui.Theme, status plugin.Status) 
 			ui.Text(c, status.Error).FontSize(11).TextColor(theme.Danger).Wrap()
 		}
 		if stderr := strings.TrimSpace(status.Stderr); stderr != "" {
-			ui.Text(c, "错误输出："+tailText(stderr, 400)).
+			ui.Text(c, locales.SettingsPluginsStderr(tailText(stderr, 400))).
 				FontSize(11).TextColor(theme.TextMuted).Wrap()
 		}
 		if enabled {
 			// The switch in the header decides whether the plugin is asked at
 			// all; this decides whether it needs its keywords first.
-			if ui.Checkbox(c, &global, "每次搜索都查询（无需触发词）").Changed() {
+			if ui.Checkbox(c, &global, locales.SettingsPluginsGlobalQuery()).Changed() {
 				a.setPluginGlobalQuery(manifest.ID, global)
 			}
 		}
@@ -794,19 +828,18 @@ func pluginStatePill(c *ui.Context, theme *ui.Theme, state plugin.State) {
 // installPluginsCard is where a plugin comes from: the bundled examples with a
 // sentence each, then the two ways to install a third-party package.
 func (a *App) installPluginsCard(c *ui.Context, theme *ui.Theme) {
-	settingCard(c, "安装插件", func(c *ui.Context) {
-		ui.Text(c, "官方示例随启动器提供，安装后立即可用；第三方插件需要是包含 plugin.json 的 ZIP 包，"+
-			"或已经解压好的目录。").
+	settingCard(c, locales.SettingsPluginsInstallCard(), func(c *ui.Context) {
+		ui.Text(c, locales.SettingsPluginsInstallHint()).
 			FontSize(12).TextColor(theme.TextMuted).Wrap()
 		for _, official := range plugin.OfficialPlugins() {
 			a.officialPluginRow(c, theme, official)
 		}
 		ui.Divider(c)
 		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-			if compactButton(c, "安装 ZIP…").Clicked() {
+			if compactButton(c, locales.SettingsPluginsInstallZip()).Clicked() {
 				go a.installPlugin(false)
 			}
-			if compactButton(c, "安装目录…").Clicked() {
+			if compactButton(c, locales.SettingsPluginsInstallDir()).Clicked() {
 				go a.installPlugin(true)
 			}
 			ui.Text(c, a.pluginRepo.Dir()).FontSize(11).TextColor(theme.TextMuted).Grow(1).SingleLine()
@@ -830,10 +863,10 @@ func (a *App) officialPluginRow(c *ui.Context, theme *ui.Theme, official plugin.
 			ui.Text(c, official.Summary).FontSize(11).TextColor(theme.TextMuted).Wrap()
 		})
 		if installed {
-			ui.Text(c, "已安装").FontSize(11).TextColor(theme.Success).Shrink(0)
+			ui.Text(c, locales.SettingsPluginsInstalledBadge()).FontSize(11).TextColor(theme.Success).Shrink(0)
 			return
 		}
-		if compactPrimaryButton(c, "安装").Clicked() {
+		if compactPrimaryButton(c, locales.CommonInstall()).Clicked() {
 			a.installOfficialPlugin(official.ID)
 		}
 	})
@@ -847,14 +880,14 @@ func (a *App) pluginProblemsCard(c *ui.Context, theme *ui.Theme) {
 	if len(problems) == 0 {
 		return
 	}
-	settingCard(c, "无法加载的插件包", func(c *ui.Context) {
+	settingCard(c, locales.SettingsPluginsProblemsCard(), func(c *ui.Context) {
 		for _, problem := range problems {
 			ui.Column(c).Gap(2).Children(func() {
 				ui.Text(c, problem.Directory).FontSize(12).TextColor(theme.Text).SingleLine()
 				ui.Text(c, problem.Message).FontSize(11).TextColor(theme.Danger).Wrap()
 			})
 		}
-		ui.Text(c, "这些目录不会被使用；修正后重启 FluentLauncher 重新扫描，或删除目录。").
+		ui.Text(c, locales.SettingsPluginsProblemsHint()).
 			FontSize(11).TextColor(theme.TextMuted).Wrap()
 	})
 }
@@ -875,11 +908,10 @@ func (a *App) pluginRuntimeCard(c *ui.Context, theme *ui.Theme, statuses []plugi
 			enabled++
 		}
 	}
-	settingCard(c, "运行诊断", func(c *ui.Context) {
-		ui.Text(c, fmt.Sprintf("已启用 %d 个插件，活动进程 %d / %d 个；进程空闲 %d 秒后回收，单次查询超时 %d 毫秒。",
-			enabled, running, options.MaxActiveProcesses, options.IdleSeconds, options.QueryTimeoutMs)).
+	settingCard(c, locales.SettingsPluginsRuntimeCard(), func(c *ui.Context) {
+		ui.Text(c, locales.SettingsPluginsRuntimeStats(enabled, running, options.MaxActiveProcesses, options.IdleSeconds, options.QueryTimeoutMs)).
 			FontSize(11).TextColor(theme.TextMuted).Wrap()
-		ui.Text(c, "插件是受信任的本地代码，进程隔离能限制崩溃影响，但不等于安全沙箱；只安装来源可信的插件包。").
+		ui.Text(c, locales.SettingsPluginsTrustHint()).
 			FontSize(11).TextColor(theme.TextMuted).Wrap()
 	})
 }
@@ -938,14 +970,14 @@ func tailText(text string, limit int) string {
 }
 
 func (a *App) aboutPage(c *ui.Context) {
-	settingCard(c, "关于", func(c *ui.Context) {
+	settingCard(c, locales.SettingsAboutCard(), func(c *ui.Context) {
 		ui.Row(c).Gap(10).AlignItems(ui.Center).Children(func() {
 			if logo := a.brandBitmap(); logo != nil {
 				ui.Image(c, logo).Size(40, 40).Radius(9)
 			}
 			ui.Column(c).Gap(2).Children(func() {
 				ui.Text(c, "FluentLauncher 0.1.0").FontSize(14).Bold().TextColor(c.Theme().Text)
-				ui.Text(c, "数据目录："+a.dataDir).FontSize(12).TextColor(c.Theme().TextMuted)
+				ui.Text(c, locales.SettingsAboutDataDir(a.dataDir)).FontSize(12).TextColor(c.Theme().TextMuted)
 			})
 		})
 		hidden := 0
@@ -954,20 +986,20 @@ func (a *App) aboutPage(c *ui.Context) {
 				hidden++
 			}
 		}
-		ui.Text(c, fmt.Sprintf("隐藏条目：%d", hidden)).FontSize(12).TextColor(c.Theme().TextMuted)
+		ui.Text(c, locales.SettingsAboutHiddenCount(hidden)).FontSize(12).TextColor(c.Theme().TextMuted)
 	})
-	settingCard(c, "配置与数据", func(c *ui.Context) {
+	settingCard(c, locales.SettingsDataCard(), func(c *ui.Context) {
 		ui.Row(c).Gap(8).Children(func() {
-			if compactButton(c, "导出配置…").Clicked() {
+			if compactButton(c, locales.SettingsExportConfig()).Clicked() {
 				go a.exportConfig()
 			}
-			if compactButton(c, "导入配置…").Clicked() {
+			if compactButton(c, locales.SettingsImportConfig()).Clicked() {
 				go a.importConfig()
 			}
-			if compactButton(c, "重置学习记录").Clicked() {
+			if compactButton(c, locales.SettingsResetLearning()).Clicked() {
 				a.resetLearning()
 			}
-			if compactButton(c, "恢复隐藏条目").Clicked() {
+			if compactButton(c, locales.SettingsRestoreHidden()).Clicked() {
 				for id, profile := range a.profileMap() {
 					if profile.Hidden {
 						a.changeProfile(id, func(p model.Profile) model.Profile {
@@ -1006,11 +1038,11 @@ func pluginInstalled(installed []protocol.Registration, id string) bool {
 }
 
 func (a *App) installPlugin(directory bool) {
-	options := mygo.OpenDialogOptions{Title: "选择插件包"}
+	options := mygo.OpenDialogOptions{Title: locales.SettingsDialogPluginPackage()}
 	if directory {
 		options.Directory = true
 	} else {
-		options.Filters = []mygo.FileFilter{{Name: "插件包", Extensions: []string{"zip"}}}
+		options.Filters = []mygo.FileFilter{{Name: locales.SettingsDialogPluginPackageFilter(), Extensions: []string{"zip"}}}
 	}
 	paths, err := mygo.Dialog.Open(options)
 	if err != nil || len(paths) == 0 {
@@ -1064,7 +1096,7 @@ func toggleID(items []string, id string, enabled bool) []string {
 }
 
 func (a *App) exportConfig() {
-	path, err := mygo.Dialog.Save(mygo.SaveDialogOptions{Title: "导出配置", DefaultPath: "FluentLauncher-config.json"})
+	path, err := mygo.Dialog.Save(mygo.SaveDialogOptions{Title: locales.SettingsDialogExportConfig(), DefaultPath: "FluentLauncher-config.json"})
 	if err != nil || path == "" {
 		return
 	}
@@ -1075,7 +1107,7 @@ func (a *App) exportConfig() {
 }
 
 func (a *App) importConfig() {
-	paths, err := mygo.Dialog.Open(mygo.OpenDialogOptions{Title: "导入配置", Filters: []mygo.FileFilter{{Name: "JSON", Extensions: []string{"json"}}}})
+	paths, err := mygo.Dialog.Open(mygo.OpenDialogOptions{Title: locales.SettingsDialogImportConfig(), Filters: []mygo.FileFilter{{Name: "JSON", Extensions: []string{"json"}}}})
 	if err != nil || len(paths) == 0 {
 		return
 	}
@@ -1107,8 +1139,8 @@ func (a *App) importConfig() {
 }
 
 func (a *App) exportTheme() {
-	path, err := mygo.Dialog.Save(mygo.SaveDialogOptions{Title: "导出主题", DefaultPath: "FluentLauncher-theme.zip",
-		Filters: []mygo.FileFilter{{Name: "主题包", Extensions: []string{"zip"}}}})
+	path, err := mygo.Dialog.Save(mygo.SaveDialogOptions{Title: locales.SettingsDialogExportTheme(), DefaultPath: "FluentLauncher-theme.zip",
+		Filters: []mygo.FileFilter{{Name: locales.SettingsDialogThemePackageFilter(), Extensions: []string{"zip"}}}})
 	if err != nil || path == "" {
 		return
 	}
@@ -1118,8 +1150,8 @@ func (a *App) exportTheme() {
 }
 
 func (a *App) importTheme() {
-	paths, err := mygo.Dialog.Open(mygo.OpenDialogOptions{Title: "导入主题",
-		Filters: []mygo.FileFilter{{Name: "主题包", Extensions: []string{"zip"}}}})
+	paths, err := mygo.Dialog.Open(mygo.OpenDialogOptions{Title: locales.SettingsDialogImportTheme(),
+		Filters: []mygo.FileFilter{{Name: locales.SettingsDialogThemePackageFilter(), Extensions: []string{"zip"}}}})
 	if err != nil || len(paths) == 0 {
 		return
 	}

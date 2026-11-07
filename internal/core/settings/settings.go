@@ -4,12 +4,14 @@ package settings
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"math"
 	"net/url"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"fluentlauncher/locales"
 )
 
 type ThemeMode string
@@ -70,7 +72,7 @@ func (e *ScreenEdges) UnmarshalJSON(data []byte) error {
 			case "all":
 				edges |= EdgeAll
 			default:
-				return fmt.Errorf("无效的屏幕边缘：%s", part)
+				return errors.New(locales.ValidateScreenEdge(part))
 			}
 		}
 		*e = edges
@@ -78,7 +80,7 @@ func (e *ScreenEdges) UnmarshalJSON(data []byte) error {
 	}
 	var number uint8
 	if err := json.Unmarshal(data, &number); err != nil {
-		return fmt.Errorf("屏幕边缘须为字符串或数字")
+		return errors.New(locales.ValidateScreenEdgesType())
 	}
 	*e = ScreenEdges(number)
 	return nil
@@ -380,49 +382,49 @@ func (s *LauncherSettings) Normalize() {
 
 func (s LauncherSettings) Validate() error {
 	if s.Version != 1 {
-		return fmt.Errorf("配置版本不受支持")
+		return errors.New(locales.ValidateVersion())
 	}
 	switch s.Language {
 	case LanguageSystem, LanguageZhHans, LanguageZhHant, LanguageEn:
 	default:
-		return fmt.Errorf("界面语言不受支持")
+		return errors.New(locales.ValidateLanguage())
 	}
 	switch s.Hotkey {
 	case "Alt+Space", "Ctrl+Alt+Space", "Ctrl+Space":
 	default:
-		return fmt.Errorf("请选择受支持的热键")
+		return errors.New(locales.ValidateHotkey())
 	}
 	if s.Width < 480 || s.Width > 1600 || s.Height < 320 || s.Height > 1200 ||
 		s.MaxResults < 5 || s.MaxResults > 200 {
-		return fmt.Errorf("窗口宽度须为 480–1600，高度 320–1200，结果数 5–200")
+		return errors.New(locales.ValidateWindowBounds())
 	}
 	if !finite(s.AnchorX) || s.AnchorX < 0 || s.AnchorX > 1 ||
 		!finite(s.AnchorY) || s.AnchorY < 0 || s.AnchorY > 1 {
-		return fmt.Errorf("弹出位置须在 0–1 之间")
+		return errors.New(locales.ValidateAnchor())
 	}
 	switch s.Placement {
 	case PlacementActiveScreen, PlacementMouseScreen, PlacementPrimaryScreen:
 	default:
-		return fmt.Errorf("窗口定位模式无效")
+		return errors.New(locales.ValidatePlacement())
 	}
 	if err := ValidateTheme(s.Theme); err != nil {
 		return err
 	}
 	if s.VolumeWheel.Edges&^EdgeAll != 0 || (s.VolumeWheel.Enabled && s.VolumeWheel.Edges == EdgeNone) {
-		return fmt.Errorf("屏幕边缘调音量须至少选择一条有效边缘")
+		return errors.New(locales.ValidateVolumeEdges())
 	}
 	if s.VolumeWheel.ThicknessDip < 1 || s.VolumeWheel.ThicknessDip > 32 ||
 		s.VolumeWheel.StepPercent < 1 || s.VolumeWheel.StepPercent > 10 {
-		return fmt.Errorf("音量触发带厚度须为 1–32，步长须为 1–10")
+		return errors.New(locales.ValidateVolumeWheelSize())
 	}
 	if len(s.CustomItems) > 200 {
-		return fmt.Errorf("自定义启动项不能超过 200 条")
+		return errors.New(locales.ValidateCustomItemsLimit())
 	}
 	if len(s.WebSites) > 50 {
-		return fmt.Errorf("站点搜索不能超过 50 条")
+		return errors.New(locales.ValidateSitesLimit())
 	}
 	if len(s.Workspaces) > 50 {
-		return fmt.Errorf("工作区不能超过 50 个")
+		return errors.New(locales.ValidateWorkspacesLimit())
 	}
 	ids := map[string]bool{}
 	for i := range s.Workspaces {
@@ -431,7 +433,7 @@ func (s LauncherSettings) Validate() error {
 		}
 		key := strings.ToLower(s.Workspaces[i].ID)
 		if ids[key] {
-			return fmt.Errorf("工作区标识重复")
+			return errors.New(locales.ValidateWorkspaceIDDuplicate())
 		}
 		ids[key] = true
 	}
@@ -447,7 +449,7 @@ func (s LauncherSettings) Validate() error {
 		}
 		key := strings.ToLower(s.CustomItems[i].ID)
 		if ids[key] {
-			return fmt.Errorf("自定义启动项标识重复")
+			return errors.New(locales.ValidateCustomItemIDDuplicate())
 		}
 		ids[key] = true
 	}
@@ -457,20 +459,20 @@ func (s LauncherSettings) Validate() error {
 		}
 	}
 	if s.Files.MaxEntries < 1000 || s.Files.MaxEntries > 500000 {
-		return fmt.Errorf("文件索引上限须为 1,000–500,000")
+		return errors.New(locales.ValidateFileIndexLimit())
 	}
 	if s.Plugins.QueryTimeoutMs < 100 || s.Plugins.QueryTimeoutMs > 30000 ||
 		s.Plugins.MaxResults < 1 || s.Plugins.MaxResults > 100 ||
 		s.Plugins.IdleSeconds < 10 || s.Plugins.IdleSeconds > 3600 ||
 		s.Plugins.MaxActiveProcesses < 1 || s.Plugins.MaxActiveProcesses > 8 {
-		return fmt.Errorf("插件超时、结果数、空闲回收或进程数量超出允许范围")
+		return errors.New(locales.ValidatePluginOptions())
 	}
 	if s.WebSearchTemplate == "" || !strings.Contains(s.WebSearchTemplate, "{query}") {
-		return fmt.Errorf("网页搜索模板须为包含 {query} 的 HTTP/HTTPS 地址")
+		return errors.New(locales.ValidateWebTemplate())
 	}
 	target := strings.ReplaceAll(s.WebSearchTemplate, "{query}", "test")
 	if u, err := url.Parse(target); err != nil || u.Scheme != "http" && u.Scheme != "https" {
-		return fmt.Errorf("网页搜索模板须为包含 {query} 的 HTTP/HTTPS 地址")
+		return errors.New(locales.ValidateWebTemplate())
 	}
 	return nil
 }
@@ -479,12 +481,12 @@ func ValidateTheme(t ThemeSettings) error {
 	switch t.Mode {
 	case ThemeSystem, ThemeLight, ThemeDark:
 	default:
-		return fmt.Errorf("主题模式无效")
+		return errors.New(locales.ValidateThemeMode())
 	}
 	switch t.Background {
 	case BackgroundAcrylic, BackgroundMica, BackgroundSolid, BackgroundGradient, BackgroundImage:
 	default:
-		return fmt.Errorf("主题模式无效")
+		return errors.New(locales.ValidateThemeMode())
 	}
 	if !finite(t.FontSize) || t.FontSize < 12 || t.FontSize > 32 ||
 		!finite(t.SearchHeight) || t.SearchHeight < 36 || t.SearchHeight > 120 ||
@@ -493,21 +495,21 @@ func ValidateTheme(t ThemeSettings) error {
 		!finite(t.ImageMaskOpacity) || t.ImageMaskOpacity < 0 || t.ImageMaskOpacity > 0.9 ||
 		!finite(t.CornerRadius) || t.CornerRadius < 0 || t.CornerRadius > 32 ||
 		t.ImageBlur < 0 || t.ImageBlur > 24 {
-		return fmt.Errorf("主题尺寸、着色强度或模糊参数超出允许范围")
+		return errors.New(locales.ValidateThemeSizes())
 	}
 	if strings.TrimSpace(t.FontFamily) == "" || len(t.FontFamily) > 200 {
-		return fmt.Errorf("字体名称无效")
+		return errors.New(locales.ValidateFontFamily())
 	}
 	for _, color := range []string{t.BackgroundColor, t.ForegroundColor, t.AccentColor, t.GradientColor} {
 		if color != "" {
 			if _, ok := TryParseColor(color); !ok {
-				return fmt.Errorf("颜色须为 #RRGGBB 或 #AARRGGBB，留空表示跟随系统")
+				return errors.New(locales.ValidateColor())
 			}
 		}
 	}
 	if t.ImagePath != "" {
 		if !filepath.IsAbs(t.ImagePath) || strings.HasPrefix(t.ImagePath, `\\`) {
-			return fmt.Errorf("图片背景须指定本地绝对路径")
+			return errors.New(locales.ValidateImagePath())
 		}
 	}
 	return nil
@@ -515,11 +517,11 @@ func ValidateTheme(t ThemeSettings) error {
 
 func ValidateDirectories(dirs []string) error {
 	if len(dirs) > 100 {
-		return fmt.Errorf("目录列表不能超过 100 项")
+		return errors.New(locales.ValidateDirectoryListLimit())
 	}
 	for _, path := range dirs {
 		if strings.TrimSpace(path) == "" || !filepath.IsAbs(path) || strings.HasPrefix(path, `\\`) {
-			return fmt.Errorf("后台索引仅支持本地绝对目录路径，不递归扫描网络共享")
+			return errors.New(locales.ValidateDirectoryPath())
 		}
 	}
 	return nil

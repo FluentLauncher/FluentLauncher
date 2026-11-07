@@ -4,7 +4,6 @@ import (
 	"archive/zip"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -14,6 +13,7 @@ import (
 	"sync"
 
 	"fluentlauncher/internal/plugin/protocol"
+	"fluentlauncher/locales"
 )
 
 const (
@@ -62,7 +62,7 @@ func (r *Repository) Problems() []Problem {
 
 func (r *Repository) Refresh() error {
 	if err := os.MkdirAll(r.dir, 0o755); err != nil {
-		return fmt.Errorf("无法创建插件目录：%w", err)
+		return errors.New(locales.PluginDirCreateFailed(err))
 	}
 	entries, err := os.ReadDir(r.dir)
 	if errors.Is(err, os.ErrNotExist) {
@@ -73,7 +73,7 @@ func (r *Repository) Refresh() error {
 		return nil
 	}
 	if err != nil {
-		return fmt.Errorf("无法读取插件目录：%w", err)
+		return errors.New(locales.PluginDirReadFailed(err))
 	}
 	installed := make([]protocol.Registration, 0)
 	problems := make([]Problem, 0)
@@ -91,7 +91,7 @@ func (r *Repository) Refresh() error {
 		if registration.Manifest.Executable == "" {
 			problems = append(problems, Problem{
 				Directory: entry.Name(),
-				Message:   "这是旧版 C# 插件包（只有 entryAssembly）；请安装可执行插件包",
+				Message:   locales.PluginLegacyPackage(),
 			})
 			continue
 		}
@@ -101,7 +101,7 @@ func (r *Repository) Refresh() error {
 			// told because the folder no longer matches the package.
 			problems = append(problems, Problem{
 				Directory: entry.Name(),
-				Message:   fmt.Sprintf("目录名与插件标识 %s 不一致；重新安装可修正", registration.Manifest.ID),
+				Message:   locales.PluginDirIDMismatch(registration.Manifest.ID),
 			})
 		}
 		installed = append(installed, registration)
@@ -128,15 +128,15 @@ func (c UpdateCheck) IsNewer() bool {
 
 func (c UpdateCheck) Describe() string {
 	if c.Installed == nil {
-		return fmt.Sprintf("将安装 %s %s。", c.Package.Name, c.Package.Version)
+		return locales.PluginUpdateInstall(c.Package.Name, c.Package.Version)
 	}
 	switch compareVersion(c.Package.Version, c.Installed.Version) {
 	case 1:
-		return fmt.Sprintf("将从 %s 升级到 %s。", c.Installed.Version, c.Package.Version)
+		return locales.PluginUpdateUpgrade(c.Installed.Version, c.Package.Version)
 	case 0:
-		return fmt.Sprintf("包内版本与已安装的 %s 相同，将重新安装。", c.Installed.Version)
+		return locales.PluginUpdateReinstall(c.Installed.Version)
 	default:
-		return fmt.Sprintf("包内版本 %s 低于已安装的 %s，继续将降级。", c.Package.Version, c.Installed.Version)
+		return locales.PluginUpdateDowngrade(c.Package.Version, c.Installed.Version)
 	}
 }
 
@@ -168,7 +168,7 @@ func (r *Repository) Install(source string, upgrade bool) (protocol.Registration
 	}
 	target := filepath.Join(r.dir, manifest.ID)
 	if _, err := os.Stat(target); err == nil && !upgrade {
-		return protocol.Registration{}, fmt.Errorf("插件 %s 已安装；请先卸载或使用升级", manifest.ID)
+		return protocol.Registration{}, errors.New(locales.PluginAlreadyInstalled(manifest.ID))
 	}
 	staging, err := os.MkdirTemp(r.dir, ".staging-*")
 	if err != nil {
@@ -183,7 +183,7 @@ func (r *Repository) Install(source string, upgrade bool) (protocol.Registration
 		return protocol.Registration{}, err
 	}
 	if registration.Manifest.ID != manifest.ID {
-		return protocol.Registration{}, fmt.Errorf("包内标识不一致")
+		return protocol.Registration{}, errors.New(locales.PluginPackageIDMismatch())
 	}
 	backup := target + ".old"
 	_ = os.RemoveAll(backup)
@@ -211,7 +211,7 @@ func (r *Repository) Install(source string, upgrade bool) (protocol.Registration
 // promises when it shows the plugin.
 func (r *Repository) Uninstall(id string) error {
 	if !protocol.ValidID(id) {
-		return errors.New("插件标识无效")
+		return errors.New(locales.PluginInvalidID())
 	}
 	directory := filepath.Join(r.dir, id)
 	for _, registration := range r.Installed() {
@@ -221,10 +221,10 @@ func (r *Repository) Uninstall(id string) error {
 		}
 	}
 	if !inside(r.dir, directory) {
-		return errors.New("插件目录超出插件根目录")
+		return errors.New(locales.PluginDirOutsideRoot())
 	}
 	if err := os.RemoveAll(directory); err != nil {
-		return fmt.Errorf("无法删除插件目录 %s：%w", filepath.Base(directory), err)
+		return errors.New(locales.PluginDirDeleteFailed(filepath.Base(directory), err))
 	}
 	return r.Refresh()
 }
@@ -233,9 +233,9 @@ func readPackageManifest(source string) (protocol.Manifest, error) {
 	info, err := os.Stat(source)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			return protocol.Manifest{}, fmt.Errorf("插件包不存在：%s", source)
+			return protocol.Manifest{}, errors.New(locales.PluginPackageNotFound(source))
 		}
-		return protocol.Manifest{}, fmt.Errorf("无法读取插件包：%w", err)
+		return protocol.Manifest{}, errors.New(locales.PluginPackageReadFailed(err))
 	}
 	if info.IsDir() {
 		// ReadManifest checks the entry too, so a directory without the
@@ -248,28 +248,28 @@ func readPackageManifest(source string) (protocol.Manifest, error) {
 	}
 	archive, err := zip.OpenReader(source)
 	if err != nil {
-		return protocol.Manifest{}, fmt.Errorf("不是有效的 ZIP 插件包：%w", err)
+		return protocol.Manifest{}, errors.New(locales.PluginPackageNotZip(err))
 	}
 	defer archive.Close()
 	if len(archive.File) < 1 || len(archive.File) > maxPackageEntries {
-		return protocol.Manifest{}, fmt.Errorf("插件包条目数量无效：%d 个", len(archive.File))
+		return protocol.Manifest{}, errors.New(locales.PluginPackageEntryCount(len(archive.File)))
 	}
 	for _, file := range archive.File {
 		if file.Name != "plugin.json" {
 			continue
 		}
 		if file.UncompressedSize64 > 1<<20 {
-			return protocol.Manifest{}, errors.New("插件清单过大：plugin.json 最大 1 MB")
+			return protocol.Manifest{}, errors.New(locales.PluginManifestTooLarge())
 		}
 		reader, err := file.Open()
 		if err != nil {
-			return protocol.Manifest{}, fmt.Errorf("无法读取插件清单：%w", err)
+			return protocol.Manifest{}, errors.New(locales.PluginManifestOpenFailed(err))
 		}
 		var manifest protocol.Manifest
 		err = json.NewDecoder(reader).Decode(&manifest)
 		reader.Close()
 		if err != nil {
-			return protocol.Manifest{}, fmt.Errorf("plugin.json 格式错误：%w", err)
+			return protocol.Manifest{}, errors.New(locales.PluginManifestInvalidJSON(err))
 		}
 		if err := manifest.Validate(); err != nil {
 			return protocol.Manifest{}, err
@@ -282,11 +282,11 @@ func readPackageManifest(source string) (protocol.Manifest, error) {
 			}
 		}
 		if !found {
-			return protocol.Manifest{}, fmt.Errorf("插件入口 %s 不在包内", manifest.Entry())
+			return protocol.Manifest{}, errors.New(locales.PluginEntryNotInPackage(manifest.Entry()))
 		}
 		return manifest, nil
 	}
-	return protocol.Manifest{}, errors.New("插件包缺少 plugin.json")
+	return protocol.Manifest{}, errors.New(locales.PluginPackageMissingManifest())
 }
 
 func extractPackage(source, destination string) error {
@@ -303,20 +303,20 @@ func extractPackage(source, destination string) error {
 	}
 	defer archive.Close()
 	if len(archive.File) > maxPackageEntries {
-		return fmt.Errorf("插件包条目过多")
+		return errors.New(locales.PluginPackageTooManyEntries())
 	}
 	var total int64
 	for _, file := range archive.File {
 		if file.Mode()&os.ModeSymlink != 0 {
-			return fmt.Errorf("插件包不能包含符号链接")
+			return errors.New(locales.PluginPackageSymlink())
 		}
 		name := filepath.Clean(file.Name)
 		if filepath.IsAbs(name) || strings.Contains(name, "..") || strings.Contains(name, ":") {
-			return fmt.Errorf("插件包路径无效：%s", file.Name)
+			return errors.New(locales.PluginPackageInvalidPath(file.Name))
 		}
 		target := filepath.Join(destination, name)
 		if !inside(destination, target) {
-			return fmt.Errorf("插件包路径超出目录")
+			return errors.New(locales.PluginPackagePathOutside())
 		}
 		if file.FileInfo().IsDir() {
 			if err := os.MkdirAll(target, 0o755); err != nil {
@@ -325,11 +325,11 @@ func extractPackage(source, destination string) error {
 			continue
 		}
 		if file.UncompressedSize64 > maxPackageFile {
-			return fmt.Errorf("插件包单个文件过大")
+			return errors.New(locales.PluginPackageFileTooLarge())
 		}
 		total += int64(file.UncompressedSize64)
 		if total > maxPackageBytes {
-			return fmt.Errorf("插件包解压后超过大小上限")
+			return errors.New(locales.PluginPackageSizeLimit())
 		}
 		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
 			return err

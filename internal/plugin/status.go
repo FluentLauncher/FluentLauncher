@@ -1,12 +1,12 @@
 package plugin
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
 	"fluentlauncher/internal/plugin/protocol"
+	"fluentlauncher/locales"
 )
 
 // ClientStats is what one plugin process last reported about itself. It is a
@@ -67,15 +67,15 @@ const (
 func (s State) String() string {
 	switch s {
 	case StateDisabled:
-		return "未启用"
+		return locales.PluginStateDisabled()
 	case StateRunning:
-		return "运行中"
+		return locales.PluginStateRunning()
 	case StatePaused:
-		return "已暂停"
+		return locales.PluginStatePaused()
 	case StateFailed:
-		return "出错"
+		return locales.PluginStateFailed()
 	default:
-		return "已停止"
+		return locales.PluginStateStopped()
 	}
 }
 
@@ -104,28 +104,28 @@ func (s Status) State() State {
 func (s Status) RuntimeText() string {
 	parts := make([]string, 0, 5)
 	if s.Running {
-		parts = append(parts, fmt.Sprintf("进程 %d", s.PID))
+		parts = append(parts, locales.PluginProcessPID(s.PID))
 	}
 	if s.StartupMs > 0 {
-		parts = append(parts, "启动 "+formatMillis(s.StartupMs))
+		parts = append(parts, locales.PluginStartupTime(formatMillis(s.StartupMs)))
 	}
 	if !s.LastUsed.IsZero() {
 		// Shown for anything that has answered once, even when the clock's
 		// resolution makes the round trip measure zero.
-		parts = append(parts, "查询 "+formatMillis(s.QueryMs))
-		parts = append(parts, "上次使用 "+elapsedText(time.Since(s.LastUsed)))
+		parts = append(parts, locales.PluginQueryTime(formatMillis(s.QueryMs)))
+		parts = append(parts, locales.PluginLastUsed(elapsedText(time.Since(s.LastUsed))))
 	}
 	if s.Failures > 0 {
-		parts = append(parts, fmt.Sprintf("连续失败 %d 次", s.Failures))
+		parts = append(parts, locales.PluginConsecutiveFailures(s.Failures))
 	}
 	if s.Dropped > 0 {
-		parts = append(parts, fmt.Sprintf("丢弃 %d 条结果", s.Dropped))
+		parts = append(parts, locales.PluginDroppedResults(s.Dropped))
 	}
 	if len(parts) == 0 {
 		if s.State() == StateDisabled {
-			return "未启用，不会参与搜索。"
+			return locales.PluginDisabledNote()
 		}
-		return "尚未运行：首次搜索时启动，空闲后自动回收进程。"
+		return locales.PluginNotRunNote()
 	}
 	return strings.Join(parts, " · ")
 }
@@ -136,23 +136,23 @@ func (s Status) RuntimeText() string {
 func formatMillis(ms float64) string {
 	switch {
 	case ms < 1:
-		return "<1 毫秒"
+		return locales.PluginUnderOneMillis()
 	case ms < 1000:
-		return strconv.FormatFloat(ms, 'f', 0, 64) + " 毫秒"
+		return locales.PluginMillis(strconv.FormatFloat(ms, 'f', 0, 64))
 	default:
-		return strconv.FormatFloat(ms/1000, 'f', 1, 64) + " 秒"
+		return locales.PluginSeconds(strconv.FormatFloat(ms/1000, 'f', 1, 64))
 	}
 }
 
 func elapsedText(d time.Duration) string {
 	switch {
 	case d < time.Minute:
-		return "刚刚"
+		return locales.PluginElapsedJustNow()
 	case d < time.Hour:
-		return fmt.Sprintf("%d 分钟前", int(d.Minutes()))
+		return locales.PluginElapsedMinutes(int(d.Minutes()))
 	case d < 24*time.Hour:
-		return fmt.Sprintf("%d 小时前", int(d.Hours()))
+		return locales.PluginElapsedHours(int(d.Hours()))
 	default:
-		return fmt.Sprintf("%d 天前", int(d.Hours()/24))
+		return locales.PluginElapsedDays(int(d.Hours() / 24))
 	}
 }

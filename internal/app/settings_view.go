@@ -108,8 +108,8 @@ func (a *App) settingsSidebar(c *ui.Context, theme *ui.Theme) {
 			background := ui.Transparent
 			text := theme.Text
 			if i == a.settingsPage {
-				background = theme.Accent.Alpha(0.85)
-				text = theme.AccentText
+				background = selectionTint(theme)
+				text = theme.Text
 			} else if i == hover {
 				background = theme.Surface.Alpha(0.7)
 			}
@@ -249,8 +249,8 @@ func (a *App) themedSelect(c *ui.Context, key, label, hint string, options []str
 					background := ui.Transparent
 					text := theme.Text
 					if option == current {
-						background = theme.Accent.Alpha(0.85)
-						text = theme.AccentText
+						background = selectionTint(theme)
+						text = theme.Text
 					}
 					row := ui.Row(c).Padding(8, 12).Radius(6).Background(background)
 					row.Children(func() {

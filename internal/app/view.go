@@ -121,21 +121,30 @@ func (a *App) resultsArea(c *ui.Context, theme *ui.Theme) {
 	a.list.Selected = &a.chosen
 	a.list.Key = func(i int) any { return a.results[i].Entry.ID }
 	a.list.Label = func(i int) string { return a.results[i].Entry.Title }
-	list := ui.List(c, &a.list, len(a.results), func(i int) { a.row(c, theme, i) }).Grow(1).Padding(6).Children(func() {
-		if len(a.results) == 0 {
-			message := "输入以搜索"
-			if strings.TrimSpace(a.query) == "" {
-				message = "输入以搜索应用、文件或命令"
+	// The list paints the chosen row itself, in the theme's accent and accent
+	// text. A theme for its rows where the accent is a tint and the text the
+	// ordinary one keeps that row translucent, like the window around it,
+	// instead of a solid blue plate that ignores the theme's colors.
+	rowTheme := *theme
+	rowTheme.Accent = selectionTint(theme)
+	rowTheme.AccentText = theme.Text
+	ui.Themed(c, &rowTheme).Grow(1).Background(ui.Transparent).Children(func() {
+		list := ui.List(c, &a.list, len(a.results), func(i int) { a.row(c, theme, i) }).Grow(1).Padding(6).Children(func() {
+			if len(a.results) == 0 {
+				message := "输入以搜索"
+				if strings.TrimSpace(a.query) == "" {
+					message = "输入以搜索应用、文件或命令"
+				}
+				if a.loading {
+					message = "正在读取应用…"
+				}
+				ui.Text(c, message).TextColor(theme.TextMuted).Padding(16)
 			}
-			if a.loading {
-				message = "正在读取应用…"
-			}
-			ui.Text(c, message).TextColor(theme.TextMuted).Padding(16)
+		})
+		if list.Submitted() {
+			a.executeSelected(model.Open)
 		}
 	})
-	if list.Submitted() {
-		a.executeSelected(model.Open)
-	}
 }
 
 func (a *App) row(c *ui.Context, theme *ui.Theme, index int) {
@@ -144,8 +153,8 @@ func (a *App) row(c *ui.Context, theme *ui.Theme, index int) {
 	text, muted := theme.Text, theme.TextMuted
 	switch {
 	case index == a.chosen:
-		background = theme.Accent.Alpha(0.85)
-		text, muted = theme.AccentText, theme.AccentText.Alpha(0.75)
+		background = selectionTint(theme)
+		text, muted = theme.Text, theme.TextMuted
 	case index == a.listHover:
 		background = theme.Surface.Alpha(0.8)
 	}
@@ -266,8 +275,8 @@ func (a *App) drawActions(c *ui.Context, theme *ui.Theme) {
 				text := theme.Text
 				switch {
 				case i == a.actionIndex:
-					background = theme.Accent.Alpha(0.85)
-					text = theme.AccentText
+					background = selectionTint(theme)
+					text = theme.Text
 				case i == a.actionsHover:
 					background = theme.Surface.Alpha(0.8)
 				}
@@ -459,6 +468,19 @@ func (a *App) loadIcon(path string) {
 			delete(a.iconLoading, path)
 		})
 	}
+}
+
+// selectionTint is the plate of the item that is selected, in the results, the
+// action panel, the settings sidebar and the dropdowns: a tint of the theme's
+// accent rather than a solid fill, so that the window's own transparency shows
+// through it. The text keeps the theme's color, so a light accent stays
+// readable and the selection follows light and dark appearances.
+func selectionTint(theme *ui.Theme) ui.Color {
+	tint := theme.Accent
+	if tint.A > 0x6B {
+		tint.A = 0x6B
+	}
+	return tint
 }
 
 func parseColor(value string) (ui.Color, bool) {

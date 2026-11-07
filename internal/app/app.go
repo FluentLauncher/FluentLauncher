@@ -85,6 +85,10 @@ type App struct {
 	settingsPage  int
 	settingsDraft settings.LauncherSettings
 
+	hotkeyActive string
+	hotkeyNotice string
+	pendingOpen  bool
+
 	actionsOpen  bool
 	actions      []search.CommandItem
 	actionIndex  int
@@ -362,6 +366,7 @@ func (a *App) show() {
 	a.positionPanel()
 	a.query = ""
 	a.notice = ""
+	a.pendingOpen = false
 	a.hideActions()
 	a.input.Focus()
 	a.panel.Show()
@@ -432,18 +437,26 @@ func (a *App) setUpTray() {
 
 func (a *App) registerHotkey() {
 	mygo.GlobalShortcut.UnregisterAll()
+	a.hotkeyActive = ""
 	for _, shortcut := range []string{a.settings.Hotkey, "Alt+Shift+Space", "Ctrl+Alt+Space"} {
 		if shortcut == "" {
 			continue
 		}
-		if err := mygo.GlobalShortcut.Register(shortcut, a.toggle); err == nil {
+		err := mygo.GlobalShortcut.Register(shortcut, a.toggle)
+		if err == nil {
 			log.Printf("hotkey: %s", shortcut)
+			a.hotkeyActive = shortcut
+			if shortcut != a.settings.Hotkey {
+				a.hotkeyNotice = fmt.Sprintf("热键 %s 被其他程序占用，已改用 %s。", a.settings.Hotkey, shortcut)
+			} else {
+				a.hotkeyNotice = ""
+			}
 			return
-		} else {
-			log.Printf("hotkey %s: %v", shortcut, err)
 		}
+		log.Printf("hotkey %s: %v", shortcut, err)
 	}
-	a.notice = "全局热键全部被占用，请在设置中更换。"
+	a.hotkeyActive = ""
+	a.hotkeyNotice = "全局热键全部被占用，请在设置中更换。"
 }
 
 func (a *App) applyOpenAtLogin() {
@@ -521,6 +534,9 @@ func (a *App) applyTheme() {
 	}
 	if a.panel != nil {
 		a.panel.SetVibrancy(a.vibrancy())
+	}
+	if a.settingsWin != nil {
+		a.settingsWin.SetVibrancy(a.vibrancy())
 	}
 	if a.settings.Theme.Background == settings.BackgroundImage && a.settings.Theme.ImagePath != "" {
 		if data, err := os.ReadFile(a.settings.Theme.ImagePath); err == nil {
@@ -782,6 +798,7 @@ func (a *App) openSettings() {
 		Height:    660,
 		MinWidth:  720,
 		MinHeight: 520,
+		Vibrancy:  a.vibrancy(),
 		StateKey:  "settings",
 		Content:   ui.View(a.settingsView),
 	})

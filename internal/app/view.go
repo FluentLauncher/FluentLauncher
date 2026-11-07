@@ -22,7 +22,7 @@ func (a *App) view(c *ui.Context) {
 	theme := *c.Theme()
 	a.applyUITheme(&theme)
 	c.SetTheme(&theme)
-	a.drawBackground(c, &theme)
+	a.drawBackground(c, &theme, true)
 
 	if a.promptOpen {
 		a.drawPrompt(c, &theme)
@@ -31,6 +31,10 @@ func (a *App) view(c *ui.Context) {
 	if a.actionsOpen {
 		a.drawActions(c, &theme)
 		return
+	}
+	if a.pendingOpen {
+		a.pendingOpen = false
+		a.executeSelected(model.Open)
 	}
 
 	if c.Shortcut(0, ui.KeyEscape) {
@@ -64,6 +68,9 @@ func (a *App) view(c *ui.Context) {
 				a.notice = ""
 				a.updateResults()
 			}
+			if in.Submitted() {
+				a.executeSelected(model.Open)
+			}
 			a.composing = in.Composing()
 		})
 		ui.Divider(c)
@@ -74,6 +81,12 @@ func (a *App) view(c *ui.Context) {
 }
 
 func (a *App) resultsArea(c *ui.Context, theme *ui.Theme) {
+	if a.hotkeyNotice != "" {
+		ui.Row(c).Padding(12, 16).Children(func() {
+			ui.Text(c, a.hotkeyNotice).FontSize(12).TextColor(theme.Warning)
+		})
+		ui.Divider(c)
+	}
 	if a.notice != "" {
 		ui.Row(c).Padding(12, 16).Children(func() {
 			ui.Text(c, a.notice).FontSize(12).TextColor(theme.Danger)
@@ -130,6 +143,11 @@ func (a *App) row(c *ui.Context, theme *ui.Theme, index int) {
 		a.selectedID = item.Entry.ID
 		a.openActions()
 	}
+	if row.Clicked() {
+		a.chosen = index
+		a.selectedID = item.Entry.ID
+		a.pendingOpen = true
+	}
 }
 
 func (a *App) footer(c *ui.Context, theme *ui.Theme) {
@@ -143,7 +161,11 @@ func (a *App) footer(c *ui.Context, theme *ui.Theme) {
 	parts = append(parts, fmt.Sprintf("组合 %v", a.composing))
 	ui.Row(c).Padding(8, 16).Gap(12).Children(func() {
 		ui.Text(c, strings.Join(parts, " · ")).FontSize(11).TextColor(theme.TextMuted).Grow(1).SingleLine()
-		ui.Text(c, "↑↓ 选择 · ↵ 打开 · Ctrl+K 动作 · Esc 清空/隐藏").FontSize(11).TextColor(theme.TextMuted)
+		hint := "↑↓ 选择 · ↵ 打开 · Ctrl+K 动作 · Esc 清空/隐藏"
+		if a.hotkeyActive != "" {
+			hint = a.hotkeyActive + " 呼出 · " + hint
+		}
+		ui.Text(c, hint).FontSize(11).TextColor(theme.TextMuted)
 	})
 }
 
@@ -250,11 +272,15 @@ func (a *App) applyUITheme(t *ui.Theme) {
 	}
 }
 
-func (a *App) drawBackground(c *ui.Context, theme *ui.Theme) {
+func (a *App) drawBackground(c *ui.Context, theme *ui.Theme, canTransparent bool) {
 	root := c.Root()
 	switch a.settings.Theme.Background {
 	case settings.BackgroundImage:
-		root.Background(ui.Transparent)
+		if canTransparent {
+			root.Background(ui.Transparent)
+		} else {
+			root.Background(theme.Background)
+		}
 		if a.background != nil {
 			box := ui.Box(c).Absolute().Top(0).Left(0).Right(0).Bottom(0).
 				Opacity(float32(clampFloat(a.settings.Theme.ImageMaskOpacity, 0, 1)))

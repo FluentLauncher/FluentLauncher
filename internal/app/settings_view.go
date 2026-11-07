@@ -22,6 +22,7 @@ func (a *App) settingsView(c *ui.Context) {
 	theme := *c.Theme()
 	a.applyUITheme(&theme)
 	c.SetTheme(&theme)
+	a.drawBackground(c, &theme, false)
 	a.settingsPage = min(max(a.settingsPage, 0), len(settingPages)-1)
 
 	ui.Row(c).Fill().Children(func() {
@@ -84,6 +85,9 @@ func (a *App) generalPage(c *ui.Context) {
 		ui.Select(c, &hotkey, []string{"Alt+Space", "Ctrl+Alt+Space", "Ctrl+Space"}).Width(220)
 		a.settingsDraft.Hotkey = hotkey
 	})
+	if a.hotkeyActive != "" && a.hotkeyActive != a.settingsDraft.Hotkey {
+		ui.Text(c, "当前生效："+a.hotkeyActive+"（所选热键被占用或未保存）").FontSize(11).TextColor(c.Theme().TextMuted)
+	}
 	width := float64(a.settingsDraft.Width)
 	if ui.NumberInput(c, &width, 480, 1600, 10).Changed() {
 		a.settingsDraft.Width = int(width)

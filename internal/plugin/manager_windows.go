@@ -12,10 +12,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mistquay/fluentlauncher/internal/core/model"
-	"github.com/mistquay/fluentlauncher/internal/core/search"
-	"github.com/mistquay/fluentlauncher/internal/core/settings"
-	"github.com/mistquay/fluentlauncher/internal/plugin/protocol"
+	"fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/search"
+	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/plugin/protocol"
 )
 
 type session struct {

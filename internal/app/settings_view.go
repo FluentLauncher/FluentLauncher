@@ -10,10 +10,10 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 
-	"github.com/mistquay/fluentlauncher/internal/core/model"
-	"github.com/mistquay/fluentlauncher/internal/core/settings"
-	"github.com/mistquay/fluentlauncher/internal/plugin/protocol"
-	"github.com/mistquay/fluentlauncher/internal/store"
+	"fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/plugin/protocol"
+	"fluentlauncher/internal/store"
 )
 
 var settingPages = []string{"常规", "外观", "文件", "音量", "站点搜索", "启动项", "插件", "其他"}
@@ -36,73 +36,65 @@ func (a *App) settingsView(c *ui.Context) {
 	theme := *c.Theme()
 	a.applyUITheme(&theme)
 	c.SetTheme(&theme)
-	a.drawBackground(c, &theme, false)
 	a.settingsPage = min(max(a.settingsPage, 0), len(settingPages)-1)
 
-	ui.Row(c).Fill().Children(func() {
-		a.settingsSidebar(c, &theme)
-		ui.Column(c).Grow(1).FillHeight().Children(func() {
-			ui.Row(c).Padding(20, 24).AlignItems(ui.Center).Children(func() {
-				ui.Text(c, settingPages[a.settingsPage]).FontSize(20).Bold().TextColor(theme.Text).Grow(1)
-			})
-			ui.Divider(c)
-			ui.Scroll(c).Grow(1).Children(func() {
-				ui.Column(c).Padding(20, 24).Gap(16).Children(func() {
-					switch a.settingsPage {
-					case 0:
-						a.generalPage(c)
-					case 1:
-						a.appearancePage(c)
-					case 2:
-						a.filesPage(c)
-					case 3:
-						a.volumePage(c)
-					case 4:
-						a.sitesPage(c)
-					case 5:
-						a.launchItemsPage(c)
-					case 6:
-						a.pluginsPage(c)
-					default:
-						a.aboutPage(c)
+	a.drawShell(c, &theme, func() {
+		a.captionBar(c, &theme, "FluentLauncher 设置", a.settingsWin)
+		ui.Row(c).Grow(1).FillWidth().Children(func() {
+			a.settingsSidebar(c, &theme)
+			ui.Column(c).Grow(1).FillHeight().Children(func() {
+				ui.Row(c).Padding(20, 24).AlignItems(ui.Center).Children(func() {
+					ui.Text(c, settingPages[a.settingsPage]).FontSize(20).Bold().TextColor(theme.Text).Grow(1)
+				})
+				ui.Divider(c)
+				ui.Scroll(c).Grow(1).Children(func() {
+					ui.Column(c).Padding(20, 24).Gap(16).Children(func() {
+						switch a.settingsPage {
+						case 0:
+							a.generalPage(c)
+						case 1:
+							a.appearancePage(c)
+						case 2:
+							a.filesPage(c)
+						case 3:
+							a.volumePage(c)
+						case 4:
+							a.sitesPage(c)
+						case 5:
+							a.launchItemsPage(c)
+						case 6:
+							a.pluginsPage(c)
+						default:
+							a.aboutPage(c)
+						}
+					})
+				})
+				ui.Divider(c)
+				ui.Row(c).Padding(12, 24).Gap(8).AlignItems(ui.Center).Children(func() {
+					if a.settingsError != "" {
+						ui.Text(c, a.settingsError).FontSize(12).TextColor(theme.Danger).Grow(1)
+					} else {
+						ui.Column(c).Grow(1)
+					}
+					if ui.Button(c, "取消").Clicked() {
+						a.cancelSettings()
+					}
+					if ui.PrimaryButton(c, "保存").Clicked() {
+						a.saveSettings()
 					}
 				})
-			})
-			ui.Divider(c)
-			ui.Row(c).Padding(12, 24).Gap(8).AlignItems(ui.Center).Children(func() {
-				if a.settingsError != "" {
-					ui.Text(c, a.settingsError).FontSize(12).TextColor(theme.Danger).Grow(1)
-				} else {
-					ui.Column(c).Grow(1)
-				}
-				if ui.Button(c, "取消").Clicked() {
-					a.settingsDraft = a.settings
-					a.settingsError = ""
-					a.lastPreview = a.settings.Theme
-					a.applyThemeFrom(a.settings.Theme)
-					a.settingsWin.Hide()
-				}
-				if ui.PrimaryButton(c, "保存").Clicked() {
-					a.saveSettings()
-				}
 			})
 		})
 	})
 }
 
 // settingsSidebar is the navigation column: transparent over the window
-// material, with the same selected/hover treatment as the result rows.
+// material, with the same selected/hover treatment as the result rows. The
+// mark and the window buttons live in the caption bar above it.
 func (a *App) settingsSidebar(c *ui.Context, theme *ui.Theme) {
 	hover := a.settingsHover
 	next := -1
-	ui.Column(c).Width(208).FillHeight().Padding(16, 12).Gap(2).Children(func() {
-		ui.Row(c).Padding(6, 8).Gap(10).AlignItems(ui.Center).Children(func() {
-			if logo := a.brandBitmap(); logo != nil {
-				ui.Image(c, logo).Size(22, 22).Radius(5)
-			}
-			ui.Text(c, "FluentLauncher").FontSize(15).Bold().TextColor(theme.Text)
-		})
-		ui.Column(c).Height(12)
+	ui.Column(c).Width(208).FillHeight().Padding(8, 12).Gap(2).Children(func() {
 		for i, name := range settingPages {
 			background := ui.Transparent
 			text := theme.Text
@@ -335,8 +327,7 @@ func (a *App) generalPage(c *ui.Context) {
 				}
 			}
 		})
-		a.numberRow(c, "窗口宽度", "480 – 1600 像素", &a.settingsDraft.Width, 480, 1600, 10)
-		a.numberRow(c, "窗口高度", "320 – 1200 像素", &a.settingsDraft.Height, 320, 1200, 10)
+		a.panelSizePreview(c)
 		a.numberRow(c, "最大结果数", "每次搜索最多显示的条目", &a.settingsDraft.MaxResults, 5, 200, 5)
 		a.switchRow(c, "空搜索时显示最近打开", "未输入关键词时列出最近使用的条目", &a.settingsDraft.ShowRecentEntries)
 	})
@@ -365,7 +356,7 @@ func (a *App) appearancePage(c *ui.Context) {
 				backgroundLabel = choice.label
 			}
 		}
-		a.themedSelect(c, "background", "背景材质", "亚克力与云母需要系统支持", choiceLabels(backgroundChoices), backgroundLabel, func(label string) {
+		a.themedSelect(c, "background", "背景材质", "亚克力与云母模糊透出下层窗口", choiceLabels(backgroundChoices), backgroundLabel, func(label string) {
 			for _, choice := range backgroundChoices {
 				if choice.label == label {
 					draft.Background = choice.value
@@ -381,7 +372,7 @@ func (a *App) appearancePage(c *ui.Context) {
 		case settings.BackgroundSolid, settings.BackgroundGradient:
 			a.colorRow(c, "背景色", "纯色与渐变起点，留空跟随系统", &draft.BackgroundColor, theme.Background)
 		case settings.BackgroundAcrylic, settings.BackgroundMica:
-			a.colorRow(c, "背景色", "材质上的 tint，留空使用系统背景", &draft.BackgroundColor, theme.Background)
+			a.colorRow(c, "背景色", "模糊背景上的着色，留空跟随系统", &draft.BackgroundColor, theme.Background)
 		}
 		if background == settings.BackgroundGradient {
 			a.colorRow(c, "渐变终点", "仅渐变背景使用", &draft.GradientColor, theme.Surface)
@@ -389,11 +380,11 @@ func (a *App) appearancePage(c *ui.Context) {
 	})
 	if background != settings.BackgroundImage {
 		settingCard(c, "不透明度", func(c *ui.Context) {
-			label, hint := "整体不透明度", "越低越透，适用于纯色与渐变"
+			label, hint := "整体不透明度", "0% 完全透明（只看到下层窗口），100% 完全不透明"
 			if background == settings.BackgroundAcrylic || background == settings.BackgroundMica {
-				label, hint = "材质不透明度", "越低越接近背景色"
+				label, hint = "材质不透明度", "越低越透明，0% 只保留模糊后景"
 			}
-			a.sliderRow(c, label, hint, &draft.Opacity, 0.2, 1, func(v float64) string {
+			a.sliderRow(c, label, hint, &draft.Opacity, 0, 1, func(v float64) string {
 				return fmt.Sprintf("%.0f%%", v*100)
 			})
 		})
@@ -420,7 +411,7 @@ func (a *App) appearancePage(c *ui.Context) {
 				})
 			})
 			a.switchRow(c, "图片铺满", "关闭则完整显示整张图片", &draft.ImageCover)
-			a.sliderRow(c, "遮罩不透明度", "图片上方蒙版，越高图片越淡", &draft.ImageMaskOpacity, 0, 0.9, func(v float64) string {
+			a.sliderRow(c, "遮罩不透明度", "图片上的蒙版：越高图片越淡，0% 为原图", &draft.ImageMaskOpacity, 0, 0.9, func(v float64) string {
 				return fmt.Sprintf("%.0f%%", v*100)
 			})
 			if draft.ImageBlur != a.blurSliderInt {
@@ -848,6 +839,20 @@ func (a *App) saveSettings() {
 	}
 	a.settingsError = ""
 	a.settingsWin.Hide()
+}
+
+// cancelSettings drops the draft and puts back the saved theme and panel
+// size, which the preview had applied while the user was editing.
+func (a *App) cancelSettings() {
+	a.settingsDraft = a.settings
+	a.settingsError = ""
+	a.lastPreview = a.settings.Theme
+	if a.settingsWin != nil {
+		a.settingsWin.Hide()
+	}
+	a.applyThemeFrom(a.settings.Theme)
+	a.applyWindowSize()
+	a.positionPanel()
 }
 
 func cloneSettings(value settings.LauncherSettings) settings.LauncherSettings {

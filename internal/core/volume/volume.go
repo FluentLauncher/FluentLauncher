@@ -5,7 +5,7 @@ package volume
 import (
 	"math"
 
-	"github.com/mistquay/fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/core/settings"
 )
 
 type Rect struct {

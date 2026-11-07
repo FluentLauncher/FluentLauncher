@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mistquay/fluentlauncher/internal/core/model"
-	"github.com/mistquay/fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/settings"
 )
 
 func TestEvaluate(t *testing.T) {

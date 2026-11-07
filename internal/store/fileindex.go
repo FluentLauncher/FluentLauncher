@@ -11,8 +11,8 @@ import (
 
 	"github.com/egoist/mygo"
 
-	"github.com/mistquay/fluentlauncher/internal/core/model"
-	"github.com/mistquay/fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/settings"
 )
 
 // FileIndex scans the configured directories, writes only differences to

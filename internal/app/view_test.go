@@ -2,12 +2,13 @@ package app
 
 import (
 	"testing"
+	"time"
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/mistquay/fluentlauncher/internal/core/model"
-	"github.com/mistquay/fluentlauncher/internal/core/search"
-	"github.com/mistquay/fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/search"
+	"fluentlauncher/internal/core/settings"
 )
 
 func TestLauncherViewBuilds(t *testing.T) {
@@ -26,12 +27,18 @@ func TestLauncherViewBuilds(t *testing.T) {
 	}
 	a.actions = search.CommandsFor(a.results[0].Entry, false, false)
 	a.actionsOpen = true
-	_ = ui.NewTester(a.view, 760, 560)
+	tt = ui.NewTester(a.view, 760, 560)
+	if !tt.HasText("打开") {
+		t.Fatal("action panel not built")
+	}
 	a.actionsOpen = false
 	a.promptOpen = true
 	a.promptTitle = "Alias"
 	a.promptValue = "x"
-	_ = ui.NewTester(a.view, 760, 560)
+	tt = ui.NewTester(a.view, 760, 560)
+	if !tt.HasText("Alias") {
+		t.Fatal("prompt not built")
+	}
 }
 
 func TestRowClickAndEnterExecute(t *testing.T) {
@@ -118,5 +125,69 @@ func TestSettingsViewBuilds(t *testing.T) {
 	for page := range settingPages {
 		a.settingsPage = page
 		_ = ui.NewTester(a.settingsView, 900, 660)
+	}
+}
+
+func TestSettingsSizePreview(t *testing.T) {
+	a := &App{settings: settings.Default(), settingsDraft: settings.Default()}
+	tt := ui.NewTester(a.settingsView, 900, 660)
+	if !tt.HasText("拖动面板的右边、下边或右下角调整大小") {
+		t.Fatal("size preview hint missing")
+	}
+	if !tt.HasText("760 × 560") {
+		t.Fatal("size preview does not show the draft size")
+	}
+	a.resizeDraft(-10000, -10000)
+	if a.settingsDraft.Width != 480 || a.settingsDraft.Height != 320 {
+		t.Fatalf("size below the minimum is %d×%d", a.settingsDraft.Width, a.settingsDraft.Height)
+	}
+	a.resizeDraft(10000, 10000)
+	if a.settingsDraft.Width != 1600 || a.settingsDraft.Height != 1200 {
+		t.Fatalf("size above the maximum is %d×%d", a.settingsDraft.Width, a.settingsDraft.Height)
+	}
+}
+
+func TestBlursBehind(t *testing.T) {
+	for _, name := range []settings.BackgroundMode{settings.BackgroundAcrylic, settings.BackgroundMica} {
+		if !blursBehind(settings.ThemeSettings{Background: name}) {
+			t.Fatalf("%s does not blur what is behind the window", name)
+		}
+	}
+	for _, name := range []settings.BackgroundMode{
+		settings.BackgroundSolid, settings.BackgroundGradient, settings.BackgroundImage,
+	} {
+		if blursBehind(settings.ThemeSettings{Background: name}) {
+			t.Fatalf("%s blurs what is behind the window", name)
+		}
+	}
+}
+
+func TestWorkspaceViewBuilds(t *testing.T) {
+	a := &App{settings: settings.Default(), settingsDraft: settings.Default()}
+	a.workspaceName = "工作区"
+	a.workspaceSteps = []settings.WorkspaceStep{
+		{Name: "记事本", Succeeded: true},
+		{Name: "便签", Error: "找不到路径"},
+	}
+	tt := ui.NewTester(a.workspaceView, 520, 420)
+	if !tt.HasText("工作区") {
+		t.Fatal("workspace result view not built")
+	}
+}
+
+func TestTrayDoubleClick(t *testing.T) {
+	var last time.Time
+	start := time.Now()
+	if isDoubleClick(&last, start) {
+		t.Fatal("the first click is not a double click")
+	}
+	if !isDoubleClick(&last, start.Add(trayDoubleClick/2)) {
+		t.Fatal("a second click within the interval is a double click")
+	}
+	if !last.IsZero() {
+		t.Fatal("a double click does not start another pair")
+	}
+	if isDoubleClick(&last, start.Add(2*time.Second)) {
+		t.Fatal("a late click is the first of a new pair")
 	}
 }

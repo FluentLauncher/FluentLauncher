@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/mistquay/fluentlauncher/pkg/pluginsdk"
+	"fluentlauncher/pkg/pluginsdk"
 )
 
 type echoPlugin struct{}

@@ -13,7 +13,7 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	"github.com/mistquay/fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/model"
 )
 
 var (

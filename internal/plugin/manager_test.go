@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mistquay/fluentlauncher/internal/core/search"
-	"github.com/mistquay/fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/core/search"
+	"fluentlauncher/internal/core/settings"
 )
 
 func TestManagerEcho(t *testing.T) {

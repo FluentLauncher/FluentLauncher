@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mistquay/fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/model"
 )
 
 func TestEngineMatchesBands(t *testing.T) {

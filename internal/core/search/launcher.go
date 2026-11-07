@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mistquay/fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/model"
 )
 
 const SettingsID = "launcher:settings"

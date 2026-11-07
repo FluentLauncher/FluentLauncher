@@ -7,8 +7,8 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 
-	"github.com/mistquay/fluentlauncher/internal/core/model"
-	"github.com/mistquay/fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/settings"
 )
 
 var searchIcon = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`))
@@ -17,14 +17,13 @@ func (a *App) view(c *ui.Context) {
 	theme := *c.Theme()
 	a.applyUITheme(&theme)
 	c.SetTheme(&theme)
-	a.drawBackground(c, &theme, true)
 
 	if a.promptOpen {
-		a.drawPrompt(c, &theme)
+		a.drawShell(c, &theme, func() { a.drawPrompt(c, &theme) })
 		return
 	}
 	if a.actionsOpen {
-		a.drawActions(c, &theme)
+		a.drawShell(c, &theme, func() { a.drawActions(c, &theme) })
 		return
 	}
 	if a.pendingOpen {
@@ -54,24 +53,26 @@ func (a *App) view(c *ui.Context) {
 		a.openActions()
 	}
 
-	ui.Column(c).Fill().Children(func() {
-		ui.Row(c).Padding(16, 18).Gap(12).AlignItems(ui.Center).Children(func() {
-			ui.Icon(c, searchIcon).FontSize(20).TextColor(theme.TextMuted)
-			in := ui.TextInputBase(c, &a.query).Bind(&a.input).Grow(1).FontSize(22).
-				Placeholder("搜索应用、文件、命令").Label("搜索")
-			if in.Changed() {
-				a.notice = ""
-				a.updateResults()
-			}
-			if in.Submitted() {
-				a.executeSelected(model.Open)
-			}
-			a.composing = in.Composing()
+	a.drawShell(c, &theme, func() {
+		ui.Column(c).Fill().Children(func() {
+			ui.Row(c).Padding(16, 18).Gap(12).AlignItems(ui.Center).Children(func() {
+				ui.Icon(c, searchIcon).FontSize(20).TextColor(theme.TextMuted)
+				in := ui.TextInputBase(c, &a.query).Bind(&a.input).Grow(1).FontSize(22).
+					Placeholder("搜索应用、文件、命令").Label("搜索")
+				if in.Changed() {
+					a.notice = ""
+					a.updateResults()
+				}
+				if in.Submitted() {
+					a.executeSelected(model.Open)
+				}
+				a.composing = in.Composing()
+			})
+			ui.Divider(c)
+			a.resultsArea(c, &theme)
+			ui.Divider(c)
+			a.footer(c, &theme)
 		})
-		ui.Divider(c)
-		a.resultsArea(c, &theme)
-		ui.Divider(c)
-		a.footer(c, &theme)
 	})
 }
 
@@ -287,27 +288,36 @@ func (a *App) applyUITheme(t *ui.Theme) {
 	}
 }
 
-func (a *App) drawBackground(c *ui.Context, theme *ui.Theme, canTransparent bool) {
+// drawShell paints the window's background behind its content: both go in
+// the same cell of a grid, where a later sibling paints over an earlier one.
+func (a *App) drawShell(c *ui.Context, theme *ui.Theme, content func()) {
+	ui.Grid(c).Fill().ColumnTracks(ui.Fr(1)).RowTracks(ui.Fr(1)).Children(func() {
+		a.drawBackground(c, theme)
+		ui.Column(c).ColumnStart(1).RowStart(1).Fill().Children(content)
+	})
+}
+
+func (a *App) drawBackground(c *ui.Context, theme *ui.Theme) {
 	value := a.displayTheme()
 	opacity := float32(clampFloat(value.Opacity, 0, 1))
-	if opacity <= 0 {
-		opacity = 1
+	// The window has per-pixel alpha: whatever the view leaves unpainted
+	// shows what is behind the window (the desktop, blurred for acrylic and
+	// mica), which is what makes the translucency real instead of a wash
+	// towards a background color.
+	c.Root().Background(ui.Transparent)
+	tint, ok := parseColor(value.BackgroundColor)
+	if !ok {
+		tint = theme.Background
 	}
-	root := c.Root()
-	base := ui.Transparent
-	if !canTransparent {
-		base = theme.Surface
-	}
-	fill := func() ui.Element {
-		// The background covers the whole window; without IgnoreInput it
-		// would swallow every click meant for the content above it.
-		return ui.Box(c).Absolute().Top(0).Left(0).Right(0).Bottom(0).IgnoreInput(true)
+	// The layers go in the view's grid cell, before the content: a later
+	// sibling paints over an earlier one, so the background stays behind.
+	layer := func() ui.Element {
+		return ui.Box(c).ColumnStart(1).RowStart(1).Fill().IgnoreInput(true)
 	}
 	switch value.Background {
 	case settings.BackgroundImage:
-		root.Background(base)
 		if a.background != nil {
-			box := fill().Opacity(float32(clampFloat(value.ImageMaskOpacity, 0, 1)))
+			box := layer()
 			if value.ImageBlur > 0 {
 				box.Blur(float32(value.ImageBlur))
 			}
@@ -319,8 +329,12 @@ func (a *App) drawBackground(c *ui.Context, theme *ui.Theme, canTransparent bool
 				}
 			})
 		}
+		// The mask sits over the image: the more opaque it is, the paler the
+		// image, and at zero the image shows as it is.
+		if mask := float32(clampFloat(value.ImageMaskOpacity, 0, 1)); mask > 0 {
+			layer().Background(theme.Background.Alpha(mask))
+		}
 	case settings.BackgroundGradient:
-		root.Background(base)
 		from, ok := parseColor(value.BackgroundColor)
 		if !ok {
 			from = theme.Background
@@ -329,31 +343,24 @@ func (a *App) drawBackground(c *ui.Context, theme *ui.Theme, canTransparent bool
 		if !ok {
 			to = theme.Surface
 		}
-		fill().Gradient(withAlpha(from, opacity), withAlpha(to, opacity), 180)
+		layer().Gradient(withAlpha(from, opacity), withAlpha(to, opacity), 180)
 	case settings.BackgroundSolid:
-		root.Background(base)
-		solid, ok := parseColor(value.BackgroundColor)
-		if !ok {
-			solid = theme.Background
-		}
-		fill().Background(withAlpha(solid, opacity))
+		layer().Background(withAlpha(tint, opacity))
 	default:
-		if c.Vibrancy() {
-			root.Background(ui.Transparent)
-		} else {
-			root.Background(theme.Background)
+		// Acrylic and mica blur what is behind the window, which the glass
+		// package turns on; this is the plate of color over it. The opacity
+		// fades that plate, so lowering it shows more of the blurred
+		// background, not more of the background color.
+		if value.Background == settings.BackgroundMica {
+			tint = tint.Mix(theme.Accent, 0.1)
 		}
-		if opacity < 1 {
-			// The system materials have no opacity of their own; a tint
-			// layer washes them out towards the theme background.
-			tint, ok := parseColor(value.BackgroundColor)
-			if !ok {
-				tint = theme.Background
-			}
-			fill().Background(tint.Alpha(1 - opacity))
-		}
+		layer().Background(withAlpha(tint, opacity*materialTint))
 	}
 }
+
+// materialTint is how opaque the plate of color over a blurred background is
+// at full opacity: enough for text to read, thin enough to keep the blur.
+const materialTint = 0.5
 
 // withAlpha scales a color's alpha by factor, for the theme's opacity.
 func withAlpha(col ui.Color, factor float32) ui.Color {

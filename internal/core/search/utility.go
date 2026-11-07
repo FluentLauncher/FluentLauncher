@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mistquay/fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/model"
 )
 
 // UtilityProvider supplies URL/path opening and the calculator.

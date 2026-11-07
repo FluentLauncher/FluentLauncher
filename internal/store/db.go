@@ -11,7 +11,7 @@ import (
 
 	"github.com/egoist/mygo/plugins/sqlite"
 
-	"github.com/mistquay/fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/model"
 )
 
 // DB owns the launcher database. It is safe for concurrent use; the plugin

@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/mistquay/fluentlauncher/pkg/pluginsdk"
+	"fluentlauncher/pkg/pluginsdk"
 )
 
 type devtoolsPlugin struct{}

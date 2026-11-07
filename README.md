@@ -66,5 +66,6 @@ resources/examples/         # 随程序分发的插件包
 FL_DEBUG_SHOW=1             # 忽略“启动时隐藏”并显示面板
 FL_DEBUG_QUERY=echo hello   # 启动后填入查询
 FL_DEBUG_OPEN_SETTINGS=1    # 启动后打开设置窗口
+FL_DEBUG_SETTINGS_PAGE=1    # 配合上一项，直接打开指定设置页（0 起）
 FL_DEBUG_EXIT_MS=6000       # 启动后自动退出
 ```

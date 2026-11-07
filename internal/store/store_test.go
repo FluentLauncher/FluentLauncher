@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mistquay/fluentlauncher/internal/core/model"
-	"github.com/mistquay/fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/settings"
 )
 
 func TestProfilesRoundTrip(t *testing.T) {

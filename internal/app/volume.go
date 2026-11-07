@@ -8,7 +8,7 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 
-	"github.com/mistquay/fluentlauncher/internal/winapi/volume"
+	"fluentlauncher/internal/winapi/volume"
 )
 
 func (a *App) createVolumeOverlay() {

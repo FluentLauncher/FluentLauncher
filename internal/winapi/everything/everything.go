@@ -19,8 +19,8 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	"github.com/mistquay/fluentlauncher/internal/core/model"
-	"github.com/mistquay/fluentlauncher/internal/core/search"
+	"fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/search"
 )
 
 const (

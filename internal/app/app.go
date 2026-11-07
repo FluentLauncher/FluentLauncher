@@ -16,21 +16,25 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 
-	"github.com/mistquay/fluentlauncher/internal/core/layout"
-	"github.com/mistquay/fluentlauncher/internal/core/model"
-	"github.com/mistquay/fluentlauncher/internal/core/search"
-	"github.com/mistquay/fluentlauncher/internal/core/settings"
-	"github.com/mistquay/fluentlauncher/internal/diag"
-	"github.com/mistquay/fluentlauncher/internal/plugin"
-	"github.com/mistquay/fluentlauncher/internal/store"
-	"github.com/mistquay/fluentlauncher/internal/winapi/apps"
-	"github.com/mistquay/fluentlauncher/internal/winapi/everything"
-	"github.com/mistquay/fluentlauncher/internal/winapi/volume"
-	"github.com/mistquay/fluentlauncher/internal/winapi/windowlist"
+	"fluentlauncher/internal/core/layout"
+	"fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/search"
+	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/diag"
+	"fluentlauncher/internal/plugin"
+	"fluentlauncher/internal/store"
+	"fluentlauncher/internal/winapi/apps"
+	"fluentlauncher/internal/winapi/everything"
+	"fluentlauncher/internal/winapi/glass"
+	"fluentlauncher/internal/winapi/volume"
+	"fluentlauncher/internal/winapi/windowlist"
 )
 
 type App struct {
 	dataDir string
+	// workArea is the primary display's work area in DIPs, which the size
+	// preview draws the panel on.
+	workArea layout.WorkArea
 
 	config     *store.ConfigStore
 	themes     *store.ThemeStore
@@ -94,10 +98,14 @@ type App struct {
 	listHoverNext int
 	brandIcon     *ui.Bitmap
 
-	selectOpen    string
-	lastPreview   settings.ThemeSettings
-	blurSlider    float64
-	blurSliderInt int
+	selectOpen     string
+	lastPreview    settings.ThemeSettings
+	blurSlider     float64
+	blurSliderInt  int
+	sizeDragging   bool
+	sizeDragWidth  float64
+	sizeDragHeight float64
+	trayClickAt    time.Time
 
 	actionsOpen      bool
 	actions          []search.CommandItem
@@ -189,6 +197,13 @@ func (a *App) ready() {
 	for _, display := range mygo.Screen.Displays() {
 		a.iconSize = max(a.iconSize, int(float64(28)*display.ScaleFactor))
 	}
+	a.workArea = layout.WorkArea{Width: 1920, Height: 1080}
+	if display := mygo.Screen.PrimaryDisplay(); display.WorkArea.Width > 0 && display.WorkArea.Height > 0 {
+		a.workArea = layout.WorkArea{
+			X: display.WorkArea.X, Y: display.WorkArea.Y,
+			Width: display.WorkArea.Width, Height: display.WorkArea.Height,
+		}
+	}
 	a.rebuildCustom()
 	a.providers = []search.Provider{
 		indexedProvider{id: "applications", engine: a.appEngine, scope: search.ScopeApplications, bonus: 500},
@@ -208,7 +223,6 @@ func (a *App) ready() {
 		Hidden:        true,
 		Frameless:     true,
 		Transparent:   true,
-		Vibrancy:      a.vibrancy(),
 		CornerRadius:  16,
 		Width:         a.settings.Width,
 		Height:        a.settings.Height,
@@ -249,6 +263,11 @@ func (a *App) ready() {
 		a.show()
 	}
 	if os.Getenv("FL_DEBUG_OPEN_SETTINGS") == "1" {
+		if value := os.Getenv("FL_DEBUG_SETTINGS_PAGE"); value != "" {
+			if page, err := strconv.Atoi(value); err == nil {
+				a.settingsPage = min(max(page, 0), len(settingPages)-1)
+			}
+		}
 		a.openSettings()
 	}
 	if os.Getenv("FL_DEBUG_TRAY_MENU") == "1" {
@@ -410,6 +429,13 @@ func (a *App) toggle() {
 }
 
 func (a *App) positionPanel() {
+	a.positionPanelSize(a.settings.Width, a.settings.Height)
+}
+
+func (a *App) positionPanelSize(width, height int) {
+	if a.panel == nil {
+		return
+	}
 	display := mygo.Screen.DisplayNearestPoint(mygo.Screen.CursorScreenPoint())
 	switch a.settings.Placement {
 	case settings.PlacementPrimaryScreen:
@@ -420,11 +446,25 @@ func (a *App) positionPanel() {
 	rect := layout.Calculate(layout.WorkArea{
 		X: display.WorkArea.X, Y: display.WorkArea.Y,
 		Width: display.WorkArea.Width, Height: display.WorkArea.Height,
-	}, 1, float64(a.settings.Width), float64(a.settings.Height), nil)
+	}, 1, float64(width), float64(height), nil)
 	a.panel.SetBounds(mygo.Rectangle{X: rect.X, Y: rect.Y, Width: rect.Width, Height: rect.Height})
 }
 
+// previewPanelSize applies the draft size to the panel while the settings
+// preview resizes it, so that the real window already has the size the
+// preview shows when it next opens.
+func (a *App) previewPanelSize() {
+	if a.panel == nil {
+		return
+	}
+	a.panel.SetSize(a.settingsDraft.Width, a.settingsDraft.Height)
+	a.positionPanelSize(a.settingsDraft.Width, a.settingsDraft.Height)
+}
+
 func (a *App) applyWindowSize() {
+	if a.panel == nil {
+		return
+	}
 	a.panel.SetSize(a.settings.Width, a.settings.Height)
 }
 
@@ -436,10 +476,37 @@ func (a *App) setUpTray() {
 	}
 	a.tray = tray
 	a.tray.SetMenu(a.trayMenu())
+	// The menu opens on a right click; a double click on the icon shows the
+	// search panel, as the notification area of a launcher does.
+	a.tray.OnClick(a.trayClicked)
 	mygo.App.OnWillQuit(func(*mygo.QuitEvent) {
 		a.stopVolume()
 		tray.Destroy()
 	})
+}
+
+// trayClicked shows the panel on a double click of the notification area
+// icon. A single click does nothing: it gives the double click a first click
+// to pair with, and the menu keeps the right button.
+func (a *App) trayClicked() {
+	if isDoubleClick(&a.trayClickAt, time.Now()) {
+		a.show()
+	}
+}
+
+// trayDoubleClick is how long after a first click on the notification area
+// icon a second click opens the panel.
+const trayDoubleClick = 500 * time.Millisecond
+
+// isDoubleClick reports whether now follows the click at *last closely
+// enough to be a double click, keeping *last for the next click.
+func isDoubleClick(last *time.Time, now time.Time) bool {
+	if !last.IsZero() && now.Sub(*last) <= trayDoubleClick {
+		*last = time.Time{}
+		return true
+	}
+	*last = now
+	return false
 }
 
 // trayMenu builds the notification area menu. Checkable items are plain
@@ -581,13 +648,7 @@ func (a *App) applyThemeFrom(value settings.ThemeSettings) {
 	default:
 		mygo.Theme.SetSource(mygo.ThemeSystem)
 	}
-	vibrancy := a.vibrancyOf(value)
-	if a.panel != nil {
-		a.panel.SetVibrancy(vibrancy)
-	}
-	if a.settingsWin != nil {
-		a.settingsWin.SetVibrancy(vibrancy)
-	}
+	a.applyBackdrop(value)
 	if value.Background == settings.BackgroundImage && value.ImagePath != "" {
 		if data, err := os.ReadFile(value.ImagePath); err == nil {
 			if bitmap, err := ui.DecodeBitmap(data); err == nil {
@@ -605,19 +666,25 @@ func (a *App) applyThemeFrom(value settings.ThemeSettings) {
 	}
 }
 
-func (a *App) vibrancy() mygo.Vibrancy {
-	return a.vibrancyOf(a.displayTheme())
+// applyBackdrop keeps the blur behind every window in step with the theme:
+// acrylic and mica blur what is behind the window, and the other backgrounds
+// paint over it, so the blur goes away.
+func (a *App) applyBackdrop(value settings.ThemeSettings) {
+	blur := blursBehind(value)
+	for _, win := range []*mygo.Window{a.panel, a.settingsWin, a.workspaceWin} {
+		if win == nil {
+			continue
+		}
+		if err := glass.SetBlur(win.NativeHandle(), blur); err != nil {
+			log.Printf("theme: %v", err)
+		}
+	}
 }
 
-func (a *App) vibrancyOf(value settings.ThemeSettings) mygo.Vibrancy {
-	switch value.Background {
-	case settings.BackgroundMica:
-		return mygo.VibrancyMica
-	case settings.BackgroundAcrylic:
-		return mygo.VibrancyAcrylic
-	default:
-		return mygo.VibrancyNone
-	}
+// blursBehind reports whether the background material is one of the
+// see-through ones.
+func blursBehind(value settings.ThemeSettings) bool {
+	return value.Background == settings.BackgroundAcrylic || value.Background == settings.BackgroundMica
 }
 
 // recordUse updates the personal profile and the search snapshots.
@@ -849,28 +916,35 @@ func (a *App) openSettings() {
 	}
 	a.settingsDraft = cloneSettings(a.settings)
 	a.lastPreview = a.settingsDraft.Theme
+	// No system title bar: the window draws its own, so that it matches the
+	// theme instead of cutting a pale Windows frame across it. The view keeps
+	// the resizing edges and the shadow of a titled window.
 	a.settingsWin = mygo.NewWindow(mygo.WindowOptions{
-		Title:     "FluentLauncher 设置",
-		Width:     900,
-		Height:    660,
-		MinWidth:  720,
-		MinHeight: 520,
-		Vibrancy:  a.vibrancy(),
-		StateKey:  "settings",
-		Content:   ui.View(a.settingsView),
+		Title:             "FluentLauncher 设置",
+		Width:             900,
+		Height:            660,
+		MinWidth:          720,
+		MinHeight:         520,
+		Transparent:       true,
+		TitleBarStyle:     mygo.TitleBarHidden,
+		HideWindowButtons: true,
+		DisableMaximize:   true,
+		StateKey:          "settings",
+		Content:           ui.View(a.settingsView),
 	})
 	a.settingsWin.OnClose(func(e *mygo.CloseEvent) {
 		if a.quitting {
 			return
 		}
 		e.PreventDefault()
-		a.settingsWin.Hide()
+		a.cancelSettings()
 	})
 	if icon := windowIconPNG(); icon != nil {
 		if err := a.settingsWin.SetIcon(icon); err != nil {
 			log.Printf("settings icon: %v", err)
 		}
 	}
+	a.applyBackdrop(a.displayTheme())
 	a.settingsWin.Show()
 }
 

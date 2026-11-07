@@ -16,7 +16,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/mistquay/fluentlauncher/internal/plugin/protocol"
+	"fluentlauncher/internal/plugin/protocol"
 )
 
 // Client runs one plugin executable and speaks the framed JSON-RPC protocol.

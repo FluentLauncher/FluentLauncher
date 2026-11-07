@@ -13,8 +13,8 @@ import (
 	"github.com/egoist/mygo"
 	"golang.org/x/sys/windows"
 
-	"github.com/mistquay/fluentlauncher/internal/core/model"
-	"github.com/mistquay/fluentlauncher/internal/winapi/windowlist"
+	"fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/winapi/windowlist"
 )
 
 var (

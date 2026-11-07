@@ -16,9 +16,9 @@ import (
 
 	"github.com/egoist/mygo"
 
-	"github.com/mistquay/fluentlauncher/internal/core/model"
-	"github.com/mistquay/fluentlauncher/internal/core/settings"
-	"github.com/mistquay/fluentlauncher/internal/winapi/shortcut"
+	"fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/winapi/shortcut"
 )
 
 // Catalog lists Start menu, desktop and portable applications. Installed

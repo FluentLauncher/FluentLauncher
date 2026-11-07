@@ -25,12 +25,13 @@
 | Plugin SDK/Host/Manager | internal/plugin + pkg/pluginsdk | 帧协议、进程、Job Object、超时/取消/回收/暂停、安装升级 |
 | Echo/DevTools 插件 | plugins/echo、plugins/devtools | 可执行插件，行为按 C# 版本 |
 | MainWindow / SettingsWindow | internal/app | 搜索面板、动作面板、设置页、浮层、工作区结果 |
+| 窗口材质与标题栏 | internal/winapi/glass + internal/app/chrome.go | 亚克力/云母走系统模糊，真实透出下层窗口；设置与工作区窗口自绘标题栏 |
 
 ## 仍需补齐
 
 - Everything 只做了协议实现，尚未在本机真实客户端上做联调。
 - 插件为新的可执行模型；旧 C# 插件不会运行（仓库会跳过 `entryAssembly` 包）。
-- 主题的 Acrylic/Mica 强度由系统决定；C# 的透明度滑杆现在只影响图片遮罩，未对系统材质着色。
+- 亚克力与云母都是「系统模糊 + 主题着色」，云母只比亚克力多一层强调色，不是 Windows 原生 Mica。
 - 窗口位置记忆仍使用固定 28% 顶部位置；C# 的每屏锚点尚未迁移。
 - 设置页的启动项/站点/工作区是基础编辑，缺少 C# 的完整校验提示与图标选择。
 - 无障碍、全键盘动作面板、主题包预览和高对比度需要人工验收。

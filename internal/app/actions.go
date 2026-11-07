@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"strings"
 
+	"fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/search"
+	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/winapi/apps"
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
-	"github.com/mistquay/fluentlauncher/internal/core/model"
-	"github.com/mistquay/fluentlauncher/internal/core/search"
-	"github.com/mistquay/fluentlauncher/internal/core/settings"
-	"github.com/mistquay/fluentlauncher/internal/winapi/apps"
 )
 
 func (a *App) openActions() {
@@ -168,41 +168,51 @@ func (a *App) showWorkspaceResult(name string, steps []settings.WorkspaceStep) {
 		a.workspaceWin.Close()
 	}
 	a.workspaceWin = mygo.NewWindow(mygo.WindowOptions{
-		Title:    "工作区结果",
-		Width:    520,
-		Height:   420,
-		MinWidth: 420,
-		Content:  ui.View(a.workspaceView),
+		Title:             "工作区结果",
+		Width:             520,
+		Height:            420,
+		MinWidth:          420,
+		Transparent:       true,
+		TitleBarStyle:     mygo.TitleBarHidden,
+		HideWindowButtons: true,
+		DisableMaximize:   true,
+		Content:           ui.View(a.workspaceView),
 	})
+	a.applyBackdrop(a.displayTheme())
 	a.workspaceWin.Show()
 }
 
 func (a *App) workspaceView(c *ui.Context) {
 	theme := *c.Theme()
-	ui.Column(c).Fill().Padding(16).Gap(10).Children(func() {
-		ui.Text(c, a.workspaceName).FontSize(18).Bold().TextColor(theme.Text)
-		for i := range a.workspaceSteps {
-			step := &a.workspaceSteps[i]
-			ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-				status := "✓"
-				colorValue := theme.Success
-				if !step.Succeeded {
-					status = "×"
-					colorValue = theme.Danger
-				}
-				ui.Text(c, status).TextColor(colorValue).Width(20)
-				ui.Text(c, step.Name).Grow(1).SingleLine()
-				if !step.Succeeded {
-					ui.Text(c, step.Error).FontSize(11).TextColor(theme.TextMuted).SingleLine()
-					if ui.Button(c, "重试").Clicked() {
-						a.retryWorkspaceItem(step.ItemID)
+	a.applyUITheme(&theme)
+	c.SetTheme(&theme)
+	a.drawShell(c, &theme, func() {
+		a.captionBar(c, &theme, "工作区结果", a.workspaceWin)
+		ui.Column(c).Grow(1).FillWidth().Padding(16).Gap(10).Children(func() {
+			ui.Text(c, a.workspaceName).FontSize(18).Bold().TextColor(theme.Text)
+			for i := range a.workspaceSteps {
+				step := &a.workspaceSteps[i]
+				ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
+					status := "✓"
+					colorValue := theme.Success
+					if !step.Succeeded {
+						status = "×"
+						colorValue = theme.Danger
 					}
-				}
-			})
-		}
-		if ui.Button(c, "关闭").Clicked() {
-			a.workspaceWin.Close()
-		}
+					ui.Text(c, status).TextColor(colorValue).Width(20)
+					ui.Text(c, step.Name).Grow(1).SingleLine()
+					if !step.Succeeded {
+						ui.Text(c, step.Error).FontSize(11).TextColor(theme.TextMuted).SingleLine()
+						if ui.Button(c, "重试").Clicked() {
+							a.retryWorkspaceItem(step.ItemID)
+						}
+					}
+				})
+			}
+			if ui.Button(c, "关闭").Clicked() {
+				a.workspaceWin.Close()
+			}
+		})
 	})
 }
 

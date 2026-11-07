@@ -13,7 +13,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mistquay/fluentlauncher/internal/plugin/protocol"
+	"fluentlauncher/internal/plugin/protocol"
 )
 
 const (

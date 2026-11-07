@@ -1,4 +1,4 @@
-module github.com/mistquay/fluentlauncher
+module fluentlauncher
 
 go 1.27.3
 

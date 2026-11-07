@@ -4,7 +4,7 @@ import (
 	_ "embed"
 	"log"
 
-	"github.com/mistquay/fluentlauncher/internal/app"
+	"fluentlauncher/internal/app"
 )
 
 //go:embed resources/icon.png

@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -112,7 +113,10 @@ type App struct {
 	sizeDragging   bool
 	sizeDragWidth  float64
 	sizeDragHeight float64
+	sizeDragPanelX float32
+	sizeDragPanelY float32
 	trayClickAt    time.Time
+	anchorTimer    *time.Timer
 
 	actionsOpen      bool
 	actions          []search.CommandItem
@@ -245,6 +249,7 @@ func (a *App) ready() {
 	})
 	a.panel.OnBlur(a.hidePanel)
 	a.panel.OnShow(func() { log.Printf("panel shown") })
+	a.panel.OnMove(a.scheduleAnchorCapture)
 	// The mica material tints the window with the wallpaper, as Windows'
 	// own mica does; read its average color while the app starts.
 	go func() {
@@ -484,6 +489,55 @@ func (a *App) previewPanelSize() {
 	}
 	a.panel.SetSize(a.settingsDraft.Width, a.settingsDraft.Height)
 	a.positionPanelSize(a.settingsDraft.Width, a.settingsDraft.Height, a.settingsDraft.AnchorX, a.settingsDraft.AnchorY)
+}
+
+// scheduleAnchorCapture stores the panel's place once the user stops moving
+// it, so that the next one opens where this one was left. The settings
+// preview moves the panel too, but its place belongs to the draft until it
+// is saved.
+func (a *App) scheduleAnchorCapture() {
+	if a.panel == nil || (a.settingsWin != nil && a.settingsWin.IsVisible()) {
+		return
+	}
+	if a.anchorTimer != nil {
+		a.anchorTimer.Stop()
+	}
+	a.anchorTimer = time.AfterFunc(400*time.Millisecond, func() {
+		if a.panel != nil {
+			a.panel.Update(func() { a.rememberPanelAnchor() })
+		}
+	})
+}
+
+// rememberPanelAnchor records where the panel is as the share of the room
+// around it in the work area, and saves the settings.
+func (a *App) rememberPanelAnchor() {
+	if a.panel == nil || (a.settingsWin != nil && a.settingsWin.IsVisible()) {
+		return
+	}
+	bounds := a.panel.Bounds()
+	if bounds.Width <= 0 || bounds.Height <= 0 {
+		return
+	}
+	display := mygo.Screen.DisplayNearestPoint(mygo.Point{X: bounds.X + bounds.Width/2, Y: bounds.Y + bounds.Height/2})
+	work := display.WorkArea
+	if work.Width <= 0 || work.Height <= 0 {
+		return
+	}
+	anchor := layout.Capture(
+		layout.WorkArea{X: work.X, Y: work.Y, Width: work.Width, Height: work.Height},
+		bounds.X, bounds.Y, bounds.Width, bounds.Height,
+	)
+	// A move of a few pixels is the rounding of a placement, not the user
+	// dragging the panel: do not rewrite the settings for it.
+	if math.Abs(anchor.X-a.settings.AnchorX) < 0.002 && math.Abs(anchor.Y-a.settings.AnchorY) < 0.002 {
+		return
+	}
+	a.settings.AnchorX, a.settings.AnchorY = anchor.X, anchor.Y
+	a.settingsDraft.AnchorX, a.settingsDraft.AnchorY = anchor.X, anchor.Y
+	if err := a.config.Save(a.settings); err != nil {
+		log.Printf("anchor: %v", err)
+	}
 }
 
 func (a *App) applyWindowSize() {

@@ -122,8 +122,10 @@ type ThemeSettings struct {
 	Opacity          float64        `json:"Opacity"`
 	FontFamily       string         `json:"FontFamily"`
 	FontSize         float64        `json:"FontSize"`
-	RowPadding       float64        `json:"RowPadding"`
-	CornerRadius     float64        `json:"CornerRadius"`
+	// SearchHeight is the height of the search field, in DIPs.
+	SearchHeight float64 `json:"SearchHeight"`
+	RowPadding   float64 `json:"RowPadding"`
+	CornerRadius float64 `json:"CornerRadius"`
 }
 
 func DefaultTheme() ThemeSettings {
@@ -136,6 +138,7 @@ func DefaultTheme() ThemeSettings {
 		Opacity:          0.55,
 		FontFamily:       "Segoe UI Variable",
 		FontSize:         17,
+		SearchHeight:     64,
 		RowPadding:       10,
 		CornerRadius:     8,
 	}
@@ -467,6 +470,7 @@ func ValidateTheme(t ThemeSettings) error {
 		return fmt.Errorf("主题模式无效")
 	}
 	if !finite(t.FontSize) || t.FontSize < 12 || t.FontSize > 32 ||
+		!finite(t.SearchHeight) || t.SearchHeight < 36 || t.SearchHeight > 120 ||
 		!finite(t.RowPadding) || t.RowPadding < 2 || t.RowPadding > 24 ||
 		!finite(t.Opacity) || t.Opacity < 0 || t.Opacity > 1 ||
 		!finite(t.ImageMaskOpacity) || t.ImageMaskOpacity < 0 || t.ImageMaskOpacity > 0.9 ||

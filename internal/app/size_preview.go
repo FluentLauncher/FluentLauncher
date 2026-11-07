@@ -18,7 +18,7 @@ const (
 	previewGrip float32 = 12
 	// previewSnap is how close to an edge of the work area the panel snaps
 	// flush with it, as windows do.
-	previewSnap float32 = 10
+	previewSnap float32 = 8
 )
 
 // panelDrag is what a press on the preview keeps while it drags: whether it
@@ -30,8 +30,7 @@ type panelDrag struct {
 	right, bottom  bool
 	startX, startY float32
 	width, height  float64
-	anchorX        float64
-	anchorY        float64
+	panelX, panelY float32
 }
 
 // panelSizePreview draws the launcher panel on a miniature of the display's
@@ -80,27 +79,42 @@ func (a *App) panelSizePreview(c *ui.Context) {
 			panel := ui.Rect{X: r.X + panelX, Y: r.Y + panelY, W: panelWidth, H: panelHeight}
 			p.Clip(panel, 4, func() {
 				p.Fill(panel, theme.Accent.Alpha(0.14), 4)
-				// The miniature is drawn at a fixed size, as the real panel
-				// lays out its rows: growing the panel shows more of them
-				// instead of squeezing them all.
-				field := ui.Rect{X: panel.X + 4, Y: panel.Y + 4, W: max(panel.W-8, 0), H: 9}
+				// The miniature keeps the panel's real proportions: the
+				// search field's height, the result rows' height, and as
+				// many rows as the window height leaves room for, so that
+				// dragging shows more of them instead of squeezing all.
+				themeValue := a.settingsDraft.Theme
+				searchH := max(float32(clampFloat(themeValue.SearchHeight, 36, 120))*scale, 6)
+				rowH := max((float32(a.iconSize)+float32(themeValue.RowPadding))*scale, 5)
+				footerH := max(24*scale, 5)
+				field := ui.Rect{X: panel.X + 4, Y: panel.Y + 3, W: max(panel.W-8, 0), H: max(searchH-6, 3)}
 				p.Fill(field, theme.Surface.Alpha(0.9), 3)
-				p.Line(panel.X, panel.Y+16, panel.X+panel.W, panel.Y+16, 1, theme.Border.Alpha(0.6))
-				for i := 0; i < 12; i++ {
-					y := panel.Y + 21 + float32(i)*14
-					if y+11 > panel.Y+panel.H-12 {
+				p.Fill(ui.Rect{X: field.X + 4, Y: field.Y + field.H/2 - 1, W: max(field.W*0.4, 0), H: 2},
+					theme.TextMuted.Alpha(0.55), 1)
+				y := panel.Y + searchH
+				for i := 0; i < 40; i++ {
+					if y+rowH > panel.Y+panel.H-footerH {
 						break
 					}
 					if i == 0 {
-						p.Fill(ui.Rect{X: panel.X + 4, Y: y, W: panel.W - 8, H: 11}, theme.Accent.Alpha(0.75), 2)
+						p.Fill(ui.Rect{X: panel.X + 2, Y: y, W: max(panel.W-4, 0), H: rowH}, theme.Accent.Alpha(0.75), 2)
 					}
-					p.Fill(ui.Rect{X: panel.X + 8, Y: y + 2, W: 7, H: 7}, theme.TextMuted.Alpha(0.6), 1)
-					p.Fill(ui.Rect{X: panel.X + 19, Y: y + 3, W: panel.W * 0.45, H: 2}, theme.TextMuted.Alpha(0.55), 1)
-					p.Fill(ui.Rect{X: panel.X + 19, Y: y + 7, W: panel.W * 0.3, H: 1.5}, theme.TextMuted.Alpha(0.3), 1)
+					inset := max(rowH*0.18, 1)
+					p.Fill(ui.Rect{X: panel.X + 5, Y: y + inset, W: max(rowH-2*inset, 1), H: max(rowH-2*inset, 1)},
+						theme.TextMuted.Alpha(0.55), 1)
+					p.Fill(ui.Rect{X: panel.X + 5 + rowH, Y: y + inset + 1, W: max(panel.W*0.4, 0), H: 2},
+						theme.TextMuted.Alpha(0.5), 1)
+					if rowH > 8 {
+						p.Fill(ui.Rect{X: panel.X + 5 + rowH, Y: y + inset + 4, W: max(panel.W*0.28, 0), H: 1.5},
+							theme.TextMuted.Alpha(0.28), 1)
+					}
+					y += rowH
 				}
 				// The footer along the bottom edge.
-				p.Fill(ui.Rect{X: panel.X, Y: panel.Y + panel.H - 9, W: panel.W, H: 9}, theme.Surface.Alpha(0.45), 0)
-				p.Fill(ui.Rect{X: panel.X + 5, Y: panel.Y + panel.H - 6, W: panel.W * 0.4, H: 2}, theme.TextMuted.Alpha(0.4), 1)
+				p.Fill(ui.Rect{X: panel.X, Y: panel.Y + panel.H - footerH, W: panel.W, H: footerH},
+					theme.Surface.Alpha(0.45), 0)
+				p.Fill(ui.Rect{X: panel.X + 4, Y: panel.Y + panel.H - footerH/2, W: panel.W * 0.4, H: 2},
+					theme.TextMuted.Alpha(0.4), 1)
 			})
 			p.Stroke(panel, theme.Accent, 4, 1.5)
 			// The grips, on the edges the pointer resizes by.
@@ -135,14 +149,14 @@ func (a *App) panelSizePreview(c *ui.Context) {
 			drag.active, drag.right, drag.bottom, drag.move = true, right, bottom, !right && !bottom
 			drag.startX, drag.startY = x, y
 			drag.width, drag.height = float64(a.settingsDraft.Width), float64(a.settingsDraft.Height)
-			drag.anchorX, drag.anchorY = a.settingsDraft.AnchorX, a.settingsDraft.AnchorY
+			drag.panelX, drag.panelY = panelX, panelY
 		case preview.Pressed() && drag.active:
 			if drag.move {
-				// The pointer drags the panel inside the work area; its place
-				// is kept as the share of the room around it, so the next
-				// window opens there.
-				movedX := panelX + (x - drag.startX)
-				movedY := panelY + (y - drag.startY)
+				// The panel follows the pointer from where the press took
+				// it; its place is kept as the share of the room around it,
+				// so the next window opens there.
+				movedX := drag.panelX + (x - drag.startX)
+				movedY := drag.panelY + (y - drag.startY)
 				movedX = max(deskX, min(movedX, deskX+slackX))
 				movedY = max(deskY, min(movedY, deskY+slackY))
 				movedX = snapEdge(movedX, deskX, deskX+slackX)

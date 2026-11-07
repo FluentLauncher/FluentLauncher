@@ -493,7 +493,8 @@ func (a *App) appearancePage(c *ui.Context) {
 	settingCard(c, "字体与圆角", func(c *ui.Context) {
 		a.textRow(c, "字体", "留空使用系统字体", "Segoe UI Variable", &draft.FontFamily, 240)
 		a.floatRow(c, "字号", "12 – 32", &draft.FontSize, 12, 32, 1)
-		a.floatRow(c, "结果行内边距", "2 – 24", &draft.RowPadding, 2, 24, 1)
+		a.floatRow(c, "搜索框高度", "36 – 120，搜索行的整体高度", &draft.SearchHeight, 36, 120, 2)
+		a.floatRow(c, "结果行高度", "2 – 24，每个候选行的上下内边距，越大行越高", &draft.RowPadding, 2, 24, 1)
 		a.floatRow(c, "圆角", "0 – 32", &draft.CornerRadius, 0, 32, 1)
 	})
 	settingCard(c, "主题文件", func(c *ui.Context) {

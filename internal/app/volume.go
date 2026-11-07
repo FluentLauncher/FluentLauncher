@@ -16,7 +16,7 @@ import (
 // speaker, the bar and the percentage, over the blurred desktop.
 const (
 	volumeOverlayWidth  = 240
-	volumeOverlayHeight = 64
+	volumeOverlayHeight = 44
 	volumeOverlayGap    = 40
 )
 
@@ -45,6 +45,8 @@ func (a *App) createVolumeOverlay() {
 
 func (a *App) volumeView(c *ui.Context) {
 	theme := *c.Theme()
+	a.applyUITheme(&theme)
+	c.SetTheme(&theme)
 	percent := a.volumePct
 	if percent < 0 {
 		percent = 0
@@ -52,24 +54,13 @@ func (a *App) volumeView(c *ui.Context) {
 	if percent > 100 {
 		percent = 100
 	}
-	// The overlay is inverted, as the system's volume flyout is: a dark pill
-	// in the light appearance and a light one in the dark, so that it stands
-	// out from whatever is behind it.
-	text := theme.InverseText
-	if text == ui.Transparent {
-		text = theme.Background
-	}
-	plate := theme.Inverse
-	if plate == ui.Transparent {
-		plate = theme.Text
-	}
-	ui.Row(c).Fill().Padding(12, 14).Gap(12).AlignItems(ui.Center).Radius(16).
-		Background(plate.Alpha(0.85)).Border(1, text.Alpha(0.12)).Children(func() {
-		ui.Icon(c, volumeIcon).FontSize(22).TextColor(text)
-		ui.Box(c).Grow(1).Height(6).Radius(3).Background(text.Alpha(0.22)).Children(func() {
-			ui.Box(c).WidthPercent(float32(percent)).Height(6).Radius(3).Background(theme.Accent)
+	ui.Row(c).Fill().Padding(8, 14).Gap(12).AlignItems(ui.Center).Radius(theme.Radius + 6).
+		Background(theme.Surface).Children(func() {
+		ui.Icon(c, volumeIcon).FontSize(18).TextColor(theme.Text)
+		ui.Box(c).Grow(1).Height(5).Radius(2.5).Background(theme.Border.Alpha(0.6)).Children(func() {
+			ui.Box(c).WidthPercent(float32(percent)).Height(5).Radius(2.5).Background(theme.Accent)
 		})
-		ui.Text(c, fmt.Sprintf("%d", percent)).FontSize(15).TextColor(text).Width(30)
+		ui.Text(c, fmt.Sprintf("%d", percent)).FontSize(13).TextColor(theme.Text).Width(26)
 	})
 }
 

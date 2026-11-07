@@ -55,7 +55,10 @@ func (a *App) view(c *ui.Context) {
 
 	a.drawShell(c, &theme, func() {
 		ui.Column(c).Fill().Children(func() {
-			ui.Row(c).Padding(16, 18).Gap(12).AlignItems(ui.Center).Children(func() {
+			value := a.displayTheme()
+			searchRow := ui.Row(c).Height(float32(clampFloat(value.SearchHeight, 36, 120))).
+				Padding(0, 18).Gap(12).AlignItems(ui.Center)
+			searchRow.Children(func() {
 				ui.Icon(c, searchIcon).FontSize(20).TextColor(theme.TextMuted)
 				in := ui.TextInputBase(c, &a.query).Bind(&a.input).Grow(1).FontSize(22).
 					Placeholder("搜索应用、文件、命令").Label("搜索")
@@ -67,6 +70,7 @@ func (a *App) view(c *ui.Context) {
 					a.executeSelected(model.Open)
 				}
 				a.composing = in.Composing()
+				a.panelGrip(c, &theme)
 			})
 			ui.Divider(c)
 			a.resultsArea(c, &theme)
@@ -74,6 +78,29 @@ func (a *App) view(c *ui.Context) {
 			a.footer(c, &theme)
 		})
 	})
+}
+
+// panelGrip is the handle that drags the panel around the desktop: the
+// window moves with the pointer, and the app remembers where it was left so
+// that the next one opens there.
+func (a *App) panelGrip(c *ui.Context, theme *ui.Theme) {
+	grip := ui.Box(c).Size(16, 22).Radius(4).Label("拖动窗口").Tooltip("拖动窗口").Cursor(ui.CursorMove)
+	grip.Draw(func(p *ui.Painter, r ui.Rect) {
+		color := theme.TextMuted.Alpha(0.65)
+		for row := 0; row < 3; row++ {
+			for column := 0; column < 2; column++ {
+				p.Fill(ui.Rect{
+					X: r.X + r.W/2 - 3 + float32(column)*4,
+					Y: r.Y + r.H/2 - 6 + float32(row)*5,
+					W: 2, H: 2,
+				}, color, 1)
+			}
+		}
+	})
+	if grip.Hovered() {
+		grip.Background(theme.Surface.Alpha(0.6))
+	}
+	grip.DragWindow()
 }
 
 func (a *App) resultsArea(c *ui.Context, theme *ui.Theme) {

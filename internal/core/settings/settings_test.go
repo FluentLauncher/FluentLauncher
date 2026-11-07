@@ -55,6 +55,11 @@ func TestInvalidSettings(t *testing.T) {
 		t.Fatal("expected theme validation error")
 	}
 	s = Default()
+	s.Theme.SearchHeight = 200
+	if err := s.Validate(); err == nil {
+		t.Fatal("expected search height validation error")
+	}
+	s = Default()
 	s.CustomItems = []CustomLaunchItem{{ID: "x", Name: "x", Target: `\\server\share`}}
 	if err := s.Validate(); err == nil {
 		t.Fatal("expected UNC target validation error")

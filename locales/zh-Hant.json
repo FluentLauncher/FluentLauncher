@@ -6,5 +6,21 @@
   "settingsWindowTitle": "FluentLauncher 設定",
   "workspaceResultTitle": "工作區結果",
   "validateLanguage": "不支援的介面語言",
-  "settingsLanguageCard": "語言"
+  "settingsLanguageCard": "語言",
+  "commonOpen": "開啟",
+  "commonSave": "儲存",
+  "commonCancel": "取消",
+  "commonClose": "關閉",
+  "commonDelete": "刪除",
+  "commonReset": "重設",
+  "commonRetry": "重試",
+  "commonAdd": "新增",
+  "commonEdit": "編輯",
+  "commonCopy": "複製",
+  "commonConfirm": "確定",
+  "commonInstall": "安裝",
+  "commonUninstall": "解除安裝",
+  "commonEnable": "啟用",
+  "commonDisable": "停用",
+  "commonBrowse": "瀏覽…"
 }

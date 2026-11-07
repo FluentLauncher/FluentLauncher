@@ -6,5 +6,21 @@
   "settingsWindowTitle": "FluentLauncher Settings",
   "workspaceResultTitle": "Workspace Results",
   "validateLanguage": "Unsupported interface language",
-  "settingsLanguageCard": "Language"
+  "settingsLanguageCard": "Language",
+  "commonOpen": "Open",
+  "commonSave": "Save",
+  "commonCancel": "Cancel",
+  "commonClose": "Close",
+  "commonDelete": "Delete",
+  "commonReset": "Reset",
+  "commonRetry": "Retry",
+  "commonAdd": "Add",
+  "commonEdit": "Edit",
+  "commonCopy": "Copy",
+  "commonConfirm": "OK",
+  "commonInstall": "Install",
+  "commonUninstall": "Uninstall",
+  "commonEnable": "Enable",
+  "commonDisable": "Disable",
+  "commonBrowse": "Browse…"
 }

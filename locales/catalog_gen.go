@@ -133,3 +133,227 @@ func SettingsLanguageCard() string { return In(i18n.Locale()).SettingsLanguageCa
 func (msgs Messages) SettingsLanguageCard() string {
 	return Catalog.Format(msgs.locale, "settingsLanguageCard", nil)
 }
+
+// CommonOpen says "打开"
+// in the language the app shows.
+//
+// Shared: open button/command.
+func CommonOpen() string { return In(i18n.Locale()).CommonOpen() }
+
+// CommonOpen says "打开"
+// in the language of msgs.
+//
+// Shared: open button/command.
+func (msgs Messages) CommonOpen() string {
+	return Catalog.Format(msgs.locale, "commonOpen", nil)
+}
+
+// CommonSave says "保存"
+// in the language the app shows.
+//
+// Shared: save button.
+func CommonSave() string { return In(i18n.Locale()).CommonSave() }
+
+// CommonSave says "保存"
+// in the language of msgs.
+//
+// Shared: save button.
+func (msgs Messages) CommonSave() string {
+	return Catalog.Format(msgs.locale, "commonSave", nil)
+}
+
+// CommonCancel says "取消"
+// in the language the app shows.
+//
+// Shared: cancel button.
+func CommonCancel() string { return In(i18n.Locale()).CommonCancel() }
+
+// CommonCancel says "取消"
+// in the language of msgs.
+//
+// Shared: cancel button.
+func (msgs Messages) CommonCancel() string {
+	return Catalog.Format(msgs.locale, "commonCancel", nil)
+}
+
+// CommonClose says "关闭"
+// in the language the app shows.
+//
+// Shared: close button.
+func CommonClose() string { return In(i18n.Locale()).CommonClose() }
+
+// CommonClose says "关闭"
+// in the language of msgs.
+//
+// Shared: close button.
+func (msgs Messages) CommonClose() string {
+	return Catalog.Format(msgs.locale, "commonClose", nil)
+}
+
+// CommonDelete says "删除"
+// in the language the app shows.
+//
+// Shared: delete button.
+func CommonDelete() string { return In(i18n.Locale()).CommonDelete() }
+
+// CommonDelete says "删除"
+// in the language of msgs.
+//
+// Shared: delete button.
+func (msgs Messages) CommonDelete() string {
+	return Catalog.Format(msgs.locale, "commonDelete", nil)
+}
+
+// CommonReset says "重置"
+// in the language the app shows.
+//
+// Shared: reset button.
+func CommonReset() string { return In(i18n.Locale()).CommonReset() }
+
+// CommonReset says "重置"
+// in the language of msgs.
+//
+// Shared: reset button.
+func (msgs Messages) CommonReset() string {
+	return Catalog.Format(msgs.locale, "commonReset", nil)
+}
+
+// CommonRetry says "重试"
+// in the language the app shows.
+//
+// Shared: retry button.
+func CommonRetry() string { return In(i18n.Locale()).CommonRetry() }
+
+// CommonRetry says "重试"
+// in the language of msgs.
+//
+// Shared: retry button.
+func (msgs Messages) CommonRetry() string {
+	return Catalog.Format(msgs.locale, "commonRetry", nil)
+}
+
+// CommonAdd says "添加"
+// in the language the app shows.
+//
+// Shared: add button.
+func CommonAdd() string { return In(i18n.Locale()).CommonAdd() }
+
+// CommonAdd says "添加"
+// in the language of msgs.
+//
+// Shared: add button.
+func (msgs Messages) CommonAdd() string {
+	return Catalog.Format(msgs.locale, "commonAdd", nil)
+}
+
+// CommonEdit says "编辑"
+// in the language the app shows.
+//
+// Shared: edit button.
+func CommonEdit() string { return In(i18n.Locale()).CommonEdit() }
+
+// CommonEdit says "编辑"
+// in the language of msgs.
+//
+// Shared: edit button.
+func (msgs Messages) CommonEdit() string {
+	return Catalog.Format(msgs.locale, "commonEdit", nil)
+}
+
+// CommonCopy says "复制"
+// in the language the app shows.
+//
+// Shared: copy command.
+func CommonCopy() string { return In(i18n.Locale()).CommonCopy() }
+
+// CommonCopy says "复制"
+// in the language of msgs.
+//
+// Shared: copy command.
+func (msgs Messages) CommonCopy() string {
+	return Catalog.Format(msgs.locale, "commonCopy", nil)
+}
+
+// CommonConfirm says "确定"
+// in the language the app shows.
+//
+// Shared: confirm button.
+func CommonConfirm() string { return In(i18n.Locale()).CommonConfirm() }
+
+// CommonConfirm says "确定"
+// in the language of msgs.
+//
+// Shared: confirm button.
+func (msgs Messages) CommonConfirm() string {
+	return Catalog.Format(msgs.locale, "commonConfirm", nil)
+}
+
+// CommonInstall says "安装"
+// in the language the app shows.
+//
+// Shared: install button.
+func CommonInstall() string { return In(i18n.Locale()).CommonInstall() }
+
+// CommonInstall says "安装"
+// in the language of msgs.
+//
+// Shared: install button.
+func (msgs Messages) CommonInstall() string {
+	return Catalog.Format(msgs.locale, "commonInstall", nil)
+}
+
+// CommonUninstall says "卸载"
+// in the language the app shows.
+//
+// Shared: uninstall button.
+func CommonUninstall() string { return In(i18n.Locale()).CommonUninstall() }
+
+// CommonUninstall says "卸载"
+// in the language of msgs.
+//
+// Shared: uninstall button.
+func (msgs Messages) CommonUninstall() string {
+	return Catalog.Format(msgs.locale, "commonUninstall", nil)
+}
+
+// CommonEnable says "启用"
+// in the language the app shows.
+//
+// Shared: enable action.
+func CommonEnable() string { return In(i18n.Locale()).CommonEnable() }
+
+// CommonEnable says "启用"
+// in the language of msgs.
+//
+// Shared: enable action.
+func (msgs Messages) CommonEnable() string {
+	return Catalog.Format(msgs.locale, "commonEnable", nil)
+}
+
+// CommonDisable says "禁用"
+// in the language the app shows.
+//
+// Shared: disable action.
+func CommonDisable() string { return In(i18n.Locale()).CommonDisable() }
+
+// CommonDisable says "禁用"
+// in the language of msgs.
+//
+// Shared: disable action.
+func (msgs Messages) CommonDisable() string {
+	return Catalog.Format(msgs.locale, "commonDisable", nil)
+}
+
+// CommonBrowse says "浏览…"
+// in the language the app shows.
+//
+// Shared: browse files button.
+func CommonBrowse() string { return In(i18n.Locale()).CommonBrowse() }
+
+// CommonBrowse says "浏览…"
+// in the language of msgs.
+//
+// Shared: browse files button.
+func (msgs Messages) CommonBrowse() string {
+	return Catalog.Format(msgs.locale, "commonBrowse", nil)
+}

@@ -27,5 +27,69 @@
   "settingsLanguageCard": "语言",
   "@settingsLanguageCard": {
     "description": "General page: card holding the language dropdown."
+  },
+  "commonOpen": "打开",
+  "@commonOpen": {
+    "description": "Shared: open button/command."
+  },
+  "commonSave": "保存",
+  "@commonSave": {
+    "description": "Shared: save button."
+  },
+  "commonCancel": "取消",
+  "@commonCancel": {
+    "description": "Shared: cancel button."
+  },
+  "commonClose": "关闭",
+  "@commonClose": {
+    "description": "Shared: close button."
+  },
+  "commonDelete": "删除",
+  "@commonDelete": {
+    "description": "Shared: delete button."
+  },
+  "commonReset": "重置",
+  "@commonReset": {
+    "description": "Shared: reset button."
+  },
+  "commonRetry": "重试",
+  "@commonRetry": {
+    "description": "Shared: retry button."
+  },
+  "commonAdd": "添加",
+  "@commonAdd": {
+    "description": "Shared: add button."
+  },
+  "commonEdit": "编辑",
+  "@commonEdit": {
+    "description": "Shared: edit button."
+  },
+  "commonCopy": "复制",
+  "@commonCopy": {
+    "description": "Shared: copy command."
+  },
+  "commonConfirm": "确定",
+  "@commonConfirm": {
+    "description": "Shared: confirm button."
+  },
+  "commonInstall": "安装",
+  "@commonInstall": {
+    "description": "Shared: install button."
+  },
+  "commonUninstall": "卸载",
+  "@commonUninstall": {
+    "description": "Shared: uninstall button."
+  },
+  "commonEnable": "启用",
+  "@commonEnable": {
+    "description": "Shared: enable action."
+  },
+  "commonDisable": "禁用",
+  "@commonDisable": {
+    "description": "Shared: disable action."
+  },
+  "commonBrowse": "浏览…",
+  "@commonBrowse": {
+    "description": "Shared: browse files button."
   }
 }

@@ -14,6 +14,7 @@ Windows 11 键盘优先启动器，使用 Go + [MyGo](https://github.com/egoist/
 - 屏幕边缘滚轮调音量，带不抢焦点浮层。
 - 可执行插件 + JSON-RPC over stdio；官方回显/开发工具插件。
 - 设置窗口覆盖常规、外观、文件、音量、站点、启动项、插件与其他。
+- 界面语言：简体中文、繁体中文、英文，默认跟随系统，可在设置中切换并立即生效。
 
 复刻覆盖与剩余项见 `docs/port-status.md`。
 
@@ -26,12 +27,15 @@ go vet ./...
 go tool mygo build -skip-installer
 ```
 
+界面文本在 `locales/*.json`（ARB，source 语言 zh-Hans，另有 en、zh-Hant）。改动 catalog 后运行 `go tool mygo generate` 重新生成 `locales/catalog_gen.go`（随仓库提交），并用 `go tool mygo i18n check .` 校验三语占位符与复数形式。
+
 构建产物在 `build/windows-amd64/`。运行中的应用会锁住该目录，重新构建前先退出。
 
 ## 目录
 
 ```text
 main.go                     # 入口
+locales/                    # 界面语言目录（ARB）+ 生成的消息函数
 internal/app/               # 生命周期、查询、动作、设置、浮层
 internal/core/model/        # Entry/Profile/Result
 internal/core/settings/     # settings.json 模型与校验

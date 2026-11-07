@@ -133,7 +133,7 @@ func DefaultTheme() ThemeSettings {
 		GradientColor:    "#3366AA",
 		ImageCover:       true,
 		ImageMaskOpacity: 0.3,
-		Opacity:          1,
+		Opacity:          0.55,
 		FontFamily:       "Segoe UI Variable",
 		FontSize:         17,
 		RowPadding:       10,
@@ -262,26 +262,32 @@ func (v *VolumeWheelOptions) UnmarshalJSON(data []byte) error {
 // LauncherSettings is settings.json. JSON names stay PascalCase so the C#
 // implementation and user-edited files keep working.
 type LauncherSettings struct {
-	Version            int                `json:"Version"`
-	Hotkey             string             `json:"Hotkey"`
-	ShowRecentEntries  bool               `json:"ShowRecentEntries"`
-	ShowRecentSearches bool               `json:"ShowRecentSearches"`
-	RunAtLogin         bool               `json:"RunAtLogin"`
-	HideOnStartup      bool               `json:"HideOnStartup"`
-	Placement          WindowPlacement    `json:"Placement"`
-	Width              int                `json:"Width"`
-	Height             int                `json:"Height"`
-	MaxResults         int                `json:"MaxResults"`
-	Applications       CatalogOptions     `json:"Applications"`
-	Theme              ThemeSettings      `json:"Theme"`
-	Files              FileIndexOptions   `json:"Files"`
-	Plugins            PluginOptions      `json:"Plugins"`
-	VolumeWheel        VolumeWheelOptions `json:"VolumeWheel"`
-	CustomItems        []CustomLaunchItem `json:"CustomItems"`
-	WebSites           []WebSearchSite    `json:"WebSites"`
-	Workspaces         []Workspace        `json:"Workspaces"`
-	WebSearchTemplate  string             `json:"WebSearchTemplate"`
-	EnableCalculator   bool               `json:"EnableCalculator"`
+	Version            int             `json:"Version"`
+	Hotkey             string          `json:"Hotkey"`
+	ShowRecentEntries  bool            `json:"ShowRecentEntries"`
+	ShowRecentSearches bool            `json:"ShowRecentSearches"`
+	RunAtLogin         bool            `json:"RunAtLogin"`
+	HideOnStartup      bool            `json:"HideOnStartup"`
+	Placement          WindowPlacement `json:"Placement"`
+	// AnchorX and AnchorY place the panel in the work area, as the share of
+	// the room left around it: 0 is flush with the left or top edge, 1 with
+	// the right or bottom edge, 0.5 centered. The settings preview sets them
+	// when the user drags the panel; they stay as the user left them.
+	AnchorX           float64            `json:"AnchorX"`
+	AnchorY           float64            `json:"AnchorY"`
+	Width             int                `json:"Width"`
+	Height            int                `json:"Height"`
+	MaxResults        int                `json:"MaxResults"`
+	Applications      CatalogOptions     `json:"Applications"`
+	Theme             ThemeSettings      `json:"Theme"`
+	Files             FileIndexOptions   `json:"Files"`
+	Plugins           PluginOptions      `json:"Plugins"`
+	VolumeWheel       VolumeWheelOptions `json:"VolumeWheel"`
+	CustomItems       []CustomLaunchItem `json:"CustomItems"`
+	WebSites          []WebSearchSite    `json:"WebSites"`
+	Workspaces        []Workspace        `json:"Workspaces"`
+	WebSearchTemplate string             `json:"WebSearchTemplate"`
+	EnableCalculator  bool               `json:"EnableCalculator"`
 }
 
 func Default() LauncherSettings {
@@ -289,6 +295,8 @@ func Default() LauncherSettings {
 		Version:           1,
 		Hotkey:            "Alt+Space",
 		Placement:         PlacementActiveScreen,
+		AnchorX:           0.5,
+		AnchorY:           0.45,
 		Width:             760,
 		Height:            560,
 		MaxResults:        50,
@@ -321,6 +329,8 @@ func (s *LauncherSettings) UnmarshalJSON(data []byte) error {
 func (s *LauncherSettings) Normalize() {
 	s.ShowRecentEntries = s.ShowRecentEntries || s.ShowRecentSearches
 	s.ShowRecentSearches = false
+	s.AnchorX = clamp01(s.AnchorX, 0.5)
+	s.AnchorY = clamp01(s.AnchorY, 0.45)
 	if s.Applications.PortableDirectories == nil {
 		s.Applications.PortableDirectories = []string{}
 	}
@@ -365,6 +375,10 @@ func (s LauncherSettings) Validate() error {
 	if s.Width < 480 || s.Width > 1600 || s.Height < 320 || s.Height > 1200 ||
 		s.MaxResults < 5 || s.MaxResults > 200 {
 		return fmt.Errorf("窗口宽度须为 480–1600，高度 320–1200，结果数 5–200")
+	}
+	if !finite(s.AnchorX) || s.AnchorX < 0 || s.AnchorX > 1 ||
+		!finite(s.AnchorY) || s.AnchorY < 0 || s.AnchorY > 1 {
+		return fmt.Errorf("弹出位置须在 0–1 之间")
 	}
 	switch s.Placement {
 	case PlacementActiveScreen, PlacementMouseScreen, PlacementPrimaryScreen:
@@ -492,6 +506,15 @@ func ValidateDirectories(dirs []string) error {
 
 func finite(v float64) bool {
 	return !math.IsNaN(v) && !math.IsInf(v, 0)
+}
+
+// clamp01 keeps v between 0 and 1, and falls back to fallback when it is
+// not a number.
+func clamp01(v, fallback float64) float64 {
+	if !finite(v) {
+		return fallback
+	}
+	return math.Min(math.Max(v, 0), 1)
 }
 
 // TryParseColor parses #RRGGBB or #AARRGGBB into 0xAARRGGBB.

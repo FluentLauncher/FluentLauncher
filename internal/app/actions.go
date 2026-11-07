@@ -203,13 +203,13 @@ func (a *App) workspaceView(c *ui.Context) {
 					ui.Text(c, step.Name).Grow(1).SingleLine()
 					if !step.Succeeded {
 						ui.Text(c, step.Error).FontSize(11).TextColor(theme.TextMuted).SingleLine()
-						if ui.Button(c, "重试").Clicked() {
+						if compactButton(c, "重试").Clicked() {
 							a.retryWorkspaceItem(step.ItemID)
 						}
 					}
 				})
 			}
-			if ui.Button(c, "关闭").Clicked() {
+			if compactButton(c, "关闭").Clicked() {
 				a.workspaceWin.Close()
 			}
 		})

@@ -27,6 +27,7 @@ import (
 	"fluentlauncher/internal/winapi/everything"
 	"fluentlauncher/internal/winapi/glass"
 	"fluentlauncher/internal/winapi/volume"
+	"fluentlauncher/internal/winapi/wallpaper"
 	"fluentlauncher/internal/winapi/windowlist"
 )
 
@@ -64,6 +65,9 @@ type App struct {
 	volumeWin      *mygo.Window
 	volume         *volume.Controller
 	volumePct      int
+	// volumePinned keeps the debug overlay on screen, so that a build can be
+	// checked without a wheel gesture.
+	volumePinned bool
 
 	input ui.Handle
 	list  ui.ListState
@@ -85,6 +89,9 @@ type App struct {
 	iconSize    int
 	mem         string
 	background  *ui.Bitmap
+	// wallpaperTint is the average color of the desktop wallpaper, which
+	// tints the mica material; zero until it has been read.
+	wallpaperTint ui.Color
 
 	settingsPage  int
 	settingsDraft settings.LauncherSettings
@@ -238,6 +245,17 @@ func (a *App) ready() {
 	})
 	a.panel.OnBlur(a.hidePanel)
 	a.panel.OnShow(func() { log.Printf("panel shown") })
+	// The mica material tints the window with the wallpaper, as Windows'
+	// own mica does; read its average color while the app starts.
+	go func() {
+		red, green, blue, ok := wallpaper.Average()
+		if !ok {
+			return
+		}
+		log.Printf("wallpaper tint #%02X%02X%02X", red, green, blue)
+		tint := ui.RGB(red, green, blue)
+		a.panel.Update(func() { a.wallpaperTint = tint })
+	}()
 
 	a.createVolumeOverlay()
 	a.setUpTray()
@@ -278,6 +296,13 @@ func (a *App) ready() {
 				}
 			})
 		})
+	}
+	if value := os.Getenv("FL_DEBUG_VOLUME"); value != "" {
+		if percent, err := strconv.Atoi(value); err == nil {
+			a.volumePinned = true
+			a.volumePct = min(max(percent, 0), 100)
+			a.showVolumeOverlay()
+		}
 	}
 	if value := os.Getenv("FL_DEBUG_EXIT_MS"); value != "" {
 		if milliseconds, err := strconv.Atoi(value); err == nil && milliseconds > 0 {
@@ -429,10 +454,10 @@ func (a *App) toggle() {
 }
 
 func (a *App) positionPanel() {
-	a.positionPanelSize(a.settings.Width, a.settings.Height)
+	a.positionPanelSize(a.settings.Width, a.settings.Height, a.settings.AnchorX, a.settings.AnchorY)
 }
 
-func (a *App) positionPanelSize(width, height int) {
+func (a *App) positionPanelSize(width, height int, anchorX, anchorY float64) {
 	if a.panel == nil {
 		return
 	}
@@ -446,7 +471,7 @@ func (a *App) positionPanelSize(width, height int) {
 	rect := layout.Calculate(layout.WorkArea{
 		X: display.WorkArea.X, Y: display.WorkArea.Y,
 		Width: display.WorkArea.Width, Height: display.WorkArea.Height,
-	}, 1, float64(width), float64(height), nil)
+	}, 1, float64(width), float64(height), &layout.Anchor{X: anchorX, Y: anchorY})
 	a.panel.SetBounds(mygo.Rectangle{X: rect.X, Y: rect.Y, Width: rect.Width, Height: rect.Height})
 }
 
@@ -458,7 +483,7 @@ func (a *App) previewPanelSize() {
 		return
 	}
 	a.panel.SetSize(a.settingsDraft.Width, a.settingsDraft.Height)
-	a.positionPanelSize(a.settingsDraft.Width, a.settingsDraft.Height)
+	a.positionPanelSize(a.settingsDraft.Width, a.settingsDraft.Height, a.settingsDraft.AnchorX, a.settingsDraft.AnchorY)
 }
 
 func (a *App) applyWindowSize() {

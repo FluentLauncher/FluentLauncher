@@ -8,8 +8,19 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 
+	"fluentlauncher/internal/winapi/glass"
 	"fluentlauncher/internal/winapi/volume"
 )
+
+// The volume overlay is a small pill near the bottom of the screen: a
+// speaker, the bar and the percentage, over the blurred desktop.
+const (
+	volumeOverlayWidth  = 240
+	volumeOverlayHeight = 64
+	volumeOverlayGap    = 40
+)
+
+var volumeIcon = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>`))
 
 func (a *App) createVolumeOverlay() {
 	a.volumeWin = mygo.NewWindow(mygo.WindowOptions{
@@ -19,13 +30,17 @@ func (a *App) createVolumeOverlay() {
 		AlwaysOnTop:   true,
 		SkipTaskbar:   true,
 		DisableResize: true,
-		DisableMove:   true,
-		CornerRadius:  12,
-		Width:         220,
-		Height:        84,
+		CornerRadius:  16,
+		Width:         volumeOverlayWidth,
+		Height:        volumeOverlayHeight,
 		Content:       ui.View(a.volumeView),
 	})
 	a.volumeWin.SetIgnoreMouseEvents(true)
+	// The overlay blurs what is behind it, as the system's own volume flyout
+	// does, so that it reads on any wallpaper.
+	if err := glass.SetBlur(a.volumeWin.NativeHandle(), true); err != nil {
+		log.Printf("volume overlay: %v", err)
+	}
 }
 
 func (a *App) volumeView(c *ui.Context) {
@@ -37,11 +52,24 @@ func (a *App) volumeView(c *ui.Context) {
 	if percent > 100 {
 		percent = 100
 	}
-	ui.Column(c).Fill().Padding(14).Gap(8).Background(theme.Surface).Radius(12).Children(func() {
-		ui.Text(c, fmt.Sprintf("音量 %d%%", percent)).FontSize(16).Bold().TextColor(theme.Text)
-		ui.Box(c).Height(6).Radius(3).Background(theme.Border).Children(func() {
+	// The overlay is inverted, as the system's volume flyout is: a dark pill
+	// in the light appearance and a light one in the dark, so that it stands
+	// out from whatever is behind it.
+	text := theme.InverseText
+	if text == ui.Transparent {
+		text = theme.Background
+	}
+	plate := theme.Inverse
+	if plate == ui.Transparent {
+		plate = theme.Text
+	}
+	ui.Row(c).Fill().Padding(12, 14).Gap(12).AlignItems(ui.Center).Radius(16).
+		Background(plate.Alpha(0.85)).Border(1, text.Alpha(0.12)).Children(func() {
+		ui.Icon(c, volumeIcon).FontSize(22).TextColor(text)
+		ui.Box(c).Grow(1).Height(6).Radius(3).Background(text.Alpha(0.22)).Children(func() {
 			ui.Box(c).WidthPercent(float32(percent)).Height(6).Radius(3).Background(theme.Accent)
 		})
+		ui.Text(c, fmt.Sprintf("%d", percent)).FontSize(15).TextColor(text).Width(30)
 	})
 }
 
@@ -72,21 +100,38 @@ func (a *App) onVolumeChange(percent int) {
 		return
 	}
 	a.volumeWin.Update(func() { a.volumePct = percent })
-	d := mygo.Screen.DisplayNearestPoint(mygo.Screen.CursorScreenPoint())
-	w, h := a.volumeWin.Size()
-	a.volumeWin.SetPosition(
-		d.WorkArea.X+(d.WorkArea.Width-w)/2,
-		d.WorkArea.Y+d.WorkArea.Height-h-48,
-	)
-	a.volumeWin.ShowInactive()
+	a.showVolumeOverlay()
 	if a.volumeTimer != nil {
 		a.volumeTimer.Stop()
+	}
+	if a.volumePinned {
+		return
 	}
 	a.volumeTimer = time.AfterFunc(1200*time.Millisecond, func() {
 		if a.volumeWin != nil {
 			a.volumeWin.Hide()
 		}
 	})
+}
+
+// showVolumeOverlay puts the overlay near the bottom of the display the
+// pointer is on, centered, and shows it without taking the focus.
+func (a *App) showVolumeOverlay() {
+	if a.volumeWin == nil {
+		return
+	}
+	display := mygo.Screen.DisplayNearestPoint(mygo.Screen.CursorScreenPoint())
+	if display.WorkArea.Width <= 0 || display.WorkArea.Height <= 0 {
+		display = mygo.Screen.PrimaryDisplay()
+	}
+	work := mygo.Rectangle{X: display.WorkArea.X, Y: display.WorkArea.Y, Width: display.WorkArea.Width, Height: display.WorkArea.Height}
+	if work.Width <= 0 || work.Height <= 0 {
+		work = mygo.Rectangle{Width: 1920, Height: 1080}
+	}
+	x := work.X + (work.Width-volumeOverlayWidth)/2
+	y := work.Y + work.Height - volumeOverlayHeight - volumeOverlayGap
+	a.volumeWin.SetBounds(mygo.Rectangle{X: x, Y: y, Width: volumeOverlayWidth, Height: volumeOverlayHeight})
+	a.volumeWin.ShowInactive()
 }
 
 func (a *App) stopVolume() {

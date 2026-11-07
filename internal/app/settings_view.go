@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/egoist/mygo"
@@ -32,9 +34,15 @@ var pageIcons = []*ui.SVG{
 
 var chevronIcon = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`))
 
+// settingsFontSize is the type size of the settings window, apart from the
+// theme's own: that one sizes the search panel, where a large line reads at a
+// glance, and would make every field of the settings dense pages oversized.
+const settingsFontSize float32 = 13
+
 func (a *App) settingsView(c *ui.Context) {
 	theme := *c.Theme()
 	a.applyUITheme(&theme)
+	theme.FontSize = settingsFontSize
 	c.SetTheme(&theme)
 	a.settingsPage = min(max(a.settingsPage, 0), len(settingPages)-1)
 
@@ -76,10 +84,10 @@ func (a *App) settingsView(c *ui.Context) {
 					} else {
 						ui.Column(c).Grow(1)
 					}
-					if ui.Button(c, "取消").Clicked() {
+					if compactButton(c, "取消").Clicked() {
 						a.cancelSettings()
 					}
-					if ui.PrimaryButton(c, "保存").Clicked() {
+					if compactPrimaryButton(c, "保存").Clicked() {
 						a.saveSettings()
 					}
 				})
@@ -124,7 +132,7 @@ func (a *App) settingsSidebar(c *ui.Context, theme *ui.Theme) {
 // window material stays visible between groups.
 func settingCard(c *ui.Context, title string, body func(c *ui.Context)) {
 	theme := c.Theme()
-	ui.Column(c).Gap(12).Padding(16, 18).Radius(10).Background(theme.Surface.Alpha(0.55)).Children(func() {
+	ui.Column(c).Gap(12).Padding(16, 18).Radius(10).Background(theme.Surface.Alpha(0.8)).Children(func() {
 		ui.Text(c, title).FontSize(14).Bold().TextColor(theme.Text)
 		body(c)
 	})
@@ -151,18 +159,56 @@ func (a *App) switchRow(c *ui.Context, label, hint string, value *bool) {
 	})
 }
 
-func (a *App) numberRow(c *ui.Context, label, hint string, value *int, min, max, step int) {
+func (a *App) numberRow(c *ui.Context, label, hint string, value *int, low, high, step int) {
 	settingRow(c, label, hint, func(c *ui.Context) {
-		current := float64(*value)
-		if ui.NumberInput(c, &current, float64(min), float64(max), float64(step)).Width(150).Changed() {
-			*value = int(current)
-		}
+		row := ui.Row(c).Gap(10).AlignItems(ui.Center)
+		text := ui.Local[string](row, "text", func() string { return strconv.Itoa(*value) })
+		row.Children(func() {
+			field := ui.TextInput(c, text).Width(72).FontSize(13)
+			if field.Changed() {
+				if parsed, err := strconv.Atoi(strings.TrimSpace(*text)); err == nil && parsed >= low && parsed <= high {
+					*value = parsed
+				}
+			}
+			if !field.Focused() {
+				*text = strconv.Itoa(*value)
+			}
+			current := float64(*value)
+			if ui.Slider(c, &current, float64(low), float64(high)).Width(150).Changed() {
+				rounded := int(math.Round(current/float64(step))) * step
+				*value = clampInt(rounded, low, high)
+			}
+		})
 	})
 }
 
-func (a *App) floatRow(c *ui.Context, label, hint string, value *float64, min, max, step float64) {
+// floatRow edits a float with a small field for the exact value and a slider
+// for the coarse change: the number input's own plus and minus buttons were
+// heavy next to the labels.
+func (a *App) floatRow(c *ui.Context, label, hint string, value *float64, low, high, step float64) {
 	settingRow(c, label, hint, func(c *ui.Context) {
-		ui.NumberInput(c, value, min, max, step).Width(150)
+		row := ui.Row(c).Gap(10).AlignItems(ui.Center)
+		digits := 0
+		if step < 1 {
+			digits = 1
+		}
+		format := func(v float64) string { return strconv.FormatFloat(v, 'f', digits, 64) }
+		text := ui.Local[string](row, "text", func() string { return format(*value) })
+		row.Children(func() {
+			field := ui.TextInput(c, text).Width(72).FontSize(13)
+			if field.Changed() {
+				if parsed, err := strconv.ParseFloat(strings.TrimSpace(*text), 64); err == nil && parsed >= low && parsed <= high {
+					*value = math.Round(parsed/step) * step
+				}
+			}
+			if !field.Focused() {
+				*text = format(*value)
+			}
+			current := *value
+			if ui.Slider(c, &current, low, high).Width(150).Changed() {
+				*value = math.Round(current/step) * step
+			}
+		})
 	})
 }
 
@@ -179,10 +225,13 @@ func (a *App) themedSelect(c *ui.Context, key, label, hint string, options []str
 	settingRow(c, label, hint, func(c *ui.Context) {
 		theme := c.Theme()
 		open := a.selectOpen == key
-		anchor := ui.Row(c).Width(220).Padding(8, 12).Gap(8).AlignItems(ui.Center).
-			Radius(8).Background(theme.Surface).Border(1, theme.Border)
+		// The field matches the text inputs beside it: the same plate, the
+		// same padding and the same text size, so a row does not mix two
+		// looks.
+		anchor := ui.Row(c).Width(220).Padding(theme.Space(1.5), theme.Space(2.5)).Gap(8).
+			AlignItems(ui.Center).Radius(theme.Radius).Background(theme.Surface).Border(1, theme.Border)
 		anchor.Children(func() {
-			ui.Text(c, current).FontSize(13).TextColor(theme.Text).Grow(1).SingleLine()
+			ui.Text(c, current).TextColor(theme.Text).Grow(1).SingleLine()
 			ui.Icon(c, chevronIcon).FontSize(12).TextColor(theme.TextMuted)
 		})
 		if anchor.Clicked() {
@@ -221,16 +270,24 @@ func (a *App) themedSelect(c *ui.Context, key, label, hint string, options []str
 }
 
 // colorRow edits an optional hex color with a color well; an empty value
-// keeps the system color and can be restored with 重置.
-func (a *App) colorRow(c *ui.Context, label, hint string, value *string, fallback ui.Color) {
+// keeps the system color and can be restored with 重置. A background color
+// is stored without alpha: the opacity slider is what makes the window
+// see-through, so a color of its own cannot make it translucent twice.
+func (a *App) colorRow(c *ui.Context, label, hint string, value *string, fallback ui.Color, opaque bool) {
 	settingRow(c, label, hint, func(c *ui.Context) {
 		theme := c.Theme()
 		picked := fallback
 		if parsed, ok := parseColor(*value); ok {
 			picked = parsed
 		}
+		if opaque {
+			picked.A = 255
+		}
 		ui.Row(c).Gap(10).AlignItems(ui.Center).Children(func() {
 			if ui.ColorWell(c, &picked).Changed() {
+				if opaque {
+					picked.A = 255
+				}
 				*value = hexOf(picked)
 			}
 			shown := "跟随系统"
@@ -238,11 +295,23 @@ func (a *App) colorRow(c *ui.Context, label, hint string, value *string, fallbac
 				shown = hexOf(picked)
 			}
 			ui.Text(c, shown).FontSize(12).TextColor(theme.TextMuted).Width(90).SingleLine()
-			if *value != "" && ui.Button(c, "重置").Clicked() {
+			if *value != "" && compactButton(c, "重置").Clicked() {
 				*value = ""
 			}
 		})
 	})
+}
+
+// compactButton is a settings button at a smaller size than the widget's
+// default: the settings window is dense, and a default button next to
+// thirteen-pixel labels reads as heavy.
+func compactButton(c *ui.Context, label string) ui.Element {
+	return ui.Button(c, label).Padding(4, 10).FontSize(13)
+}
+
+// compactPrimaryButton is compactButton for the action the page saves with.
+func compactPrimaryButton(c *ui.Context, label string) ui.Element {
+	return ui.PrimaryButton(c, label).Padding(4, 10).FontSize(13)
 }
 
 func hexOf(col ui.Color) string {
@@ -366,41 +435,36 @@ func (a *App) appearancePage(c *ui.Context) {
 	})
 	settingCard(c, "颜色", func(c *ui.Context) {
 		theme := c.Theme()
-		a.colorRow(c, "强调色", "按钮与选中行", &draft.AccentColor, theme.Accent)
-		a.colorRow(c, "文字色", "留空跟随系统", &draft.ForegroundColor, theme.Text)
+		a.colorRow(c, "强调色", "按钮与选中行", &draft.AccentColor, theme.Accent, false)
+		a.colorRow(c, "文字色", "留空跟随系统", &draft.ForegroundColor, theme.Text, false)
 		switch background {
 		case settings.BackgroundSolid, settings.BackgroundGradient:
-			a.colorRow(c, "背景色", "纯色与渐变起点，留空跟随系统", &draft.BackgroundColor, theme.Background)
+			a.colorRow(c, "背景色", "纯色与渐变起点，留空跟随系统", &draft.BackgroundColor, theme.Background, true)
 		case settings.BackgroundAcrylic, settings.BackgroundMica:
-			a.colorRow(c, "背景色", "模糊背景上的着色，留空跟随系统", &draft.BackgroundColor, theme.Background)
+			a.colorRow(c, "背景色", "模糊背景上的着色，留空跟随系统", &draft.BackgroundColor, theme.Background, true)
 		}
 		if background == settings.BackgroundGradient {
-			a.colorRow(c, "渐变终点", "仅渐变背景使用", &draft.GradientColor, theme.Surface)
+			a.colorRow(c, "渐变终点", "仅渐变背景使用", &draft.GradientColor, theme.Surface, true)
 		}
 	})
-	if background != settings.BackgroundImage {
-		settingCard(c, "不透明度", func(c *ui.Context) {
-			label, hint := "整体不透明度", "0% 完全透明（只看到下层窗口），100% 完全不透明"
-			if background == settings.BackgroundAcrylic || background == settings.BackgroundMica {
-				label, hint = "材质不透明度", "越低越透明，0% 只保留模糊后景"
-			}
-			a.sliderRow(c, label, hint, &draft.Opacity, 0, 1, func(v float64) string {
-				return fmt.Sprintf("%.0f%%", v*100)
-			})
+	settingCard(c, "不透明度", func(c *ui.Context) {
+		hint := "0% 完全透明（只看到下层窗口），100% 完全不透明"
+		switch background {
+		case settings.BackgroundAcrylic, settings.BackgroundMica:
+			hint = "模糊材质的着色强度：0% 只保留模糊后景，100% 完全不透明"
+		case settings.BackgroundImage:
+			hint = "图片整体的不透明度，蒙版另算"
+		}
+		a.sliderRow(c, "不透明度", hint, &draft.Opacity, 0, 1, func(v float64) string {
+			return fmt.Sprintf("%.0f%%", v*100)
 		})
-	}
-	settingCard(c, "字体与圆角", func(c *ui.Context) {
-		a.textRow(c, "字体", "留空使用系统字体", "Segoe UI Variable", &draft.FontFamily, 240)
-		a.floatRow(c, "字号", "12 – 32", &draft.FontSize, 12, 32, 1)
-		a.floatRow(c, "结果行内边距", "2 – 24", &draft.RowPadding, 2, 24, 1)
-		a.floatRow(c, "圆角", "0 – 32", &draft.CornerRadius, 0, 32, 1)
 	})
 	if background == settings.BackgroundImage {
 		settingCard(c, "背景图片", func(c *ui.Context) {
 			settingRow(c, "图片路径", "背景材质为“图片”时使用", func(c *ui.Context) {
 				ui.Row(c).Gap(8).Children(func() {
-					ui.TextInput(c, &draft.ImagePath).Placeholder("选择一张图片").Width(320)
-					if ui.Button(c, "选择…").Clicked() {
+					ui.TextInput(c, &draft.ImagePath).Placeholder("选择一张图片").Width(260).FontSize(13)
+					if compactButton(c, "选择…").Clicked() {
 						go func() {
 							path, err := mygo.Dialog.Open(mygo.OpenDialogOptions{Title: "选择背景图片"})
 							if err == nil && len(path) > 0 {
@@ -426,12 +490,18 @@ func (a *App) appearancePage(c *ui.Context) {
 			})
 		})
 	}
+	settingCard(c, "字体与圆角", func(c *ui.Context) {
+		a.textRow(c, "字体", "留空使用系统字体", "Segoe UI Variable", &draft.FontFamily, 240)
+		a.floatRow(c, "字号", "12 – 32", &draft.FontSize, 12, 32, 1)
+		a.floatRow(c, "结果行内边距", "2 – 24", &draft.RowPadding, 2, 24, 1)
+		a.floatRow(c, "圆角", "0 – 32", &draft.CornerRadius, 0, 32, 1)
+	})
 	settingCard(c, "主题文件", func(c *ui.Context) {
 		ui.Row(c).Gap(8).Children(func() {
-			if ui.Button(c, "导出主题…").Clicked() {
+			if compactButton(c, "导出主题…").Clicked() {
 				go a.exportTheme()
 			}
-			if ui.Button(c, "导入主题…").Clicked() {
+			if compactButton(c, "导入主题…").Clicked() {
 				go a.importTheme()
 			}
 		})
@@ -465,7 +535,7 @@ func (a *App) filesPage(c *ui.Context) {
 		a.switchRow(c, "索引目录本身", "目录也作为可搜索结果", &a.settingsDraft.Files.IncludeDirectories)
 		a.switchRow(c, "启用 Everything 连接器", "安装 Everything 时直接复用其索引", &a.settingsDraft.Files.EnableEverything)
 		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-			if ui.Button(c, "立即重建索引").Clicked() && a.fileIndex != nil {
+			if compactButton(c, "立即重建索引").Clicked() && a.fileIndex != nil {
 				go func() {
 					if err := a.fileIndex.Rebuild(context.Background()); err != nil {
 						a.settingsWin.Update(func() { a.settingsError = err.Error() })
@@ -510,13 +580,13 @@ func (a *App) sitesPage(c *ui.Context) {
 				ui.TextInput(c, &site.Name).Placeholder("名称").Width(130)
 				ui.TextInput(c, &site.URLTemplate).Placeholder("https://…/{query}").Grow(1)
 				ui.Switch(c, &site.Enabled)
-				if ui.Button(c, "删除").Clicked() {
+				if compactButton(c, "删除").Clicked() {
 					a.settingsDraft.WebSites = append(a.settingsDraft.WebSites[:i], a.settingsDraft.WebSites[i+1:]...)
 					return
 				}
 			})
 		}
-		if ui.Button(c, "添加站点").Clicked() {
+		if compactButton(c, "添加站点").Clicked() {
 			a.settingsDraft.WebSites = append(a.settingsDraft.WebSites, settings.WebSearchSite{Enabled: true})
 		}
 	})
@@ -531,13 +601,13 @@ func (a *App) launchItemsPage(c *ui.Context) {
 				ui.TextInput(c, &item.Target).Placeholder("目标路径或网址").Grow(1)
 				ui.TextInput(c, &item.Arguments).Placeholder("参数").Width(120)
 				ui.Switch(c, &item.Enabled)
-				if ui.Button(c, "删除").Clicked() {
+				if compactButton(c, "删除").Clicked() {
 					a.settingsDraft.CustomItems = append(a.settingsDraft.CustomItems[:i], a.settingsDraft.CustomItems[i+1:]...)
 					return
 				}
 			})
 		}
-		if ui.Button(c, "添加启动项").Clicked() {
+		if compactButton(c, "添加启动项").Clicked() {
 			a.settingsDraft.CustomItems = append(a.settingsDraft.CustomItems, settings.CustomLaunchItem{
 				ID: settings.NewCustomItemID(), Enabled: true,
 			})
@@ -555,13 +625,13 @@ func (a *App) launchItemsPage(c *ui.Context) {
 					workspace.ItemIDs = splitComma(items)
 				}
 				ui.Switch(c, &workspace.Enabled)
-				if ui.Button(c, "删除").Clicked() {
+				if compactButton(c, "删除").Clicked() {
 					a.settingsDraft.Workspaces = append(a.settingsDraft.Workspaces[:i], a.settingsDraft.Workspaces[i+1:]...)
 					return
 				}
 			})
 		}
-		if ui.Button(c, "添加工作区").Clicked() {
+		if compactButton(c, "添加工作区").Clicked() {
 			a.settingsDraft.Workspaces = append(a.settingsDraft.Workspaces, settings.Workspace{ID: settings.NewWorkspaceID(), Enabled: true})
 		}
 	})
@@ -586,7 +656,7 @@ func (a *App) pluginsPage(c *ui.Context) {
 					ui.Text(c, manifest.Name).FontSize(13).TextColor(c.Theme().Text)
 					ui.Text(c, manifest.Version+" · "+strings.Join(manifest.Keywords, ", ")).FontSize(11).TextColor(c.Theme().TextMuted)
 				})
-				if ui.Button(c, "卸载").Clicked() {
+				if compactButton(c, "卸载").Clicked() {
 					a.plugins.Stop(manifest.ID)
 					_ = a.pluginRepo.Uninstall(manifest.ID)
 					a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins)
@@ -601,14 +671,14 @@ func (a *App) pluginsPage(c *ui.Context) {
 	settingCard(c, "安装", func(c *ui.Context) {
 		ui.Row(c).Gap(8).Children(func() {
 			for _, example := range []struct{ id, name string }{{"official.echo", "回显示例"}, {"official.devtools", "开发工具"}} {
-				if !pluginInstalled(a.pluginRepo.Installed(), example.id) && ui.Button(c, "安装官方 "+example.name).Clicked() {
+				if !pluginInstalled(a.pluginRepo.Installed(), example.id) && compactButton(c, "安装官方 "+example.name).Clicked() {
 					a.installOfficial(example.id)
 				}
 			}
-			if ui.Button(c, "安装 ZIP…").Clicked() {
+			if compactButton(c, "安装 ZIP…").Clicked() {
 				go a.installPlugin(false)
 			}
-			if ui.Button(c, "安装目录…").Clicked() {
+			if compactButton(c, "安装目录…").Clicked() {
 				go a.installPlugin(true)
 			}
 		})
@@ -644,16 +714,16 @@ func (a *App) aboutPage(c *ui.Context) {
 	})
 	settingCard(c, "配置与数据", func(c *ui.Context) {
 		ui.Row(c).Gap(8).Children(func() {
-			if ui.Button(c, "导出配置…").Clicked() {
+			if compactButton(c, "导出配置…").Clicked() {
 				go a.exportConfig()
 			}
-			if ui.Button(c, "导入配置…").Clicked() {
+			if compactButton(c, "导入配置…").Clicked() {
 				go a.importConfig()
 			}
-			if ui.Button(c, "重置学习记录").Clicked() {
+			if compactButton(c, "重置学习记录").Clicked() {
 				a.resetLearning()
 			}
-			if ui.Button(c, "恢复隐藏条目").Clicked() {
+			if compactButton(c, "恢复隐藏条目").Clicked() {
 				for id, profile := range a.profileMap() {
 					if profile.Hidden {
 						a.changeProfile(id, func(p model.Profile) model.Profile {

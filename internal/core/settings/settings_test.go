@@ -72,3 +72,25 @@ func TestThemePresets(t *testing.T) {
 		t.Fatal("non-http template accepted")
 	}
 }
+
+func TestAnchorDefaultsAndBounds(t *testing.T) {
+	var s LauncherSettings
+	if err := json.Unmarshal([]byte(`{"Width":800}`), &s); err != nil {
+		t.Fatal(err)
+	}
+	if s.AnchorX != 0.5 || s.AnchorY != 0.45 {
+		t.Fatalf("anchor defaults = %v,%v", s.AnchorX, s.AnchorY)
+	}
+	var off LauncherSettings
+	if err := json.Unmarshal([]byte(`{"AnchorX":2,"AnchorY":-1}`), &off); err != nil {
+		t.Fatal(err)
+	}
+	if off.AnchorX != 1 || off.AnchorY != 0 {
+		t.Fatalf("anchor not clamped: %v,%v", off.AnchorX, off.AnchorY)
+	}
+	s = Default()
+	s.AnchorX = 1.5
+	if err := s.Validate(); err == nil {
+		t.Fatal("expected anchor validation error")
+	}
+}

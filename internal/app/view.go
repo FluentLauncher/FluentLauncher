@@ -283,9 +283,18 @@ func (a *App) applyUITheme(t *ui.Theme) {
 	if colorValue, ok := parseColor(value.ForegroundColor); ok {
 		t.Text = colorValue
 	}
-	if colorValue, ok := parseColor(value.BackgroundColor); ok {
+	if colorValue, ok := parseOpaqueColor(value.BackgroundColor); ok {
 		t.Background = colorValue
 	}
+	// The fields, buttons and cards take a translucent plate of their own, so
+	// that they read as part of the glass instead of opaque holes cut in it.
+	// The plate stays visible at any window opacity, and follows the slider:
+	// the more see-through the window, the lighter the plate.
+	plate := 0.35 + 0.45*float32(clampFloat(value.Opacity, 0, 1))
+	t.Surface = t.Surface.Alpha(plate)
+	t.SurfaceHover = t.SurfaceHover.Alpha(min(plate+0.08, 1))
+	t.SurfacePressed = t.SurfacePressed.Alpha(min(plate+0.16, 1))
+	t.Border = t.Border.Alpha(min(plate+0.3, 1))
 }
 
 // drawShell paints the window's background behind its content: both go in
@@ -297,6 +306,12 @@ func (a *App) drawShell(c *ui.Context, theme *ui.Theme, content func()) {
 	})
 }
 
+// drawBackground paints the window's background behind the content: the
+// image, the mask over it, and the plate of color or material, in that
+// order. All three layers are built every time, even empty, so that changing
+// a theme value never changes the view tree under the scroll: a child count
+// that shifts would give the content a new identity and jump the scroll back
+// to the top.
 func (a *App) drawBackground(c *ui.Context, theme *ui.Theme) {
 	value := a.displayTheme()
 	opacity := float32(clampFloat(value.Opacity, 0, 1))
@@ -305,62 +320,78 @@ func (a *App) drawBackground(c *ui.Context, theme *ui.Theme) {
 	// mica), which is what makes the translucency real instead of a wash
 	// towards a background color.
 	c.Root().Background(ui.Transparent)
-	tint, ok := parseColor(value.BackgroundColor)
-	if !ok {
-		tint = theme.Background
+	tint := theme.Background
+	if parsed, ok := parseOpaqueColor(value.BackgroundColor); ok {
+		tint = parsed
 	}
-	// The layers go in the view's grid cell, before the content: a later
-	// sibling paints over an earlier one, so the background stays behind.
+	image := value.Background == settings.BackgroundImage
 	layer := func() ui.Element {
 		return ui.Box(c).ColumnStart(1).RowStart(1).Fill().IgnoreInput(true)
 	}
-	switch value.Background {
-	case settings.BackgroundImage:
-		if a.background != nil {
-			box := layer()
-			if value.ImageBlur > 0 {
-				box.Blur(float32(value.ImageBlur))
+
+	// 1. The image, at the window's opacity: the picture itself shows what is
+	// behind the window, beyond the mask over it.
+	imageLayer := layer()
+	if image && a.background != nil {
+		if value.ImageBlur > 0 {
+			imageLayer.Blur(float32(value.ImageBlur))
+		}
+		imageLayer.Opacity(opacity)
+		imageLayer.Draw(func(p *ui.Painter, r ui.Rect) {
+			if value.ImageCover {
+				p.Image(a.background, r, ui.Cover)
+			} else {
+				p.Image(a.background, r, ui.Contain)
 			}
-			box.Draw(func(p *ui.Painter, r ui.Rect) {
-				if value.ImageCover {
-					p.Image(a.background, r, ui.Cover)
-				} else {
-					p.Image(a.background, r, ui.Contain)
-				}
-			})
-		}
-		// The mask sits over the image: the more opaque it is, the paler the
-		// image, and at zero the image shows as it is.
-		if mask := float32(clampFloat(value.ImageMaskOpacity, 0, 1)); mask > 0 {
-			layer().Background(theme.Background.Alpha(mask))
-		}
-	case settings.BackgroundGradient:
-		from, ok := parseColor(value.BackgroundColor)
-		if !ok {
-			from = theme.Background
-		}
-		to, ok := parseColor(value.GradientColor)
-		if !ok {
-			to = theme.Surface
-		}
-		layer().Gradient(withAlpha(from, opacity), withAlpha(to, opacity), 180)
-	case settings.BackgroundSolid:
-		layer().Background(withAlpha(tint, opacity))
-	default:
-		// Acrylic and mica blur what is behind the window, which the glass
-		// package turns on; this is the plate of color over it. The opacity
-		// fades that plate, so lowering it shows more of the blurred
-		// background, not more of the background color.
-		if value.Background == settings.BackgroundMica {
-			tint = tint.Mix(theme.Accent, 0.1)
-		}
-		layer().Background(withAlpha(tint, opacity*materialTint))
+		})
 	}
+
+	// 2. The mask over the image: the more opaque it is, the paler the image,
+	// and at zero the image shows as it is.
+	maskLayer := layer()
+	if image {
+		maskLayer.Background(theme.Background.Alpha(float32(clampFloat(value.ImageMaskOpacity, 0, 1))))
+	}
+
+	// 3. The plate of color: the solid, the gradient, or the tint of a
+	// material over the blur the window turns on. One opacity slider fades
+	// the background of every mode; a color's own alpha is ignored, so it
+	// cannot make the window translucent twice.
+	plate := layer()
+	plate.Draw(func(p *ui.Painter, r ui.Rect) {
+		switch value.Background {
+		case settings.BackgroundImage:
+		case settings.BackgroundGradient:
+			to := theme.Surface
+			if parsed, ok := parseOpaqueColor(value.GradientColor); ok {
+				to = parsed
+			}
+			p.FillGradient(r, ui.LinearGradient{From: withAlpha(tint, opacity), To: withAlpha(to, opacity), Angle: 180}, 0)
+		case settings.BackgroundSolid:
+			p.Fill(r, withAlpha(tint, opacity), 0)
+		default:
+			// Acrylic and mica blur what is behind the window, which the
+			// glass package turns on; the plate tints it. Mica takes the
+			// wallpaper's color, as Windows' mica does; acrylic stays with
+			// the theme's own background.
+			plateTint := tint
+			if value.Background == settings.BackgroundMica {
+				plateTint = a.micaTint(theme)
+			}
+			p.Fill(r, withAlpha(plateTint, opacity), 0)
+		}
+	})
 }
 
-// materialTint is how opaque the plate of color over a blurred background is
-// at full opacity: enough for text to read, thin enough to keep the blur.
-const materialTint = 0.5
+// micaTint is the plate color over a blurred background in the mica
+// material: the wallpaper's average color, toned towards the theme's own
+// background so that text keeps its contrast.
+func (a *App) micaTint(theme *ui.Theme) ui.Color {
+	if a.wallpaperTint != (ui.Color{}) {
+		return a.wallpaperTint.Mix(theme.Background, 0.25)
+	}
+	return theme.Background.Mix(theme.Accent, 0.12)
+}
 
 // withAlpha scales a color's alpha by factor, for the theme's opacity.
 func withAlpha(col ui.Color, factor float32) ui.Color {
@@ -405,6 +436,17 @@ func parseColor(value string) (ui.Color, bool) {
 		return ui.Color{}, false
 	}
 	return ui.RGBA(uint8(argb>>16), uint8(argb>>8), uint8(argb), float32(argb>>24)/255), true
+}
+
+// parseOpaqueColor parses a theme color but ignores its alpha: the opacity
+// slider is the only control over how transparent a background is, so a
+// color with alpha of its own cannot make it translucent twice.
+func parseOpaqueColor(value string) (ui.Color, bool) {
+	color, ok := parseColor(value)
+	if ok {
+		color.A = 255
+	}
+	return color, ok
 }
 
 func clampFloat(v, low, high float64) float64 {

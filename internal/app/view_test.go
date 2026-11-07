@@ -131,7 +131,7 @@ func TestSettingsViewBuilds(t *testing.T) {
 func TestSettingsSizePreview(t *testing.T) {
 	a := &App{settings: settings.Default(), settingsDraft: settings.Default()}
 	tt := ui.NewTester(a.settingsView, 900, 660)
-	if !tt.HasText("拖动面板的右边、下边或右下角调整大小") {
+	if !tt.HasText("拖动面板移动位置，拖边缘调整大小") {
 		t.Fatal("size preview hint missing")
 	}
 	if !tt.HasText("760 × 560") {

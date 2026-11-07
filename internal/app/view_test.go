@@ -82,10 +82,18 @@ func TestSettingsAppearanceInteractions(t *testing.T) {
 	}
 	a.settingsDraft.Theme.Background = settings.BackgroundAcrylic
 	tt := ui.NewTester(a.settingsView, 900, 660)
-	if err := tt.Click("外观"); err != nil {
-		t.Fatal(err)
+	// Pointer clicks, not label targeting: a full-window background layer
+	// that forgets IgnoreInput passes label clicks but swallows the pointer.
+	clickText := func(s string) {
+		t.Helper()
+		rect, ok := tt.Find(s)
+		if !ok {
+			t.Fatalf("text %q not found", s)
+		}
+		tt.ClickAt(rect.X+rect.W/2, rect.Y+rect.H/2)
+		tt.Frame()
 	}
-	tt.Frame()
+	clickText("外观")
 	if a.settingsPage != 1 {
 		t.Fatalf("settings page = %d, want 1", a.settingsPage)
 	}
@@ -95,14 +103,8 @@ func TestSettingsAppearanceInteractions(t *testing.T) {
 	if tt.HasText("高斯模糊") {
 		t.Fatal("image card shown while acrylic selected")
 	}
-	if err := tt.Click("亚克力"); err != nil { // the dropdown anchor
-		t.Fatal(err)
-	}
-	tt.Frame()
-	if err := tt.Click("图片"); err != nil {
-		t.Fatal(err)
-	}
-	tt.Frame()
+	clickText("亚克力") // the dropdown anchor
+	clickText("图片")
 	if a.settingsDraft.Theme.Background != settings.BackgroundImage {
 		t.Fatalf("background = %q, want image", a.settingsDraft.Theme.Background)
 	}

@@ -299,7 +299,9 @@ func (a *App) drawBackground(c *ui.Context, theme *ui.Theme, canTransparent bool
 		base = theme.Surface
 	}
 	fill := func() ui.Element {
-		return ui.Box(c).Absolute().Top(0).Left(0).Right(0).Bottom(0)
+		// The background covers the whole window; without IgnoreInput it
+		// would swallow every click meant for the content above it.
+		return ui.Box(c).Absolute().Top(0).Left(0).Right(0).Bottom(0).IgnoreInput(true)
 	}
 	switch value.Background {
 	case settings.BackgroundImage:

@@ -22,13 +22,23 @@ const (
 	maxPackageFile    = 30 << 20
 )
 
+// Problem is one plugin package the launcher could not load. The settings
+// page lists these one by one: a single line of joined warnings hid every
+// broken package but the last one.
+type Problem struct {
+	// Directory is the package directory name under the plugin root.
+	Directory string
+	// Message says what is wrong in terms the user can act on.
+	Message string
+}
+
 // Repository installs and enumerates plugin packages under the user's
 // plugin directory.
 type Repository struct {
 	dir       string
 	mu        sync.Mutex
 	installed []protocol.Registration
-	warning   string
+	problems  []Problem
 }
 
 func NewRepository(dir string) *Repository {
@@ -43,47 +53,64 @@ func (r *Repository) Installed() []protocol.Registration {
 	return append([]protocol.Registration(nil), r.installed...)
 }
 
-func (r *Repository) Warning() string {
+// Problems returns the packages that could not be loaded, sorted by directory.
+func (r *Repository) Problems() []Problem {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	return r.warning
+	return append([]Problem(nil), r.problems...)
 }
 
 func (r *Repository) Refresh() error {
 	if err := os.MkdirAll(r.dir, 0o755); err != nil {
-		return err
+		return fmt.Errorf("无法创建插件目录：%w", err)
 	}
 	entries, err := os.ReadDir(r.dir)
 	if errors.Is(err, os.ErrNotExist) {
 		r.mu.Lock()
 		r.installed = nil
+		r.problems = nil
 		r.mu.Unlock()
 		return nil
 	}
 	if err != nil {
-		return err
+		return fmt.Errorf("无法读取插件目录：%w", err)
 	}
 	installed := make([]protocol.Registration, 0)
-	var warning string
+	problems := make([]Problem, 0)
 	for _, entry := range entries {
-		if !entry.IsDir() {
+		if !entry.IsDir() || strings.HasPrefix(entry.Name(), ".") {
+			// A leftover staging directory from an interrupted install holds a
+			// valid plugin.json, and must not be listed as an installed plugin.
 			continue
 		}
 		registration, err := protocol.ReadManifest(filepath.Join(r.dir, entry.Name()))
 		if err != nil {
-			warning = "插件包无效 " + entry.Name() + "：" + err.Error()
+			problems = append(problems, Problem{Directory: entry.Name(), Message: err.Error()})
 			continue
 		}
 		if registration.Manifest.Executable == "" {
-			warning = "跳过旧版 C# 插件 " + entry.Name() + "；请安装可执行插件包"
+			problems = append(problems, Problem{
+				Directory: entry.Name(),
+				Message:   "这是旧版 C# 插件包（只有 entryAssembly）；请安装可执行插件包",
+			})
 			continue
+		}
+		if !strings.EqualFold(registration.Manifest.ID, entry.Name()) {
+			// The plugin still runs from its own directory, and uninstalling
+			// goes through the registration, so it stays usable; the user is
+			// told because the folder no longer matches the package.
+			problems = append(problems, Problem{
+				Directory: entry.Name(),
+				Message:   fmt.Sprintf("目录名与插件标识 %s 不一致；重新安装可修正", registration.Manifest.ID),
+			})
 		}
 		installed = append(installed, registration)
 	}
 	sort.Slice(installed, func(i, j int) bool { return installed[i].Manifest.ID < installed[j].Manifest.ID })
+	sort.Slice(problems, func(i, j int) bool { return problems[i].Directory < problems[j].Directory })
 	r.mu.Lock()
 	r.installed = installed
-	r.warning = warning
+	r.problems = problems
 	r.mu.Unlock()
 	return nil
 }
@@ -178,16 +205,26 @@ func (r *Repository) Install(source string, upgrade bool) (protocol.Registration
 	return protocol.ReadManifest(target)
 }
 
+// Uninstall removes the package directory of one plugin. The directory is
+// taken from the registration, not rebuilt from the id: a package whose folder
+// name and manifest id differ still uninstalls, which is what the settings page
+// promises when it shows the plugin.
 func (r *Repository) Uninstall(id string) error {
-	if !safeID(id) {
-		return fmt.Errorf("插件标识无效")
+	if !protocol.ValidID(id) {
+		return errors.New("插件标识无效")
 	}
-	target := filepath.Join(r.dir, id)
-	if !inside(r.dir, target) {
-		return fmt.Errorf("插件路径超出目录")
+	directory := filepath.Join(r.dir, id)
+	for _, registration := range r.Installed() {
+		if strings.EqualFold(registration.Manifest.ID, id) {
+			directory = registration.Directory
+			break
+		}
 	}
-	if err := os.RemoveAll(target); err != nil {
-		return err
+	if !inside(r.dir, directory) {
+		return errors.New("插件目录超出插件根目录")
+	}
+	if err := os.RemoveAll(directory); err != nil {
+		return fmt.Errorf("无法删除插件目录 %s：%w", filepath.Base(directory), err)
 	}
 	return r.Refresh()
 }
@@ -195,46 +232,44 @@ func (r *Repository) Uninstall(id string) error {
 func readPackageManifest(source string) (protocol.Manifest, error) {
 	info, err := os.Stat(source)
 	if err != nil {
-		return protocol.Manifest{}, err
+		if errors.Is(err, os.ErrNotExist) {
+			return protocol.Manifest{}, fmt.Errorf("插件包不存在：%s", source)
+		}
+		return protocol.Manifest{}, fmt.Errorf("无法读取插件包：%w", err)
 	}
 	if info.IsDir() {
-		data, err := os.ReadFile(filepath.Join(source, "plugin.json"))
+		// ReadManifest checks the entry too, so a directory without the
+		// executable it names is refused here instead of after the copy.
+		registration, err := protocol.ReadManifest(source)
 		if err != nil {
 			return protocol.Manifest{}, err
 		}
-		var manifest protocol.Manifest
-		if err := json.Unmarshal(data, &manifest); err != nil {
-			return protocol.Manifest{}, err
-		}
-		if err := manifest.Validate(); err != nil {
-			return protocol.Manifest{}, err
-		}
-		return manifest, nil
+		return registration.Manifest, nil
 	}
 	archive, err := zip.OpenReader(source)
 	if err != nil {
-		return protocol.Manifest{}, err
+		return protocol.Manifest{}, fmt.Errorf("不是有效的 ZIP 插件包：%w", err)
 	}
 	defer archive.Close()
 	if len(archive.File) < 1 || len(archive.File) > maxPackageEntries {
-		return protocol.Manifest{}, fmt.Errorf("插件包条目数量无效")
+		return protocol.Manifest{}, fmt.Errorf("插件包条目数量无效：%d 个", len(archive.File))
 	}
 	for _, file := range archive.File {
 		if file.Name != "plugin.json" {
 			continue
 		}
 		if file.UncompressedSize64 > 1<<20 {
-			return protocol.Manifest{}, fmt.Errorf("插件清单过大")
+			return protocol.Manifest{}, errors.New("插件清单过大：plugin.json 最大 1 MB")
 		}
 		reader, err := file.Open()
 		if err != nil {
-			return protocol.Manifest{}, err
+			return protocol.Manifest{}, fmt.Errorf("无法读取插件清单：%w", err)
 		}
 		var manifest protocol.Manifest
 		err = json.NewDecoder(reader).Decode(&manifest)
 		reader.Close()
 		if err != nil {
-			return protocol.Manifest{}, err
+			return protocol.Manifest{}, fmt.Errorf("plugin.json 格式错误：%w", err)
 		}
 		if err := manifest.Validate(); err != nil {
 			return protocol.Manifest{}, err
@@ -247,11 +282,11 @@ func readPackageManifest(source string) (protocol.Manifest, error) {
 			}
 		}
 		if !found {
-			return protocol.Manifest{}, fmt.Errorf("插件入口不存在")
+			return protocol.Manifest{}, fmt.Errorf("插件入口 %s 不在包内", manifest.Entry())
 		}
 		return manifest, nil
 	}
-	return protocol.Manifest{}, fmt.Errorf("插件包缺少 plugin.json")
+	return protocol.Manifest{}, errors.New("插件包缺少 plugin.json")
 }
 
 func extractPackage(source, destination string) error {
@@ -356,18 +391,6 @@ func inside(root, path string) bool {
 	root = strings.ToLower(filepath.Clean(root))
 	path = strings.ToLower(filepath.Clean(path))
 	return path == root || strings.HasPrefix(path, root+string(os.PathSeparator))
-}
-
-func safeID(id string) bool {
-	if id == "" || len(id) > 100 || id == "." || id == ".." {
-		return false
-	}
-	for _, r := range id {
-		if !(r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= '0' && r <= '9' || r == '.' || r == '-' || r == '_') {
-			return false
-		}
-	}
-	return true
 }
 
 func compareVersion(a, b string) int {

@@ -89,6 +89,8 @@ type App struct {
 	icons       map[string]*ui.Bitmap
 	iconLoading map[string]bool
 	iconSize    int
+	iconPixels  int
+	scaleFactor float64
 	mem         string
 	background  *ui.Bitmap
 	// wallpaperTint is the average color of the desktop wallpaper, which
@@ -210,10 +212,20 @@ func (a *App) ready() {
 	a.plugins.Configure(a.pluginRepo.Installed(), a.settings.Plugins)
 	log.Printf("plugins installed=%d enabled=%v", len(a.pluginRepo.Installed()), a.settings.Plugins.EnabledIDs)
 
-	a.iconSize = 28
+	// The result rows draw the icons in DIPs; the shell renders them in device
+	// pixels, so they are asked for at the display's scale: a 28 DIP icon on a
+	// display at 150% needs 42 pixels, and asking for 28 and stretching them is
+	// what made the icons look soft next to the desktop's.
+	a.iconSize = 32
+	a.iconPixels = 32
+	a.scaleFactor = 1
 	for _, display := range mygo.Screen.Displays() {
-		a.iconSize = max(a.iconSize, int(float64(28)*display.ScaleFactor))
+		if display.ScaleFactor > a.scaleFactor {
+			a.scaleFactor = display.ScaleFactor
+		}
 	}
+	a.iconPixels = int(float64(a.iconSize)*a.scaleFactor + 0.5)
+	a.iconPixels = min(max(a.iconPixels, a.iconSize), 256)
 	a.workArea = layout.WorkArea{Width: 1920, Height: 1080}
 	if display := mygo.Screen.PrimaryDisplay(); display.WorkArea.Width > 0 && display.WorkArea.Height > 0 {
 		a.workArea = layout.WorkArea{
@@ -230,6 +242,7 @@ func (a *App) ready() {
 		search.UtilityProvider{Settings: a.currentSettings},
 		search.SiteSearchProvider{Settings: a.currentSettings},
 		search.LauncherCommands{},
+		search.SystemProvider{},
 		windowProvider{},
 		a.everything,
 		a.plugins,
@@ -284,9 +297,14 @@ func (a *App) ready() {
 		a.show()
 	}
 	if query := os.Getenv("FL_DEBUG_QUERY"); query != "" {
-		a.query = query
-		a.updateResults()
-		a.panel.Update(func() {})
+		// After show: opening the panel clears the query, so a query set
+		// before it would never be seen.
+		time.AfterFunc(2*time.Second, func() {
+			a.panel.Update(func() {
+				a.query = query
+				a.updateResults()
+			})
+		})
 	}
 	if os.Getenv("FL_DEBUG_SHOW") == "1" {
 		a.show()
@@ -1038,6 +1056,13 @@ func (a *App) executeSelected(action model.EntryAction) {
 }
 
 func (a *App) openSettings() {
+	// A plugin package copied into the directory while the app ran appears
+	// when the settings open, without a restart.
+	if a.pluginRepo != nil && a.plugins != nil {
+		if err := a.pluginRepo.Refresh(); err == nil {
+			a.plugins.Configure(a.pluginRepo.Installed(), a.settings.Plugins)
+		}
+	}
 	if a.settingsWin != nil {
 		a.settingsWin.Show()
 		a.settingsWin.Focus()
@@ -1047,18 +1072,20 @@ func (a *App) openSettings() {
 	a.lastPreview = a.settingsDraft.Theme
 	// No system title bar: the window draws its own, so that it matches the
 	// theme instead of cutting a pale Windows frame across it. The view keeps
-	// the resizing edges and the shadow of a titled window.
+	// the resizing edges and the shadow of a titled window. The default is
+	// wider than tall: the pages read as a column of cards, and a window the
+	// height of the whole screen wasted the width.
 	a.settingsWin = mygo.NewWindow(mygo.WindowOptions{
 		Title:             "FluentLauncher 设置",
-		Width:             900,
-		Height:            660,
-		MinWidth:          720,
-		MinHeight:         520,
+		Width:             1180,
+		Height:            840,
+		MinWidth:          820,
+		MinHeight:         560,
 		Transparent:       true,
 		TitleBarStyle:     mygo.TitleBarHidden,
 		HideWindowButtons: true,
 		DisableMaximize:   true,
-		StateKey:          "settings",
+		StateKey:          "settings-layout-v2",
 		Content:           ui.View(a.settingsView),
 	})
 	a.settingsWin.OnClose(func(e *mygo.CloseEvent) {

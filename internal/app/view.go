@@ -444,7 +444,11 @@ func (a *App) resultIcon(entry model.Entry) *ui.Bitmap {
 }
 
 func (a *App) loadIcon(path string) {
-	data, err := mygo.Shell.FileIcon(path, a.iconSize)
+	pixels := a.iconPixels
+	if pixels <= 0 {
+		pixels = 28
+	}
+	data, err := mygo.Shell.FileIcon(path, pixels)
 	var bitmap *ui.Bitmap
 	if err == nil {
 		bitmap, _ = ui.DecodeBitmap(data)

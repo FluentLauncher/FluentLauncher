@@ -27,8 +27,12 @@
 | MainWindow / SettingsWindow | internal/app | 搜索面板、动作面板、设置页、浮层、工作区结果 |
 | 窗口材质与标题栏 | internal/winapi/glass + internal/app/chrome.go | 亚克力/云母走系统模糊，真实透出下层窗口；设置与工作区窗口自绘标题栏 |
 | 音量浮层 | internal/app/volume.go | 底部居中的胶囊：图标、进度条、百分比，自身带模糊 |
+| 插件 | internal/plugin + internal/app/settings_view.go | 独立进程、manifest 校验、状态/耗时/重启、每次搜索查询开关；设置页按插件展示状态与诊断 |
+| 系统功能搜索 | internal/core/systemsearch + internal/core/search | 79 条 Windows 设置/控制面板/系统工具目录，支持中文同义词、英文名与拼音首字母；回车经 ms-settings: 或 ShellExecute 打开 |
 | 设置保存 | internal/app/settings_view.go | 无保存/取消按钮，改动 600ms 后自动应用并保存；校验失败时回退已保存值并提示 |
 | 托盘菜单 | internal/app/app.go | 使用系统菜单，跟随应用深/浅色（mygo 设置首选应用模式） |
+| 图标 | internal/app/app.go + view.go | 结果图标按 32 DIP、以 设备像素=32×缩放 向 shell 取图，避免 1.5× 放大导致的模糊 |
+| 设置窗口 | internal/app/app.go | 默认 1180×840（更宽更矮），StateKey 换新以丢弃旧的过高窗口尺寸 |
 | 弹出位置与尺寸 | internal/app/size_preview.go + internal/core/layout | 拖动缩略图或面板手柄设置尺寸与相对位置（AnchorX/AnchorY），按屏幕比例记忆；搜索框高度、结果行高度可调 |
 
 ## 仍需补齐

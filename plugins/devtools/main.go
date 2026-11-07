@@ -33,14 +33,14 @@ func (devtoolsPlugin) Query(ctx context.Context, query pluginsdk.Query) ([]plugi
 		}
 		if item.Text != "" {
 			result.PreviewText = item.Text
-			result.Actions = []pluginsdk.Action{{ID: "copy", Title: "复制结果", Kind: "copyText", Value: item.Text}}
+			result.Actions = []pluginsdk.Action{{ID: "copy", Title: "复制结果", Kind: pluginsdk.KindCopyText, Value: item.Text}}
 		}
 		results = append(results, result)
 	}
 	return results, nil
 }
 
-func (devtoolsPlugin) Execute(context.Context, string, string) error { return nil }
+func (devtoolsPlugin) Execute(context.Context, pluginsdk.ExecuteRequest) error { return nil }
 
 func splitTool(text string) (string, string) {
 	trimmed := strings.TrimSpace(text)
@@ -78,7 +78,7 @@ func itoa(value int) string {
 }
 
 func main() {
-	if err := pluginsdk.Serve("official.devtools", devtoolsPlugin{}); err != nil {
+	if err := pluginsdk.ServeFromManifest(devtoolsPlugin{}); err != nil {
 		log.Fatal(err)
 	}
 }

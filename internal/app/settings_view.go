@@ -14,6 +14,7 @@ import (
 
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/plugin"
 	"fluentlauncher/internal/plugin/protocol"
 	"fluentlauncher/internal/store"
 )
@@ -639,59 +640,268 @@ func (a *App) launchItemsPage(c *ui.Context) {
 }
 
 func (a *App) pluginsPage(c *ui.Context) {
+	theme := c.Theme()
 	if a.pluginRepo == nil || a.plugins == nil {
-		ui.Text(c, "插件运行时未初始化。").FontSize(12).TextColor(c.Theme().TextMuted)
+		settingCard(c, "插件", func(c *ui.Context) {
+			ui.Text(c, "插件运行时未初始化，请重启 FluentLauncher。").
+				FontSize(12).TextColor(theme.TextMuted)
+		})
 		return
 	}
+	statuses := a.plugins.Statuses()
+	a.installedPluginsCard(c, theme, statuses)
+	a.installPluginsCard(c, theme)
+	a.pluginProblemsCard(c, theme)
+	a.pluginRuntimeCard(c, theme, statuses)
+}
+
+// installedPluginsCard lists what is installed, one plate per plugin: the
+// name and its condition on the first line, then id, version, description and
+// the numbers the runtime kept, so nothing has to be read out of one long line.
+func (a *App) installedPluginsCard(c *ui.Context, theme *ui.Theme, statuses []plugin.Status) {
 	settingCard(c, "已安装插件", func(c *ui.Context) {
-		installed := a.pluginRepo.Installed()
-		if len(installed) == 0 {
-			ui.Text(c, "尚未安装插件。").FontSize(12).TextColor(c.Theme().TextMuted)
+		if len(statuses) == 0 {
+			a.emptyPluginsHint(c, theme)
+			return
 		}
-		for _, registration := range installed {
-			manifest := registration.Manifest
-			enabled := containsFold(a.settingsDraft.Plugins.EnabledIDs, manifest.ID)
-			ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-				ui.Switch(c, &enabled)
-				ui.Column(c).Grow(1).Gap(2).Children(func() {
-					ui.Text(c, manifest.Name).FontSize(13).TextColor(c.Theme().Text)
-					ui.Text(c, manifest.Version+" · "+strings.Join(manifest.Keywords, ", ")).FontSize(11).TextColor(c.Theme().TextMuted)
-				})
-				if compactButton(c, "卸载").Clicked() {
-					a.plugins.Stop(manifest.ID)
-					_ = a.pluginRepo.Uninstall(manifest.ID)
+		for _, status := range statuses {
+			a.pluginEntry(c, theme, status)
+		}
+	})
+}
+
+// emptyPluginsHint explains what a plugin is good for; a page that says only
+// "nothing here" leaves the user with no reason to install one.
+func (a *App) emptyPluginsHint(c *ui.Context, theme *ui.Theme) {
+	ui.Column(c).Gap(4).Children(func() {
+		ui.Text(c, "还没有安装插件").FontSize(13).Bold().TextColor(theme.Text)
+		ui.Text(c, "插件是启动器额外的搜索来源：装好并启用后，输入它的触发词（例如 echo、time），"+
+			"结果里就会直接出现它给出的答案，例如文本转换、时间戳、摘要。").
+			FontSize(12).TextColor(theme.TextMuted).Wrap()
+		ui.Text(c, "插件以独立进程运行，只在需要时启动，空闲后自动回收，不影响常规搜索的速度。").
+			FontSize(12).TextColor(theme.TextMuted).Wrap()
+		ui.Text(c, "官方示例可以在下面的「安装插件」里一键添加，第三方插件可以从 ZIP 包或目录安装。").
+			FontSize(12).TextColor(theme.TextMuted).Wrap()
+	})
+}
+
+// pluginEntry is one installed plugin. The plate keeps its lines together and
+// apart from the next plugin, which a flat list of rows did not: a description
+// and a version looked like the same block.
+func (a *App) pluginEntry(c *ui.Context, theme *ui.Theme, status plugin.Status) {
+	manifest := status.Registration.Manifest
+	enabled := status.Enabled
+	global := status.GlobalQuery
+	ui.Column(c).Gap(6).Padding(12, 14).Radius(8).
+		Background(theme.Surface.Alpha(0.5)).Border(1, theme.Border).Children(func() {
+		ui.Row(c).Gap(10).AlignItems(ui.Center).Children(func() {
+			ui.Text(c, manifest.Name).FontSize(13).Bold().TextColor(theme.Text).Grow(1).SingleLine()
+			pluginStatePill(c, theme, status.State())
+			if status.State() == plugin.StatePaused || status.State() == plugin.StateFailed {
+				if compactButton(c, "重启").Clicked() {
+					a.plugins.Restart(manifest.ID)
 					a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins)
 				}
-			})
-			if enabled != containsFold(a.settingsDraft.Plugins.EnabledIDs, manifest.ID) {
-				a.settingsDraft.Plugins.EnabledIDs = toggleID(a.settingsDraft.Plugins.EnabledIDs, manifest.ID, enabled)
-				a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins)
+			}
+			if compactButton(c, "卸载").Clicked() {
+				a.uninstallPlugin(manifest.ID)
+			}
+			if ui.Switch(c, &enabled).Changed() {
+				a.setPluginEnabled(manifest.ID, enabled)
+			}
+		})
+		ui.Text(c, manifest.ID+" · 版本 "+manifest.Version).
+			FontSize(11).TextColor(theme.TextMuted).SingleLine()
+		if description := strings.TrimSpace(manifest.Description); description != "" {
+			ui.Text(c, description).FontSize(12).TextColor(theme.TextMuted).Wrap()
+		}
+		if len(manifest.Keywords) > 0 {
+			ui.Text(c, "触发词："+strings.Join(manifest.Keywords, "、")).
+				FontSize(11).TextColor(theme.TextMuted).Wrap()
+		}
+		ui.Text(c, status.RuntimeText()).FontSize(11).TextColor(theme.TextMuted).Wrap()
+		if status.Dropped > 0 && status.DropNote != "" {
+			ui.Text(c, status.DropNote).FontSize(11).TextColor(theme.Warning).Wrap()
+		}
+		if status.Error != "" && status.State() != plugin.StateRunning {
+			ui.Text(c, status.Error).FontSize(11).TextColor(theme.Danger).Wrap()
+		}
+		if stderr := strings.TrimSpace(status.Stderr); stderr != "" {
+			ui.Text(c, "错误输出："+tailText(stderr, 400)).
+				FontSize(11).TextColor(theme.TextMuted).Wrap()
+		}
+		if enabled {
+			// The switch in the header decides whether the plugin is asked at
+			// all; this decides whether it needs its keywords first.
+			if ui.Checkbox(c, &global, "每次搜索都查询（无需触发词）").Changed() {
+				a.setPluginGlobalQuery(manifest.ID, global)
 			}
 		}
 	})
-	settingCard(c, "安装", func(c *ui.Context) {
-		ui.Row(c).Gap(8).Children(func() {
-			for _, example := range []struct{ id, name string }{{"official.echo", "回显示例"}, {"official.devtools", "开发工具"}} {
-				if !pluginInstalled(a.pluginRepo.Installed(), example.id) && compactButton(c, "安装官方 "+example.name).Clicked() {
-					a.installOfficial(example.id)
-				}
-			}
+}
+
+// pluginStatePill shows the condition of a plugin as a small tag: the color
+// says it at a glance, the word says it exactly. Colors come from the theme,
+// so the tag follows light, dark and custom themes.
+func pluginStatePill(c *ui.Context, theme *ui.Theme, state plugin.State) {
+	color := theme.TextMuted
+	switch state {
+	case plugin.StateRunning:
+		color = theme.Success
+	case plugin.StatePaused:
+		color = theme.Warning
+	case plugin.StateFailed:
+		color = theme.Danger
+	}
+	ui.Row(c).Shrink(0).Padding(1, 8).Radius(999).Background(color.Alpha(0.16)).Children(func() {
+		ui.Text(c, state.String()).FontSize(11).TextColor(color).SingleLine()
+	})
+}
+
+// installPluginsCard is where a plugin comes from: the bundled examples with a
+// sentence each, then the two ways to install a third-party package.
+func (a *App) installPluginsCard(c *ui.Context, theme *ui.Theme) {
+	settingCard(c, "安装插件", func(c *ui.Context) {
+		ui.Text(c, "官方示例随启动器提供，安装后立即可用；第三方插件需要是包含 plugin.json 的 ZIP 包，"+
+			"或已经解压好的目录。").
+			FontSize(12).TextColor(theme.TextMuted).Wrap()
+		for _, official := range plugin.OfficialPlugins() {
+			a.officialPluginRow(c, theme, official)
+		}
+		ui.Divider(c)
+		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
 			if compactButton(c, "安装 ZIP…").Clicked() {
 				go a.installPlugin(false)
 			}
 			if compactButton(c, "安装目录…").Clicked() {
 				go a.installPlugin(true)
 			}
+			ui.Text(c, a.pluginRepo.Dir()).FontSize(11).TextColor(theme.TextMuted).Grow(1).SingleLine()
 		})
-		for _, diagnostic := range a.plugins.Diagnostics() {
-			ui.Text(c, fmt.Sprintf("%s · PID %d · 启动 %.0fms · 查询 %.0fms %s",
-				diagnostic.ID, diagnostic.PID, diagnostic.StartupMs, diagnostic.QueryMs, diagnostic.Error)).
-				FontSize(11).TextColor(c.Theme().TextMuted)
+	})
+}
+
+// officialPluginRow is one bundled example, with what it does in one line. An
+// installed one loses its button: the card above is where it is turned off or
+// removed, and two places to install it would only raise the question of which
+// one counts.
+func (a *App) officialPluginRow(c *ui.Context, theme *ui.Theme, official plugin.OfficialPlugin) {
+	installed := pluginInstalled(a.pluginRepo.Installed(), official.ID)
+	ui.Row(c).Gap(12).AlignItems(ui.Center).Padding(10, 12).Radius(8).
+		Background(theme.Surface.Alpha(0.5)).Border(1, theme.Border).Children(func() {
+		ui.Column(c).Grow(1).Gap(2).Children(func() {
+			ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
+				ui.Text(c, official.Name).FontSize(13).TextColor(theme.Text).SingleLine()
+				ui.Text(c, official.ID).FontSize(11).TextColor(theme.TextMuted).SingleLine()
+			})
+			ui.Text(c, official.Summary).FontSize(11).TextColor(theme.TextMuted).Wrap()
+		})
+		if installed {
+			ui.Text(c, "已安装").FontSize(11).TextColor(theme.Success).Shrink(0)
+			return
 		}
-		if warning := a.pluginRepo.Warning(); warning != "" {
-			ui.Text(c, warning).FontSize(11).TextColor(c.Theme().Danger)
+		if compactPrimaryButton(c, "安装").Clicked() {
+			a.installOfficialPlugin(official.ID)
 		}
 	})
+}
+
+// pluginProblemsCard lists the packages on disk that could not be loaded, one
+// per line. The old page kept only the last warning, joined into a paragraph,
+// so a broken package could hide behind a working one.
+func (a *App) pluginProblemsCard(c *ui.Context, theme *ui.Theme) {
+	problems := a.pluginRepo.Problems()
+	if len(problems) == 0 {
+		return
+	}
+	settingCard(c, "无法加载的插件包", func(c *ui.Context) {
+		for _, problem := range problems {
+			ui.Column(c).Gap(2).Children(func() {
+				ui.Text(c, problem.Directory).FontSize(12).TextColor(theme.Text).SingleLine()
+				ui.Text(c, problem.Message).FontSize(11).TextColor(theme.Danger).Wrap()
+			})
+		}
+		ui.Text(c, "这些目录不会被使用；修正后重启 FluentLauncher 重新扫描，或删除目录。").
+			FontSize(11).TextColor(theme.TextMuted).Wrap()
+	})
+}
+
+// pluginRuntimeCard sums up how the plugin runtime is set up and how much of it
+// is in use, which is what one asks when a plugin "does not work".
+func (a *App) pluginRuntimeCard(c *ui.Context, theme *ui.Theme, statuses []plugin.Status) {
+	options := a.settingsDraft.Plugins
+	running := 0
+	for _, status := range statuses {
+		if status.Running {
+			running++
+		}
+	}
+	enabled := 0
+	for _, status := range statuses {
+		if status.Enabled {
+			enabled++
+		}
+	}
+	settingCard(c, "运行诊断", func(c *ui.Context) {
+		ui.Text(c, fmt.Sprintf("已启用 %d 个插件，活动进程 %d / %d 个；进程空闲 %d 秒后回收，单次查询超时 %d 毫秒。",
+			enabled, running, options.MaxActiveProcesses, options.IdleSeconds, options.QueryTimeoutMs)).
+			FontSize(11).TextColor(theme.TextMuted).Wrap()
+		ui.Text(c, "插件是受信任的本地代码，进程隔离能限制崩溃影响，但不等于安全沙箱；只安装来源可信的插件包。").
+			FontSize(11).TextColor(theme.TextMuted).Wrap()
+	})
+}
+
+// setPluginEnabled turns one plugin on or off and reconfigures the runtime at
+// once, so the next search already follows the switch instead of the saved
+// settings a moment later.
+func (a *App) setPluginEnabled(id string, enabled bool) {
+	a.settingsDraft.Plugins.EnabledIDs = toggleID(a.settingsDraft.Plugins.EnabledIDs, id, enabled)
+	a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins)
+}
+
+// setPluginGlobalQuery chooses whether a plugin is asked on every search or
+// only after its keywords. The setting existed but no page could reach it.
+func (a *App) setPluginGlobalQuery(id string, global bool) {
+	a.settingsDraft.Plugins.GlobalQueryIDs = toggleID(a.settingsDraft.Plugins.GlobalQueryIDs, id, global)
+	a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins)
+}
+
+// uninstallPlugin stops the process, removes the package and forgets the id in
+// the settings, so a later reinstall starts from a clean state instead of an
+// "enabled" entry that points at nothing.
+func (a *App) uninstallPlugin(id string) {
+	a.plugins.Stop(id)
+	if err := a.pluginRepo.Uninstall(id); err != nil {
+		a.settingsWin.Update(func() { a.settingsError = err.Error() })
+		return
+	}
+	a.settingsDraft.Plugins.EnabledIDs = toggleID(a.settingsDraft.Plugins.EnabledIDs, id, false)
+	a.settingsDraft.Plugins.GlobalQueryIDs = toggleID(a.settingsDraft.Plugins.GlobalQueryIDs, id, false)
+	a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins)
+	a.settingsWin.Update(func() { a.settingsError = "" })
+}
+
+// installOfficialPlugin installs a bundled example and switches it on in one
+// step: an installed but disabled plugin looks like a broken one, because the
+// search stays empty until it is enabled.
+func (a *App) installOfficialPlugin(id string) {
+	a.installOfficial(id)
+	if !pluginInstalled(a.pluginRepo.Installed(), id) {
+		return
+	}
+	if !containsFold(a.settingsDraft.Plugins.EnabledIDs, id) {
+		a.setPluginEnabled(id, true)
+	}
+}
+
+// tailText keeps the end of a long message, where the actual error is, and
+// marks what it cut.
+func tailText(text string, limit int) string {
+	runes := []rune(text)
+	if len(runes) <= limit {
+		return text
+	}
+	return "…" + string(runes[len(runes)-limit:])
 }
 
 func (a *App) aboutPage(c *ui.Context) {
@@ -781,12 +991,21 @@ func (a *App) installPlugin(directory bool) {
 	if check.IsUpgrade() {
 		a.plugins.Stop(check.Package.ID)
 	}
-	if _, err := a.pluginRepo.Install(paths[0], check.IsUpgrade()); err != nil {
+	registration, err := a.pluginRepo.Install(paths[0], check.IsUpgrade())
+	if err != nil {
 		a.settingsWin.Update(func() { a.settingsError = err.Error() })
 		return
 	}
-	a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins)
-	a.settingsWin.Update(func() { a.settingsError = "" })
+	// A freshly installed plugin is switched on: installing it and finding a
+	// silent search is the same surprise as a broken package. This runs
+	// off the UI thread, so the draft is touched inside Update like every
+	// other change to it from here.
+	id := registration.Manifest.ID
+	a.settingsWin.Update(func() {
+		a.settingsDraft.Plugins.EnabledIDs = toggleID(a.settingsDraft.Plugins.EnabledIDs, id, true)
+		a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins)
+		a.settingsError = ""
+	})
 }
 
 func containsFold(items []string, value string) bool {

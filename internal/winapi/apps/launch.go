@@ -84,6 +84,18 @@ func Launch(ctx context.Context, entry model.Entry, action model.EntryAction) mo
 		}
 		return model.Outcome{Succeeded: true}
 	}
+	if entry.Kind == model.Setting {
+		// A settings page is a protocol URI that the shell's "open" verb hands
+		// to its handler; a control panel applet or tool is a program that
+		// needs ShellExecuteEx so that it receives its arguments.
+		if entry.Arguments == "" {
+			if err := mygo.Shell.OpenExternal(entry.LaunchTarget); err != nil {
+				return model.Outcome{Error: err.Error()}
+			}
+			return model.Outcome{Succeeded: true}
+		}
+		return shellExecute(entry.LaunchTarget, entry.Arguments, entry.WorkingDir, false)
+	}
 	if entry.Arguments == "" && entry.WorkingDir == "" && !runAs {
 		if entry.AppID != "" {
 			if err := mygo.Shell.LaunchApp(mygo.InstalledApp{Name: entry.Title, ID: entry.AppID, Path: entry.IconPath}); err != nil {

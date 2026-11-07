@@ -17,6 +17,10 @@ const (
 	Command
 	Window
 	Workspace
+	// Setting is a Windows settings page, control panel item or system tool.
+	// LaunchTarget is a protocol URI (ms-settings:display) or a program, and
+	// Arguments carries the applet or module parameters.
+	Setting
 )
 
 // Action is a plugin-provided action shown in the result action panel.

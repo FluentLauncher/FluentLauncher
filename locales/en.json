@@ -559,5 +559,16 @@
   "resultUUIDHint": "Random UUID (Enter copies)",
   "cmdCopyValue": "Copy Result",
   "settingsPluginsOfficialPick": "Official plugin",
-  "settingsPluginsOfficialPickHint": "Pick an official plugin to install"
+  "settingsPluginsOfficialPickHint": "Pick an official plugin to install",
+  "resultConvertHint": "{from} → {to} (Enter copies)",
+  "resultB64EncodeHint": "Base64 encode (Enter copies)",
+  "resultB64DecodeHint": "Base64 decode (Enter copies)",
+  "resultUrlEncodeHint": "URL encode (Enter copies)",
+  "resultUrlDecodeHint": "URL decode (Enter copies)",
+  "resultDateCalcHint": "Date math (Enter copies)",
+  "resultDaysHint": "Days from today (Enter copies)",
+  "resultWeekHint": "Current ISO week (Enter copies)",
+  "resultRandHint": "Random integer (Enter copies; search again to reroll)",
+  "resultPassHint": "Random password (Enter copies; search again to reroll)",
+  "resultColorHint": "RGB {rgb} · HSL {hsl}"
 }

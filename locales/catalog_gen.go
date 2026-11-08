@@ -8089,3 +8089,161 @@ func SettingsPluginsOfficialPickHint() string {
 func (msgs Messages) SettingsPluginsOfficialPickHint() string {
 	return Catalog.Format(msgs.locale, "settingsPluginsOfficialPickHint", nil)
 }
+
+// ResultConvertHint says "{from} → {to}（回车复制）"
+// in the language the app shows.
+//
+// Instant tool: unit conversion row subtitle.
+func ResultConvertHint(from string, to string) string {
+	return In(i18n.Locale()).ResultConvertHint(from, to)
+}
+
+// ResultConvertHint says "{from} → {to}（回车复制）"
+// in the language of msgs.
+//
+// Instant tool: unit conversion row subtitle.
+func (msgs Messages) ResultConvertHint(from string, to string) string {
+	return Catalog.Format(msgs.locale, "resultConvertHint", map[string]any{"from": from, "to": to})
+}
+
+// ResultB64EncodeHint says "Base64 编码（回车复制）"
+// in the language the app shows.
+//
+// Instant tool: Base64 encode row subtitle.
+func ResultB64EncodeHint() string { return In(i18n.Locale()).ResultB64EncodeHint() }
+
+// ResultB64EncodeHint says "Base64 编码（回车复制）"
+// in the language of msgs.
+//
+// Instant tool: Base64 encode row subtitle.
+func (msgs Messages) ResultB64EncodeHint() string {
+	return Catalog.Format(msgs.locale, "resultB64EncodeHint", nil)
+}
+
+// ResultB64DecodeHint says "Base64 解码（回车复制）"
+// in the language the app shows.
+//
+// Instant tool: Base64 decode row subtitle.
+func ResultB64DecodeHint() string { return In(i18n.Locale()).ResultB64DecodeHint() }
+
+// ResultB64DecodeHint says "Base64 解码（回车复制）"
+// in the language of msgs.
+//
+// Instant tool: Base64 decode row subtitle.
+func (msgs Messages) ResultB64DecodeHint() string {
+	return Catalog.Format(msgs.locale, "resultB64DecodeHint", nil)
+}
+
+// ResultUrlEncodeHint says "URL 编码（回车复制）"
+// in the language the app shows.
+//
+// Instant tool: URL encode row subtitle.
+func ResultUrlEncodeHint() string { return In(i18n.Locale()).ResultUrlEncodeHint() }
+
+// ResultUrlEncodeHint says "URL 编码（回车复制）"
+// in the language of msgs.
+//
+// Instant tool: URL encode row subtitle.
+func (msgs Messages) ResultUrlEncodeHint() string {
+	return Catalog.Format(msgs.locale, "resultUrlEncodeHint", nil)
+}
+
+// ResultUrlDecodeHint says "URL 解码（回车复制）"
+// in the language the app shows.
+//
+// Instant tool: URL decode row subtitle.
+func ResultUrlDecodeHint() string { return In(i18n.Locale()).ResultUrlDecodeHint() }
+
+// ResultUrlDecodeHint says "URL 解码（回车复制）"
+// in the language of msgs.
+//
+// Instant tool: URL decode row subtitle.
+func (msgs Messages) ResultUrlDecodeHint() string {
+	return Catalog.Format(msgs.locale, "resultUrlDecodeHint", nil)
+}
+
+// ResultDateCalcHint says "日期计算（回车复制）"
+// in the language the app shows.
+//
+// Instant tool: date math row subtitle.
+func ResultDateCalcHint() string { return In(i18n.Locale()).ResultDateCalcHint() }
+
+// ResultDateCalcHint says "日期计算（回车复制）"
+// in the language of msgs.
+//
+// Instant tool: date math row subtitle.
+func (msgs Messages) ResultDateCalcHint() string {
+	return Catalog.Format(msgs.locale, "resultDateCalcHint", nil)
+}
+
+// ResultDaysHint says "距今天数（回车复制）"
+// in the language the app shows.
+//
+// Instant tool: days-from-today row subtitle.
+func ResultDaysHint() string { return In(i18n.Locale()).ResultDaysHint() }
+
+// ResultDaysHint says "距今天数（回车复制）"
+// in the language of msgs.
+//
+// Instant tool: days-from-today row subtitle.
+func (msgs Messages) ResultDaysHint() string {
+	return Catalog.Format(msgs.locale, "resultDaysHint", nil)
+}
+
+// ResultWeekHint says "当前 ISO 周（回车复制）"
+// in the language the app shows.
+//
+// Instant tool: ISO week row subtitle.
+func ResultWeekHint() string { return In(i18n.Locale()).ResultWeekHint() }
+
+// ResultWeekHint says "当前 ISO 周（回车复制）"
+// in the language of msgs.
+//
+// Instant tool: ISO week row subtitle.
+func (msgs Messages) ResultWeekHint() string {
+	return Catalog.Format(msgs.locale, "resultWeekHint", nil)
+}
+
+// ResultRandHint says "随机整数（回车复制，重新搜索可刷新）"
+// in the language the app shows.
+//
+// Instant tool: random integer row subtitle.
+func ResultRandHint() string { return In(i18n.Locale()).ResultRandHint() }
+
+// ResultRandHint says "随机整数（回车复制，重新搜索可刷新）"
+// in the language of msgs.
+//
+// Instant tool: random integer row subtitle.
+func (msgs Messages) ResultRandHint() string {
+	return Catalog.Format(msgs.locale, "resultRandHint", nil)
+}
+
+// ResultPassHint says "随机密码（回车复制，重新搜索可刷新）"
+// in the language the app shows.
+//
+// Instant tool: random password row subtitle.
+func ResultPassHint() string { return In(i18n.Locale()).ResultPassHint() }
+
+// ResultPassHint says "随机密码（回车复制，重新搜索可刷新）"
+// in the language of msgs.
+//
+// Instant tool: random password row subtitle.
+func (msgs Messages) ResultPassHint() string {
+	return Catalog.Format(msgs.locale, "resultPassHint", nil)
+}
+
+// ResultColorHint says "RGB {rgb} · HSL {hsl}"
+// in the language the app shows.
+//
+// Instant tool: color row subtitle with RGB and HSL forms.
+func ResultColorHint(rgb string, hsl string) string {
+	return In(i18n.Locale()).ResultColorHint(rgb, hsl)
+}
+
+// ResultColorHint says "RGB {rgb} · HSL {hsl}"
+// in the language of msgs.
+//
+// Instant tool: color row subtitle with RGB and HSL forms.
+func (msgs Messages) ResultColorHint(rgb string, hsl string) string {
+	return Catalog.Format(msgs.locale, "resultColorHint", map[string]any{"rgb": rgb, "hsl": hsl})
+}

@@ -36,7 +36,7 @@
 | 设置窗口 | internal/app/app.go | 默认 1180×840（更宽更矮），StateKey 换新以丢弃旧的过高窗口尺寸 |
 | 弹出位置与尺寸 | internal/app/size_preview.go + internal/core/layout | 拖动缩略图或面板手柄设置尺寸与相对位置（AnchorX/AnchorY），按屏幕比例记忆；搜索框高度、结果行高度可调 |
 | 界面国际化 | locales/（mygo ARB catalog）+ settings.Language | 简体中文（source）、繁体中文、英文；默认跟随系统语言，设置页可切换、立即生效；窗口标题/托盘菜单经 OnLocaleChanged 重建；系统功能目录三语显示，匹配关键词保持多语言 |
-| 即时工具与内置图标 | internal/core/search/utility.go + internal/app/builtin_icons.go | date/time/timestamp/uuid 关键词出结果、回车复制；计算器/网址/设置/工作区/插件等无文件图标的条目改绘内置线性图标，不再落回首字母头像 |
+| 即时工具与内置图标 | internal/core/search/utility.go + internal/app/builtin_icons.go | date（含日期算术，月移钳到月末）/time/timestamp/uuid/days/week/rand/pass/单位换算（中英单位、温度特例）/b64 与 URL 编解码/颜色（HEX⇄RGB⇄HSL）关键词出结果、回车复制；计算器/网址/设置/工作区/插件等无文件图标的条目改绘内置线性图标 |
 | 官方插件清单 | internal/plugin/official_index.json（embed） | 数据驱动三语清单，设置页下拉选择安装；新增官方插件不改 Go 代码 |
 
 ## 仍需补齐

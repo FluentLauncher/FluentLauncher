@@ -559,5 +559,16 @@
   "resultUUIDHint": "隨機 UUID（Enter 複製）",
   "cmdCopyValue": "複製結果",
   "settingsPluginsOfficialPick": "官方外掛程式",
-  "settingsPluginsOfficialPickHint": "選擇要安裝的官方外掛程式"
+  "settingsPluginsOfficialPickHint": "選擇要安裝的官方外掛程式",
+  "resultConvertHint": "{from} → {to}（Enter 複製）",
+  "resultB64EncodeHint": "Base64 編碼（Enter 複製）",
+  "resultB64DecodeHint": "Base64 解碼（Enter 複製）",
+  "resultUrlEncodeHint": "URL 編碼（Enter 複製）",
+  "resultUrlDecodeHint": "URL 解碼（Enter 複製）",
+  "resultDateCalcHint": "日期計算（Enter 複製）",
+  "resultDaysHint": "距今天數（Enter 複製）",
+  "resultWeekHint": "目前 ISO 週（Enter 複製）",
+  "resultRandHint": "隨機整數（Enter 複製，重新搜尋可刷新）",
+  "resultPassHint": "隨機密碼（Enter 複製，重新搜尋可刷新）",
+  "resultColorHint": "RGB {rgb} · HSL {hsl}"
 }

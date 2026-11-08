@@ -2848,5 +2848,65 @@
   "settingsPluginsOfficialPickHint": "选择要安装的官方插件",
   "@settingsPluginsOfficialPickHint": {
     "description": "Settings, plugins page: hint of the official plugin picker."
+  },
+  "resultConvertHint": "{from} → {to}（回车复制）",
+  "@resultConvertHint": {
+    "description": "Instant tool: unit conversion row subtitle.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "resultB64EncodeHint": "Base64 编码（回车复制）",
+  "@resultB64EncodeHint": {
+    "description": "Instant tool: Base64 encode row subtitle."
+  },
+  "resultB64DecodeHint": "Base64 解码（回车复制）",
+  "@resultB64DecodeHint": {
+    "description": "Instant tool: Base64 decode row subtitle."
+  },
+  "resultUrlEncodeHint": "URL 编码（回车复制）",
+  "@resultUrlEncodeHint": {
+    "description": "Instant tool: URL encode row subtitle."
+  },
+  "resultUrlDecodeHint": "URL 解码（回车复制）",
+  "@resultUrlDecodeHint": {
+    "description": "Instant tool: URL decode row subtitle."
+  },
+  "resultDateCalcHint": "日期计算（回车复制）",
+  "@resultDateCalcHint": {
+    "description": "Instant tool: date math row subtitle."
+  },
+  "resultDaysHint": "距今天数（回车复制）",
+  "@resultDaysHint": {
+    "description": "Instant tool: days-from-today row subtitle."
+  },
+  "resultWeekHint": "当前 ISO 周（回车复制）",
+  "@resultWeekHint": {
+    "description": "Instant tool: ISO week row subtitle."
+  },
+  "resultRandHint": "随机整数（回车复制，重新搜索可刷新）",
+  "@resultRandHint": {
+    "description": "Instant tool: random integer row subtitle."
+  },
+  "resultPassHint": "随机密码（回车复制，重新搜索可刷新）",
+  "@resultPassHint": {
+    "description": "Instant tool: random password row subtitle."
+  },
+  "resultColorHint": "RGB {rgb} · HSL {hsl}",
+  "@resultColorHint": {
+    "description": "Instant tool: color row subtitle with RGB and HSL forms.",
+    "placeholders": {
+      "rgb": {
+        "type": "String"
+      },
+      "hsl": {
+        "type": "String"
+      }
+    }
   }
 }

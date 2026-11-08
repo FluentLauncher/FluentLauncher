@@ -3,7 +3,10 @@ package search
 import (
 	"context"
 	"regexp"
+	"strconv"
+	"strings"
 	"testing"
+	"time"
 
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/settings"
@@ -78,6 +81,99 @@ func TestUtilityTools(t *testing.T) {
 	// The tools belong to the unscoped query; "web" scope keeps searching.
 	if web, _ := p.Search(context.Background(), Query{Text: "date", Scope: ScopeWeb}, 10); len(web) != 1 || web[0].Entry.Kind != model.URL {
 		t.Fatalf("web scope leaked into the tools: %+v", web)
+	}
+}
+
+func TestUtilityToolsExtended(t *testing.T) {
+	cfg := settings.Default()
+	p := UtilityProvider{Settings: func() settings.LauncherSettings { return cfg }}
+	search := func(text string) []model.Result {
+		got, err := p.Search(context.Background(), Query{Text: text, Scope: ScopeAll}, 10)
+		if err != nil {
+			t.Fatalf("%q: %v", text, err)
+		}
+		return got
+	}
+
+	// Unit conversion, including temperature and Chinese unit names.
+	if got := search("10kg lb"); len(got) != 1 || got[0].Entry.Title != "22.0462 lb" || got[0].Entry.CopyText != "22.0462" {
+		t.Fatalf("10kg lb = %+v", got)
+	}
+	if got := search("32f c"); len(got) != 1 || got[0].Entry.Title != "0 c" {
+		t.Fatalf("32f c = %+v", got)
+	}
+	if got := search("1公里 m"); len(got) != 1 || got[0].Entry.Title != "1000 m" {
+		t.Fatalf("1公里 m = %+v", got)
+	}
+	if got := search("10kg c"); len(got) != 0 {
+		t.Fatalf("cross-dimension conversion matched: %+v", got)
+	}
+
+	// Encodings.
+	if got := search("b64 hi"); len(got) != 1 || got[0].Entry.CopyText != "aGk=" {
+		t.Fatalf("b64 hi = %+v", got)
+	}
+	if got := search("unb64 aGk="); len(got) != 1 || got[0].Entry.CopyText != "hi" {
+		t.Fatalf("unb64 = %+v", got)
+	}
+	if got := search("unb64 !!!"); len(got) != 0 {
+		t.Fatalf("bad base64 matched: %+v", got)
+	}
+	if got := search("urlencode a b"); len(got) != 1 || got[0].Entry.CopyText != "a%20b" {
+		t.Fatalf("urlencode = %+v", got)
+	}
+	if got := search("urldecode a%20b"); len(got) != 1 || got[0].Entry.CopyText != "a b" {
+		t.Fatalf("urldecode = %+v", got)
+	}
+	// A full URL still opens instead of being "encoded".
+	if got := search("https://example.com/x"); len(got) != 1 || got[0].Entry.Kind != model.URL {
+		t.Fatalf("url open = %+v", got)
+	}
+
+	// Date math, days and week.
+	if got := search("date 2026-01-31 +1d"); len(got) != 1 || got[0].Entry.Title != "2026-02-01" {
+		t.Fatalf("date +1d = %+v", got)
+	}
+	if got := search("date 2026-01-31 +1m"); len(got) != 1 || got[0].Entry.Title != "2026-02-28" {
+		t.Fatalf("date +1m clamps to the shorter month: %+v", got)
+	}
+	if got := search("date 2026-02-31"); len(got) != 0 {
+		t.Fatalf("impossible date matched: %+v", got)
+	}
+	tomorrow := time.Now().AddDate(0, 0, 1).Format("2006-01-02")
+	if got := search("days " + tomorrow); len(got) != 1 || got[0].Entry.Title != "1" {
+		t.Fatalf("days tomorrow = %+v", got)
+	}
+	if got := search("week"); len(got) != 1 || !regexp.MustCompile(`^\d{4}-W\d{2}$`).MatchString(got[0].Entry.Title) {
+		t.Fatalf("week = %+v", got)
+	}
+
+	// Random values.
+	if got := search("rand 5-5"); len(got) != 1 || got[0].Entry.Title != "5" {
+		t.Fatalf("rand 5-5 = %+v", got)
+	}
+	if got := search("rand 1-1000"); len(got) != 1 {
+		t.Fatalf("rand = %+v", got)
+	} else if n, _ := strconv.Atoi(got[0].Entry.Title); n < 1 || n > 1000 {
+		t.Fatalf("rand out of range: %v", got)
+	}
+	if got := search("pass 8"); len(got) != 1 || len(got[0].Entry.CopyText) != 8 {
+		t.Fatalf("pass 8 = %+v", got)
+	}
+	if got := search("pass 3"); len(got) != 0 {
+		t.Fatalf("too-short password accepted: %+v", got)
+	}
+
+	// Colors.
+	if got := search("#36a"); len(got) != 1 || got[0].Entry.Title != "#3366AA" {
+		t.Fatalf("#36a = %+v", got)
+	}
+	if got := search("rgb 51, 102, 170"); len(got) != 1 || got[0].Entry.Title != "#3366AA" ||
+		!strings.Contains(got[0].Entry.Subtitle, "51, 102, 170") {
+		t.Fatalf("rgb = %+v", got)
+	}
+	if got := search("rgb 300, 0, 0"); len(got) != 0 {
+		t.Fatalf("out-of-range rgb accepted: %+v", got)
 	}
 }
 

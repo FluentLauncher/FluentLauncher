@@ -3,6 +3,8 @@ package app
 import (
 	"context"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"testing"
 	"time"
 
@@ -251,5 +253,42 @@ func TestOtherPageActionsReportDone(t *testing.T) {
 	}
 	if a.profiles["gone"].Hidden {
 		t.Fatal("the entry is still hidden")
+	}
+}
+
+// TestRegenerateToolValue rerolls the selected random tool in place, keeping
+// the bounds or length the user asked for (they ride in the entry ID).
+func TestRegenerateToolValue(t *testing.T) {
+	a := &App{
+		settings:      settings.Default(),
+		settingsDraft: settings.Default(),
+		icons:         map[string]*ui.Bitmap{},
+		iconLoading:   map[string]bool{},
+		profiles:      map[string]model.Profile{},
+	}
+	uuid := model.Result{Entry: model.Entry{
+		ID: "uuid:62152892-92c1-425f-b32e-075f31040bde", Title: "62152892-92c1-425f-b32e-075f31040bde",
+		CopyText: "62152892-92c1-425f-b32e-075f31040bde", Kind: model.Calculation, SourceID: "utilities"}}
+	a.results = []model.Result{uuid}
+	a.chosen = 0
+	a.resultsReady = true
+	a.regenerateToolValue()
+	got := a.results[0].Entry
+	if got.Title == uuid.Entry.Title ||
+		!regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`).MatchString(got.Title) {
+		t.Fatalf("uuid reroll = %+v", got)
+	}
+	if got.CopyText != got.Title || got.ID != "uuid:"+got.Title {
+		t.Fatalf("reroll did not stay consistent: %+v", got)
+	}
+
+	a.results = []model.Result{{Entry: model.Entry{
+		ID: "rand:7-9:8", Title: "8", CopyText: "8", Kind: model.Calculation, SourceID: "utilities"}}}
+	for i := 0; i < 20; i++ {
+		a.regenerateToolValue()
+		n, err := strconv.Atoi(a.results[0].Entry.Title)
+		if err != nil || n < 7 || n > 9 {
+			t.Fatalf("rand reroll left the 7-9 range: %q", a.results[0].Entry.Title)
+		}
 	}
 }

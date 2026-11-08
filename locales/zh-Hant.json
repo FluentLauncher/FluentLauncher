@@ -570,5 +570,15 @@
   "resultWeekHint": "目前 ISO 週（Enter 複製）",
   "resultRandHint": "隨機整數（Enter 複製，重新搜尋可刷新）",
   "resultPassHint": "隨機密碼（Enter 複製，重新搜尋可刷新）",
-  "resultColorHint": "RGB {rgb} · HSL {hsl}"
+  "resultColorHint": "RGB {rgb} · HSL {hsl}",
+  "cmdCopyUppercase": "複製大寫",
+  "cmdCopyNoHyphens": "複製無橫線",
+  "cmdCopyUpperNoHyphens": "複製大寫無橫線",
+  "cmdRegenerate": "重新產生",
+  "cmdCopyChineseDate": "複製中文日期",
+  "cmdCopyTimestamp": "複製時間戳記",
+  "cmdCopyWithDate": "複製日期+時間",
+  "cmdCopyRGB": "複製 rgb()",
+  "cmdCopyHSL": "複製 hsl()",
+  "cmdCopyWithUnit": "複製含單位"
 }

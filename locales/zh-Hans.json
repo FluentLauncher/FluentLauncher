@@ -2908,5 +2908,45 @@
         "type": "String"
       }
     }
+  },
+  "cmdCopyUppercase": "复制大写",
+  "@cmdCopyUppercase": {
+    "description": "Action panel: copy the UUID in uppercase."
+  },
+  "cmdCopyNoHyphens": "复制无横线",
+  "@cmdCopyNoHyphens": {
+    "description": "Action panel: copy the UUID without hyphens."
+  },
+  "cmdCopyUpperNoHyphens": "复制大写无横线",
+  "@cmdCopyUpperNoHyphens": {
+    "description": "Action panel: copy the UUID uppercase without hyphens."
+  },
+  "cmdRegenerate": "重新生成",
+  "@cmdRegenerate": {
+    "description": "Action panel: reroll a random tool value."
+  },
+  "cmdCopyChineseDate": "复制中文日期",
+  "@cmdCopyChineseDate": {
+    "description": "Action panel: copy the date in Chinese form."
+  },
+  "cmdCopyTimestamp": "复制时间戳",
+  "@cmdCopyTimestamp": {
+    "description": "Action panel: copy the date as a Unix timestamp."
+  },
+  "cmdCopyWithDate": "复制日期+时间",
+  "@cmdCopyWithDate": {
+    "description": "Action panel: copy the time together with today’s date."
+  },
+  "cmdCopyRGB": "复制 rgb()",
+  "@cmdCopyRGB": {
+    "description": "Action panel: copy the color as rgb()."
+  },
+  "cmdCopyHSL": "复制 hsl()",
+  "@cmdCopyHSL": {
+    "description": "Action panel: copy the color as hsl()."
+  },
+  "cmdCopyWithUnit": "复制带单位",
+  "@cmdCopyWithUnit": {
+    "description": "Action panel: copy the converted value with its unit."
   }
 }

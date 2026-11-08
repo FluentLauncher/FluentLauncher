@@ -10,6 +10,7 @@ import (
 
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/locales"
 )
 
 func TestEvaluate(t *testing.T) {
@@ -174,6 +175,67 @@ func TestUtilityToolsExtended(t *testing.T) {
 	}
 	if got := search("rgb 300, 0, 0"); len(got) != 0 {
 		t.Fatalf("out-of-range rgb accepted: %+v", got)
+	}
+}
+
+func TestToolCommands(t *testing.T) {
+	uuid := model.Entry{ID: "uuid:62152892-92c1-425f-b32e-075f31040bde", Title: "62152892-92c1-425f-b32e-075f31040bde",
+		Kind: model.Calculation, CopyText: "62152892-92c1-425f-b32e-075f31040bde", SourceID: "utilities"}
+	commands := CommandsFor(uuid, false, false)
+	values := map[string]string{}
+	regen := false
+	for _, command := range commands {
+		if command.Command == CommandCopyValue {
+			values[command.Title] = command.Value
+		}
+		if command.Command == CommandRegenerate {
+			regen = true
+		}
+	}
+	if !regen {
+		t.Fatal("the uuid row offers no regenerate")
+	}
+	if got := values[locales.CmdCopyUppercase()]; got != "62152892-92C1-425F-B32E-075F31040BDE" {
+		t.Fatalf("uppercase copy = %q", got)
+	}
+	if got := values[locales.CmdCopyNoHyphens()]; got != "6215289292c1425fb32e075f31040bde" {
+		t.Fatalf("no-hyphen copy = %q", got)
+	}
+
+	date := model.Entry{ID: "date:2026-11-08", Title: "2026-11-08", Kind: model.Calculation, CopyText: "2026-11-08", SourceID: "utilities"}
+	commands = CommandsFor(date, false, false)
+	values = map[string]string{}
+	for _, command := range commands {
+		if command.Command == CommandCopyValue {
+			values[command.Title] = command.Value
+		}
+	}
+	if got := values[locales.CmdCopyChineseDate()]; got != "2026年11月8日" {
+		t.Fatalf("chinese date copy = %q", got)
+	}
+	if got := values[locales.CmdCopyTimestamp()]; len(got) < 10 {
+		t.Fatalf("timestamp copy = %q", got)
+	}
+
+	color := model.Entry{ID: "color:#3366AA", Title: "#3366AA", Kind: model.Calculation, CopyText: "#3366AA", SourceID: "utilities"}
+	commands = CommandsFor(color, false, false)
+	values = map[string]string{}
+	for _, command := range commands {
+		if command.Command == CommandCopyValue {
+			values[command.Title] = command.Value
+		}
+	}
+	if got := values[locales.CmdCopyRGB()]; got != "rgb(51, 102, 170)" {
+		t.Fatalf("rgb copy = %q", got)
+	}
+	if got := values[locales.CmdCopyHSL()]; got != "hsl(214, 54%, 43%)" {
+		t.Fatalf("hsl copy = %q", got)
+	}
+
+	// The calculator keeps its single plain copy command.
+	calc := model.Entry{ID: "calc:2+2", Title: "4", Kind: model.Calculation, CopyText: "4", SourceID: "utilities"}
+	if commands := CommandsFor(calc, false, false); len(commands) != 1 || commands[0].Command != CommandOpen {
+		t.Fatalf("calc commands = %+v", commands)
 	}
 }
 

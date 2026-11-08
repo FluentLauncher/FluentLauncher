@@ -115,7 +115,7 @@ func utilityTools(text string) []model.Result {
 				Kind: model.Calculation, CopyText: ms, SourceID: "utilities"}, Score: 19000},
 		}
 	case matchesTool(lower, "uuid", "guid"):
-		if value := newUUID(); value != "" {
+		if value := NewUUID(); value != "" {
 			return toolResult("uuid:", value, locales.ResultUUIDHint())
 		}
 	case matchesTool(lower, "week", "周数"):
@@ -211,7 +211,9 @@ func daysTool(lower string, now time.Time) []model.Result {
 	return toolResult("days:", value, locales.ResultDaysHint())
 }
 
-// randTool draws one integer in the asked range (inclusive), 1-100 by default.
+// randTool draws one integer in the asked range (inclusive), 1-100 by
+// default. The range rides in the entry ID so the action panel can reroll
+// within the same bounds.
 func randTool(lower string) []model.Result {
 	lo, hi := 1, 100
 	fields := strings.Fields(lower)
@@ -223,15 +225,31 @@ func randTool(lower string) []model.Result {
 		lo, _ = strconv.Atoi(m[1])
 		hi, _ = strconv.Atoi(m[2])
 	}
+	value := RandInRange(lo, hi)
+	if value == "" {
+		return nil
+	}
+	return []model.Result{{Entry: model.Entry{
+		ID:       fmt.Sprintf("rand:%d-%d:%s", lo, hi, value),
+		Title:    value,
+		Subtitle: locales.ResultRandHint(),
+		Kind:     model.Calculation,
+		CopyText: value,
+		SourceID: "utilities",
+	}, Score: 20000}}
+}
+
+// RandInRange draws one integer in [lo, hi] (inclusive, swapped if reversed)
+// and returns it in decimal, or "" when the system randomness fails.
+func RandInRange(lo, hi int) string {
 	if lo > hi {
 		lo, hi = hi, lo
 	}
 	n, err := rand.Int(rand.Reader, big.NewInt(int64(hi-lo+1)))
 	if err != nil {
-		return nil
+		return ""
 	}
-	value := strconv.FormatInt(n.Int64()+int64(lo), 10)
-	return toolResult("rand:", value, locales.ResultRandHint())
+	return strconv.FormatInt(n.Int64()+int64(lo), 10)
 }
 
 // passCharset leaves out look-alikes (0/O, 1/l/I) so a copied password reads
@@ -239,6 +257,7 @@ func randTool(lower string) []model.Result {
 const passCharset = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*-_"
 
 // passTool generates a random password of the asked length, 16 by default.
+// The length rides in the entry ID so the action panel can reroll it.
 func passTool(lower string) []model.Result {
 	length := 16
 	fields := strings.Fields(lower)
@@ -249,15 +268,32 @@ func passTool(lower string) []model.Result {
 		}
 		length = n
 	}
+	value := RandomPassword(length)
+	if value == "" {
+		return nil
+	}
+	return []model.Result{{Entry: model.Entry{
+		ID:       fmt.Sprintf("pass:%d:%s", length, value),
+		Title:    value,
+		Subtitle: locales.ResultPassHint(),
+		Kind:     model.Calculation,
+		CopyText: value,
+		SourceID: "utilities",
+	}, Score: 20000}}
+}
+
+// RandomPassword draws length characters from passCharset, or "" when the
+// system randomness fails.
+func RandomPassword(length int) string {
 	buf := make([]byte, length)
 	if _, err := rand.Read(buf); err != nil {
-		return nil
+		return ""
 	}
 	out := make([]byte, length)
 	for i, b := range buf {
 		out[i] = passCharset[int(b)%len(passCharset)]
 	}
-	return toolResult("pass:", string(out), locales.ResultPassHint())
+	return string(out)
 }
 
 func matchesTool(lower string, keywords ...string) bool {
@@ -280,8 +316,9 @@ func toolResult(prefix, value, subtitle string) []model.Result {
 	}, Score: 20000}}
 }
 
-// newUUID returns a random version-4 UUID in its canonical form.
-func newUUID() string {
+// NewUUID returns a random version-4 UUID in its canonical form, or "" when
+// the system randomness fails.
+func NewUUID() string {
 	var b [16]byte
 	if _, err := rand.Read(b[:]); err != nil {
 		return ""

@@ -570,5 +570,15 @@
   "resultWeekHint": "Current ISO week (Enter copies)",
   "resultRandHint": "Random integer (Enter copies; search again to reroll)",
   "resultPassHint": "Random password (Enter copies; search again to reroll)",
-  "resultColorHint": "RGB {rgb} · HSL {hsl}"
+  "resultColorHint": "RGB {rgb} · HSL {hsl}",
+  "cmdCopyUppercase": "Copy Uppercase",
+  "cmdCopyNoHyphens": "Copy Without Hyphens",
+  "cmdCopyUpperNoHyphens": "Copy Uppercase, No Hyphens",
+  "cmdRegenerate": "Regenerate",
+  "cmdCopyChineseDate": "Copy Chinese Date",
+  "cmdCopyTimestamp": "Copy Timestamp",
+  "cmdCopyWithDate": "Copy With Date",
+  "cmdCopyRGB": "Copy rgb()",
+  "cmdCopyHSL": "Copy hsl()",
+  "cmdCopyWithUnit": "Copy With Unit"
 }

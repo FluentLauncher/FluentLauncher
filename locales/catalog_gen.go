@@ -8247,3 +8247,143 @@ func ResultColorHint(rgb string, hsl string) string {
 func (msgs Messages) ResultColorHint(rgb string, hsl string) string {
 	return Catalog.Format(msgs.locale, "resultColorHint", map[string]any{"rgb": rgb, "hsl": hsl})
 }
+
+// CmdCopyUppercase says "复制大写"
+// in the language the app shows.
+//
+// Action panel: copy the UUID in uppercase.
+func CmdCopyUppercase() string { return In(i18n.Locale()).CmdCopyUppercase() }
+
+// CmdCopyUppercase says "复制大写"
+// in the language of msgs.
+//
+// Action panel: copy the UUID in uppercase.
+func (msgs Messages) CmdCopyUppercase() string {
+	return Catalog.Format(msgs.locale, "cmdCopyUppercase", nil)
+}
+
+// CmdCopyNoHyphens says "复制无横线"
+// in the language the app shows.
+//
+// Action panel: copy the UUID without hyphens.
+func CmdCopyNoHyphens() string { return In(i18n.Locale()).CmdCopyNoHyphens() }
+
+// CmdCopyNoHyphens says "复制无横线"
+// in the language of msgs.
+//
+// Action panel: copy the UUID without hyphens.
+func (msgs Messages) CmdCopyNoHyphens() string {
+	return Catalog.Format(msgs.locale, "cmdCopyNoHyphens", nil)
+}
+
+// CmdCopyUpperNoHyphens says "复制大写无横线"
+// in the language the app shows.
+//
+// Action panel: copy the UUID uppercase without hyphens.
+func CmdCopyUpperNoHyphens() string { return In(i18n.Locale()).CmdCopyUpperNoHyphens() }
+
+// CmdCopyUpperNoHyphens says "复制大写无横线"
+// in the language of msgs.
+//
+// Action panel: copy the UUID uppercase without hyphens.
+func (msgs Messages) CmdCopyUpperNoHyphens() string {
+	return Catalog.Format(msgs.locale, "cmdCopyUpperNoHyphens", nil)
+}
+
+// CmdRegenerate says "重新生成"
+// in the language the app shows.
+//
+// Action panel: reroll a random tool value.
+func CmdRegenerate() string { return In(i18n.Locale()).CmdRegenerate() }
+
+// CmdRegenerate says "重新生成"
+// in the language of msgs.
+//
+// Action panel: reroll a random tool value.
+func (msgs Messages) CmdRegenerate() string {
+	return Catalog.Format(msgs.locale, "cmdRegenerate", nil)
+}
+
+// CmdCopyChineseDate says "复制中文日期"
+// in the language the app shows.
+//
+// Action panel: copy the date in Chinese form.
+func CmdCopyChineseDate() string { return In(i18n.Locale()).CmdCopyChineseDate() }
+
+// CmdCopyChineseDate says "复制中文日期"
+// in the language of msgs.
+//
+// Action panel: copy the date in Chinese form.
+func (msgs Messages) CmdCopyChineseDate() string {
+	return Catalog.Format(msgs.locale, "cmdCopyChineseDate", nil)
+}
+
+// CmdCopyTimestamp says "复制时间戳"
+// in the language the app shows.
+//
+// Action panel: copy the date as a Unix timestamp.
+func CmdCopyTimestamp() string { return In(i18n.Locale()).CmdCopyTimestamp() }
+
+// CmdCopyTimestamp says "复制时间戳"
+// in the language of msgs.
+//
+// Action panel: copy the date as a Unix timestamp.
+func (msgs Messages) CmdCopyTimestamp() string {
+	return Catalog.Format(msgs.locale, "cmdCopyTimestamp", nil)
+}
+
+// CmdCopyWithDate says "复制日期+时间"
+// in the language the app shows.
+//
+// Action panel: copy the time together with today’s date.
+func CmdCopyWithDate() string { return In(i18n.Locale()).CmdCopyWithDate() }
+
+// CmdCopyWithDate says "复制日期+时间"
+// in the language of msgs.
+//
+// Action panel: copy the time together with today’s date.
+func (msgs Messages) CmdCopyWithDate() string {
+	return Catalog.Format(msgs.locale, "cmdCopyWithDate", nil)
+}
+
+// CmdCopyRGB says "复制 rgb()"
+// in the language the app shows.
+//
+// Action panel: copy the color as rgb().
+func CmdCopyRGB() string { return In(i18n.Locale()).CmdCopyRGB() }
+
+// CmdCopyRGB says "复制 rgb()"
+// in the language of msgs.
+//
+// Action panel: copy the color as rgb().
+func (msgs Messages) CmdCopyRGB() string {
+	return Catalog.Format(msgs.locale, "cmdCopyRGB", nil)
+}
+
+// CmdCopyHSL says "复制 hsl()"
+// in the language the app shows.
+//
+// Action panel: copy the color as hsl().
+func CmdCopyHSL() string { return In(i18n.Locale()).CmdCopyHSL() }
+
+// CmdCopyHSL says "复制 hsl()"
+// in the language of msgs.
+//
+// Action panel: copy the color as hsl().
+func (msgs Messages) CmdCopyHSL() string {
+	return Catalog.Format(msgs.locale, "cmdCopyHSL", nil)
+}
+
+// CmdCopyWithUnit says "复制带单位"
+// in the language the app shows.
+//
+// Action panel: copy the converted value with its unit.
+func CmdCopyWithUnit() string { return In(i18n.Locale()).CmdCopyWithUnit() }
+
+// CmdCopyWithUnit says "复制带单位"
+// in the language of msgs.
+//
+// Action panel: copy the converted value with its unit.
+func (msgs Messages) CmdCopyWithUnit() string {
+	return Catalog.Format(msgs.locale, "cmdCopyWithUnit", nil)
+}

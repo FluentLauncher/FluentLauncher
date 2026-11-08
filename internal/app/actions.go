@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"strconv"
 	"strings"
 
 	"fluentlauncher/internal/core/model"
@@ -56,6 +57,13 @@ func (a *App) runAction() {
 	case search.CommandCopyPath:
 		a.hideActions()
 		a.executeSelected(model.CopyPath)
+	case search.CommandCopyValue:
+		mygo.Clipboard.WriteText(command.Value)
+		a.hideActions()
+		a.hidePanel()
+	case search.CommandRegenerate:
+		a.hideActions()
+		a.regenerateToolValue()
 	case search.CommandPluginAction:
 		for _, action := range entry.Actions {
 			if action.ID == command.Value {
@@ -112,6 +120,52 @@ func (a *App) savePrompt() {
 	a.promptEntry = ""
 	a.promptValue = ""
 	a.input.Focus()
+	a.panel.Update(func() {})
+}
+
+// regenerateToolValue rerolls the selected random tool (uuid/rand/pass) in
+// place, keeping the range or length the user asked for, which ride in the
+// entry ID.
+func (a *App) regenerateToolValue() {
+	entry, ok := a.selected()
+	if !ok {
+		return
+	}
+	var id, value string
+	switch {
+	case strings.HasPrefix(entry.ID, "uuid:"):
+		id, value = "uuid:", search.NewUUID()
+	case strings.HasPrefix(entry.ID, "rand:"):
+		parts := strings.SplitN(entry.ID, ":", 3)
+		if len(parts) != 3 {
+			return
+		}
+		bounds := strings.SplitN(parts[1], "-", 2)
+		lo, err1 := strconv.Atoi(bounds[0])
+		hi, err2 := strconv.Atoi(bounds[1])
+		if len(bounds) != 2 || err1 != nil || err2 != nil {
+			return
+		}
+		id, value = "rand:"+parts[1]+":", search.RandInRange(lo, hi)
+	case strings.HasPrefix(entry.ID, "pass:"):
+		parts := strings.SplitN(entry.ID, ":", 3)
+		if len(parts) != 3 {
+			return
+		}
+		length, err := strconv.Atoi(parts[1])
+		if err != nil || length < 4 || length > 64 {
+			return
+		}
+		id, value = "pass:"+parts[1]+":", search.RandomPassword(length)
+	default:
+		return
+	}
+	if value == "" {
+		return
+	}
+	a.results[a.chosen].Entry.ID = id + value
+	a.results[a.chosen].Entry.Title = value
+	a.results[a.chosen].Entry.CopyText = value
 	a.panel.Update(func() {})
 }
 

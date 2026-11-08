@@ -26,12 +26,13 @@ const (
 )
 
 // Edges selects the screen edges that take the wheel. Bottom is the
-// default; the other edges are for the settings UI.
+// default; the other edges are for the settings UI. The bit values must
+// match settings.ScreenEdges: the app casts one to the other.
 type Edges uint8
 
 const (
-	EdgeBottom Edges = 1 << iota
-	EdgeTop
+	EdgeTop Edges = 1 << iota
+	EdgeBottom
 	EdgeLeft
 	EdgeRight
 )

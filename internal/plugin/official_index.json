@@ -20,9 +20,9 @@
       "zh-Hant": "開發工具"
     },
     "summary": {
-      "zh-Hans": "离线文本工具：时间戳与时区、UUID、JSON 校验与格式化、Base64 与 URL 编解码、摘要。",
-      "en": "Offline text tools: timestamps and time zones, UUIDs, JSON validation and formatting, Base64 and URL codecs, digests.",
-      "zh-Hant": "離線文字工具：時間戳與時區、UUID、JSON 驗證與格式化、Base64 與 URL 編解碼、摘要。"
+      "zh-Hans": "离线文本工具：时间戳与时区、UUID、JSON 校验与格式化、Base64 与 URL 编解码、正则匹配、摘要。",
+      "en": "Offline text tools: timestamps and time zones, UUIDs, JSON validation and formatting, Base64 and URL codecs, regex matching, digests.",
+      "zh-Hant": "離線文字工具：時間戳與時區、UUID、JSON 驗證與格式化、Base64 與 URL 編解碼、正則匹配、摘要。"
     }
   }
 ]

@@ -24,5 +24,18 @@
       "en": "Offline text tools: timestamps and time zones, UUIDs, JSON validation and formatting, Base64 and URL codecs, regex matching, digests.",
       "zh-Hant": "離線文字工具：時間戳與時區、UUID、JSON 驗證與格式化、Base64 與 URL 編解碼、正則匹配、摘要。"
     }
+  },
+  {
+    "id": "official.clipboard",
+    "name": {
+      "zh-Hans": "剪贴板历史",
+      "en": "Clipboard History",
+      "zh-Hant": "剪貼簿歷史"
+    },
+    "summary": {
+      "zh-Hans": "记录复制过的文本：仅内存、最多 50 条、退出即清空，搜索后回车复制。",
+      "en": "Remembers copied text in memory only (50 items, cleared on exit); search and press Enter to copy.",
+      "zh-Hant": "記錄複製過的文字：僅限記憶體、最多 50 條、離開即清空，搜尋後按 Enter 複製。"
+    }
   }
 ]

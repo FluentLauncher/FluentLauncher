@@ -23,7 +23,7 @@
 | WindowCatalog | internal/winapi/windowlist | EnumWindows、cloaked/tool 过滤、还原置前 |
 | ShortcutResolver | internal/winapi/shortcut | WScript.Shell 读取 .lnk 目标/参数/工作目录，用于去重 |
 | Plugin SDK/Host/Manager | internal/plugin + pkg/pluginsdk | 帧协议、进程、Job Object、超时/取消/回收/暂停、安装升级 |
-| Echo/DevTools 插件 | plugins/echo、plugins/devtools | 可执行插件，行为按 C# 版本 |
+| Echo/DevTools/Clipboard 插件 | plugins/echo、plugins/devtools、plugins/clipboard | 可执行插件，行为按 C# 版本；剪贴板历史为内存环形（50 条、退出清空），轮询序列号捕获复制 |
 | MainWindow / SettingsWindow | internal/app | 搜索面板、动作面板、设置页、浮层、工作区结果 |
 | 窗口材质与标题栏 | internal/winapi/glass + internal/app/chrome.go | 亚克力/云母走系统模糊，真实透出下层窗口；设置与工作区窗口自绘标题栏 |
 | 音量浮层 | internal/app/volume.go | 底部居中的胶囊：图标、进度条、百分比，自身带模糊 |

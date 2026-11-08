@@ -7932,66 +7932,6 @@ func (msgs Messages) SettingsDialogThemePackageFilter() string {
 	return Catalog.Format(msgs.locale, "settingsDialogThemePackageFilter", nil)
 }
 
-// PluginOfficialEchoName says "回显示例"
-// in the language the app shows.
-//
-// Settings, plugins page: install card name of the bundled echo example.
-func PluginOfficialEchoName() string { return In(i18n.Locale()).PluginOfficialEchoName() }
-
-// PluginOfficialEchoName says "回显示例"
-// in the language of msgs.
-//
-// Settings, plugins page: install card name of the bundled echo example.
-func (msgs Messages) PluginOfficialEchoName() string {
-	return Catalog.Format(msgs.locale, "pluginOfficialEchoName", nil)
-}
-
-// PluginOfficialEchoSummary says "最小可用的插件：输入 echo 加文本，结果里原样返回，回车即可复制。"
-// in the language the app shows.
-//
-// Settings, plugins page: install card summary of the bundled echo example.
-func PluginOfficialEchoSummary() string { return In(i18n.Locale()).PluginOfficialEchoSummary() }
-
-// PluginOfficialEchoSummary says "最小可用的插件：输入 echo 加文本，结果里原样返回，回车即可复制。"
-// in the language of msgs.
-//
-// Settings, plugins page: install card summary of the bundled echo example.
-func (msgs Messages) PluginOfficialEchoSummary() string {
-	return Catalog.Format(msgs.locale, "pluginOfficialEchoSummary", nil)
-}
-
-// PluginOfficialDevtoolsName says "开发工具"
-// in the language the app shows.
-//
-// Settings, plugins page: install card name of the bundled devtools
-// example.
-func PluginOfficialDevtoolsName() string { return In(i18n.Locale()).PluginOfficialDevtoolsName() }
-
-// PluginOfficialDevtoolsName says "开发工具"
-// in the language of msgs.
-//
-// Settings, plugins page: install card name of the bundled devtools
-// example.
-func (msgs Messages) PluginOfficialDevtoolsName() string {
-	return Catalog.Format(msgs.locale, "pluginOfficialDevtoolsName", nil)
-}
-
-// PluginOfficialDevtoolsSummary says "离线文本工具：时间戳与时区、UUID、JSON 校验与格式化、Base64 与 URL 编解码、摘要。"
-// in the language the app shows.
-//
-// Settings, plugins page: install card summary of the bundled devtools
-// example.
-func PluginOfficialDevtoolsSummary() string { return In(i18n.Locale()).PluginOfficialDevtoolsSummary() }
-
-// PluginOfficialDevtoolsSummary says "离线文本工具：时间戳与时区、UUID、JSON 校验与格式化、Base64 与 URL 编解码、摘要。"
-// in the language of msgs.
-//
-// Settings, plugins page: install card summary of the bundled devtools
-// example.
-func (msgs Messages) PluginOfficialDevtoolsSummary() string {
-	return Catalog.Format(msgs.locale, "pluginOfficialDevtoolsSummary", nil)
-}
-
 // SettingsLearningResetDone says "学习数据已重置。"
 // in the language the app shows.
 //
@@ -8034,4 +7974,118 @@ func StoreFileIndexNoDatabase() string { return In(i18n.Locale()).StoreFileIndex
 // open.
 func (msgs Messages) StoreFileIndexNoDatabase() string {
 	return Catalog.Format(msgs.locale, "storeFileIndexNoDatabase", nil)
+}
+
+// ResultDateHint says "今天的日期（回车复制）"
+// in the language the app shows.
+//
+// Instant tool: today date row subtitle.
+func ResultDateHint() string { return In(i18n.Locale()).ResultDateHint() }
+
+// ResultDateHint says "今天的日期（回车复制）"
+// in the language of msgs.
+//
+// Instant tool: today date row subtitle.
+func (msgs Messages) ResultDateHint() string {
+	return Catalog.Format(msgs.locale, "resultDateHint", nil)
+}
+
+// ResultTimeHint says "当前时间（回车复制）"
+// in the language the app shows.
+//
+// Instant tool: current time row subtitle.
+func ResultTimeHint() string { return In(i18n.Locale()).ResultTimeHint() }
+
+// ResultTimeHint says "当前时间（回车复制）"
+// in the language of msgs.
+//
+// Instant tool: current time row subtitle.
+func (msgs Messages) ResultTimeHint() string {
+	return Catalog.Format(msgs.locale, "resultTimeHint", nil)
+}
+
+// ResultTimestampSec says "Unix 秒（回车复制）"
+// in the language the app shows.
+//
+// Instant tool: Unix seconds row subtitle.
+func ResultTimestampSec() string { return In(i18n.Locale()).ResultTimestampSec() }
+
+// ResultTimestampSec says "Unix 秒（回车复制）"
+// in the language of msgs.
+//
+// Instant tool: Unix seconds row subtitle.
+func (msgs Messages) ResultTimestampSec() string {
+	return Catalog.Format(msgs.locale, "resultTimestampSec", nil)
+}
+
+// ResultTimestampMs says "Unix 毫秒（回车复制）"
+// in the language the app shows.
+//
+// Instant tool: Unix milliseconds row subtitle.
+func ResultTimestampMs() string { return In(i18n.Locale()).ResultTimestampMs() }
+
+// ResultTimestampMs says "Unix 毫秒（回车复制）"
+// in the language of msgs.
+//
+// Instant tool: Unix milliseconds row subtitle.
+func (msgs Messages) ResultTimestampMs() string {
+	return Catalog.Format(msgs.locale, "resultTimestampMs", nil)
+}
+
+// ResultUUIDHint says "随机 UUID（回车复制）"
+// in the language the app shows.
+//
+// Instant tool: fresh UUID row subtitle.
+func ResultUUIDHint() string { return In(i18n.Locale()).ResultUUIDHint() }
+
+// ResultUUIDHint says "随机 UUID（回车复制）"
+// in the language of msgs.
+//
+// Instant tool: fresh UUID row subtitle.
+func (msgs Messages) ResultUUIDHint() string {
+	return Catalog.Format(msgs.locale, "resultUUIDHint", nil)
+}
+
+// CmdCopyValue says "复制结果"
+// in the language the app shows.
+//
+// Action panel: copy the value of an instant tool result.
+func CmdCopyValue() string { return In(i18n.Locale()).CmdCopyValue() }
+
+// CmdCopyValue says "复制结果"
+// in the language of msgs.
+//
+// Action panel: copy the value of an instant tool result.
+func (msgs Messages) CmdCopyValue() string {
+	return Catalog.Format(msgs.locale, "cmdCopyValue", nil)
+}
+
+// SettingsPluginsOfficialPick says "官方插件"
+// in the language the app shows.
+//
+// Settings, plugins page: label of the official plugin picker.
+func SettingsPluginsOfficialPick() string { return In(i18n.Locale()).SettingsPluginsOfficialPick() }
+
+// SettingsPluginsOfficialPick says "官方插件"
+// in the language of msgs.
+//
+// Settings, plugins page: label of the official plugin picker.
+func (msgs Messages) SettingsPluginsOfficialPick() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsOfficialPick", nil)
+}
+
+// SettingsPluginsOfficialPickHint says "选择要安装的官方插件"
+// in the language the app shows.
+//
+// Settings, plugins page: hint of the official plugin picker.
+func SettingsPluginsOfficialPickHint() string {
+	return In(i18n.Locale()).SettingsPluginsOfficialPickHint()
+}
+
+// SettingsPluginsOfficialPickHint says "选择要安装的官方插件"
+// in the language of msgs.
+//
+// Settings, plugins page: hint of the official plugin picker.
+func (msgs Messages) SettingsPluginsOfficialPickHint() string {
+	return Catalog.Format(msgs.locale, "settingsPluginsOfficialPickHint", nil)
 }

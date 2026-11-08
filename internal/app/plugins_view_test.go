@@ -56,13 +56,21 @@ func installExample(t *testing.T, a *App, id string) {
 func TestPluginsPageEmptyState(t *testing.T) {
 	a := newPluginsApp(t)
 	tt := ui.NewTester(a.settingsView, 1180, 900)
-	for _, want := range []string{"还没有安装插件", "额外的搜索来源", "安装插件", "回显示例", "开发工具", "运行诊断"} {
+	for _, want := range []string{"还没有安装插件", "额外的搜索来源", "安装插件", "回显示例", "运行诊断"} {
 		if !tt.HasText(want) {
 			t.Fatalf("empty page does not show %q", want)
 		}
 	}
 	if !tt.HasText("安装后立即可用") {
 		t.Fatal("install card does not explain where plugins come from")
+	}
+	// The picker names one bundled plugin at a time; opening it lists the
+	// rest, however many official plugins ship.
+	if err := tt.Click("回显示例"); err != nil {
+		t.Fatal(err)
+	}
+	if !tt.HasText("开发工具") {
+		t.Fatalf("the picker does not list the other official plugin: %q", tt.Texts())
 	}
 	// HasText matches substrings, and the card title holds "已安装" too.
 	for _, text := range tt.Texts() {

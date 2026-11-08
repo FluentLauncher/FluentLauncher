@@ -549,11 +549,15 @@
   "settingsDialogExportTheme": "Export Theme",
   "settingsDialogImportTheme": "Import Theme",
   "settingsDialogThemePackageFilter": "Theme packages",
-  "pluginOfficialEchoName": "Echo Example",
-  "pluginOfficialEchoSummary": "The minimal working plugin: type echo plus text, results come back verbatim, Enter copies.",
-  "pluginOfficialDevtoolsName": "Dev Tools",
-  "pluginOfficialDevtoolsSummary": "Offline text tools: timestamps and time zones, UUIDs, JSON validation and formatting, Base64 and URL codecs, digests.",
   "settingsLearningResetDone": "Learning data reset.",
   "settingsHiddenRestored": "{count, plural, =0 {No hidden entries to restore.} one {# hidden entry restored.} other {# hidden entries restored.}}",
-  "storeFileIndexNoDatabase": "The database is unavailable, so the file index cannot be rebuilt."
+  "storeFileIndexNoDatabase": "The database is unavailable, so the file index cannot be rebuilt.",
+  "resultDateHint": "Today’s date (Enter copies)",
+  "resultTimeHint": "Current time (Enter copies)",
+  "resultTimestampSec": "Unix seconds (Enter copies)",
+  "resultTimestampMs": "Unix milliseconds (Enter copies)",
+  "resultUUIDHint": "Random UUID (Enter copies)",
+  "cmdCopyValue": "Copy Result",
+  "settingsPluginsOfficialPick": "Official plugin",
+  "settingsPluginsOfficialPickHint": "Pick an official plugin to install"
 }

@@ -854,15 +854,46 @@ func pluginStatePill(c *ui.Context, theme *ui.Theme, state plugin.State) {
 	})
 }
 
-// installPluginsCard is where a plugin comes from: the bundled examples with a
-// sentence each, then the two ways to install a third-party package.
+// installPluginsCard is where a plugin comes from: the bundled ones behind a
+// picker — one row however many official plugins ship — then the two ways to
+// install a third-party package.
 func (a *App) installPluginsCard(c *ui.Context, theme *ui.Theme) {
 	settingCard(c, locales.SettingsPluginsInstallCard(), func(c *ui.Context) {
 		ui.Text(c, locales.SettingsPluginsInstallHint()).
 			FontSize(12).TextColor(theme.TextMuted).Wrap()
 		installed := a.pluginRepo.Installed()
+		pending := make([]plugin.OfficialPlugin, 0)
 		for _, official := range plugin.OfficialPlugins() {
-			a.officialPluginRow(c, theme, official, installed)
+			if !pluginInstalled(installed, official.ID) {
+				pending = append(pending, official)
+			}
+		}
+		if len(pending) > 0 {
+			names := make([]string, 0, len(pending))
+			for _, official := range pending {
+				names = append(names, official.Name)
+			}
+			pick := a.officialPick
+			if !containsFold(names, pick) {
+				pick = names[0]
+			}
+			summary := ""
+			pickID := ""
+			for _, official := range pending {
+				if official.Name == pick {
+					summary = official.Summary
+					pickID = official.ID
+				}
+			}
+			a.themedSelect(c, "officialPlugin", locales.SettingsPluginsOfficialPick(),
+				locales.SettingsPluginsOfficialPickHint(), names, pick,
+				func(label string) { a.officialPick = label })
+			if summary != "" {
+				ui.Text(c, summary).FontSize(11).TextColor(theme.TextMuted).Wrap()
+			}
+			if compactPrimaryButton(c, locales.CommonInstall()).Clicked() && pickID != "" {
+				go a.installOfficialPlugin(pickID)
+			}
 		}
 		ui.Divider(c)
 		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
@@ -874,31 +905,6 @@ func (a *App) installPluginsCard(c *ui.Context, theme *ui.Theme) {
 			}
 			ui.Text(c, a.pluginRepo.Dir()).FontSize(11).TextColor(theme.TextMuted).Grow(1).SingleLine()
 		})
-	})
-}
-
-// officialPluginRow is one bundled example, with what it does in one line. An
-// installed one loses its button: the card above is where it is turned off or
-// removed, and two places to install it would only raise the question of which
-// one counts.
-func (a *App) officialPluginRow(c *ui.Context, theme *ui.Theme, official plugin.OfficialPlugin, installed []protocol.Registration) {
-	isInstalled := pluginInstalled(installed, official.ID)
-	ui.Row(c).Gap(12).AlignItems(ui.Center).Padding(10, 12).Radius(8).
-		Background(theme.Surface.Alpha(0.5)).Border(1, theme.Border).Children(func() {
-		ui.Column(c).Grow(1).Gap(2).Children(func() {
-			ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-				ui.Text(c, official.Name).FontSize(13).TextColor(theme.Text).SingleLine()
-				ui.Text(c, official.ID).FontSize(11).TextColor(theme.TextMuted).SingleLine()
-			})
-			ui.Text(c, official.Summary).FontSize(11).TextColor(theme.TextMuted).Wrap()
-		})
-		if isInstalled {
-			ui.Text(c, locales.SettingsPluginsInstalledBadge()).FontSize(11).TextColor(theme.Success).Shrink(0)
-			return
-		}
-		if compactPrimaryButton(c, locales.CommonInstall()).Clicked() {
-			go a.installOfficialPlugin(official.ID)
-		}
 	})
 }
 

@@ -2,6 +2,7 @@ package search
 
 import (
 	"context"
+	"regexp"
 	"testing"
 
 	"fluentlauncher/internal/core/model"
@@ -45,6 +46,38 @@ func TestUtilityProvider(t *testing.T) {
 	got, _ = p.Search(context.Background(), Query{Text: "hello", Scope: ScopeWeb}, 10)
 	if len(got) == 0 || got[0].Entry.LaunchTarget != "https://www.bing.com/search?q=hello" {
 		t.Fatalf("web = %+v", got)
+	}
+}
+
+func TestUtilityTools(t *testing.T) {
+	cfg := settings.Default()
+	p := UtilityProvider{Settings: func() settings.LauncherSettings { return cfg }}
+	date, _ := p.Search(context.Background(), Query{Text: "date", Scope: ScopeAll}, 10)
+	if len(date) != 1 || !regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`).MatchString(date[0].Entry.Title) ||
+		date[0].Entry.CopyText != date[0].Entry.Title {
+		t.Fatalf("date = %+v", date)
+	}
+	if zh, _ := p.Search(context.Background(), Query{Text: "今天", Scope: ScopeAll}, 10); len(zh) != 1 || zh[0].Entry.ID != date[0].Entry.ID {
+		t.Fatalf("今天 = %+v", zh)
+	}
+	clock, _ := p.Search(context.Background(), Query{Text: "time", Scope: ScopeAll}, 10)
+	if len(clock) != 1 || !regexp.MustCompile(`^\d{2}:\d{2}:\d{2}$`).MatchString(clock[0].Entry.Title) {
+		t.Fatalf("time = %+v", clock)
+	}
+	stamps, _ := p.Search(context.Background(), Query{Text: "timestamp", Scope: ScopeAll}, 10)
+	if len(stamps) != 2 || len(stamps[0].Entry.CopyText) < 10 || len(stamps[1].Entry.CopyText) < 13 {
+		t.Fatalf("timestamp = %+v", stamps)
+	}
+	uuid, _ := p.Search(context.Background(), Query{Text: "uuid", Scope: ScopeAll}, 10)
+	if len(uuid) != 1 || !regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`).MatchString(uuid[0].Entry.Title) {
+		t.Fatalf("uuid = %+v", uuid)
+	}
+	if again, _ := p.Search(context.Background(), Query{Text: "uuid", Scope: ScopeAll}, 10); again[0].Entry.Title == uuid[0].Entry.Title {
+		t.Fatal("the uuid did not change between searches")
+	}
+	// The tools belong to the unscoped query; "web" scope keeps searching.
+	if web, _ := p.Search(context.Background(), Query{Text: "date", Scope: ScopeWeb}, 10); len(web) != 1 || web[0].Entry.Kind != model.URL {
+		t.Fatalf("web scope leaked into the tools: %+v", web)
 	}
 }
 

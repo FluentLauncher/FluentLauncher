@@ -76,7 +76,10 @@ func openTitle(entry model.Entry) string {
 	case model.Directory:
 		return locales.CmdOpenFolder()
 	case model.Calculation:
-		return locales.CmdCopyCalcResult()
+		if strings.HasPrefix(entry.ID, "calc:") {
+			return locales.CmdCopyCalcResult()
+		}
+		return locales.CmdCopyValue()
 	case model.Command:
 		return locales.CmdOpen()
 	case model.Window:

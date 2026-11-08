@@ -6,6 +6,7 @@ Windows 11 键盘优先启动器，使用 Go + [MyGo](https://github.com/egoist/
 
 - 全局热键、托盘、单实例、启动隐藏、开机启动。
 - 应用/文件/自定义启动项/工作区/站点搜索/计算器/已开窗口/插件统一搜索。
+- 即时工具：输入 `date`/`今天`、`time`/`现在`、`timestamp`/`时间戳`、`uuid` 得到日期、时间、Unix 时间戳（秒/毫秒）、随机 UUID，回车即复制；内置功能条目带专属图标。
 - 系统功能搜索：输入“控制面板”“网络连接”“打印机”“电源”等关键词，直接打开对应的 Windows 设置页、控制面板项或系统工具。
 - 中文全拼、首字母、别名、固定、隐藏、最近使用与稳定排序。
 - 结果动作：打开、管理员运行、打开位置、复制路径/文本、插件动作。
@@ -63,7 +64,7 @@ resources/examples/         # 随程序分发的插件包
 
 ## 插件
 
-插件是独立可执行文件，`plugin.json` 的 `executable` 指向包内程序；stdin/stdout 使用 4 字节大端长度 + JSON-RPC 2.0。官方示例随 `resources/examples` 分发，可在设置页安装。
+插件是独立可执行文件，`plugin.json` 的 `executable` 指向包内程序；stdin/stdout 使用 4 字节大端长度 + JSON-RPC 2.0。官方示例随 `resources/examples` 分发，清单在 `internal/plugin/official_index.json`（含三语名称与简介，新增官方插件只需加目录与清单项），设置页以下拉选择安装。
 
 ## 调试
 

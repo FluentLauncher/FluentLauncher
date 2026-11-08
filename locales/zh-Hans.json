@@ -2800,22 +2800,6 @@
   "@settingsDialogThemePackageFilter": {
     "description": "File dialog filter name: theme package ZIP files."
   },
-  "pluginOfficialEchoName": "回显示例",
-  "@pluginOfficialEchoName": {
-    "description": "Settings, plugins page: install card name of the bundled echo example."
-  },
-  "pluginOfficialEchoSummary": "最小可用的插件：输入 echo 加文本，结果里原样返回，回车即可复制。",
-  "@pluginOfficialEchoSummary": {
-    "description": "Settings, plugins page: install card summary of the bundled echo example."
-  },
-  "pluginOfficialDevtoolsName": "开发工具",
-  "@pluginOfficialDevtoolsName": {
-    "description": "Settings, plugins page: install card name of the bundled devtools example."
-  },
-  "pluginOfficialDevtoolsSummary": "离线文本工具：时间戳与时区、UUID、JSON 校验与格式化、Base64 与 URL 编解码、摘要。",
-  "@pluginOfficialDevtoolsSummary": {
-    "description": "Settings, plugins page: install card summary of the bundled devtools example."
-  },
   "settingsLearningResetDone": "学习数据已重置。",
   "@settingsLearningResetDone": {
     "description": "Settings, other page footer: learning data was reset."
@@ -2832,5 +2816,37 @@
   "storeFileIndexNoDatabase": "数据库不可用，无法重建文件索引。",
   "@storeFileIndexNoDatabase": {
     "description": "Settings, files page: rebuild refused because the database failed to open."
+  },
+  "resultDateHint": "今天的日期（回车复制）",
+  "@resultDateHint": {
+    "description": "Instant tool: today date row subtitle."
+  },
+  "resultTimeHint": "当前时间（回车复制）",
+  "@resultTimeHint": {
+    "description": "Instant tool: current time row subtitle."
+  },
+  "resultTimestampSec": "Unix 秒（回车复制）",
+  "@resultTimestampSec": {
+    "description": "Instant tool: Unix seconds row subtitle."
+  },
+  "resultTimestampMs": "Unix 毫秒（回车复制）",
+  "@resultTimestampMs": {
+    "description": "Instant tool: Unix milliseconds row subtitle."
+  },
+  "resultUUIDHint": "随机 UUID（回车复制）",
+  "@resultUUIDHint": {
+    "description": "Instant tool: fresh UUID row subtitle."
+  },
+  "cmdCopyValue": "复制结果",
+  "@cmdCopyValue": {
+    "description": "Action panel: copy the value of an instant tool result."
+  },
+  "settingsPluginsOfficialPick": "官方插件",
+  "@settingsPluginsOfficialPick": {
+    "description": "Settings, plugins page: label of the official plugin picker."
+  },
+  "settingsPluginsOfficialPickHint": "选择要安装的官方插件",
+  "@settingsPluginsOfficialPickHint": {
+    "description": "Settings, plugins page: hint of the official plugin picker."
   }
 }

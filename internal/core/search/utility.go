@@ -2,11 +2,14 @@ package search
 
 import (
 	"context"
+	"crypto/rand"
+	"fmt"
 	"math"
 	"net/url"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/locales"
@@ -38,6 +41,11 @@ func (p UtilityProvider) Search(ctx context.Context, q Query, limit int) ([]mode
 			Kind:         model.URL,
 			SourceID:     "utilities",
 		}, Score: 20000}}, nil
+	}
+	if q.Scope == ScopeAll {
+		if results := utilityTools(q.Text); results != nil {
+			return results, nil
+		}
 	}
 	if u, err := url.Parse(q.Text); err == nil && u.IsAbs() &&
 		(u.Scheme == "http" || u.Scheme == "https") {
@@ -78,6 +86,67 @@ func (p UtilityProvider) Search(ctx context.Context, q Query, limit int) ([]mode
 
 func escapeQuery(text string) string {
 	return strings.ReplaceAll(url.QueryEscape(text), "+", "%20")
+}
+
+// utilityTools answers the instant tools: today's date, the current time,
+// Unix timestamps and a fresh UUID. Like the calculator they carry their
+// value in CopyText, so Enter copies it.
+func utilityTools(text string) []model.Result {
+	lower := strings.ToLower(strings.TrimSpace(text))
+	now := time.Now()
+	switch {
+	case matchesTool(lower, "date", "today", "日期", "今天"):
+		value := now.Format("2006-01-02")
+		return toolResult("date:", value, locales.ResultDateHint())
+	case matchesTool(lower, "time", "now", "时间", "现在"):
+		value := now.Format("15:04:05")
+		return toolResult("time:", value, locales.ResultTimeHint())
+	case matchesTool(lower, "timestamp", "unix", "时间戳"):
+		sec := strconv.FormatInt(now.Unix(), 10)
+		ms := strconv.FormatInt(now.UnixMilli(), 10)
+		return []model.Result{
+			{Entry: model.Entry{ID: "timestamp:s", Title: sec, Subtitle: locales.ResultTimestampSec(),
+				Kind: model.Calculation, CopyText: sec, SourceID: "utilities"}, Score: 20000},
+			{Entry: model.Entry{ID: "timestamp:ms", Title: ms, Subtitle: locales.ResultTimestampMs(),
+				Kind: model.Calculation, CopyText: ms, SourceID: "utilities"}, Score: 19000},
+		}
+	case matchesTool(lower, "uuid", "guid"):
+		if value := newUUID(); value != "" {
+			return toolResult("uuid:", value, locales.ResultUUIDHint())
+		}
+	}
+	return nil
+}
+
+func matchesTool(lower string, keywords ...string) bool {
+	for _, keyword := range keywords {
+		if lower == keyword || strings.HasPrefix(lower, keyword+" ") {
+			return true
+		}
+	}
+	return false
+}
+
+func toolResult(prefix, value, subtitle string) []model.Result {
+	return []model.Result{{Entry: model.Entry{
+		ID:       prefix + value,
+		Title:    value,
+		Subtitle: subtitle,
+		Kind:     model.Calculation,
+		CopyText: value,
+		SourceID: "utilities",
+	}, Score: 20000}}
+}
+
+// newUUID returns a random version-4 UUID in its canonical form.
+func newUUID() string {
+	var b [16]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		return ""
+	}
+	b[6] = b[6]&0x0f | 0x40
+	b[8] = b[8]&0x3f | 0x80
+	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
 }
 
 // Evaluate parses only numbers and arithmetic; it never evaluates scripts,

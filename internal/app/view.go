@@ -167,6 +167,8 @@ func (a *App) row(c *ui.Context, theme *ui.Theme, index int) {
 	row.Children(func() {
 		if bitmap := a.resultIcon(item.Entry); bitmap != nil {
 			ui.Image(c, bitmap).Size(float32(a.iconSize), float32(a.iconSize))
+		} else if svg := builtinIcon(item.Entry); svg != nil {
+			ui.Icon(c, svg).FontSize(float32(a.iconSize) * 0.66).TextColor(muted)
 		} else {
 			ui.Avatar(c, item.Entry.Title, nil).Size(float32(a.iconSize), float32(a.iconSize))
 		}

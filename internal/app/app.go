@@ -114,6 +114,7 @@ type App struct {
 	brandIcon     *ui.Bitmap
 
 	selectOpen        string
+	officialPick      string
 	lastPreview       settings.ThemeSettings
 	blurSlider        float64
 	blurSliderInt     int

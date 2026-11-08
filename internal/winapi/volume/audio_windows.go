@@ -17,15 +17,19 @@ var procCoInitializeEx = syscall.NewLazyDLL("ole32.dll").NewProc("CoInitializeEx
 const StepPercent = 2
 
 // Adjust changes the default output device's master volume by deltaSteps
-// notches (positive is louder) and returns the new volume as a percentage.
-// It keeps the mute state as it is and re-reads the default device on every
-// call, so a device change is followed without extra notifications.
-func Adjust(deltaSteps float32) (int, error) {
+// notches (positive is louder), each notch moving stepPercent points, and
+// returns the new volume as a percentage. It keeps the mute state as it is
+// and re-reads the default device on every call, so a device change is
+// followed without extra notifications.
+func Adjust(deltaSteps float32, stepPercent int) (int, error) {
+	if stepPercent <= 0 {
+		stepPercent = StepPercent
+	}
 	current, err := get()
 	if err != nil {
 		return 0, err
 	}
-	next := current + deltaSteps*StepPercent/100
+	next := current + deltaSteps*float32(stepPercent)/100
 	next = float32(math.Max(0, math.Min(1, float64(next))))
 	if err := set(next); err != nil {
 		return 0, err

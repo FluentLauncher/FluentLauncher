@@ -7991,3 +7991,31 @@ func PluginOfficialDevtoolsSummary() string { return In(i18n.Locale()).PluginOff
 func (msgs Messages) PluginOfficialDevtoolsSummary() string {
 	return Catalog.Format(msgs.locale, "pluginOfficialDevtoolsSummary", nil)
 }
+
+// SettingsLearningResetDone says "学习数据已重置。"
+// in the language the app shows.
+//
+// Settings, other page footer: learning data was reset.
+func SettingsLearningResetDone() string { return In(i18n.Locale()).SettingsLearningResetDone() }
+
+// SettingsLearningResetDone says "学习数据已重置。"
+// in the language of msgs.
+//
+// Settings, other page footer: learning data was reset.
+func (msgs Messages) SettingsLearningResetDone() string {
+	return Catalog.Format(msgs.locale, "settingsLearningResetDone", nil)
+}
+
+// SettingsHiddenRestored says "{count, plural, =0 {没有可恢复的隐藏条目。} other {已恢复 {count} 个隐藏条目。}}"
+// in the language the app shows.
+//
+// Settings, other page footer: result of restoring hidden entries.
+func SettingsHiddenRestored(count int) string { return In(i18n.Locale()).SettingsHiddenRestored(count) }
+
+// SettingsHiddenRestored says "{count, plural, =0 {没有可恢复的隐藏条目。} other {已恢复 {count} 个隐藏条目。}}"
+// in the language of msgs.
+//
+// Settings, other page footer: result of restoring hidden entries.
+func (msgs Messages) SettingsHiddenRestored(count int) string {
+	return Catalog.Format(msgs.locale, "settingsHiddenRestored", map[string]any{"count": count})
+}

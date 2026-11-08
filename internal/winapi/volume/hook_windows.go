@@ -239,7 +239,7 @@ func (c *Controller) worker() {
 			return
 		case delta := <-c.ch:
 			steps := float32(delta) / 120
-			percent, err := Adjust(steps)
+			percent, err := Adjust(steps, c.opts.StepPercent)
 			if err != nil {
 				log.Printf("volume: %v", err)
 				continue

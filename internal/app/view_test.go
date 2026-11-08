@@ -1,6 +1,8 @@
 package app
 
 import (
+	"context"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -9,6 +11,7 @@ import (
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/search"
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/store"
 )
 
 func TestLauncherViewBuilds(t *testing.T) {
@@ -204,5 +207,47 @@ func TestTrayDoubleClick(t *testing.T) {
 	}
 	if isDoubleClick(&last, start.Add(2*time.Second)) {
 		t.Fatal("a late click is the first of a new pair")
+	}
+}
+
+// TestOtherPageActionsReportDone covers the Other page's data buttons: they
+// confirm what they did in the settings footer instead of staying silent,
+// which made a reset look like a click that did nothing.
+func TestOtherPageActionsReportDone(t *testing.T) {
+	db, err := store.OpenDB(context.Background(), filepath.Join(t.TempDir(), "launcher.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { db.Close() })
+	a := &App{
+		settings:        settings.Default(),
+		settingsDraft:   settings.Default(),
+		icons:           map[string]*ui.Bitmap{},
+		iconLoading:     map[string]bool{},
+		profiles:        map[string]model.Profile{},
+		db:              db,
+		appEngine:       search.NewEngine(),
+		fileEngine:      search.NewEngine(),
+		customEngine:    search.NewEngine(),
+		workspaceEngine: search.NewEngine(),
+		settingsPage:    7,
+	}
+	tt := ui.NewTester(a.settingsView, 900, 660)
+	if err := tt.Click("重置学习记录"); err != nil {
+		t.Fatal(err)
+	}
+	if !tt.HasText("学习数据已重置。") {
+		t.Fatalf("no confirmation after the reset: %q", tt.Texts())
+	}
+
+	a.profiles["gone"] = model.Profile{EntryID: "gone", Hidden: true}
+	if err := tt.Click("恢复隐藏条目"); err != nil {
+		t.Fatal(err)
+	}
+	if !tt.HasText("已恢复 1 个隐藏条目。") {
+		t.Fatalf("no confirmation after restoring: %q", tt.Texts())
+	}
+	if a.profiles["gone"].Hidden {
+		t.Fatal("the entry is still hidden")
 	}
 }

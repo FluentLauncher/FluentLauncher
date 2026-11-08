@@ -74,17 +74,18 @@ type App struct {
 	input ui.Handle
 	list  ui.ListState
 
-	query         string
-	results       []model.Result
-	chosen        int
-	selectedID    string
-	resultsReady  bool
-	notice        string
-	status        string
-	composing     bool
-	settingsError string
-	loading       bool
-	lastDiscovery time.Time
+	query          string
+	results        []model.Result
+	chosen         int
+	selectedID     string
+	resultsReady   bool
+	notice         string
+	status         string
+	composing      bool
+	settingsError  string
+	settingsNotice string
+	loading        bool
+	lastDiscovery  time.Time
 
 	icons       map[string]*ui.Bitmap
 	iconLoading map[string]bool
@@ -768,6 +769,7 @@ func (a *App) flushSettingsDraft() {
 	}
 	if err := a.applySettings(a.settingsDraft); err != nil {
 		a.settingsError = err.Error()
+		a.settingsNotice = ""
 		a.applyThemeFrom(a.settings.Theme)
 		a.applyWindowSize()
 		a.positionPanel()
@@ -1090,6 +1092,7 @@ func (a *App) openSettings() {
 		return
 	}
 	a.settingsDraft = cloneSettings(a.settings)
+	a.settingsError, a.settingsNotice = "", ""
 	a.lastPreview = a.settingsDraft.Theme
 	// No system title bar: the window draws its own, so that it matches the
 	// theme instead of cutting a pale Windows frame across it. The view keeps
@@ -1106,9 +1109,10 @@ func (a *App) openSettings() {
 		TitleBarStyle:     mygo.TitleBarHidden,
 		HideWindowButtons: true,
 		DisableMaximize:   true,
-		StateKey:          "settings-layout-v2",
+		StateKey:          "settings-layout-v3",
 		Content:           ui.View(a.settingsView),
 	})
+	a.clampToWorkArea(a.settingsWin)
 	a.settingsWin.OnClose(func(e *mygo.CloseEvent) {
 		if a.quitting {
 			return
@@ -1125,6 +1129,29 @@ func (a *App) openSettings() {
 	}
 	a.applyBackdrop(a.displayTheme())
 	a.settingsWin.Show()
+}
+
+// clampToWorkArea pulls a window back inside the work area of the display it
+// sits on. The bounds a StateKey restores can name a size or a place of
+// another monitor setup, which would open the window off the screen.
+func (a *App) clampToWorkArea(win *mygo.Window) {
+	b := win.Bounds()
+	area := a.workArea
+	for _, display := range mygo.Screen.Displays() {
+		w := display.WorkArea
+		cx, cy := b.X+b.Width/2, b.Y+b.Height/2
+		if cx >= w.X && cx < w.X+w.Width && cy >= w.Y && cy < w.Y+w.Height {
+			area = layout.WorkArea{X: w.X, Y: w.Y, Width: w.Width, Height: w.Height}
+			break
+		}
+	}
+	width := min(b.Width, area.Width)
+	height := min(b.Height, area.Height)
+	x := min(max(b.X, area.X), area.X+area.Width-width)
+	y := min(max(b.Y, area.Y), area.Y+area.Height-height)
+	if x != b.X || y != b.Y || width != b.Width || height != b.Height {
+		win.SetBounds(mygo.Rectangle{X: x, Y: y, Width: width, Height: height})
+	}
 }
 
 func (a *App) close() {

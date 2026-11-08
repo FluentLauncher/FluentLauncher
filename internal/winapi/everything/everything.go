@@ -162,7 +162,10 @@ func query(ctx context.Context, text string, limit int) ([]model.Result, error) 
 		}
 	}()
 
-	encoded := windows.StringToUTF16(text + "\x00")
+	// The payload carries the query as a terminated UTF-16 string. The
+	// terminator is appended after encoding: StringToUTF16 panics on a NUL
+	// inside its argument.
+	encoded := append(windows.StringToUTF16(text), 0)
 	payload := make([]byte, 20+len(encoded)*2)
 	binary.LittleEndian.PutUint32(payload[0:], uint32(hwnd))
 	binary.LittleEndian.PutUint32(payload[4:], everythingTag)

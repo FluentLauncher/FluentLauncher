@@ -99,9 +99,12 @@ func (a *App) settingsView(c *ui.Context) {
 				// saved a moment later, so this row only reports what went
 				// wrong or reassures that there is nothing to do.
 				ui.Row(c).Padding(8, 24).AlignItems(ui.Center).Children(func() {
-					if a.settingsError != "" {
+					switch {
+					case a.settingsError != "":
 						ui.Text(c, a.settingsError).FontSize(12).TextColor(theme.Danger)
-					} else {
+					case a.settingsNotice != "":
+						ui.Text(c, a.settingsNotice).FontSize(12).TextColor(theme.Success)
+					default:
 						ui.Text(c, locales.SettingsAutoSave()).FontSize(11).TextColor(theme.TextMuted)
 					}
 				})
@@ -1000,14 +1003,18 @@ func (a *App) aboutPage(c *ui.Context) {
 				a.resetLearning()
 			}
 			if compactButton(c, locales.SettingsRestoreHidden()).Clicked() {
+				restored := 0
 				for id, profile := range a.profileMap() {
 					if profile.Hidden {
+						restored++
 						a.changeProfile(id, func(p model.Profile) model.Profile {
 							p.Hidden = false
 							return p
 						})
 					}
 				}
+				a.settingsError = ""
+				a.settingsNotice = locales.SettingsHiddenRestored(restored)
 			}
 		})
 	})
@@ -1172,6 +1179,8 @@ func (a *App) resetLearning() {
 		a.settingsError = err.Error()
 		return
 	}
+	a.settingsError = ""
+	a.settingsNotice = locales.SettingsLearningResetDone()
 	a.profilesMu.Lock()
 	for id, profile := range a.profiles {
 		profile.UseCount = 0

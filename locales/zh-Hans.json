@@ -2815,5 +2815,18 @@
   "pluginOfficialDevtoolsSummary": "离线文本工具：时间戳与时区、UUID、JSON 校验与格式化、Base64 与 URL 编解码、摘要。",
   "@pluginOfficialDevtoolsSummary": {
     "description": "Settings, plugins page: install card summary of the bundled devtools example."
+  },
+  "settingsLearningResetDone": "学习数据已重置。",
+  "@settingsLearningResetDone": {
+    "description": "Settings, other page footer: learning data was reset."
+  },
+  "settingsHiddenRestored": "{count, plural, =0 {没有可恢复的隐藏条目。} other {已恢复 {count} 个隐藏条目。}}",
+  "@settingsHiddenRestored": {
+    "description": "Settings, other page footer: result of restoring hidden entries.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

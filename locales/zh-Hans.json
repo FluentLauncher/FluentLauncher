@@ -2828,5 +2828,9 @@
         "type": "int"
       }
     }
+  },
+  "storeFileIndexNoDatabase": "数据库不可用，无法重建文件索引。",
+  "@storeFileIndexNoDatabase": {
+    "description": "Settings, files page: rebuild refused because the database failed to open."
   }
 }

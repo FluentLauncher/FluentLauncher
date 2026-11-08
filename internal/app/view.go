@@ -136,7 +136,7 @@ func (a *App) resultsArea(c *ui.Context, theme *ui.Theme) {
 				if strings.TrimSpace(a.query) == "" {
 					message = locales.PanelEmptyQuery()
 				}
-				if a.loading {
+				if a.loading.Load() {
 					message = locales.PanelLoading()
 				}
 				ui.Text(c, message).TextColor(theme.TextMuted).Padding(16)
@@ -200,6 +200,7 @@ func (a *App) footer(c *ui.Context, theme *ui.Theme) {
 	if a.status != "" {
 		parts = append(parts, a.status)
 	}
+	parts = append(parts, a.statusParts(a.lastBatches)...)
 	if a.mem != "" {
 		parts = append(parts, a.mem)
 	}
@@ -435,6 +436,10 @@ func withAlpha(col ui.Color, factor float32) ui.Color {
 	return col.Alpha(float32(col.A) / 255 * factor)
 }
 
+// maxCachedIcons bounds the result-icon cache; past it the map is dropped
+// and repopulated from the visible rows.
+const maxCachedIcons = 512
+
 func (a *App) resultIcon(entry model.Entry) *ui.Bitmap {
 	path := entry.IconPath
 	if path == "" {
@@ -445,6 +450,11 @@ func (a *App) resultIcon(entry model.Entry) *ui.Bitmap {
 	}
 	if bitmap, ok := a.icons[path]; ok {
 		return bitmap
+	}
+	// The cache only grows while results keep naming new paths; drop it all
+	// past the cap and let the visible rows repopulate it asynchronously.
+	if len(a.icons) >= maxCachedIcons {
+		a.icons = map[string]*ui.Bitmap{}
 	}
 	if !a.iconLoading[path] {
 		a.iconLoading[path] = true

@@ -16,6 +16,17 @@ func Normalize(text string) string {
 // Phonetics returns the normalized title, full pinyin, initials and acronym.
 func Phonetics(text string) (title, py, initials, acronym string) {
 	title = Normalize(text)
+	if !HasHan(text) {
+		// Most file names are Han-free: skip the per-rune pinyin pass and
+		// its two slice allocations entirely.
+		short := Normalize(buildAcronym(text, nil, false))
+		if short != "" && short != title {
+			acronym = short
+		} else {
+			acronym = title
+		}
+		return title, title, title, acronym
+	}
 	runes := []rune(text)
 	full := make([]string, len(runes))
 	initial := make([]string, len(runes))

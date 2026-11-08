@@ -47,6 +47,9 @@ func (f *FileIndex) Warning() string {
 }
 
 func (f *FileIndex) LoadCached(ctx context.Context, options settings.FileIndexOptions) ([]model.Entry, error) {
+	if f.db == nil {
+		return nil, errIndexClosed
+	}
 	entries, err := f.db.LoadFileIndex(ctx)
 	if err != nil {
 		return nil, err
@@ -75,6 +78,9 @@ func (f *FileIndex) LoadCached(ctx context.Context, options settings.FileIndexOp
 
 // Configure replaces the options, restarts the coarse watches, and rebuilds.
 func (f *FileIndex) Configure(ctx context.Context, options settings.FileIndexOptions) error {
+	if f.db == nil {
+		return errIndexClosed
+	}
 	f.mu.Lock()
 	f.options = options
 	if f.cancel != nil {
@@ -124,6 +130,9 @@ func (f *FileIndex) schedule() {
 
 // Rebuild scans and writes only added, removed or changed entries.
 func (f *FileIndex) Rebuild(ctx context.Context) error {
+	if f.db == nil {
+		return errors.New(locales.StoreFileIndexNoDatabase())
+	}
 	f.rebuild.Lock()
 	defer f.rebuild.Unlock()
 	f.mu.Lock()

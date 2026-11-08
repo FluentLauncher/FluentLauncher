@@ -116,19 +116,15 @@ func (a *App) savePrompt() {
 }
 
 func (a *App) anyHidden() bool {
-	for _, profile := range a.profileMap() {
-		if profile.Hidden {
-			return true
-		}
-	}
-	return false
+	return a.hiddenCount() > 0
 }
 
 func (a *App) runWorkspace(workspaceID string) {
+	snap := a.currentSettings()
 	var workspace *settings.Workspace
-	for i := range a.settings.Workspaces {
-		if strings.EqualFold(a.settings.Workspaces[i].ID, workspaceID) {
-			workspace = &a.settings.Workspaces[i]
+	for i := range snap.Workspaces {
+		if strings.EqualFold(snap.Workspaces[i].ID, workspaceID) {
+			workspace = &snap.Workspaces[i]
 			break
 		}
 	}
@@ -136,37 +132,44 @@ func (a *App) runWorkspace(workspaceID string) {
 		a.notice = locales.WorkspaceDeleted()
 		return
 	}
-	steps := settings.RunWorkspace(*workspace, a.settings.CustomItems, func(item settings.CustomLaunchItem) model.Outcome {
-		return apps.Launch(context.Background(), item.ToEntry(), model.Open)
-	})
-	failed := 0
-	for _, step := range steps {
-		if !step.Succeeded && !step.Skipped() {
-			failed++
-		}
-	}
-	if failed == 0 {
-		a.recordUse("workspaces:" + workspace.ID)
-		a.hidePanel()
-		return
-	}
-	var details strings.Builder
-	for _, step := range steps {
-		if !step.Succeeded {
-			details.WriteString("\n" + locales.WorkspaceStepFailed(step.Name, step.Error))
-		}
-	}
-	a.notice = locales.WorkspaceRunFailed(workspace.Name, failed, details.String())
+	workspaceCopy := *workspace
 	a.hidePanel()
-	a.showWorkspaceResult(workspace.Name, steps)
+	// The steps launch programs one after another and each can wait on a
+	// UAC prompt; the UI thread only hears the outcome.
+	go func() {
+		steps := settings.RunWorkspace(workspaceCopy, snap.CustomItems, func(item settings.CustomLaunchItem) model.Outcome {
+			return apps.Launch(context.Background(), item.ToEntry(), model.Open)
+		})
+		failed := 0
+		for _, step := range steps {
+			if !step.Succeeded && !step.Skipped() {
+				failed++
+			}
+		}
+		if a.panel == nil {
+			return
+		}
+		a.panel.Update(func() {
+			if failed == 0 {
+				a.recordUse("workspaces:" + workspaceCopy.ID)
+				return
+			}
+			var details strings.Builder
+			for _, step := range steps {
+				if !step.Succeeded {
+					details.WriteString("\n" + locales.WorkspaceStepFailed(step.Name, step.Error))
+				}
+			}
+			a.notice = locales.WorkspaceRunFailed(workspaceCopy.Name, failed, details.String())
+			a.showWorkspaceResult(workspaceCopy.Name, steps)
+		})
+	}()
 }
 
 func (a *App) showWorkspaceResult(name string, steps []settings.WorkspaceStep) {
 	a.workspaceName = name
 	a.workspaceSteps = steps
-	if a.workspaceWin != nil {
-		a.workspaceWin.Close()
-	}
+	old := a.workspaceWin
 	a.workspaceWin = mygo.NewWindow(mygo.WindowOptions{
 		Title:             locales.WorkspaceResultTitle(),
 		Width:             520,
@@ -178,8 +181,20 @@ func (a *App) showWorkspaceResult(name string, steps []settings.WorkspaceStep) {
 		DisableMaximize:   true,
 		Content:           ui.View(a.workspaceView),
 	})
+	win := a.workspaceWin
+	// The close button and the user both destroy the window without telling
+	// the app; without this the theme and locale passes would keep poking a
+	// dead handle.
+	win.OnClose(func(*mygo.CloseEvent) {
+		if a.workspaceWin == win {
+			a.workspaceWin = nil
+		}
+	})
+	if old != nil {
+		old.Close()
+	}
 	a.applyBackdrop(a.displayTheme())
-	a.workspaceWin.Show()
+	win.Show()
 }
 
 func (a *App) workspaceView(c *ui.Context) {
@@ -217,53 +232,84 @@ func (a *App) workspaceView(c *ui.Context) {
 }
 
 func (a *App) retryWorkspaceItem(itemID string) {
-	for _, item := range a.settings.CustomItems {
-		if strings.EqualFold(item.ID, itemID) {
-			outcome := apps.Launch(context.Background(), item.ToEntry(), model.Open)
+	snap := a.currentSettings()
+	var item *settings.CustomLaunchItem
+	for i := range snap.CustomItems {
+		if strings.EqualFold(snap.CustomItems[i].ID, itemID) {
+			item = &snap.CustomItems[i]
+			break
+		}
+	}
+	if item == nil {
+		a.notice = locales.WorkspaceItemDeleted()
+		return
+	}
+	itemCopy := *item
+	go func() {
+		outcome := apps.Launch(context.Background(), itemCopy.ToEntry(), model.Open)
+		if a.panel == nil {
+			return
+		}
+		a.panel.Update(func() {
 			if outcome.Succeeded {
-				a.status = locales.WorkspaceRetryStatus(item.Name)
+				a.status = locales.WorkspaceRetryStatus(itemCopy.Name)
 			} else {
 				a.notice = locales.WorkspaceRetryFailed(outcome.Error)
 			}
-			return
-		}
-	}
-	a.notice = locales.WorkspaceItemDeleted()
+		})
+	}()
 }
 
 func (a *App) executePluginAction(entry model.Entry, action model.Action) {
-	defer a.panel.Update(func() {})
+	// Launches and plugin RPCs wait on processes; only their outcomes come
+	// back to the UI thread.
 	switch action.Kind {
 	case "copyText":
 		mygo.Clipboard.WriteText(action.Value)
 		a.hidePanel()
+		a.panel.Update(func() {})
 		return
 	case "openUrl", "openPath":
 		kind := model.File
 		if action.Kind == "openUrl" {
 			kind = model.URL
 		}
-		outcome := apps.Launch(context.Background(), model.Entry{
-			ID: "plugin-action", Title: action.Title, LaunchTarget: action.Value, Kind: kind,
-		}, model.Open)
-		if !outcome.Succeeded {
-			a.notice = locales.PanelPluginActionFailed(outcome.Error)
-			return
-		}
+		target := model.Entry{ID: "plugin-action", Title: action.Title, LaunchTarget: action.Value, Kind: kind}
 		a.hidePanel()
+		go func() {
+			outcome := apps.Launch(context.Background(), target, model.Open)
+			if a.panel == nil {
+				return
+			}
+			a.panel.Update(func() {
+				if !outcome.Succeeded {
+					a.notice = locales.PanelPluginActionFailed(outcome.Error)
+				}
+			})
+		}()
 		return
 	case "invoke":
 		if a.plugins == nil {
 			a.notice = locales.PanelPluginRuntimeDisabled()
+			a.panel.Update(func() {})
 			return
 		}
-		if err := a.plugins.Execute(context.Background(), entry, action); err != nil {
-			a.notice = locales.PanelPluginActionFailed(err.Error())
-			return
-		}
-		a.status = locales.PanelPluginActionDone(action.Title)
 		a.hidePanel()
+		go func() {
+			err := a.plugins.Execute(context.Background(), entry, action)
+			if a.panel == nil {
+				return
+			}
+			a.panel.Update(func() {
+				if err != nil {
+					a.notice = locales.PanelPluginActionFailed(err.Error())
+					return
+				}
+				a.status = locales.PanelPluginActionDone(action.Title)
+			})
+		}()
 		return
 	}
 	a.notice = locales.PanelPluginActionUnsupported()
+	a.panel.Update(func() {})
 }

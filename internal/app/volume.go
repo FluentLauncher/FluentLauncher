@@ -1,8 +1,8 @@
 package app
 
 import (
-	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/egoist/mygo"
@@ -61,7 +61,7 @@ func (a *App) volumeView(c *ui.Context) {
 		ui.Box(c).Grow(1).Height(5).Radius(2.5).Background(theme.Border.Alpha(0.6)).Children(func() {
 			ui.Box(c).WidthPercent(float32(percent)).Height(5).Radius(2.5).Background(theme.Accent)
 		})
-		ui.Text(c, fmt.Sprintf("%d", percent)).FontSize(13).TextColor(theme.Text).Width(26)
+		ui.Text(c, strconv.Itoa(percent)).FontSize(13).TextColor(theme.Text).Width(26)
 	})
 }
 
@@ -91,19 +91,23 @@ func (a *App) onVolumeChange(percent int) {
 	if a.volumeWin == nil {
 		return
 	}
-	a.volumeWin.Update(func() { a.volumePct = percent })
-	a.showVolumeOverlay()
-	if a.volumeTimer != nil {
-		a.volumeTimer.Stop()
-	}
-	if a.volumePinned {
-		return
-	}
-	a.volumeTimer = time.AfterFunc(1200*time.Millisecond, func() {
-		if a.volumeWin != nil {
-			a.volumeWin.Hide()
+	// Runs on the hook's worker goroutine; the timer and the pin flag are
+	// UI-thread state, so they move inside the window's update.
+	a.volumeWin.Update(func() {
+		a.volumePct = percent
+		if a.volumeTimer != nil {
+			a.volumeTimer.Stop()
 		}
+		if a.volumePinned {
+			return
+		}
+		a.volumeTimer = time.AfterFunc(1200*time.Millisecond, func() {
+			if a.volumeWin != nil {
+				a.volumeWin.Hide()
+			}
+		})
 	})
+	a.showVolumeOverlay()
 }
 
 // showVolumeOverlay puts the overlay near the bottom of the display the

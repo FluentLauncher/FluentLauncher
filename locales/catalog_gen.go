@@ -8019,3 +8019,19 @@ func SettingsHiddenRestored(count int) string { return In(i18n.Locale()).Setting
 func (msgs Messages) SettingsHiddenRestored(count int) string {
 	return Catalog.Format(msgs.locale, "settingsHiddenRestored", map[string]any{"count": count})
 }
+
+// StoreFileIndexNoDatabase says "数据库不可用，无法重建文件索引。"
+// in the language the app shows.
+//
+// Settings, files page: rebuild refused because the database failed to
+// open.
+func StoreFileIndexNoDatabase() string { return In(i18n.Locale()).StoreFileIndexNoDatabase() }
+
+// StoreFileIndexNoDatabase says "数据库不可用，无法重建文件索引。"
+// in the language of msgs.
+//
+// Settings, files page: rebuild refused because the database failed to
+// open.
+func (msgs Messages) StoreFileIndexNoDatabase() string {
+	return Catalog.Format(msgs.locale, "storeFileIndexNoDatabase", nil)
+}

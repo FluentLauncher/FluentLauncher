@@ -48,47 +48,62 @@ const (
 	swShow       = 5
 )
 
+// enumState is the per-call state the shared enumeration callback reads
+// through EnumWindows' lParam, so a List call registers no callback of its
+// own: the runtime's callback table is capped (2000 slots, never recycled)
+// and a NewCallback per keystroke would exhaust it.
+type enumState struct {
+	ctx     context.Context
+	self    uint32
+	entries []model.Entry
+}
+
+var enumCallback = syscall.NewCallback(func(hwnd uintptr, lparam unsafe.Pointer) uintptr {
+	state := (*enumState)(lparam)
+	if state.ctx.Err() != nil {
+		return 0
+	}
+	title, pid, ok := switchable(hwnd, state.self)
+	if !ok {
+		return 1
+	}
+	exe := processPath(pid)
+	subtitle := locales.WinWindowSubtitle()
+	var aliases []string
+	if exe != "" {
+		name := filepath.Base(exe)
+		name = name[:len(name)-len(filepath.Ext(name))]
+		subtitle = locales.WinSwitchToWindow(name)
+		if name != "" {
+			aliases = []string{name}
+		}
+	}
+	state.entries = append(state.entries, model.Entry{
+		ID:           fmt.Sprintf("window:%d", hwnd),
+		Title:        title,
+		Subtitle:     subtitle,
+		LaunchTarget: strconv.FormatUint(uint64(hwnd), 10),
+		Kind:         model.Window,
+		SourceID:     "windows",
+		IconPath:     exe,
+		Aliases:      aliases,
+	})
+	return 1
+})
+
 // List returns visible, non-tool, non-cloaked windows owned by other
 // processes. It enumerates once per call; callers do not poll.
 func List(ctx context.Context) ([]model.Entry, error) {
-	self := windows.GetCurrentProcessId()
-	entries := make([]model.Entry, 0, 32)
-	callback := syscall.NewCallback(func(hwnd uintptr, _ uintptr) uintptr {
-		if ctx.Err() != nil {
-			return 0
-		}
-		title, pid, ok := switchable(hwnd, self)
-		if !ok {
-			return 1
-		}
-		exe := processPath(pid)
-		subtitle := locales.WinWindowSubtitle()
-		var aliases []string
-		if exe != "" {
-			name := filepath.Base(exe)
-			name = name[:len(name)-len(filepath.Ext(name))]
-			subtitle = locales.WinSwitchToWindow(name)
-			if name != "" {
-				aliases = []string{name}
-			}
-		}
-		entries = append(entries, model.Entry{
-			ID:           fmt.Sprintf("window:%d", hwnd),
-			Title:        title,
-			Subtitle:     subtitle,
-			LaunchTarget: strconv.FormatUint(uint64(hwnd), 10),
-			Kind:         model.Window,
-			SourceID:     "windows",
-			IconPath:     exe,
-			Aliases:      aliases,
-		})
-		return 1
-	})
-	r, _, err := procEnumWindows.Call(callback, 0)
-	if r == 0 && err != nil && err != syscall.Errno(0) {
-		return entries, err
+	state := &enumState{
+		ctx:     ctx,
+		self:    windows.GetCurrentProcessId(),
+		entries: make([]model.Entry, 0, 32),
 	}
-	return entries, nil
+	r, _, err := procEnumWindows.Call(enumCallback, uintptr(unsafe.Pointer(state)))
+	if r == 0 && err != nil && err != syscall.Errno(0) {
+		return state.entries, err
+	}
+	return state.entries, nil
 }
 
 func switchable(hwnd uintptr, self uint32) (string, uint32, bool) {

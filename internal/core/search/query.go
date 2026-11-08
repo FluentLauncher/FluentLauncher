@@ -98,7 +98,7 @@ func Merge(batches []Batch, limit int) []model.Result {
 	if limit <= 0 {
 		return nil
 	}
-	all := make([]model.Result, 0)
+	all := make([]model.Result, 0, len(batches)*limit)
 	for _, batch := range batches {
 		all = append(all, batch.Results...)
 	}

@@ -268,8 +268,11 @@ func (c *Client) requestLocked(ctx context.Context, method string, text requestT
 	}
 
 	read := make(chan frameResult, 1)
+	// Capture the reader now: the timeout path below stops the client and
+	// nils the field, and the goroutine must not race that write.
+	reader := c.stdout
 	go func() {
-		payload, err := protocol.Read(c.stdout)
+		payload, err := protocol.Read(reader)
 		read <- frameResult{payload, err}
 	}()
 	timer := time.NewTimer(timeout)

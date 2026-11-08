@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/settings"
@@ -18,6 +19,7 @@ const pinnedBonus = 800
 
 type indexedEntry struct {
 	entry    model.Entry
+	id       string // strings.ToLower(entry.ID), computed once
 	title    string
 	pinyin   string
 	initials string
@@ -31,6 +33,7 @@ type indexedEntry struct {
 type Engine struct {
 	mu      sync.RWMutex
 	entries []indexedEntry
+	byID    map[string]int // lowered entry ID -> index in entries
 }
 
 func NewEngine() *Engine {
@@ -43,22 +46,25 @@ func (e *Engine) ReplaceEntries(entries []model.Entry, profiles map[string]model
 	previous := map[string]indexedEntry{}
 	e.mu.RLock()
 	for _, old := range e.entries {
-		previous[strings.ToLower(old.entry.ID)] = old
+		previous[old.id] = old
 	}
 	e.mu.RUnlock()
 
 	seen := map[string]bool{}
 	next := make([]indexedEntry, 0, len(entries))
+	byID := make(map[string]int, len(entries))
 	for _, entry := range entries {
 		key := strings.ToLower(entry.ID)
 		if seen[key] {
 			continue
 		}
 		seen[key] = true
-		next = append(next, prepare(entry, profiles[key], previous[key]))
+		byID[key] = len(next)
+		next = append(next, prepare(key, entry, profiles[key], previous[key]))
 	}
 	e.mu.Lock()
 	e.entries = next
+	e.byID = byID
 	e.mu.Unlock()
 }
 
@@ -67,18 +73,15 @@ func (e *Engine) ReplaceEntries(entries []model.Entry, profiles map[string]model
 func (e *Engine) UpdateProfile(profile model.Profile) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	key := strings.ToLower(profile.EntryID)
-	for i := range e.entries {
-		if strings.ToLower(e.entries[i].entry.ID) != key {
-			continue
-		}
-		next := make([]indexedEntry, len(e.entries))
-		copy(next, e.entries)
-		next[i].profile = profile
-		next[i].aliases = prepareAliases(next[i].entry, profile)
-		e.entries = next
+	i, ok := e.byID[strings.ToLower(profile.EntryID)]
+	if !ok {
 		return
 	}
+	next := make([]indexedEntry, len(e.entries))
+	copy(next, e.entries)
+	next[i].profile = profile
+	next[i].aliases = prepareAliases(next[i].entry, profile)
+	e.entries = next
 }
 
 func (e *Engine) UpdateProfiles(profiles map[string]model.Profile) {
@@ -86,7 +89,7 @@ func (e *Engine) UpdateProfiles(profiles map[string]model.Profile) {
 	defer e.mu.Unlock()
 	next := make([]indexedEntry, len(e.entries))
 	for i, old := range e.entries {
-		profile := profiles[strings.ToLower(old.entry.ID)]
+		profile := profiles[old.id]
 		old.profile = profile
 		old.aliases = prepareAliases(old.entry, profile)
 		next[i] = old
@@ -100,6 +103,12 @@ func (e *Engine) Search(ctx context.Context, query string, limit int) []model.Re
 		return nil
 	}
 	tokens := strings.Fields(Normalize(query))
+	// The subsequence fallback only applies to tokens of 3+ runes; decide
+	// once per token, not once per entry.
+	subseqOK := make([]bool, len(tokens))
+	for i, token := range tokens {
+		subseqOK[i] = utf8.RuneCountInString(token) >= 3
+	}
 	now := time.Now()
 
 	e.mu.RLock()
@@ -116,7 +125,7 @@ func (e *Engine) Search(ctx context.Context, query string, limit int) []model.Re
 		if entry.profile.Hidden {
 			continue
 		}
-		score := scoreEntry(entry, tokens)
+		score := scoreEntry(entry, tokens, subseqOK)
 		if len(tokens) > 0 && score == 0 {
 			continue
 		}
@@ -143,18 +152,15 @@ func (e *Engine) Search(ctx context.Context, query string, limit int) []model.Re
 }
 
 func (e *Engine) Find(id string) (model.Entry, bool) {
-	key := strings.ToLower(id)
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	for _, entry := range e.entries {
-		if strings.ToLower(entry.entry.ID) == key {
-			return entry.entry, true
-		}
+	if i, ok := e.byID[strings.ToLower(id)]; ok {
+		return e.entries[i].entry, true
 	}
 	return model.Entry{}, false
 }
 
-func prepare(entry model.Entry, profile model.Profile, previous indexedEntry) indexedEntry {
+func prepare(id string, entry model.Entry, profile model.Profile, previous indexedEntry) indexedEntry {
 	var title, py, initials, acronym string
 	if previous.entry.Title == entry.Title && previous.entry.ID != "" {
 		title, py, initials, acronym = previous.title, previous.pinyin, previous.initials, previous.acronym
@@ -163,6 +169,7 @@ func prepare(entry model.Entry, profile model.Profile, previous indexedEntry) in
 	}
 	return indexedEntry{
 		entry:    entry,
+		id:       id,
 		title:    title,
 		pinyin:   py,
 		initials: initials,
@@ -189,9 +196,9 @@ func prepareAliases(entry model.Entry, profile model.Profile) []string {
 	return out
 }
 
-func scoreEntry(entry *indexedEntry, tokens []string) int {
+func scoreEntry(entry *indexedEntry, tokens []string, subseqOK []bool) int {
 	total := 0
-	for _, token := range tokens {
+	for j, token := range tokens {
 		best := match(entry.title, token, 11000)
 		for _, alias := range entry.aliases {
 			best = max(best, match(alias, token, 12000))
@@ -208,7 +215,7 @@ func scoreEntry(entry *indexedEntry, tokens []string) int {
 		if strings.Contains(entry.subtitle, token) {
 			best = max(best, 1000)
 		}
-		if best == 0 && len([]rune(token)) >= 3 && subsequence(entry.title, token) {
+		if best == 0 && subseqOK[j] && subsequence(entry.title, token) {
 			best = 2000
 		}
 		if best == 0 {
@@ -232,18 +239,13 @@ func match(value, token string, exact int) int {
 }
 
 func subsequence(text, token string) bool {
-	rest := []rune(text)
+	rest := text
 	for _, r := range token {
-		i := 0
-		for ; i < len(rest); i++ {
-			if rest[i] == r {
-				break
-			}
-		}
-		if i == len(rest) {
+		i := strings.IndexRune(rest, r)
+		if i < 0 {
 			return false
 		}
-		rest = rest[i+1:]
+		rest = rest[i+utf8.RuneLen(r):]
 	}
 	return true
 }

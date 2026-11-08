@@ -66,7 +66,7 @@ func (a *App) settingsView(c *ui.Context) {
 	a.drawShell(c, &theme, func() {
 		a.captionBar(c, &theme, locales.SettingsWindowTitle(), a.settingsWin)
 		ui.Row(c).Grow(1).FillWidth().Children(func() {
-			a.settingsSidebar(c, &theme)
+			a.settingsSidebar(c, &theme, pages)
 			ui.Column(c).Grow(1).FillHeight().Children(func() {
 				ui.Row(c).Padding(20, 24).AlignItems(ui.Center).Children(func() {
 					ui.Text(c, pages[a.settingsPage]).FontSize(20).Bold().TextColor(theme.Text).Grow(1)
@@ -119,11 +119,11 @@ func (a *App) settingsView(c *ui.Context) {
 // settingsSidebar is the navigation column: transparent over the window
 // material, with the same selected/hover treatment as the result rows. The
 // mark and the window buttons live in the caption bar above it.
-func (a *App) settingsSidebar(c *ui.Context, theme *ui.Theme) {
+func (a *App) settingsSidebar(c *ui.Context, theme *ui.Theme, pages []string) {
 	hover := a.settingsHover
 	next := -1
 	ui.Column(c).Width(208).FillHeight().Padding(8, 12).Gap(2).Children(func() {
-		for i, name := range settingPages() {
+		for i, name := range pages {
 			background := ui.Transparent
 			text := theme.Text
 			if i == a.settingsPage {
@@ -575,7 +575,7 @@ func (a *App) appearancePage(c *ui.Context) {
 				go a.exportTheme()
 			}
 			if compactButton(c, locales.SettingsImportTheme()).Clicked() {
-				go a.importTheme()
+				a.importTheme()
 			}
 		})
 	})
@@ -646,6 +646,7 @@ func (a *App) sitesPage(c *ui.Context) {
 	settingCard(c, locales.SettingsSitesCard(), func(c *ui.Context) {
 		ui.Text(c, locales.SettingsSitesHint()).
 			FontSize(12).TextColor(c.Theme().TextMuted)
+		remove := -1
 		for i := range a.settingsDraft.WebSites {
 			site := &a.settingsDraft.WebSites[i]
 			ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
@@ -654,10 +655,16 @@ func (a *App) sitesPage(c *ui.Context) {
 				ui.TextInput(c, &site.URLTemplate).Placeholder(locales.SettingsSitesURLPlaceholder()).Grow(1)
 				ui.Switch(c, &site.Enabled)
 				if compactButton(c, locales.CommonDelete()).Clicked() {
-					a.settingsDraft.WebSites = append(a.settingsDraft.WebSites[:i], a.settingsDraft.WebSites[i+1:]...)
+					remove = i
 					return
 				}
 			})
+			if remove >= 0 {
+				break
+			}
+		}
+		if remove >= 0 {
+			a.settingsDraft.WebSites = append(a.settingsDraft.WebSites[:remove], a.settingsDraft.WebSites[remove+1:]...)
 		}
 		if compactButton(c, locales.SettingsSitesAdd()).Clicked() {
 			a.settingsDraft.WebSites = append(a.settingsDraft.WebSites, settings.WebSearchSite{Enabled: true})
@@ -667,6 +674,7 @@ func (a *App) sitesPage(c *ui.Context) {
 
 func (a *App) launchItemsPage(c *ui.Context) {
 	settingCard(c, locales.SettingsItemsCard(), func(c *ui.Context) {
+		remove := -1
 		for i := range a.settingsDraft.CustomItems {
 			item := &a.settingsDraft.CustomItems[i]
 			ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
@@ -675,10 +683,16 @@ func (a *App) launchItemsPage(c *ui.Context) {
 				ui.TextInput(c, &item.Arguments).Placeholder(locales.SettingsItemsArguments()).Width(120)
 				ui.Switch(c, &item.Enabled)
 				if compactButton(c, locales.CommonDelete()).Clicked() {
-					a.settingsDraft.CustomItems = append(a.settingsDraft.CustomItems[:i], a.settingsDraft.CustomItems[i+1:]...)
+					remove = i
 					return
 				}
 			})
+			if remove >= 0 {
+				break
+			}
+		}
+		if remove >= 0 {
+			a.settingsDraft.CustomItems = append(a.settingsDraft.CustomItems[:remove], a.settingsDraft.CustomItems[remove+1:]...)
 		}
 		if compactButton(c, locales.SettingsItemsAdd()).Clicked() {
 			a.settingsDraft.CustomItems = append(a.settingsDraft.CustomItems, settings.CustomLaunchItem{
@@ -688,6 +702,7 @@ func (a *App) launchItemsPage(c *ui.Context) {
 	})
 	settingCard(c, locales.SettingsWorkspacesCard(), func(c *ui.Context) {
 		ui.Text(c, locales.SettingsWorkspacesHint()).FontSize(12).TextColor(c.Theme().TextMuted)
+		remove := -1
 		for i := range a.settingsDraft.Workspaces {
 			workspace := &a.settingsDraft.Workspaces[i]
 			items := strings.Join(workspace.ItemIDs, ",")
@@ -699,10 +714,16 @@ func (a *App) launchItemsPage(c *ui.Context) {
 				}
 				ui.Switch(c, &workspace.Enabled)
 				if compactButton(c, locales.CommonDelete()).Clicked() {
-					a.settingsDraft.Workspaces = append(a.settingsDraft.Workspaces[:i], a.settingsDraft.Workspaces[i+1:]...)
+					remove = i
 					return
 				}
 			})
+			if remove >= 0 {
+				break
+			}
+		}
+		if remove >= 0 {
+			a.settingsDraft.Workspaces = append(a.settingsDraft.Workspaces[:remove], a.settingsDraft.Workspaces[remove+1:]...)
 		}
 		if compactButton(c, locales.SettingsWorkspacesAdd()).Clicked() {
 			a.settingsDraft.Workspaces = append(a.settingsDraft.Workspaces, settings.Workspace{ID: settings.NewWorkspaceID(), Enabled: true})
@@ -769,12 +790,17 @@ func (a *App) pluginEntry(c *ui.Context, theme *ui.Theme, status plugin.Status) 
 			pluginStatePill(c, theme, status.State())
 			if status.State() == plugin.StatePaused || status.State() == plugin.StateFailed {
 				if compactButton(c, locales.SettingsPluginsRestart()).Clicked() {
-					a.plugins.Restart(manifest.ID)
-					a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins)
+					// Stop waits for a query in flight; keep it off the UI thread.
+					opts := a.settingsDraft.Plugins
+					go func() {
+						a.plugins.Restart(manifest.ID)
+						a.plugins.Configure(a.pluginRepo.Installed(), opts)
+						a.settingsWin.Update(func() {})
+					}()
 				}
 			}
 			if compactButton(c, locales.CommonUninstall()).Clicked() {
-				a.uninstallPlugin(manifest.ID)
+				go a.uninstallPlugin(manifest.ID)
 			}
 			if ui.Switch(c, &enabled).Changed() {
 				a.setPluginEnabled(manifest.ID, enabled)
@@ -834,8 +860,9 @@ func (a *App) installPluginsCard(c *ui.Context, theme *ui.Theme) {
 	settingCard(c, locales.SettingsPluginsInstallCard(), func(c *ui.Context) {
 		ui.Text(c, locales.SettingsPluginsInstallHint()).
 			FontSize(12).TextColor(theme.TextMuted).Wrap()
+		installed := a.pluginRepo.Installed()
 		for _, official := range plugin.OfficialPlugins() {
-			a.officialPluginRow(c, theme, official)
+			a.officialPluginRow(c, theme, official, installed)
 		}
 		ui.Divider(c)
 		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
@@ -854,8 +881,8 @@ func (a *App) installPluginsCard(c *ui.Context, theme *ui.Theme) {
 // installed one loses its button: the card above is where it is turned off or
 // removed, and two places to install it would only raise the question of which
 // one counts.
-func (a *App) officialPluginRow(c *ui.Context, theme *ui.Theme, official plugin.OfficialPlugin) {
-	installed := pluginInstalled(a.pluginRepo.Installed(), official.ID)
+func (a *App) officialPluginRow(c *ui.Context, theme *ui.Theme, official plugin.OfficialPlugin, installed []protocol.Registration) {
+	isInstalled := pluginInstalled(installed, official.ID)
 	ui.Row(c).Gap(12).AlignItems(ui.Center).Padding(10, 12).Radius(8).
 		Background(theme.Surface.Alpha(0.5)).Border(1, theme.Border).Children(func() {
 		ui.Column(c).Grow(1).Gap(2).Children(func() {
@@ -865,12 +892,12 @@ func (a *App) officialPluginRow(c *ui.Context, theme *ui.Theme, official plugin.
 			})
 			ui.Text(c, official.Summary).FontSize(11).TextColor(theme.TextMuted).Wrap()
 		})
-		if installed {
+		if isInstalled {
 			ui.Text(c, locales.SettingsPluginsInstalledBadge()).FontSize(11).TextColor(theme.Success).Shrink(0)
 			return
 		}
 		if compactPrimaryButton(c, locales.CommonInstall()).Clicked() {
-			a.installOfficialPlugin(official.ID)
+			go a.installOfficialPlugin(official.ID)
 		}
 	})
 }
@@ -983,13 +1010,7 @@ func (a *App) aboutPage(c *ui.Context) {
 				ui.Text(c, locales.SettingsAboutDataDir(a.dataDir)).FontSize(12).TextColor(c.Theme().TextMuted)
 			})
 		})
-		hidden := 0
-		for _, profile := range a.profileMap() {
-			if profile.Hidden {
-				hidden++
-			}
-		}
-		ui.Text(c, locales.SettingsAboutHiddenCount(hidden)).FontSize(12).TextColor(c.Theme().TextMuted)
+		ui.Text(c, locales.SettingsAboutHiddenCount(a.hiddenCount())).FontSize(12).TextColor(c.Theme().TextMuted)
 	})
 	settingCard(c, locales.SettingsDataCard(), func(c *ui.Context) {
 		ui.Row(c).Gap(8).Children(func() {
@@ -997,24 +1018,40 @@ func (a *App) aboutPage(c *ui.Context) {
 				go a.exportConfig()
 			}
 			if compactButton(c, locales.SettingsImportConfig()).Clicked() {
-				go a.importConfig()
+				a.importConfig()
 			}
 			if compactButton(c, locales.SettingsResetLearning()).Clicked() {
 				a.resetLearning()
 			}
 			if compactButton(c, locales.SettingsRestoreHidden()).Clicked() {
-				restored := 0
-				for id, profile := range a.profileMap() {
+				// One pass over the profiles, one engine refresh, one save
+				// burst: per-entry changeProfile would scan every engine and
+				// restart the search once per hidden entry.
+				a.profilesMu.Lock()
+				changed := make([]model.Profile, 0)
+				for id, profile := range a.profiles {
 					if profile.Hidden {
-						restored++
-						a.changeProfile(id, func(p model.Profile) model.Profile {
-							p.Hidden = false
-							return p
-						})
+						profile.Hidden = false
+						a.profiles[id] = profile
+						changed = append(changed, profile)
 					}
 				}
+				a.profilesMu.Unlock()
+				if a.db != nil {
+					go func() {
+						for _, profile := range changed {
+							_ = a.db.SaveProfile(context.Background(), profile)
+						}
+					}()
+				}
+				m := a.profileMap()
+				a.appEngine.UpdateProfiles(m)
+				a.fileEngine.UpdateProfiles(m)
+				a.customEngine.UpdateProfiles(m)
+				a.workspaceEngine.UpdateProfiles(m)
 				a.settingsError = ""
-				a.settingsNotice = locales.SettingsHiddenRestored(restored)
+				a.settingsNotice = locales.SettingsHiddenRestored(len(changed))
+				a.updateResults()
 			}
 		})
 	})
@@ -1118,18 +1155,27 @@ func (a *App) importConfig() {
 	if err != nil || len(paths) == 0 {
 		return
 	}
-	pkg, err := a.config.Import(paths[0])
-	if err != nil {
-		a.settingsWin.Update(func() { a.settingsError = err.Error() })
-		return
-	}
-	if err := a.applySettings(pkg.Settings); err != nil {
-		a.settingsWin.Update(func() { a.settingsError = err.Error() })
-		return
-	}
-	if a.db != nil {
-		if err := a.db.ImportProfiles(context.Background(), pkg.Profiles, pkg.IncludesLearning); err == nil {
-			if profiles, err := a.db.LoadProfiles(context.Background()); err == nil {
+	// The file and database work stays off the UI thread; everything that
+	// touches app state applies inside the window's update, like every other
+	// change from here.
+	go func() {
+		pkg, err := a.config.Import(paths[0])
+		if err != nil {
+			a.settingsWin.Update(func() { a.settingsError = err.Error() })
+			return
+		}
+		var profiles map[string]model.Profile
+		if a.db != nil {
+			if err := a.db.ImportProfiles(context.Background(), pkg.Profiles, pkg.IncludesLearning); err == nil {
+				profiles, _ = a.db.LoadProfiles(context.Background())
+			}
+		}
+		a.settingsWin.Update(func() {
+			if err := a.applySettings(pkg.Settings); err != nil {
+				a.settingsError = err.Error()
+				return
+			}
+			if profiles != nil {
 				a.profilesMu.Lock()
 				a.profiles = profiles
 				a.profilesMu.Unlock()
@@ -1140,9 +1186,9 @@ func (a *App) importConfig() {
 				a.workspaceEngine.UpdateProfiles(m)
 				a.updateResults()
 			}
-		}
-	}
-	a.settingsWin.Update(func() { a.settingsError = "" })
+			a.settingsError = ""
+		})
+	}()
 }
 
 func (a *App) exportTheme() {
@@ -1162,25 +1208,36 @@ func (a *App) importTheme() {
 	if err != nil || len(paths) == 0 {
 		return
 	}
-	theme, err := a.themes.Import(paths[0])
-	if err != nil {
-		a.settingsWin.Update(func() { a.settingsError = err.Error() })
-		return
-	}
-	a.settingsDraft.Theme = theme
-	a.settingsWin.Update(func() { a.settingsError = "" })
+	go func() {
+		theme, err := a.themes.Import(paths[0])
+		if err != nil {
+			a.settingsWin.Update(func() { a.settingsError = err.Error() })
+			return
+		}
+		a.settingsWin.Update(func() {
+			a.settingsDraft.Theme = theme
+			a.settingsError = ""
+		})
+	}()
 }
 
 func (a *App) resetLearning() {
 	if a.db == nil {
 		return
 	}
-	if err := a.db.ResetLearning(context.Background()); err != nil {
-		a.settingsError = err.Error()
-		return
-	}
-	a.settingsError = ""
-	a.settingsNotice = locales.SettingsLearningResetDone()
+	db := a.db
+	go func() {
+		if err := db.ResetLearning(context.Background()); err != nil {
+			a.settingsWin.Update(func() { a.settingsError = err.Error() })
+			return
+		}
+		a.settingsWin.Update(a.finishResetLearning)
+	}()
+}
+
+// finishResetLearning clears the learned profiles in memory, refreshes the
+// engines and reports the outcome. It runs on the UI thread.
+func (a *App) finishResetLearning() {
 	a.profilesMu.Lock()
 	for id, profile := range a.profiles {
 		profile.UseCount = 0
@@ -1193,6 +1250,8 @@ func (a *App) resetLearning() {
 	a.fileEngine.UpdateProfiles(m)
 	a.customEngine.UpdateProfiles(m)
 	a.workspaceEngine.UpdateProfiles(m)
+	a.settingsError = ""
+	a.settingsNotice = locales.SettingsLearningResetDone()
 	a.updateResults()
 }
 

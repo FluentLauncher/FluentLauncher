@@ -554,5 +554,6 @@
   "pluginOfficialDevtoolsName": "Dev Tools",
   "pluginOfficialDevtoolsSummary": "Offline text tools: timestamps and time zones, UUIDs, JSON validation and formatting, Base64 and URL codecs, digests.",
   "settingsLearningResetDone": "Learning data reset.",
-  "settingsHiddenRestored": "{count, plural, =0 {No hidden entries to restore.} one {# hidden entry restored.} other {# hidden entries restored.}}"
+  "settingsHiddenRestored": "{count, plural, =0 {No hidden entries to restore.} one {# hidden entry restored.} other {# hidden entries restored.}}",
+  "storeFileIndexNoDatabase": "The database is unavailable, so the file index cannot be rebuilt."
 }

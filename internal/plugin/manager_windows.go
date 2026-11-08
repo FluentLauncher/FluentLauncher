@@ -74,7 +74,15 @@ func (m *Manager) Configure(installed []protocol.Registration, options settings.
 	m.mu.Lock()
 	m.installed = append([]protocol.Registration(nil), installed...)
 	m.options = options
-	m.paused = map[string]bool{}
+	// Pauses earned by consecutive failures survive reconfiguration — only a
+	// Restart lifts them — but the ones whose plugin is gone or disabled go.
+	kept := make(map[string]bool, len(m.paused))
+	for id := range m.paused {
+		if containsFold(options.EnabledIDs, id) && m.has(id) {
+			kept[id] = true
+		}
+	}
+	m.paused = kept
 	closing := make([]detached, 0, len(m.sessions))
 	for id, session := range m.sessions {
 		if !containsFold(options.EnabledIDs, id) || !m.has(id) {

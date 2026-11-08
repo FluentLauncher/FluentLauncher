@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/egoist/mygo"
@@ -39,12 +40,13 @@ type App struct {
 	// preview draws the panel on.
 	workArea layout.WorkArea
 
-	config     *store.ConfigStore
-	themes     *store.ThemeStore
-	db         *store.DB
-	settings   settings.LauncherSettings
-	profiles   map[string]model.Profile
-	profilesMu sync.Mutex
+	config       *store.ConfigStore
+	themes       *store.ThemeStore
+	db           *store.DB
+	settings     settings.LauncherSettings
+	settingsSnap atomic.Pointer[settings.LauncherSettings]
+	profiles     map[string]model.Profile
+	profilesMu   sync.Mutex
 
 	appEngine       *search.Engine
 	fileEngine      *search.Engine
@@ -84,7 +86,7 @@ type App struct {
 	composing      bool
 	settingsError  string
 	settingsNotice string
-	loading        bool
+	loading        atomic.Bool
 	lastDiscovery  time.Time
 
 	icons       map[string]*ui.Bitmap
@@ -100,6 +102,7 @@ type App struct {
 
 	settingsPage  int
 	settingsDraft settings.LauncherSettings
+	appliedTheme  settings.ThemeSettings
 
 	hotkeyActive string
 	hotkeyNotice string
@@ -139,7 +142,8 @@ type App struct {
 	quitting bool
 
 	queryCancel     context.CancelFunc
-	queryGeneration int64
+	queryGeneration atomic.Int64
+	lastBatches     []search.Batch
 	catalogTimer    *time.Timer
 	volumeTimer     *time.Timer
 }
@@ -193,6 +197,7 @@ func (a *App) ready() {
 		a.settings = value
 	}
 	a.settingsDraft = a.settings
+	a.publishSettings()
 	a.applyLanguage()
 	// Views rebuild themselves when the language changes; what the app set
 	// once — window titles and the tray menu — it sets again here.
@@ -213,19 +218,24 @@ func (a *App) ready() {
 	a.catalog.SetChanged(a.catalogChanged)
 	a.fileIndex = store.NewFileIndex(a.db)
 	a.fileIndex.SetOnUpdate(func(entries []model.Entry) {
+		// The engine is thread-safe; rebuilding up to MaxEntries entries on
+		// the UI thread would stall typing for hundreds of milliseconds.
+		a.fileEngine.ReplaceEntries(entries, a.profileMap())
 		if a.panel != nil {
-			a.panel.Update(func() {
-				a.fileEngine.ReplaceEntries(entries, a.profileMap())
-				a.updateResults()
-			})
+			a.panel.Update(func() { a.updateResults() })
 		}
 	})
-	a.everything = &everything.Provider{Enabled: func() bool { return a.settings.Files.EnableEverything }}
+	a.everything = &everything.Provider{Enabled: func() bool { return a.currentSettings().Files.EnableEverything }}
 	a.pluginRepo = plugin.NewRepository(filepath.Join(a.dataDir, "plugins"))
-	_ = a.pluginRepo.Refresh()
 	a.plugins = plugin.NewManager()
-	a.plugins.Configure(a.pluginRepo.Installed(), a.settings.Plugins)
-	log.Printf("plugins installed=%d enabled=%v", len(a.pluginRepo.Installed()), a.settings.Plugins.EnabledIDs)
+	// Plugins are only needed at the first query or when the settings page
+	// opens; the directory scan stays off the path to the first frame.
+	pluginOptions := a.settings.Plugins
+	go func() {
+		_ = a.pluginRepo.Refresh()
+		a.plugins.Configure(a.pluginRepo.Installed(), pluginOptions)
+		log.Printf("plugins installed=%d enabled=%v", len(a.pluginRepo.Installed()), pluginOptions.EnabledIDs)
+	}()
 
 	// The result rows draw the icons in DIPs; the shell renders them in device
 	// pixels, so they are asked for at the display's scale: a 28 DIP icon on a
@@ -373,7 +383,33 @@ func (a *App) loadDatabase() {
 }
 
 func (a *App) currentSettings() settings.LauncherSettings {
+	// Provider goroutines read the settings through here while the UI
+	// thread replaces the whole struct on save; the atomic snapshot keeps
+	// them from ever seeing a torn copy.
+	if snap := a.settingsSnap.Load(); snap != nil {
+		return *snap
+	}
 	return a.settings
+}
+
+// publishSettings makes the current settings visible to provider goroutines.
+func (a *App) publishSettings() {
+	snap := a.settings
+	a.settingsSnap.Store(&snap)
+}
+
+// hiddenCount counts hidden profiles under the profiles lock, without
+// copying the map the way profileMap would.
+func (a *App) hiddenCount() int {
+	a.profilesMu.Lock()
+	defer a.profilesMu.Unlock()
+	n := 0
+	for _, profile := range a.profiles {
+		if profile.Hidden {
+			n++
+		}
+	}
+	return n
 }
 
 func (a *App) profileMap() map[string]model.Profile {
@@ -418,39 +454,51 @@ func (a *App) loadFileCache() {
 	if a.db == nil {
 		return
 	}
-	cached, err := a.fileIndex.LoadCached(context.Background(), a.settings.Files)
-	if err != nil {
-		a.notice = locales.AppCannotReadFileIndex(err)
-		return
-	}
-	a.fileEngine.ReplaceEntries(cached, a.profileMap())
+	// Up to MaxEntries rows from SQLite plus a full engine rebuild: all of
+	// it stays off the path to the first frame.
+	fileOptions := a.settings.Files
 	go func() {
-		if err := a.fileIndex.Configure(context.Background(), a.settings.Files); err != nil {
+		cached, err := a.fileIndex.LoadCached(context.Background(), fileOptions)
+		if err != nil {
+			if a.panel != nil {
+				a.panel.Update(func() { a.notice = locales.AppCannotReadFileIndex(err) })
+			}
+			return
+		}
+		a.fileEngine.ReplaceEntries(cached, a.profileMap())
+		if a.panel != nil {
+			a.panel.Update(func() { a.updateResults() })
+		}
+		if err := a.fileIndex.Configure(context.Background(), fileOptions); err != nil {
 			log.Printf("file index: %v", err)
 		}
 	}()
 }
 
 func (a *App) refreshApps() {
-	if a.loading {
+	// Runs on the catalog watcher's debounce timer. The guard and the flag
+	// are atomic because the timer goroutine and the UI thread both touch
+	// them; the index rebuild happens off the UI thread like the file one.
+	if !a.loading.CompareAndSwap(false, true) {
 		return
 	}
-	a.loading = true
 	start := time.Now()
 	go func() {
 		entries, err := a.catalog.Discover(context.Background())
 		ms := time.Since(start).Milliseconds()
+		if err == nil {
+			a.appEngine.ReplaceEntries(entries, a.profileMap())
+		}
 		if a.panel == nil {
 			return
 		}
 		a.panel.Update(func() {
-			a.loading = false
+			a.loading.Store(false)
 			a.lastDiscovery = time.Now()
 			if err != nil {
 				a.notice = locales.AppDiscoveryFailed(err)
 				return
 			}
-			a.appEngine.ReplaceEntries(entries, a.profileMap())
 			a.status = locales.AppDiscoveredApps(len(entries))
 			log.Printf("apps: %d in %dms", len(entries), ms)
 			a.updateResults()
@@ -459,10 +507,16 @@ func (a *App) refreshApps() {
 }
 
 func (a *App) catalogChanged() {
-	if a.catalogTimer != nil {
-		a.catalogTimer.Stop()
+	// Watcher goroutines call this; the timer lives on the UI thread.
+	if a.panel == nil {
+		return
 	}
-	a.catalogTimer = time.AfterFunc(2*time.Second, a.refreshApps)
+	a.panel.Update(func() {
+		if a.catalogTimer != nil {
+			a.catalogTimer.Stop()
+		}
+		a.catalogTimer = time.AfterFunc(2*time.Second, a.refreshApps)
+	})
 }
 
 func (a *App) refreshIfStale() {
@@ -621,6 +675,7 @@ func (a *App) trayMenu() *mygo.Menu {
 			a.settings.RunAtLogin = !a.settings.RunAtLogin
 			a.settingsDraft.RunAtLogin = a.settings.RunAtLogin
 			_ = a.config.Save(a.settings)
+			a.publishSettings()
 			a.applyOpenAtLogin()
 			if a.tray != nil {
 				a.tray.SetMenu(a.trayMenu())
@@ -714,6 +769,7 @@ func (a *App) applySettings(value settings.LauncherSettings) error {
 		return err
 	}
 	a.settings = value
+	a.publishSettings()
 	a.settingsDraft = value
 	a.lastPreview = value.Theme
 	a.applyLanguage()
@@ -770,7 +826,13 @@ func (a *App) flushSettingsDraft() {
 	if err := a.applySettings(a.settingsDraft); err != nil {
 		a.settingsError = err.Error()
 		a.settingsNotice = ""
-		a.applyThemeFrom(a.settings.Theme)
+		// Roll the preview back to the saved look — but only when it is not
+		// there already: an invalid draft keeps failing every 600 ms, and
+		// re-applying the same theme would re-read and re-decode the
+		// background image on every cycle.
+		if a.appliedTheme != a.settings.Theme {
+			a.applyThemeFrom(a.settings.Theme)
+		}
 		a.applyWindowSize()
 		a.positionPanel()
 	} else {
@@ -779,18 +841,6 @@ func (a *App) flushSettingsDraft() {
 	if a.settingsWin != nil {
 		a.settingsWin.Update(func() {})
 	}
-}
-
-// saveTheme persists a theme without touching the rest of the settings.
-func (a *App) saveTheme(value settings.ThemeSettings) error {
-	if err := a.config.SaveTheme(value); err != nil {
-		return err
-	}
-	a.settings.Theme = value
-	a.settingsDraft.Theme = value
-	a.applyTheme()
-	a.panel.Update(func() {})
-	return nil
 }
 
 // applyTheme switches the system appearance, window material and image.
@@ -834,6 +884,7 @@ func (a *App) applyThemeFrom(value settings.ThemeSettings) {
 	if a.settingsWin != nil {
 		a.settingsWin.Update(func() {})
 	}
+	a.appliedTheme = value
 }
 
 // applyBackdrop keeps the blur behind every window in step with the theme:
@@ -868,7 +919,7 @@ func (a *App) recordUse(id string) {
 	a.profiles[id] = profile
 	a.profilesMu.Unlock()
 	if a.db != nil {
-		_ = a.db.SaveProfile(context.Background(), profile)
+		go func() { _ = a.db.SaveProfile(context.Background(), profile) }()
 	}
 	a.appEngine.UpdateProfile(profile)
 	a.fileEngine.UpdateProfile(profile)
@@ -883,7 +934,7 @@ func (a *App) changeProfile(id string, update func(model.Profile) model.Profile)
 	a.profiles[id] = profile
 	a.profilesMu.Unlock()
 	if a.db != nil {
-		_ = a.db.SaveProfile(context.Background(), profile)
+		go func() { _ = a.db.SaveProfile(context.Background(), profile) }()
 	}
 	a.appEngine.UpdateProfile(profile)
 	a.fileEngine.UpdateProfile(profile)
@@ -919,13 +970,16 @@ func (a *App) updateResults() {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	a.queryCancel = cancel
-	a.queryGeneration++
-	generation := a.queryGeneration
+	generation := a.queryGeneration.Add(1)
 	a.resultsReady = false
 	preferred := a.selectedID
+	// The query goroutine must not read fields the UI thread replaces on
+	// save; take everything it needs now.
+	snap := a.currentSettings()
+	providers := a.providers
 
 	if strings.TrimSpace(a.query) == "" {
-		results := search.RecentEntries(a.settings.ShowRecentEntries, a.profileSlice(), a.findEntry, a.settings.MaxResults)
+		results := search.RecentEntries(snap.ShowRecentEntries, a.profileSlice(), a.findEntry, snap.MaxResults)
 		a.setResults(results, preferred)
 		a.resultsReady = true
 		a.panel.Update(func() {})
@@ -934,31 +988,31 @@ func (a *App) updateResults() {
 	q := search.ParseQuery(a.query)
 	log.Printf("query %q scope=%d", q.Text, q.Scope)
 	go func() {
-		batches := make([]search.Batch, 0, len(a.providers))
-		for batch := range search.Run(ctx, a.providers, q, a.settings.MaxResults) {
-			if generation != a.queryGeneration || ctx.Err() != nil {
+		batches := make([]search.Batch, 0, len(providers))
+		for batch := range search.Run(ctx, providers, q, snap.MaxResults) {
+			if generation != a.queryGeneration.Load() || ctx.Err() != nil {
 				return
 			}
 			batches = append(batches, batch)
-			matches := search.Merge(batches, a.settings.MaxResults)
+			matches := search.Merge(batches, snap.MaxResults)
 			if len(matches) == 0 {
 				continue
 			}
 			a.panel.Update(func() {
 				a.setResults(matches, preferred)
 				a.resultsReady = true
-				a.status = a.statusLine(batches)
+				a.lastBatches = batches
 			})
 		}
 		a.panel.Update(func() {
-			if generation != a.queryGeneration {
+			if generation != a.queryGeneration.Load() {
 				return
 			}
 			if len(batches) == 0 {
 				a.setResults(nil, preferred)
 			}
 			a.resultsReady = true
-			a.status = a.statusLine(batches)
+			a.lastBatches = batches
 		})
 	}()
 }
@@ -982,26 +1036,28 @@ func (a *App) setResults(results []model.Result, preferred string) {
 	}
 }
 
-func (a *App) statusLine(batches []search.Batch) string {
-	parts := []string{}
-	if a.status != "" {
-		parts = append(parts, a.status)
-	}
-	parts = append(parts, locales.StatusShowingResults(len(a.results)))
+// statusParts composes the footer's middle section from the batches of the
+// last query: the result count, provider errors and source warnings. It
+// never reads its own previous output; the one-shot hints (app discovery,
+// plugin actions) live in a.status and the footer prepends them.
+func (a *App) statusParts(batches []search.Batch) []string {
+	parts := []string{locales.StatusShowingResults(len(a.results))}
 	for _, batch := range batches {
 		if batch.Error != "" {
 			parts = append(parts, batch.SourceID+": "+batch.Error)
 		}
 	}
-	if warning := a.catalog.Warning(); warning != "" {
-		parts = append(parts, warning)
+	if a.catalog != nil {
+		if warning := a.catalog.Warning(); warning != "" {
+			parts = append(parts, warning)
+		}
 	}
 	if a.fileIndex != nil {
 		if warning := a.fileIndex.Warning(); warning != "" {
 			parts = append(parts, warning)
 		}
 	}
-	return strings.Join(parts, " · ")
+	return parts
 }
 
 func (a *App) choose(offset int) {
@@ -1062,29 +1118,54 @@ func (a *App) executeSelected(action model.EntryAction) {
 		a.executePluginAction(entry, entry.Actions[0])
 		return
 	}
-	outcome := apps.Launch(context.Background(), entry, action)
-	if outcome.Succeeded {
-		if action == model.Open || action == model.RunAsAdministrator {
-			a.recordUse(entry.ID)
+	// The shell call waits for the launch to finish and, for runas, for the
+	// UAC prompt; the UI thread only hears the outcome.
+	a.hidePanel()
+	go func() {
+		outcome := apps.Launch(context.Background(), entry, action)
+		if a.panel == nil {
+			return
 		}
-		a.hidePanel()
-		return
+		a.panel.Update(func() {
+			if outcome.Succeeded {
+				if (action == model.Open || action == model.RunAsAdministrator) && learnableKind(entry.Kind) {
+					a.recordUse(entry.ID)
+				}
+				return
+			}
+			if outcome.Canceled {
+				a.notice = locales.AppCanceled()
+				return
+			}
+			a.notice = locales.AppCannotOpenEntry(entry.Title, outcome.Error)
+			a.updateResults()
+		})
+	}()
+}
+
+// learnableKind mirrors search.learns: only real launch targets take part in
+// the use-count learning, so window and system entries cannot fill the
+// profile table with keys that never repeat.
+func learnableKind(kind model.Kind) bool {
+	switch kind {
+	case model.Application, model.File, model.Directory:
+		return true
 	}
-	if outcome.Canceled {
-		a.notice = locales.AppCanceled()
-		return
-	}
-	a.notice = locales.AppCannotOpenEntry(entry.Title, outcome.Error)
-	a.updateResults()
+	return false
 }
 
 func (a *App) openSettings() {
 	// A plugin package copied into the directory while the app ran appears
 	// when the settings open, without a restart.
 	if a.pluginRepo != nil && a.plugins != nil {
-		if err := a.pluginRepo.Refresh(); err == nil {
-			a.plugins.Configure(a.pluginRepo.Installed(), a.settings.Plugins)
-		}
+		// Directory enumeration plus a manifest read per plugin; the page
+		// shows last known list and refreshes when the scan lands.
+		opts := a.settings.Plugins
+		go func() {
+			if err := a.pluginRepo.Refresh(); err == nil {
+				a.plugins.Configure(a.pluginRepo.Installed(), opts)
+			}
+		}()
 	}
 	if a.settingsWin != nil {
 		a.settingsWin.Show()

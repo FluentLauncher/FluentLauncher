@@ -5,6 +5,7 @@ package volume
 import (
 	"fmt"
 	"math"
+	"runtime"
 	"syscall"
 
 	"github.com/go-ole/go-ole"
@@ -61,6 +62,12 @@ func set(value float32) error {
 }
 
 func withEndpointVolume(fn func(*wca.IAudioEndpointVolume) error) error {
+	// COM initialization is thread-private and the caller is a plain
+	// goroutine: pin it to one OS thread for the whole call, or the COM
+	// calls can land on an uninitialized thread after the scheduler moves
+	// the goroutine.
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
 	owned, err := coInitialize()
 	if err != nil {
 		return fmt.Errorf("CoInitializeEx: %w", err)

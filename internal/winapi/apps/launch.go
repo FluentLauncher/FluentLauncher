@@ -126,10 +126,16 @@ func shellExecute(file, arguments, directory string, runAs bool) model.Outcome {
 	}
 	var argsPtr, dirPtr *uint16
 	if arguments != "" {
-		argsPtr, _ = windows.UTF16PtrFromString(arguments)
+		argsPtr, err = windows.UTF16PtrFromString(arguments)
+		if err != nil {
+			return model.Outcome{Error: err.Error()}
+		}
 	}
 	if directory != "" {
-		dirPtr, _ = windows.UTF16PtrFromString(directory)
+		dirPtr, err = windows.UTF16PtrFromString(directory)
+		if err != nil {
+			return model.Outcome{Error: err.Error()}
+		}
 	}
 	info := shellExecuteInfo{
 		CbSize:       uint32(unsafe.Sizeof(shellExecuteInfo{})),

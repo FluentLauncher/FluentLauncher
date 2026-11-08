@@ -100,10 +100,43 @@ type msg struct {
 }
 
 type queryState struct {
+	limit   int
 	results []model.Result
 	err     error
 	done    bool
 }
+
+// queryStates maps the query window to its state for the shared window
+// procedure. The callback is registered once for the whole process: the
+// runtime's callback table is capped (2000 slots, never recycled), and a
+// NewCallback per search would exhaust it after a couple of thousand
+// keystrokes with Everything enabled.
+var (
+	queryStatesMu sync.Mutex
+	queryStates   = map[uintptr]*queryState{}
+)
+
+var queryCallback = syscall.NewCallback(func(hwnd uintptr, message uint32, wParam uintptr, lParam unsafe.Pointer) uintptr {
+	if message != wmCopyData {
+		r, _, _ := procDefWindowProcW.Call(hwnd, uintptr(message), wParam, uintptr(lParam))
+		return r
+	}
+	data := (*copyData)(lParam)
+	queryStatesMu.Lock()
+	state := queryStates[hwnd]
+	queryStatesMu.Unlock()
+	if state != nil && data.Tag == everythingTag {
+		if data.Length < 28 || data.Length > maxReplyBytes || data.Data == nil {
+			state.err = errors.New(locales.EverythingReplySizeInvalid())
+		} else {
+			payload := unsafe.Slice((*byte)(data.Data), int(data.Length))
+			state.results, state.err = parseResults(append([]byte(nil), payload...), state.limit)
+		}
+		state.done = true
+	}
+	procPostMessageW.Call(hwnd, 0, 0, 0)
+	return 1
+})
 
 func query(ctx context.Context, text string, limit int) ([]model.Result, error) {
 	runtime.LockOSThread()
@@ -117,27 +150,9 @@ func query(ctx context.Context, text string, limit int) ([]model.Result, error) 
 	className := fmt.Sprintf("FluentLauncher.Everything.%d", time.Now().UnixNano())
 	classPtr, _ := windows.UTF16PtrFromString(className)
 	hinstance, _, _ := procGetModuleHandleW.Call(0)
-	state := &queryState{}
-	callback := syscall.NewCallback(func(hwnd uintptr, message uint32, wParam uintptr, lParam unsafe.Pointer) uintptr {
-		if message != wmCopyData {
-			r, _, _ := procDefWindowProcW.Call(hwnd, uintptr(message), wParam, uintptr(lParam))
-			return r
-		}
-		data := (*copyData)(lParam)
-		if data.Tag == everythingTag {
-			if data.Length < 28 || data.Length > maxReplyBytes || data.Data == nil {
-				state.err = errors.New(locales.EverythingReplySizeInvalid())
-			} else {
-				payload := unsafe.Slice((*byte)(data.Data), int(data.Length))
-				state.results, state.err = parseResults(append([]byte(nil), payload...), limit)
-			}
-			state.done = true
-		}
-		procPostMessageW.Call(hwnd, 0, 0, 0)
-		return 1
-	})
+	state := &queryState{limit: limit}
 	class := wndClass{
-		WndProc:   callback,
+		WndProc:   queryCallback,
 		Instance:  hinstance,
 		ClassName: classPtr,
 	}
@@ -151,6 +166,14 @@ func query(ctx context.Context, text string, limit int) ([]model.Result, error) 
 	if hwnd == 0 {
 		return nil, fmt.Errorf("CreateWindowExW: %v", err)
 	}
+	queryStatesMu.Lock()
+	queryStates[hwnd] = state
+	queryStatesMu.Unlock()
+	defer func() {
+		queryStatesMu.Lock()
+		delete(queryStates, hwnd)
+		queryStatesMu.Unlock()
+	}()
 	defer procDestroyWindow.Call(hwnd)
 	done := make(chan struct{})
 	defer close(done)

@@ -176,22 +176,16 @@ func (d *DB) LoadFileIndex(ctx context.Context) ([]model.Entry, error) {
 	return entries, nil
 }
 
-// SaveFileIndex replaces the whole table in batches of 500 rows.
+// SaveFileIndex replaces the whole table in one transaction, so a failed
+// batch cannot leave the index empty.
 func (d *DB) SaveFileIndex(ctx context.Context, entries []model.Entry) error {
-	if _, err := d.db.Execute(ctx, `DELETE FROM file_index`); err != nil {
-		return err
+	statements := make([]sqlite.Statement, 0, len(entries)+1)
+	statements = append(statements, sqlite.Statement{SQL: `DELETE FROM file_index`})
+	for _, entry := range entries {
+		statements = append(statements, insertFile(entry))
 	}
-	for start := 0; start < len(entries); start += 500 {
-		end := min(start+500, len(entries))
-		statements := make([]sqlite.Statement, 0, end-start)
-		for _, entry := range entries[start:end] {
-			statements = append(statements, insertFile(entry))
-		}
-		if _, err := d.db.Transaction(ctx, statements); err != nil {
-			return err
-		}
-	}
-	return nil
+	_, err := d.db.Transaction(ctx, statements)
+	return err
 }
 
 func (d *DB) UpdateFileIndex(ctx context.Context, added []model.Entry, removed []string) error {

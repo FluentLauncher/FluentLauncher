@@ -554,5 +554,6 @@
   "pluginOfficialDevtoolsName": "開發工具",
   "pluginOfficialDevtoolsSummary": "離線文字工具：時間戳與時區、UUID、JSON 驗證與格式化、Base64 與 URL 編解碼、摘要。",
   "settingsLearningResetDone": "學習資料已重置。",
-  "settingsHiddenRestored": "{count, plural, =0 {沒有可還原的隱藏項目。} other {已還原 {count} 個隱藏項目。}}"
+  "settingsHiddenRestored": "{count, plural, =0 {沒有可還原的隱藏項目。} other {已還原 {count} 個隱藏項目。}}",
+  "storeFileIndexNoDatabase": "資料庫不可用，無法重建檔案索引。"
 }

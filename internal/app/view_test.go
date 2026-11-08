@@ -233,9 +233,11 @@ func TestOtherPageActionsReportDone(t *testing.T) {
 		settingsPage:    7,
 	}
 	tt := ui.NewTester(a.settingsView, 900, 660)
-	if err := tt.Click("重置学习记录"); err != nil {
-		t.Fatal(err)
-	}
+	// resetLearning does the database wipe off the UI thread and marshals
+	// this finish back through the settings window, which a tester has none
+	// of; drive the UI half directly.
+	a.finishResetLearning()
+	tt.Frame()
 	if !tt.HasText("学习数据已重置。") {
 		t.Fatalf("no confirmation after the reset: %q", tt.Texts())
 	}

@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -45,8 +46,50 @@ func run(keyword, input string) []toolOutput {
 		return urlTool(text)
 	case "hash":
 		return hashTool(text)
+	case "regex", "regexp", "正则":
+		return regexTool(text)
 	}
-	return []toolOutput{{Title: "未知工具", Subtitle: "可用触发词：time、uuid、json、base64、urlencode、hash"}}
+	return []toolOutput{{Title: "未知工具", Subtitle: "可用触发词：time、uuid、json、base64、urlencode、hash、regex"}}
+}
+
+// regexTool matches "regex <pattern> <text>": it lists every match and the
+// capture groups of the first one. Go's RE2 syntax applies, so lookaround and
+// backreferences are out; the subtitle says what is copied.
+func regexTool(text string) []toolOutput {
+	pattern, target, found := strings.Cut(text, " ")
+	if !found || strings.TrimSpace(target) == "" {
+		return []toolOutput{{Title: "用法", Subtitle: "regex <正则> <文本>，例如 regex \\d+ abc123"}}
+	}
+	re, err := regexp.Compile(pattern)
+	if err != nil {
+		return []toolOutput{{Title: "正则无效", Subtitle: err.Error()}}
+	}
+	matches := re.FindAllStringIndex(target, -1)
+	if len(matches) == 0 {
+		return []toolOutput{{Title: "无匹配", Subtitle: fmt.Sprintf("%d 个字符里没有匹配 %s", len([]rune(target)), pattern)}}
+	}
+	list := make([]string, 0, len(matches))
+	for _, m := range matches {
+		list = append(list, target[m[0]:m[1]])
+	}
+	joined := strings.Join(list, " | ")
+	if len(joined) > maxOutput {
+		joined = joined[:maxOutput] + "…"
+	}
+	outs := []toolOutput{output(fmt.Sprintf("匹配 %d 处", len(matches)), "Go RE2 语法 · 回车复制全部匹配（| 分隔）", joined)}
+	first := re.FindStringSubmatchIndex(target)
+	if len(first) > 2 {
+		groups := make([]string, 0, len(first)/2-1)
+		for i := 1; i*2+1 < len(first); i++ {
+			if first[i*2] < 0 {
+				groups = append(groups, fmt.Sprintf("%d: ∅", i))
+				continue
+			}
+			groups = append(groups, fmt.Sprintf("%d: %s", i, target[first[i*2]:first[i*2+1]]))
+		}
+		outs = append(outs, output("首匹配捕获组", "输入 "+pattern, strings.Join(groups, "  ")))
+	}
+	return outs
 }
 
 func timeTool(text string) []toolOutput {

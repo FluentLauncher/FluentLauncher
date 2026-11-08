@@ -33,6 +33,26 @@ func TestURL(t *testing.T) {
 	}
 }
 
+func TestRegex(t *testing.T) {
+	outputs := run("regex", `\d+ abc123def456`)
+	if len(outputs) != 1 || outputs[0].Text != "123 | 456" {
+		t.Fatalf("regex matches = %+v", outputs)
+	}
+	outputs = run("regex", `(\w+)@(\w+) mail me at bob@store`)
+	if len(outputs) != 2 || !strings.Contains(outputs[1].Text, "1: bob") || !strings.Contains(outputs[1].Text, "2: store") {
+		t.Fatalf("regex groups = %+v", outputs)
+	}
+	if outputs := run("regex", `x nothing`); len(outputs) != 1 || outputs[0].Title != "无匹配" {
+		t.Fatalf("regex no match = %+v", outputs)
+	}
+	if outputs := run("regex", `( bad`); len(outputs) != 1 || outputs[0].Title != "正则无效" {
+		t.Fatalf("regex invalid = %+v", outputs)
+	}
+	if outputs := run("regex", ""); len(outputs) != 1 || outputs[0].Title != "用法" {
+		t.Fatalf("regex usage = %+v", outputs)
+	}
+}
+
 func TestTimeAndUUID(t *testing.T) {
 	if outputs := run("time", ""); len(outputs) != 4 {
 		t.Fatalf("time = %+v", outputs)

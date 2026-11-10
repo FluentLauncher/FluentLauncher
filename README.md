@@ -17,6 +17,7 @@ Windows 11 键盘优先启动器，使用 Go + [MyGo](https://github.com/egoist/
 - 屏幕边缘滚轮调音量，带不抢焦点浮层。
 - 可执行插件 + JSON-RPC over stdio；官方回显/开发工具/剪贴板历史插件。
 - 设置窗口覆盖常规、快捷键、外观、文件、音量、站点、启动项、插件与其他。
+- 设置侧栏选中标记与页面切换、下拉框反馈、搜索框焦点与结果选中态带短过渡；跟随 Windows 的“动画效果”偏好，减少动态效果时保留颜色反馈。
 - 界面语言：简体中文、繁体中文、英文，默认跟随系统，可在设置中切换并立即生效。
 - 单文件便携 EXE、GitHub Actions 发布；正式签名版本支持后台检查、下载校验、原地更新并重启。
 
@@ -90,3 +91,13 @@ FL_DEBUG_VOLUME=64          # 固定显示音量浮层，便于调整样式
 FL_DEBUG_TRAY_MENU=1        # 启动后弹出托盘菜单，便于检查菜单项
 FL_DEBUG_EXIT_MS=6000       # 启动后自动退出
 ```
+
+界面交互与动效优先通过 `ui.NewTester` 在内存中验证，不打开窗口、不移动桌面鼠标或抢占焦点，也不读取个人配置。可导出设置页与搜索框的深浅主题 GIF，以及设置页的减少动态效果版本：
+
+```powershell
+$env:FL_MOTION_ARTIFACT_DIR = "$PWD/build/motion-previews"
+go test ./internal/app -run '^TestMotionPreview$' -count=1
+Remove-Item Env:FL_MOTION_ARTIFACT_DIR
+```
+
+预览使用测试数据和纯色背景；Windows 材质、真实桌面合成及实机帧率仍需在原生窗口中确认。

@@ -44,8 +44,15 @@ func (a *App) view(c *ui.Context) {
 			value := a.displayTheme()
 			searchRow := ui.Row(c).Height(float32(clampFloat(value.SearchHeight, 36, 120))).
 				Padding(0, 18).Gap(12).AlignItems(ui.Center)
+			focused := a.input.Focused(c)
+			searchFocus(searchRow, focused, &theme)
 			searchRow.Children(func() {
-				ui.Icon(c, searchIcon).FontSize(20).TextColor(theme.TextMuted)
+				icon := ui.Icon(c, searchIcon).FontSize(20)
+				color := theme.TextMuted
+				if focused {
+					color = theme.Accent
+				}
+				icon.TextColor(icon.AnimateColor("focus", color, feedbackMotion))
 				in := ui.TextInputBase(c, &a.query).Bind(&a.input).Grow(1).FontSize(22).
 					Placeholder(locales.PanelSearchPlaceholder()).Label(locales.PanelSearchLabel()).OnTextKey(a.searchTextKey)
 				if in.Changed() {
@@ -154,7 +161,8 @@ func (a *App) row(c *ui.Context, theme *ui.Theme, index int) {
 	if vertical < 3 {
 		vertical = 3
 	}
-	row := ui.Row(c).Padding(vertical, 10).Gap(12).AlignItems(ui.Center).Radius(8).Background(background).
+	c.Key(item.Entry.ID)
+	row := ui.Row(c).Padding(vertical, 10).Gap(12).AlignItems(ui.Center).Radius(8).Background(background).Transition(feedbackTransition).
 		Role(ui.RoleListItem).Selected(index == a.chosen)
 	row.Children(func() {
 		if bitmap := a.resultIcon(item.Entry); bitmap != nil {

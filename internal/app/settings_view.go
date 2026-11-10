@@ -82,11 +82,19 @@ func (a *App) settingsView(c *ui.Context) {
 			a.settingsSidebar(c, &theme, pages)
 			ui.Column(c).Grow(1).FillHeight().Children(func() {
 				ui.Row(c).Padding(20, 24).AlignItems(ui.Center).Children(func() {
-					ui.Text(c, pages[a.settingsPage]).FontSize(20).Bold().TextColor(theme.Text).Grow(1)
+					ui.Text(c, pages[a.settingsPage]).FontSize(20).Bold().TextColor(theme.Text).Grow(1).
+						ContentTransition(ui.ContentTransition{Animation: &feedbackMotion})
 				})
 				ui.Divider(c)
 				ui.Scroll(c).Grow(1).Children(func() {
+					c.Key(a.settingsPage)
 					content := ui.Column(c).Padding(20, 24).Gap(16)
+					// Replace only the content, leaving the window, sidebar and
+					// input handling ready while the new page settles into place.
+					content.Transition(ui.ElementTransition{
+						Colors: true, Animation: &navigationMotion,
+						Enter: &ui.Motion{X: 8, Opacity: 0.65},
+					})
 					if a.settingsPage == pageShortcuts {
 						content.Padding(12, 24).Gap(0)
 					}
@@ -151,8 +159,19 @@ func (a *App) settingsSidebar(c *ui.Context, theme *ui.Theme, pages []string) {
 			} else if i == hover {
 				background = theme.Surface.Alpha(0.7)
 			}
-			row := ui.Row(c).Padding(9, 12).Gap(10).AlignItems(ui.Center).Radius(8).Background(background)
+			c.Key(i)
+			row := ui.Row(c).Padding(9, 8).Gap(8).AlignItems(ui.Center).Radius(8).Background(background).
+				Transition(feedbackTransition)
 			row.Children(func() {
+				// Reserve the slot in every row so the icon and text never
+				// move when the shared selection marker changes parent.
+				ui.Box(c).Size(3, 16).IgnoreInput(true).Children(func() {
+					if i == a.settingsPage {
+						ui.Box(c).Fill().Radius(1.5).Background(theme.Accent).Transition(ui.ElementTransition{
+							Position: true, Animation: &navigationMotion, Match: settingsSelectionMarker{},
+						})
+					}
+				})
 				ui.Icon(c, pageIcons[i]).FontSize(16).TextColor(text)
 				ui.Text(c, name).FontSize(13).TextColor(text).Grow(1)
 			})
@@ -269,10 +288,22 @@ func (a *App) themedSelect(c *ui.Context, key, label, hint string, options []str
 		// same padding and the same text size, so a row does not mix two
 		// looks.
 		anchor := ui.Row(c).Width(220).Padding(theme.Space(1.5), theme.Space(2.5)).Gap(8).
-			AlignItems(ui.Center).Radius(theme.Radius).Background(theme.Surface).Border(1, theme.Border)
+			AlignItems(ui.Center).Radius(theme.Radius).Background(theme.Surface).Border(1, theme.Border).
+			Transition(feedbackTransition)
+		if anchor.Hovered() {
+			anchor.Background(theme.SurfaceHover)
+		}
+		if open {
+			anchor.Border(1, theme.Accent)
+		}
 		anchor.Children(func() {
 			ui.Text(c, current).TextColor(theme.Text).Grow(1).SingleLine()
-			ui.Icon(c, chevronIcon).FontSize(12).TextColor(theme.TextMuted)
+			chevron := ui.Icon(c, chevronIcon).FontSize(12).TextColor(theme.TextMuted)
+			angle := float32(0)
+			if open {
+				angle = 180
+			}
+			chevron.Rotate(chevron.AnimateTo("open", angle, feedbackMotion))
 		})
 		if anchor.Clicked() {
 			if open {

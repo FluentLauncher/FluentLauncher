@@ -26,8 +26,6 @@ func newPluginsApp(t *testing.T) *App {
 	a := &App{
 		settings:      settings.Default(),
 		settingsDraft: settings.Default(),
-		icons:         map[string]*ui.Bitmap{},
-		iconLoading:   map[string]bool{},
 	}
 	a.settingsPage = pagePlugins
 	a.pluginRepo = plugin.NewRepository(filepath.Join(t.TempDir(), "plugins"))

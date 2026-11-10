@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 
 	"fluentlauncher/internal/core/model"
@@ -465,51 +464,6 @@ func (a *App) drawBackgroundPlate(p *ui.Painter, r ui.Rect, theme *ui.Theme, val
 // withAlpha scales a color's alpha by factor, for the theme's opacity.
 func withAlpha(col ui.Color, factor float32) ui.Color {
 	return col.Alpha(float32(col.A) / 255 * factor)
-}
-
-// maxCachedIcons bounds the result-icon cache; past it the map is dropped
-// and repopulated from the visible rows.
-const maxCachedIcons = 512
-
-func (a *App) resultIcon(entry model.Entry) *ui.Bitmap {
-	path := entry.IconPath
-	if path == "" {
-		path = entry.LaunchTarget
-	}
-	if path == "" || entry.Kind == model.Calculation || entry.Kind == model.URL {
-		return nil
-	}
-	if bitmap, ok := a.icons[path]; ok {
-		return bitmap
-	}
-	// The cache only grows while results keep naming new paths; drop it all
-	// past the cap and let the visible rows repopulate it asynchronously.
-	if len(a.icons) >= maxCachedIcons {
-		a.icons = map[string]*ui.Bitmap{}
-	}
-	if !a.iconLoading[path] {
-		a.iconLoading[path] = true
-		go a.loadIcon(path)
-	}
-	return nil
-}
-
-func (a *App) loadIcon(path string) {
-	pixels := a.iconPixels
-	if pixels <= 0 {
-		pixels = 28
-	}
-	data, err := mygo.Shell.FileIcon(path, pixels)
-	var bitmap *ui.Bitmap
-	if err == nil {
-		bitmap, _ = ui.DecodeBitmap(data)
-	}
-	if a.panel != nil {
-		a.panel.Update(func() {
-			a.icons[path] = bitmap
-			delete(a.iconLoading, path)
-		})
-	}
 }
 
 // selectionTint is the plate of the item that is selected, in the results, the

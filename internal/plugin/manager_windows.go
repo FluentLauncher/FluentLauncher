@@ -126,6 +126,9 @@ func (m *Manager) Supports(q search.Query) bool {
 }
 
 func (m *Manager) Search(ctx context.Context, q search.Query, limit int) ([]model.Result, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	m.mu.Lock()
 	installed := append([]protocol.Registration(nil), m.installed...)
 	options := m.options
@@ -154,6 +157,15 @@ func (m *Manager) Search(ctx context.Context, q search.Query, limit int) ([]mode
 		wg.Add(1)
 		go func(item route) {
 			defer wg.Done()
+			if q.Scope == search.ScopeAll && item.keyword == "" {
+				timer := time.NewTimer(80 * time.Millisecond)
+				defer timer.Stop()
+				select {
+				case <-ctx.Done():
+					return
+				case <-timer.C:
+				}
+			}
 			batch := m.searchOne(ctx, item.registration, item.text, item.keyword, min(limit, options.MaxResults), version, options)
 			mu.Lock()
 			results = append(results, batch...)
@@ -185,6 +197,9 @@ func (m *Manager) route(registration protocol.Registration, q search.Query, opti
 
 func (m *Manager) searchOne(ctx context.Context, registration protocol.Registration, text, keyword string,
 	limit int, version int64, options settings.PluginOptions) []model.Result {
+	if ctx.Err() != nil {
+		return nil
+	}
 	id := registration.Manifest.ID
 	m.mu.Lock()
 	if m.disposed || m.replacing[id] {

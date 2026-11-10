@@ -125,6 +125,17 @@ func runFixture() {
 			if json.Unmarshal(req.Params, &q) != nil {
 				return
 			}
+			if strings.Contains(registration.Manifest.ID, ".queue") {
+				file, err := os.OpenFile(filepath.Join(registration.Directory, "queries.txt"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+				if err != nil {
+					return
+				}
+				_, _ = file.WriteString(q.Text + "\n")
+				_ = file.Close()
+				if q.Text == "slow" {
+					time.Sleep(150 * time.Millisecond)
+				}
+			}
 			title, text := q.Text, q.Text
 			if registration.Manifest.ID == "official.devtools" {
 				digest := sha256.Sum256([]byte(q.Text))

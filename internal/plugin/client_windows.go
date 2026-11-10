@@ -38,19 +38,22 @@ type Client struct {
 	executable string
 	id         string
 
-	// opMu serializes the requests of one process. Nothing that draws a frame
-	// may take it: a request can last the whole timeout.
-	opMu         sync.Mutex
-	writeMu      sync.Mutex
-	stderrMu     sync.Mutex
-	cmd          *exec.Cmd
-	stdin        io.WriteCloser
-	stdout       *bufio.Reader
-	job          *job
-	stderr       string
-	closed       bool
-	requestID    int64
-	capabilities []string
+	// The operation gate is cancellable while waiting. Explicit actions share
+	// it with queries but are never superseded by a later search.
+	opGate        chan struct{}
+	queryMu       sync.Mutex
+	querySequence uint64
+	pendingQuery  context.CancelFunc
+	writeMu       sync.Mutex
+	stderrMu      sync.Mutex
+	cmd           *exec.Cmd
+	stdin         io.WriteCloser
+	stdout        *bufio.Reader
+	job           *job
+	stderr        string
+	closed        bool
+	requestID     int64
+	capabilities  []string
 
 	// statsMu guards stats alone, so the settings page can read a snapshot
 	// while a query is in flight instead of waiting for it.
@@ -59,7 +62,23 @@ type Client struct {
 }
 
 func NewClient(executable, id string) *Client {
-	return &Client{executable: executable, id: id}
+	return &Client{executable: executable, id: id, opGate: make(chan struct{}, 1)}
+}
+
+func (c *Client) lock(ctx context.Context) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case c.opGate <- struct{}{}:
+		if err := ctx.Err(); err != nil {
+			<-c.opGate
+			return err
+		}
+		return nil
+	}
 }
 
 // Stats is a snapshot of the process, taken without waiting for a request in
@@ -75,8 +94,36 @@ func (c *Client) Stats() ClientStats {
 }
 
 func (c *Client) Query(ctx context.Context, query protocol.Query, timeout time.Duration) (protocol.QueryResult, error) {
-	c.opMu.Lock()
-	defer c.opMu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return protocol.QueryResult{}, err
+	}
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	c.queryMu.Lock()
+	if err := ctx.Err(); err != nil {
+		c.queryMu.Unlock()
+		return protocol.QueryResult{}, err
+	}
+	if c.pendingQuery != nil {
+		c.pendingQuery()
+	}
+	c.querySequence++
+	sequence := c.querySequence
+	c.pendingQuery = cancel
+	c.queryMu.Unlock()
+	if err := c.lock(ctx); err != nil {
+		return protocol.QueryResult{}, err
+	}
+	defer func() { <-c.opGate }()
+	c.queryMu.Lock()
+	current := sequence == c.querySequence
+	if current {
+		c.pendingQuery = nil
+	}
+	c.queryMu.Unlock()
+	if !current {
+		return protocol.QueryResult{}, context.Canceled
+	}
 	if err := c.startLocked(ctx); err != nil {
 		c.fail(err, ctx)
 		return protocol.QueryResult{}, err
@@ -105,8 +152,10 @@ func (c *Client) Query(ctx context.Context, query protocol.Query, timeout time.D
 }
 
 func (c *Client) Execute(ctx context.Context, request protocol.ExecuteRequest, timeout time.Duration) error {
-	c.opMu.Lock()
-	defer c.opMu.Unlock()
+	if err := c.lock(ctx); err != nil {
+		return err
+	}
+	defer func() { <-c.opGate }()
 	if err := c.startLocked(ctx); err != nil {
 		c.fail(err, ctx)
 		return errors.New(locales.PluginExecuteStartFailed(err))
@@ -126,8 +175,10 @@ func (c *Client) Execute(ctx context.Context, request protocol.ExecuteRequest, t
 }
 
 func (c *Client) ExecuteCommand(ctx context.Context, commandID string, timeout time.Duration) error {
-	c.opMu.Lock()
-	defer c.opMu.Unlock()
+	if err := c.lock(ctx); err != nil {
+		return err
+	}
+	defer func() { <-c.opGate }()
 	if err := c.startLocked(ctx); err != nil {
 		c.fail(err, ctx)
 		return err
@@ -176,6 +227,9 @@ func (c *Client) fail(err error, ctx context.Context) {
 }
 
 func (c *Client) startLocked(ctx context.Context) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	if c.closed {
 		return errors.New(locales.PluginClientClosed())
 	}
@@ -272,6 +326,9 @@ var (
 
 // requestLocked writes one request and reads its answer.
 func (c *Client) requestLocked(ctx context.Context, method string, text requestText, params any, timeout time.Duration) (json.RawMessage, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	if c.cmd == nil || c.stdin == nil || c.stdout == nil {
 		return nil, errors.New(locales.PluginProcessNotStarted())
 	}
@@ -394,8 +451,14 @@ func (c *Client) readStderr(reader io.Reader) {
 }
 
 func (c *Client) Close() {
-	c.opMu.Lock()
-	defer c.opMu.Unlock()
+	c.queryMu.Lock()
+	if c.pendingQuery != nil {
+		c.pendingQuery()
+		c.pendingQuery = nil
+	}
+	c.queryMu.Unlock()
+	_ = c.lock(context.Background())
+	defer func() { <-c.opGate }()
 	c.closed = true
 	c.stopLocked()
 }

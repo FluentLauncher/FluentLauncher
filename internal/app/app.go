@@ -92,8 +92,7 @@ type App struct {
 	loading        atomic.Bool
 	lastDiscovery  time.Time
 
-	icons           map[string]*ui.Bitmap
-	iconLoading     map[string]bool
+	icons           *iconLoader
 	iconSize        int
 	iconPixels      int
 	scaleFactor     float64
@@ -200,8 +199,6 @@ func Run() error {
 func (a *App) ready() {
 	diag.Mark("ready")
 	a.dataDir = filepath.Join(os.Getenv("LOCALAPPDATA"), "FluentLauncher")
-	a.icons = map[string]*ui.Bitmap{}
-	a.iconLoading = map[string]bool{}
 	a.profiles = map[string]model.Profile{}
 	a.settings = settings.Default()
 	a.appEngine = search.NewEngine()
@@ -1071,35 +1068,17 @@ func (a *App) updateResults() {
 	q := search.RouteTools(search.ParseQuery(a.query), snap)
 	log.Printf("query %q scope=%d", q.Text, q.Scope)
 	go func() {
-		batches := make([]search.Batch, 0, len(providers))
-		for batch := range search.Run(ctx, providers, q, snap.MaxResults) {
-			if generation != a.queryGeneration.Load() || ctx.Err() != nil {
-				return
-			}
-			batches = append(batches, batch)
-			matches := search.Merge(batches, snap.MaxResults)
-			if len(matches) == 0 {
-				continue
-			}
-			currentBatches := append([]search.Batch(nil), batches...)
+		search.Collect(ctx, search.Run(ctx, providers, q, snap.MaxResults), snap.MaxResults, 16*time.Millisecond, func(update search.Update) {
 			a.panel.Update(func() {
 				if generation != a.queryGeneration.Load() {
 					return
 				}
-				a.setResults(matches, preferred)
+				if !reflect.DeepEqual(a.results, update.Results) {
+					a.setResults(update.Results, preferred)
+				}
 				a.resultsReady = true
-				a.lastBatches = currentBatches
+				a.lastBatches = update.Batches
 			})
-		}
-		a.panel.Update(func() {
-			if generation != a.queryGeneration.Load() {
-				return
-			}
-			if len(search.Merge(batches, snap.MaxResults)) == 0 {
-				a.setResults(nil, preferred)
-			}
-			a.resultsReady = true
-			a.lastBatches = batches
 		})
 	}()
 }
@@ -1341,6 +1320,9 @@ func (a *App) clampToWorkArea(win *mygo.Window) {
 }
 
 func (a *App) close() {
+	if a.icons != nil {
+		a.icons.close()
+	}
 	if a.fileIndexCancel != nil {
 		a.fileIndexCancel()
 	}

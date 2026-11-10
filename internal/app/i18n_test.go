@@ -25,8 +25,6 @@ func newLocalizedApp() *App {
 	return &App{
 		settings:      settings.Default(),
 		settingsDraft: settings.Default(),
-		icons:         map[string]*ui.Bitmap{},
-		iconLoading:   map[string]bool{},
 		profiles:      map[string]model.Profile{},
 	}
 }

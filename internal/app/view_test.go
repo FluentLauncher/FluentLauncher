@@ -21,8 +21,6 @@ func TestLauncherViewBuilds(t *testing.T) {
 	a := &App{
 		settings:      settings.Default(),
 		settingsDraft: settings.Default(),
-		icons:         map[string]*ui.Bitmap{},
-		iconLoading:   map[string]bool{},
 		profiles:      map[string]model.Profile{},
 	}
 	a.results = []model.Result{{Entry: model.Entry{ID: "x", Title: "Example", Subtitle: "subtitle", Kind: model.Application}}}
@@ -52,8 +50,6 @@ func TestRowClickAndEnterExecute(t *testing.T) {
 		a := &App{
 			settings:      settings.Default(),
 			settingsDraft: settings.Default(),
-			icons:         map[string]*ui.Bitmap{},
-			iconLoading:   map[string]bool{},
 			profiles:      map[string]model.Profile{},
 			resultsReady:  true,
 		}
@@ -224,8 +220,6 @@ func TestSettingsAppearanceInteractions(t *testing.T) {
 	a := &App{
 		settings:      settings.Default(),
 		settingsDraft: settings.Default(),
-		icons:         map[string]*ui.Bitmap{},
-		iconLoading:   map[string]bool{},
 		profiles:      map[string]model.Profile{},
 	}
 	a.settingsDraft.Theme.Background = settings.BackgroundAcrylic
@@ -360,8 +354,6 @@ func TestOtherPageActionsReportDone(t *testing.T) {
 	a := &App{
 		settings:        settings.Default(),
 		settingsDraft:   settings.Default(),
-		icons:           map[string]*ui.Bitmap{},
-		iconLoading:     map[string]bool{},
 		profiles:        map[string]model.Profile{},
 		db:              db,
 		appEngine:       search.NewEngine(),
@@ -398,8 +390,6 @@ func TestRegenerateToolValue(t *testing.T) {
 	a := &App{
 		settings:      settings.Default(),
 		settingsDraft: settings.Default(),
-		icons:         map[string]*ui.Bitmap{},
-		iconLoading:   map[string]bool{},
 		profiles:      map[string]model.Profile{},
 	}
 	uuid := model.Result{Entry: model.Entry{

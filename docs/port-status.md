@@ -4,6 +4,8 @@
 
 ## 已复刻
 
+新增发布能力：GitHub Actions 生成 Windows x64 单文件 EXE，官方插件不嵌入；签名正式版本支持后台检测、手动检测和原地更新后重启。配置与验证边界见 docs/releasing.md。
+
 | 原 C# 模块 | Go 落点 | 状态 |
 | --- | --- | --- |
 | Launcher.Core/SearchEngine | internal/core/search/engine.go | 分档、拼音/首字母/acronym、别名、固定、最近使用、隐藏、稳定排序 |

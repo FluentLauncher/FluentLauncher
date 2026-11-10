@@ -2948,5 +2948,64 @@
   "cmdCopyWithUnit": "复制带单位",
   "@cmdCopyWithUnit": {
     "description": "Action panel: copy the converted value with its unit."
+  },
+"updateTitle": "软件更新",
+  "@updateTitle": {
+    "description": "Launcher software update controls and status."
+  },
+  "updateHint": "启动 10 秒后检查更新，运行期间每 24 小时检查一次。更新会替换当前目录的程序并重启，保留个人数据。",
+  "@updateHint": {
+    "description": "Launcher software update controls and status."
+  },
+  "updateCheck": "检查更新",
+  "@updateCheck": {
+    "description": "Launcher software update controls and status."
+  },
+  "updateInstall": "更新并重启",
+  "@updateInstall": {
+    "description": "Launcher software update controls and status."
+  },
+  "updateChecking": "正在检查更新…",
+  "@updateChecking": {
+    "description": "Launcher software update controls and status."
+  },
+  "updateDisabled": "此版本未配置更新，或程序所在目录没有写入权限。请使用正式发布版本，并放在可写目录。",
+  "@updateDisabled": {
+    "description": "Launcher software update controls and status."
+  },
+  "updateLatest": "已是最新版本。",
+  "@updateLatest": {
+    "description": "Launcher software update controls and status."
+  },
+  "updateAvailable": "发现新版本 {version}",
+  "@updateAvailable": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "Launcher software update controls and status."
+  },
+  "updateFailed": "更新失败：{err}",
+  "@updateFailed": {
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    },
+    "description": "Launcher software update controls and status."
+  },
+  "updateDownloading": "正在下载并校验更新… {percent}%",
+  "@updateDownloading": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    },
+    "description": "Launcher software update controls and status."
+  },
+"updateRenamed": "程序已改名，请恢复为 FluentLauncher.exe 后再更新。",
+  "@updateRenamed": {
+    "description": "Update cannot target a renamed executable."
   }
 }

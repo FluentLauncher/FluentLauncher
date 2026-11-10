@@ -580,5 +580,16 @@
   "cmdCopyWithDate": "Copy With Date",
   "cmdCopyRGB": "Copy rgb()",
   "cmdCopyHSL": "Copy hsl()",
-  "cmdCopyWithUnit": "Copy With Unit"
+  "cmdCopyWithUnit": "Copy With Unit",
+"updateTitle": "Software updates",
+  "updateHint": "Checks 10 seconds after launch and every 24 hours while running. Updates replace the app in its current folder and restart it, keeping your data.",
+  "updateCheck": "Check for updates",
+  "updateInstall": "Update and restart",
+  "updateChecking": "Checking for updates…",
+  "updateDisabled": "Updates are not configured for this build, or its folder is not writable. Use an official release in a writable folder.",
+  "updateLatest": "You are up to date.",
+  "updateAvailable": "Version {version} is available",
+  "updateFailed": "Update failed: {err}",
+  "updateDownloading": "Downloading and verifying update… {percent}%",
+"updateRenamed": "Restore the executable name to FluentLauncher.exe before updating."
 }

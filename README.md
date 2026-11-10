@@ -16,6 +16,7 @@ Windows 11 键盘优先启动器，使用 Go + [MyGo](https://github.com/egoist/
 - 可执行插件 + JSON-RPC over stdio；官方回显/开发工具/剪贴板历史插件。
 - 设置窗口覆盖常规、外观、文件、音量、站点、启动项、插件与其他。
 - 界面语言：简体中文、繁体中文、英文，默认跟随系统，可在设置中切换并立即生效。
+- 单文件便携 EXE、GitHub Actions 发布；正式签名版本支持后台检查、下载校验、原地更新并重启。
 
 复刻覆盖与剩余项见 `docs/port-status.md`。
 
@@ -31,6 +32,8 @@ go tool mygo build -skip-installer
 界面文本在 `locales/*.json`（ARB，source 语言 zh-Hans，另有 en、zh-Hant）。改动 catalog 后运行 `go tool mygo generate` 重新生成 `locales/catalog_gen.go`（随仓库提交），并用 `go tool mygo i18n check .` 校验三语占位符与复数形式。
 
 构建产物在 `build/windows-amd64/`。运行中的应用会锁住该目录，重新构建前先退出。
+
+单文件发布使用 `./scripts/build-release.ps1`，输出 `build/release/windows-amd64/FluentLauncher.exe`。GitHub Actions、更新签名密钥和版本发布步骤见 [发布文档](docs/releasing.md)。
 
 ## 目录
 
@@ -48,7 +51,7 @@ internal/plugin/            # 协议、客户端、进程管理、安装
 pkg/pluginsdk/              # 第三方 Go 插件 SDK
 plugins/echo/               # 官方回显示例
 plugins/devtools/           # 官方开发工具插件
-resources/examples/         # 随程序分发的插件包
+resources/examples/         # 开发用的独立插件包（不嵌入主程序）
 ```
 
 ## 数据
@@ -64,7 +67,7 @@ resources/examples/         # 随程序分发的插件包
 
 ## 插件
 
-插件是独立可执行文件，`plugin.json` 的 `executable` 指向包内程序；stdin/stdout 使用 4 字节大端长度 + JSON-RPC 2.0。官方示例随 `resources/examples` 分发，清单在 `internal/plugin/official_index.json`（含三语名称与简介，新增官方插件只需加目录与清单项），设置页以下拉选择安装。
+插件是独立可执行文件，`plugin.json` 的 `executable` 指向包内程序；stdin/stdout 使用 4 字节大端长度 + JSON-RPC 2.0。开发用示例包位于 `resources/examples`，不嵌入主程序，清单在 `internal/plugin/official_index.json`（含三语名称与简介，新增官方插件只需加目录与清单项），独立官方插件仓库与按需下载方案见 `docs/official-plugin-repository.md`，迁移前便携版本请通过 ZIP/目录安装插件。
 
 ## 调试
 

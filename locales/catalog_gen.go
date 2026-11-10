@@ -8387,3 +8387,157 @@ func CmdCopyWithUnit() string { return In(i18n.Locale()).CmdCopyWithUnit() }
 func (msgs Messages) CmdCopyWithUnit() string {
 	return Catalog.Format(msgs.locale, "cmdCopyWithUnit", nil)
 }
+
+// UpdateTitle says "软件更新"
+// in the language the app shows.
+//
+// Launcher software update controls and status.
+func UpdateTitle() string { return In(i18n.Locale()).UpdateTitle() }
+
+// UpdateTitle says "软件更新"
+// in the language of msgs.
+//
+// Launcher software update controls and status.
+func (msgs Messages) UpdateTitle() string {
+	return Catalog.Format(msgs.locale, "updateTitle", nil)
+}
+
+// UpdateHint says "启动 10 秒后检查更新，运行期间每 24 …"
+// in the language the app shows.
+//
+// Launcher software update controls and status.
+func UpdateHint() string { return In(i18n.Locale()).UpdateHint() }
+
+// UpdateHint says "启动 10 秒后检查更新，运行期间每 24 …"
+// in the language of msgs.
+//
+// Launcher software update controls and status.
+func (msgs Messages) UpdateHint() string {
+	return Catalog.Format(msgs.locale, "updateHint", nil)
+}
+
+// UpdateCheck says "检查更新"
+// in the language the app shows.
+//
+// Launcher software update controls and status.
+func UpdateCheck() string { return In(i18n.Locale()).UpdateCheck() }
+
+// UpdateCheck says "检查更新"
+// in the language of msgs.
+//
+// Launcher software update controls and status.
+func (msgs Messages) UpdateCheck() string {
+	return Catalog.Format(msgs.locale, "updateCheck", nil)
+}
+
+// UpdateInstall says "更新并重启"
+// in the language the app shows.
+//
+// Launcher software update controls and status.
+func UpdateInstall() string { return In(i18n.Locale()).UpdateInstall() }
+
+// UpdateInstall says "更新并重启"
+// in the language of msgs.
+//
+// Launcher software update controls and status.
+func (msgs Messages) UpdateInstall() string {
+	return Catalog.Format(msgs.locale, "updateInstall", nil)
+}
+
+// UpdateChecking says "正在检查更新…"
+// in the language the app shows.
+//
+// Launcher software update controls and status.
+func UpdateChecking() string { return In(i18n.Locale()).UpdateChecking() }
+
+// UpdateChecking says "正在检查更新…"
+// in the language of msgs.
+//
+// Launcher software update controls and status.
+func (msgs Messages) UpdateChecking() string {
+	return Catalog.Format(msgs.locale, "updateChecking", nil)
+}
+
+// UpdateDisabled says "…"
+// in the language the app shows.
+//
+// Launcher software update controls and status.
+func UpdateDisabled() string { return In(i18n.Locale()).UpdateDisabled() }
+
+// UpdateDisabled says "…"
+// in the language of msgs.
+//
+// Launcher software update controls and status.
+func (msgs Messages) UpdateDisabled() string {
+	return Catalog.Format(msgs.locale, "updateDisabled", nil)
+}
+
+// UpdateLatest says "已是最新版本。"
+// in the language the app shows.
+//
+// Launcher software update controls and status.
+func UpdateLatest() string { return In(i18n.Locale()).UpdateLatest() }
+
+// UpdateLatest says "已是最新版本。"
+// in the language of msgs.
+//
+// Launcher software update controls and status.
+func (msgs Messages) UpdateLatest() string {
+	return Catalog.Format(msgs.locale, "updateLatest", nil)
+}
+
+// UpdateAvailable says "发现新版本 {version}"
+// in the language the app shows.
+//
+// Launcher software update controls and status.
+func UpdateAvailable(version string) string { return In(i18n.Locale()).UpdateAvailable(version) }
+
+// UpdateAvailable says "发现新版本 {version}"
+// in the language of msgs.
+//
+// Launcher software update controls and status.
+func (msgs Messages) UpdateAvailable(version string) string {
+	return Catalog.Format(msgs.locale, "updateAvailable", map[string]any{"version": version})
+}
+
+// UpdateFailed says "更新失败：{err}"
+// in the language the app shows.
+//
+// Launcher software update controls and status.
+func UpdateFailed(err any) string { return In(i18n.Locale()).UpdateFailed(err) }
+
+// UpdateFailed says "更新失败：{err}"
+// in the language of msgs.
+//
+// Launcher software update controls and status.
+func (msgs Messages) UpdateFailed(err any) string {
+	return Catalog.Format(msgs.locale, "updateFailed", map[string]any{"err": err})
+}
+
+// UpdateDownloading says "正在下载并校验更新… {percent}%"
+// in the language the app shows.
+//
+// Launcher software update controls and status.
+func UpdateDownloading(percent int) string { return In(i18n.Locale()).UpdateDownloading(percent) }
+
+// UpdateDownloading says "正在下载并校验更新… {percent}%"
+// in the language of msgs.
+//
+// Launcher software update controls and status.
+func (msgs Messages) UpdateDownloading(percent int) string {
+	return Catalog.Format(msgs.locale, "updateDownloading", map[string]any{"percent": percent})
+}
+
+// UpdateRenamed says "程序已改名，请恢复为 FluentLauncher.exe 后再更新。"
+// in the language the app shows.
+//
+// Update cannot target a renamed executable.
+func UpdateRenamed() string { return In(i18n.Locale()).UpdateRenamed() }
+
+// UpdateRenamed says "程序已改名，请恢复为 FluentLauncher.exe 后再更新。"
+// in the language of msgs.
+//
+// Update cannot target a renamed executable.
+func (msgs Messages) UpdateRenamed() string {
+	return Catalog.Format(msgs.locale, "updateRenamed", nil)
+}

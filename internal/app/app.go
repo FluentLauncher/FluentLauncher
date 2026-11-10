@@ -18,6 +18,7 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 
+	"fluentlauncher/internal/bundled"
 	"fluentlauncher/internal/core/layout"
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/search"
@@ -140,7 +141,9 @@ type App struct {
 	promptEntry    string
 	promptReadOnly bool
 
-	quitting bool
+	quitting     bool
+	updates      updateState
+	updateCancel context.CancelFunc
 
 	queryCancel     context.CancelFunc
 	queryGeneration atomic.Int64
@@ -157,8 +160,14 @@ func Run() error {
 	}
 	a := &App{}
 	data := filepath.Join(os.Getenv("LOCALAPPDATA"), "FluentLauncher")
+	library, err := bundled.SQLiteLibrary(filepath.Join(data, "cache"))
+	if err != nil {
+		return err
+	}
+	if err := os.Setenv("MYGO_SQLITE_LIBRARY", library); err != nil {
+		return err
+	}
 	mygo.App.SetName("FluentLauncher")
-	mygo.App.SetVersion("0.1.0")
 	// Follow the system's languages until the settings load and apply the
 	// user's choice; the language also picks the fonts the text system draws
 	// Han characters with, and the date and number formats.
@@ -314,6 +323,7 @@ func (a *App) ready() {
 	a.applyVolumeSettings()
 	a.applyOpenAtLogin()
 	a.applyWindowSize()
+	a.startUpdateChecks()
 
 	diag.Mark("windows ready")
 	a.loadFileCache()
@@ -671,6 +681,11 @@ func (a *App) trayMenu() *mygo.Menu {
 	return mygo.NewMenu([]*mygo.MenuItem{
 		{Label: locales.TrayShowSearch(), Click: func(*mygo.MenuItem, *mygo.Window) { a.show() }},
 		{Label: locales.TraySettings(), Click: func(*mygo.MenuItem, *mygo.Window) { a.openSettings() }},
+		{Label: locales.UpdateCheck(), Click: func(*mygo.MenuItem, *mygo.Window) {
+			a.settingsPage = len(settingPages()) - 1
+			a.openSettings()
+			a.checkForUpdates(false)
+		}},
 		mygo.Separator(),
 		{Label: loginLabel, Click: func(*mygo.MenuItem, *mygo.Window) {
 			a.settings.RunAtLogin = !a.settings.RunAtLogin
@@ -1237,6 +1252,9 @@ func (a *App) clampToWorkArea(win *mygo.Window) {
 }
 
 func (a *App) close() {
+	if a.updateCancel != nil {
+		a.updateCancel()
+	}
 	if a.queryCancel != nil {
 		a.queryCancel()
 	}

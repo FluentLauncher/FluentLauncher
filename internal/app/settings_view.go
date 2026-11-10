@@ -1012,12 +1012,13 @@ func (a *App) aboutPage(c *ui.Context) {
 				ui.Image(c, logo).Size(40, 40).Radius(9)
 			}
 			ui.Column(c).Gap(2).Children(func() {
-				ui.Text(c, "FluentLauncher 0.1.0").FontSize(14).Bold().TextColor(c.Theme().Text)
+				ui.Text(c, "FluentLauncher "+appVersion()).FontSize(14).Bold().TextColor(c.Theme().Text)
 				ui.Text(c, locales.SettingsAboutDataDir(a.dataDir)).FontSize(12).TextColor(c.Theme().TextMuted)
 			})
 		})
 		ui.Text(c, locales.SettingsAboutHiddenCount(a.hiddenCount())).FontSize(12).TextColor(c.Theme().TextMuted)
 	})
+	a.updateCard(c)
 	settingCard(c, locales.SettingsDataCard(), func(c *ui.Context) {
 		ui.Row(c).Gap(8).Children(func() {
 			if compactButton(c, locales.SettingsExportConfig()).Clicked() {

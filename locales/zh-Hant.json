@@ -580,5 +580,16 @@
   "cmdCopyWithDate": "複製日期+時間",
   "cmdCopyRGB": "複製 rgb()",
   "cmdCopyHSL": "複製 hsl()",
-  "cmdCopyWithUnit": "複製含單位"
+  "cmdCopyWithUnit": "複製含單位",
+"updateTitle": "軟體更新",
+  "updateHint": "啟動 10 秒後檢查更新，執行期間每 24 小時檢查一次。更新會替換目前目錄的程式並重新啟動，保留個人資料。",
+  "updateCheck": "檢查更新",
+  "updateInstall": "更新並重新啟動",
+  "updateChecking": "正在檢查更新…",
+  "updateDisabled": "此版本未設定更新，或程式所在目錄沒有寫入權限。請使用正式發佈版本，並放在可寫目錄。",
+  "updateLatest": "已是最新版本。",
+  "updateAvailable": "發現新版本 {version}",
+  "updateFailed": "更新失敗：{err}",
+  "updateDownloading": "正在下載並驗證更新… {percent}%",
+"updateRenamed": "程式已改名，請恢復為 FluentLauncher.exe 後再更新。"
 }

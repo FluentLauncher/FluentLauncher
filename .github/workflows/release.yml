@@ -1,0 +1,78 @@
+name: Windows release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      signed:
+        description: 'Build with signed updates (requires repository keys)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    env:
+      CGO_ENABLED: '0'
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Validate
+        run: |
+          go build ./...
+          if ($LASTEXITCODE -ne 0) { throw 'go build failed' }
+          go vet ./...
+          if ($LASTEXITCODE -ne 0) { throw 'go vet failed' }
+          go test ./...
+          if ($LASTEXITCODE -ne 0) { throw 'go test failed' }
+          go tool mygo vet .
+          if ($LASTEXITCODE -ne 0) { throw 'mygo vet failed' }
+          go tool mygo i18n check .
+          if ($LASTEXITCODE -ne 0) { throw 'i18n check failed' }
+      - name: Build portable EXE and signed updates
+        env:
+          MYGO_UPDATER_PUBLIC_KEY: ${{ vars.MYGO_UPDATER_PUBLIC_KEY }}
+          MYGO_UPDATER_PRIVATE_KEY: ${{ secrets.MYGO_UPDATER_PRIVATE_KEY }}
+          SIGNED_BUILD: ${{ startsWith(github.ref, 'refs/tags/') || inputs.signed }}
+        run: |
+          $tag = ''
+          if ($env:GITHUB_REF.StartsWith('refs/tags/')) { $tag = $env:GITHUB_REF_NAME }
+          ./scripts/build-release.ps1 -Tag $tag -Signed:($env:SIGNED_BUILD -eq 'true')
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FluentLauncher-windows-x64
+          path: build/release/windows-amd64/*
+          if-no-files-found: error
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $release = gh release view $env:GITHUB_REF_NAME --repo $env:GITHUB_REPOSITORY --json isDraft 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            if (-not ($release | ConvertFrom-Json).isDraft) { throw 'Refusing to replace an already published release; use a new version tag' }
+          } else {
+            gh release create $env:GITHUB_REF_NAME --repo $env:GITHUB_REPOSITORY --verify-tag --draft --title $env:GITHUB_REF_NAME --generate-notes
+            if ($LASTEXITCODE -ne 0) { throw 'Creating draft release failed' }
+          }
+          $files = @(Get-ChildItem -LiteralPath build/release/windows-amd64 -File | ForEach-Object FullName)
+          gh release upload $env:GITHUB_REF_NAME --repo $env:GITHUB_REPOSITORY --clobber @files
+          if ($LASTEXITCODE -ne 0) { throw 'Uploading release assets failed' }
+          gh release edit $env:GITHUB_REF_NAME --repo $env:GITHUB_REPOSITORY --draft=false --latest
+          if ($LASTEXITCODE -ne 0) { throw 'Publishing release failed' }

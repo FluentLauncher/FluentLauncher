@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"fluentlauncher/internal/core/search"
 	"fluentlauncher/internal/core/settings"
@@ -15,25 +16,31 @@ import (
 // independent of the official plugin repo, the network and its executables.
 func TestIndependentOfficialReleaseIntegration(t *testing.T) {
 	dir := os.Getenv("FL_TEST_OFFICIAL_RELEASE_DIR")
-	if dir == "" {
-		t.Skip("set FL_TEST_OFFICIAL_RELEASE_DIR to a locally signed plugin release")
+	live := os.Getenv("FL_TEST_OFFICIAL_LIVE") == "1"
+	if dir == "" && !live {
+		t.Skip("set FL_TEST_OFFICIAL_RELEASE_DIR or FL_TEST_OFFICIAL_LIVE=1 to verify an official release")
 	}
-	client := &CatalogClient{Repository: "mistquay/FluentLauncher-plugins", PublicKey: os.Getenv("FL_TEST_OFFICIAL_PUBLIC_KEY"), CachePath: filepath.Join(t.TempDir(), "catalog.json")}
-	client.HTTP = &http.Client{Transport: catalogTransport(func(req *http.Request) (*http.Response, error) {
-		f, err := os.Open(filepath.Join(dir, filepath.Base(req.URL.Path)))
-		if err != nil {
-			return nil, err
-		}
-		return &http.Response{StatusCode: 200, Body: f, Header: make(http.Header)}, nil
-	})}
-	catalog, err := client.Refresh(context.Background())
+	client := NewCatalogClient(filepath.Join(t.TempDir(), "catalog.json"))
+	client.PublicKey = os.Getenv("FL_TEST_OFFICIAL_PUBLIC_KEY")
+	if !live {
+		client.HTTP = &http.Client{Transport: catalogTransport(func(req *http.Request) (*http.Response, error) {
+			f, err := os.Open(filepath.Join(dir, filepath.Base(req.URL.Path)))
+			if err != nil {
+				return nil, err
+			}
+			return &http.Response{StatusCode: 200, Body: f, Header: make(http.Header)}, nil
+		})}
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	catalog, err := client.Refresh(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
 	repo := NewRepository(filepath.Join(t.TempDir(), "plugins"))
 	for _, entry := range catalog.Localized() {
 		archive := filepath.Join(t.TempDir(), "plugin.zip")
-		if err := client.Download(context.Background(), entry, archive); err != nil {
+		if err := client.Download(ctx, entry, archive); err != nil {
 			t.Fatal(entry.ID, err)
 		}
 		if _, err := repo.Install(archive, false); err != nil {

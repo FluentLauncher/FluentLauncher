@@ -25,7 +25,7 @@ import (
 
 // Injected by the release build. The catalogue has its own signing key,
 // independent of the launcher's executable updates.
-var OfficialRepository = "mistquay/FluentLauncher-plugins"
+var OfficialRepository = "FluentLauncher/FluentLauncher-plugins"
 var OfficialPublicKey string
 
 type Catalog struct {

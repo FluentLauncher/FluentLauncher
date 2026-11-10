@@ -6,6 +6,8 @@
 
 仓库必须公开，更新客户端通过 GitHub Releases 下载文件，不包含任何 GitHub 令牌。工作流使用 `GITHUB_REPOSITORY` 注入当前仓库地址，因此 fork 可使用自己的发布源。
 
+正式仓库为 [FluentLauncher/FluentLauncher](https://github.com/FluentLauncher/FluentLauncher)，插件与 SDK 位于 [FluentLauncher/FluentLauncher-plugins](https://github.com/FluentLauncher/FluentLauncher-plugins)。原 `mistquay/FluentLauncher` 的 .NET/WinUI 仓库保留，当前组织的版本独立发布。
+
 首次发布前，在本机生成一次更新签名密钥：
 
 ```powershell
@@ -19,7 +21,7 @@ go tool mygo keygen
 | Repository variable | `MYGO_UPDATER_PUBLIC_KEY` | `mygo-update.pub` 的完整内容 |
 | Repository secret | `MYGO_UPDATER_PRIVATE_KEY` | `mygo-update.key` 的完整内容 |
 | Repository variable | `FLUENTLAUNCHER_PLUGIN_PUBLIC_KEY` | 独立插件仓库目录签名的公钥，必须与插件仓库一致 |
-| Repository variable | `FLUENTLAUNCHER_PLUGIN_REPOSITORY` | 独立插件仓库 owner/name，默认 `mistquay/FluentLauncher-plugins` |
+| Repository variable | `FLUENTLAUNCHER_PLUGIN_REPOSITORY` | 独立插件仓库 owner/name，默认 `FluentLauncher/FluentLauncher-plugins` |
 
 密钥仅生成一次。私钥要另行备份，不要提交到 Git；以后发版沿用同一对密钥，已安装版本才能验证后续更新。更新包的 Ed25519 签名与 Windows Authenticode 代码签名是两回事，目前工作流仅配置前者。
 
@@ -92,4 +94,4 @@ Remove-Item Env:MYGO_UPDATER_PRIVATE_KEY
 - 隔离测试进程调用实际 MyGo 更新 API：篡改一个归档字节后签名校验拒绝安装，原 EXE 哈希不变；有效归档可以替换正在运行的 Windows 测试 EXE，结果哈希与发布 EXE 一致，邻近的测试文件保留。
 - 同一隔离进程从内嵌数据释放 SQLite DLL，并成功执行内存数据库查询，不依赖 EXE 旁的 DLL。
 - 使用本地文件源验证下载、校验和替换；未验证 GitHub Actions 线上运行、真实 GitHub 更新源及完整 UI 退出/重启。测试密钥和辅助程序均在 Git 忽略的 `build` 下，不是正式发布密钥。
-- 当前工作区未配置远程地址，GitHub CLI 查询返回认证失败。正式发版仍需配置远程、恢复登录并设置仓库签名变量/Secret。
+- 正式签名密钥独立于测试密钥，位于本机用户配置目录的 `mygo/update-keys/FluentLauncher/launcher` 和 `plugins`，对应私钥只配置到各自仓库的 Actions Secret。请额外保留安全备份，切勿用测试密钥覆盖正式密钥。

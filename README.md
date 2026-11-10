@@ -2,6 +2,8 @@
 
 Windows 11 键盘优先启动器，使用 Go + [MyGo](https://github.com/egoist/mygo) 原生 UI 实现，不依赖 WebView 或 .NET 运行时。
 
+[下载 Windows x64 单文件版](https://github.com/FluentLauncher/FluentLauncher/releases/latest) · [官方插件与 SDK](https://github.com/FluentLauncher/FluentLauncher-plugins)
+
 ## 功能
 
 - 全局热键、托盘、单实例、启动隐藏、开机启动。

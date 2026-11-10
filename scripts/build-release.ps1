@@ -36,7 +36,7 @@ try {
         } -Force
     }
     $pluginRepository = $env:FLUENTLAUNCHER_PLUGIN_REPOSITORY
-    if (-not $pluginRepository) { $pluginRepository = 'mistquay/FluentLauncher-plugins' }
+    if (-not $pluginRepository) { $pluginRepository = 'FluentLauncher/FluentLauncher-plugins' }
     if ($pluginRepository -notmatch '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$') { throw 'Invalid FLUENTLAUNCHER_PLUGIN_REPOSITORY' }
     $pluginPublicKey = $env:FLUENTLAUNCHER_PLUGIN_PUBLIC_KEY
     if ($pluginPublicKey) {

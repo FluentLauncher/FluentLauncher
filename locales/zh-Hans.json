@@ -265,7 +265,11 @@
       }
     }
   },
-  "panelActionsHint": "↑↓ 选择 · ↵ 执行 · Esc 返回",
+  "panelActionsShortcut": "Ctrl+K 操作",
+  "@panelActionsShortcut": {
+    "description": "Selected search result: keyboard shortcut to open its actions"
+  },
+  "panelActionsHint": "↑↓ 选择 · ↵ / Alt+1–9 执行 · Esc / Ctrl+K 返回",
   "@panelActionsHint": {
     "description": "Actions panel: footer shortcut hint"
   },

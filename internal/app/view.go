@@ -50,7 +50,7 @@ func (a *App) view(c *ui.Context) {
 	if c.Shortcut(0, ui.KeyUp) {
 		a.choose(-1)
 	}
-	if c.Shortcut(ui.Ctrl, ui.KeyK) {
+	if c.Shortcut(ui.Ctrl, ui.KeyK) || c.Shortcut(ui.Shift, ui.KeyF10) || c.Shortcut(0, ui.KeyContextMenu) {
 		a.openActions()
 	}
 
@@ -62,7 +62,16 @@ func (a *App) view(c *ui.Context) {
 			searchRow.Children(func() {
 				ui.Icon(c, searchIcon).FontSize(20).TextColor(theme.TextMuted)
 				in := ui.TextInputBase(c, &a.query).Bind(&a.input).Grow(1).FontSize(22).
-					Placeholder(locales.PanelSearchPlaceholder()).Label(locales.PanelSearchLabel())
+					Placeholder(locales.PanelSearchPlaceholder()).Label(locales.PanelSearchLabel()).
+					OnTextKey(func(k ui.TextKey) bool {
+						// MyGo's editor consumes the menu key before window
+						// shortcuts; route it to the selected result instead.
+						if k.Key == ui.KeyContextMenu && k.Mods == 0 {
+							a.openActions()
+							return true
+						}
+						return false
+					})
 				if in.Changed() {
 					a.notice = ""
 					a.updateResults()
@@ -181,6 +190,10 @@ func (a *App) row(c *ui.Context, theme *ui.Theme, index int) {
 		if item.Entry.Kind == model.Workspace {
 			ui.Text(c, locales.PanelWorkspaceBadge()).FontSize(10).TextColor(muted)
 		}
+		if index == a.chosen {
+			ui.Text(c, locales.PanelActionsShortcut()).FontSize(theme.FontSize * 0.75).
+				TextColor(muted).SingleLine().Tooltip("Ctrl+K / Shift+F10")
+		}
 	})
 	if row.RightClicked() {
 		a.chosen = index
@@ -251,9 +264,18 @@ func (a *App) drawPrompt(c *ui.Context, theme *ui.Theme) {
 }
 
 func (a *App) drawActions(c *ui.Context, theme *ui.Theme) {
-	if c.Shortcut(0, ui.KeyEscape) {
+	if c.Shortcut(0, ui.KeyEscape) || c.Shortcut(ui.Ctrl, ui.KeyK) {
 		a.hideActions()
 		return
+	}
+	// Numbered shortcuts follow the displayed order, including plugin and
+	// tool actions. Longer menus remain navigable with the arrow keys.
+	for i := 0; i < min(len(a.actions), 9); i++ {
+		if c.Shortcut(ui.Alt, ui.Key1+ui.Key(i)) {
+			a.actionIndex = i
+			a.runAction()
+			return
+		}
 	}
 	if c.Shortcut(0, ui.KeyDown) {
 		a.actionIndex = min(a.actionIndex+1, len(a.actions)-1)
@@ -286,6 +308,9 @@ func (a *App) drawActions(c *ui.Context, theme *ui.Theme) {
 				}
 				row := ui.Row(c).Padding(10, 14).Radius(6).Background(background).Children(func() {
 					ui.Text(c, command.Title).TextColor(text).Grow(1)
+					if i < 9 {
+						ui.Text(c, "Alt+"+strconv.Itoa(i+1)).FontSize(theme.FontSize * 0.8).TextColor(theme.TextMuted)
+					}
 				})
 				if row.Clicked() {
 					a.actionIndex = i

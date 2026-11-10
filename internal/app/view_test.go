@@ -14,6 +14,7 @@ import (
 	"fluentlauncher/internal/core/search"
 	"fluentlauncher/internal/core/settings"
 	"fluentlauncher/internal/store"
+	"fluentlauncher/locales"
 )
 
 func TestLauncherViewBuilds(t *testing.T) {
@@ -81,6 +82,141 @@ func TestRowClickAndEnterExecute(t *testing.T) {
 	tt.Frame()
 	if a.notice != notice {
 		t.Fatalf("enter in search box did not execute: notice=%q", a.notice)
+	}
+}
+
+func TestActionPanelKeyboard(t *testing.T) {
+	for _, shortcut := range []struct {
+		name string
+		mods ui.Modifiers
+		key  ui.Key
+	}{
+		{"Ctrl+K", ui.Ctrl, ui.KeyK},
+		{"Shift+F10", ui.Shift, ui.KeyF10},
+		{"Menu", 0, ui.KeyContextMenu},
+	} {
+		t.Run(shortcut.name, func(t *testing.T) {
+			a := newLocalizedApp()
+			a.query = "Example"
+			a.results = []model.Result{
+				{Entry: model.Entry{ID: "other", Title: "Another Example", Kind: model.Application}},
+				{Entry: model.Entry{ID: "x", Title: "Example", Kind: model.Application}},
+			}
+			tt := ui.NewTester(a.view, 760, 560)
+			a.input.Focus()
+			tt.Frame()
+			tt.Key(0, ui.KeyDown)
+			tt.Frame()
+			tt.Key(shortcut.mods, shortcut.key)
+			tt.Frame()
+			if !a.actionsOpen || !tt.HasText("设置别名") {
+				t.Fatal("keyboard shortcut did not open the selected result's actions")
+			}
+			tt.Key(0, ui.KeyDown)
+			tt.Frame()
+			if a.actionIndex != 1 {
+				t.Fatalf("Down selected action %d, want 1", a.actionIndex)
+			}
+			tt.Key(0, ui.KeyUp)
+			tt.Frame()
+			if a.actionIndex != 0 {
+				t.Fatalf("Up selected action %d, want 0", a.actionIndex)
+			}
+			tt.Key(0, ui.KeyEscape)
+			tt.Frame()
+			if a.actionsOpen || a.query != "Example" || !tt.Focused(locales.PanelSearchLabel()) {
+				t.Fatal("Escape did not return to the search field with the query preserved")
+			}
+			// Reopening must retain working shortcuts after the focus target
+			// disappeared and returned in a later build.
+			tt.Key(shortcut.mods, shortcut.key)
+			tt.Frame()
+			tt.Key(0, ui.KeyDown)
+			tt.Key(0, ui.KeyDown)
+			tt.Key(0, ui.KeyEnter)
+			tt.Frame()
+			if !a.promptOpen || a.promptEntry != "x" {
+				t.Fatal("Enter did not execute the selected alias action")
+			}
+		})
+	}
+}
+
+func TestResultActionsShortcutHint(t *testing.T) {
+	for _, tag := range []string{"zh-Hans", "zh-Hant", "en"} {
+		t.Run(tag, func(t *testing.T) {
+			setCatalogLocale(t, tag)
+			for _, width := range []int{480, 760} {
+				a := newLocalizedApp()
+				a.results = []model.Result{{Entry: model.Entry{
+					ID: "x", Title: "An application with a very long name that fills the result row",
+					Subtitle: "A long subtitle that must leave room for the action shortcut hint", Kind: model.Application,
+				}}}
+				tt := ui.NewTester(a.view, width, 560)
+				bounds, ok := tt.Find(locales.PanelActionsShortcut())
+				if !ok || bounds.W <= 0 || bounds.X < 0 || bounds.X+bounds.W > float32(width) {
+					t.Fatalf("%d: action entry shortcut missing or clipped: %+v", width, bounds)
+				}
+			}
+		})
+	}
+}
+
+func TestActionPanelNumberedShortcuts(t *testing.T) {
+	for _, target := range []string{"", `C:\Apps\Example.exe`} {
+		for _, width := range []int{480, 760} {
+			t.Run(strconv.Itoa(width)+"/"+target, func(t *testing.T) {
+				a := newLocalizedApp()
+				a.results = []model.Result{{Entry: model.Entry{
+					ID: "x", Title: "Example", Kind: model.Application, LaunchTarget: target,
+				}}}
+				tt := ui.NewTester(a.view, width, 560)
+				a.input.Focus()
+				tt.Frame()
+				tt.Key(ui.Ctrl, ui.KeyK)
+				tt.Frame()
+				aliasIndex := -1
+				for i, action := range a.actions {
+					if action.Command == search.CommandSetAlias {
+						aliasIndex = i
+					}
+					label := "Alt+" + strconv.Itoa(i+1)
+					bounds, ok := tt.Find(label)
+					if !ok || bounds.X < 0 || bounds.X+bounds.W > float32(width) {
+						t.Fatalf("shortcut %s missing or outside the panel: %+v", label, bounds)
+					}
+				}
+				if aliasIndex < 0 {
+					t.Fatal("alias action missing")
+				}
+				tt.Key(ui.Alt, ui.Key1+ui.Key(aliasIndex))
+				tt.Frame()
+				if !a.promptOpen || a.promptEntry != "x" || a.actionIndex != aliasIndex {
+					t.Fatal("Alt+number did not execute its displayed action")
+				}
+			})
+		}
+	}
+}
+
+func TestActionPanelToggleKeepsQuery(t *testing.T) {
+	a := newLocalizedApp()
+	a.query = "Example"
+	a.results = []model.Result{{Entry: model.Entry{ID: "x", Title: "Example", Kind: model.Application}}}
+	tt := ui.NewTester(a.view, 760, 560)
+	a.input.Focus()
+	tt.Frame()
+	for range 2 {
+		tt.Key(ui.Ctrl, ui.KeyK)
+		tt.Frame()
+		if !a.actionsOpen {
+			t.Fatal("Ctrl+K did not open the actions")
+		}
+		tt.Key(ui.Ctrl, ui.KeyK)
+		tt.Frame()
+		if a.actionsOpen || a.query != "Example" || !tt.Focused(locales.PanelSearchLabel()) {
+			t.Fatal("Ctrl+K did not return to the search field with the query preserved")
+		}
 	}
 }
 

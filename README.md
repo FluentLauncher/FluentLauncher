@@ -22,6 +22,14 @@ Windows 11 键盘优先启动器，使用 Go + [MyGo](https://github.com/egoist/
 
 复刻覆盖与剩余项见 `docs/port-status.md`。
 
+## 快捷操作
+
+在搜索结果中用 `↑` / `↓` 选中条目，按 `Ctrl+K`、`Shift+F10` 或键盘菜单键打开动作面板（与鼠标右键相同，搜索框有焦点时也可使用）。选中结果的右侧显示 `Ctrl+K 操作` 提示。面板中用 `↑` / `↓` 选择、`Enter` 执行，也可以按每项右侧显示的 `Alt+1` 至 `Alt+9` 直接执行；`Esc` 或 `Ctrl+K` 返回搜索并保留查询。
+
+## 平台支持
+
+当前应用只发布并验证 Windows 11 x64 版本。Go 和 MyGo 支持 Windows、macOS、Linux，但本项目的应用发现、启动、窗口管理、音量、插件进程管理和随包 SQLite 运行库仍依赖 Windows，不能仅修改构建目标就获得可用的其他平台版本。适配范围和实施顺序见 [平台支持说明](docs/platform-support.md)。
+
 ## 开发
 
 ```powershell

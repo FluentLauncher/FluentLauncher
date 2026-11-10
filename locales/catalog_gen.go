@@ -766,13 +766,27 @@ func (msgs Messages) PanelHintHotkey(hotkey string) string {
 	return Catalog.Format(msgs.locale, "panelHintHotkey", map[string]any{"hotkey": hotkey})
 }
 
-// PanelActionsHint says "↑↓ 选择 · ↵ 执行 · Esc 返回"
+// PanelActionsShortcut says "Ctrl+K 操作"
+// in the language the app shows.
+//
+// Selected search result: keyboard shortcut to open its actions
+func PanelActionsShortcut() string { return In(i18n.Locale()).PanelActionsShortcut() }
+
+// PanelActionsShortcut says "Ctrl+K 操作"
+// in the language of msgs.
+//
+// Selected search result: keyboard shortcut to open its actions
+func (msgs Messages) PanelActionsShortcut() string {
+	return Catalog.Format(msgs.locale, "panelActionsShortcut", nil)
+}
+
+// PanelActionsHint says "↑↓ 选择 · ↵ / Alt+1–9 执行 · Esc / Ctrl+K 返回"
 // in the language the app shows.
 //
 // Actions panel: footer shortcut hint
 func PanelActionsHint() string { return In(i18n.Locale()).PanelActionsHint() }
 
-// PanelActionsHint says "↑↓ 选择 · ↵ 执行 · Esc 返回"
+// PanelActionsHint says "↑↓ 选择 · ↵ / Alt+1–9 执行 · Esc / Ctrl+K 返回"
 // in the language of msgs.
 //
 // Actions panel: footer shortcut hint

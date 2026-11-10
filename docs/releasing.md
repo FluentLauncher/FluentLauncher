@@ -93,5 +93,15 @@ Remove-Item Env:MYGO_UPDATER_PRIVATE_KEY
 - 使用临时测试密钥完成 `v0.2.0` 签名打包；更新归档中只有 `FluentLauncher.exe`，主程序不嵌入官方插件。
 - 隔离测试进程调用实际 MyGo 更新 API：篡改一个归档字节后签名校验拒绝安装，原 EXE 哈希不变；有效归档可以替换正在运行的 Windows 测试 EXE，结果哈希与发布 EXE 一致，邻近的测试文件保留。
 - 同一隔离进程从内嵌数据释放 SQLite DLL，并成功执行内存数据库查询，不依赖 EXE 旁的 DLL。
-- 使用本地文件源验证下载、校验和替换；未验证 GitHub Actions 线上运行、真实 GitHub 更新源及完整 UI 退出/重启。测试密钥和辅助程序均在 Git 忽略的 `build` 下，不是正式发布密钥。
+- 本地文件源验证了下载、校验和替换；真实 GitHub 更新源与 Actions 验收见下节。测试密钥和辅助程序均在 Git 忽略的 `build` 下，不是正式发布密钥。
 - 正式签名密钥独立于测试密钥，位于本机用户配置目录的 `mygo/update-keys/FluentLauncher/launcher` 和 `plugins`，对应私钥只配置到各自仓库的 Actions Secret。请额外保留安全备份，切勿用测试密钥覆盖正式密钥。
+
+## 首次正式发布验收（2026-11-10）
+
+- [启动器 v0.1.0](https://github.com/FluentLauncher/FluentLauncher/releases/tag/v0.1.0) 已由 [Windows Actions](https://github.com/FluentLauncher/FluentLauncher/actions/runs/42751436462) 成功构建并公开发布。资产包含单文件 EXE、签名更新归档、更新清单与 SHA256SUMS。
+- [官方插件 v1.0.0](https://github.com/FluentLauncher/FluentLauncher-plugins/releases/tag/v1.0.0) 已由 [插件 Actions](https://github.com/FluentLauncher/FluentLauncher-plugins/actions/runs/42750741639) 发布，含三个独立 ZIP、catalog.json 与 catalog.sig；[SDK 标签检查](https://github.com/FluentLauncher/FluentLauncher-plugins/actions/runs/42750741668) 通过。
+- 第三方模板在没有本地 replace 的情况下，从公开 `sdk/v0.1.0` 标签下载并构建成功。首次使用时国内代理尚未同步，切换测试进程到 Go 官方代理后完成完整校验，未关闭校验服务或修改全局配置。
+- 使用真实网络客户端从 GitHub 下载插件签名目录及三个 ZIP，完成验签、临时安装和回显/开发工具实际查询。
+- 隔离测试进程使用正式主程序公钥和真实 GitHub 更新源，从低版本检查到 v0.1.0，下载并验证签名后原地替换正在运行的测试 EXE；邻近测试文件保留。替换后 EXE 的 SHA-256 为 `2538f5c422346e61459dc8df94ff2a613dd7c6ddf202faf4d0aee847c77b18fd`，与 Release 的 SHA256SUMS 一致；正式插件公钥注入也已验证。
+- 测试未运行用户日常安装的启动器、未修改其个人数据库或开机启动项。上述结果验证发布资产、客户端网络和更新替换机制；完整用户环境中的界面重启仍需实机使用验收。
+- 旧 `mistquay/FluentLauncher` 仍为原私有 .NET/WinUI 仓库，没有迁移、覆盖或改变可见性。

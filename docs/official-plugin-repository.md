@@ -63,3 +63,4 @@ SDK 模块路径是 `github.com/FluentLauncher/FluentLauncher-plugins/sdk`，不
 - `go test -race` 验证目录刷新与替换串行、替换期间禁用新查询、失败恢复，以及排队查询切换到当前路径。
 - 主程序签名打包已验证插件目录公钥注入。测试密钥与正式发布密钥分开；正式私钥保存在用户配置目录和对应仓库 Actions Secret，未写入 Git。
 - `v1.0.0` 已由组织仓库 Actions 发布。客户端从真实 GitHub 下载并验签目录、安装三个 ZIP，通过独立 SDK 对回显和开发工具执行查询；主程序发布验证记录见 `releasing.md`。
+- 第三方模板已从公开 `sdk/v0.1.0` 标签通过 Go 官方代理下载并构建，未使用本地 replace，未关闭模块校验。

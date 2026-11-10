@@ -82,6 +82,48 @@ func TestSearchMotionKeepsKeyboardFocus(t *testing.T) {
 	}
 }
 
+func TestSettingsSelectionBackgroundMoves(t *testing.T) {
+	for _, reduced := range []bool{false, true} {
+		a := newLocalizedApp()
+		a.settingsHover = -1
+		tt := ui.NewTester(a.settingsView, 900, 660)
+		tt.SetPreferences(ui.Preferences{ReduceMotion: reduced, TextScale: 1})
+		first, ok := tt.Find(settingPages()[pageGeneral])
+		if !ok {
+			t.Fatal("first navigation item missing")
+		}
+		// This point is inside the full background but outside the label
+		// and icon; a narrow selection marker cannot satisfy this check.
+		selected := tt.Image().RGBAAt(100, int(first.Y+first.H/2))
+		top := func() int {
+			for y := int(first.Y) - 9; y < 250; y++ {
+				if tt.Image().RGBAAt(100, y) == selected {
+					return y
+				}
+			}
+			t.Fatal("selection background missing")
+			return -1
+		}
+		start := top()
+		a.settingsPage = pageAppearance
+		tt.Frame()
+		tt.Advance(40 * time.Millisecond)
+		middle := top()
+		tt.Advance(250 * time.Millisecond)
+		end := top()
+		if end <= start {
+			t.Fatal("selection background did not reach the new row")
+		}
+		if reduced {
+			if middle != end {
+				t.Fatal("selection background moved with ReduceMotion enabled")
+			}
+		} else if middle <= start || middle >= end {
+			t.Fatal("selection background jumped instead of moving between rows")
+		}
+	}
+}
+
 // Opt-in visual harness: renders the real views with a deterministic clock,
 // without opening windows, injecting desktop input or accessing user data.
 // FL_MOTION_ARTIFACT_DIR=... go test ./internal/app -run TestMotionPreview -count=1

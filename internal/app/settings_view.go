@@ -68,6 +68,8 @@ var chevronIcon = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg
 // glance, and would make every field of the settings dense pages oversized.
 const settingsFontSize float32 = 13
 
+const settingsSidebarRowHeight float32 = 36
+
 func (a *App) settingsView(c *ui.Context) {
 	theme := *c.Theme()
 	a.applyUITheme(&theme)
@@ -149,40 +151,38 @@ func (a *App) settingsView(c *ui.Context) {
 func (a *App) settingsSidebar(c *ui.Context, theme *ui.Theme, pages []string) {
 	hover := a.settingsHover
 	next := -1
-	ui.Column(c).Width(208).FillHeight().Padding(8, 12).Gap(2).Children(func() {
-		for i, name := range pages {
-			background := ui.Transparent
-			text := theme.Text
-			if i == a.settingsPage {
-				background = selectionTint(theme)
-				text = theme.Text
-			} else if i == hover {
-				background = theme.Surface.Alpha(0.7)
-			}
-			c.Key(i)
-			row := ui.Row(c).Padding(9, 8).Gap(8).AlignItems(ui.Center).Radius(8).Background(background).
-				Transition(feedbackTransition)
-			row.Children(func() {
-				// Reserve the slot in every row so the icon and text never
-				// move when the shared selection marker changes parent.
-				ui.Box(c).Size(3, 16).IgnoreInput(true).Children(func() {
-					if i == a.settingsPage {
-						ui.Box(c).Fill().Radius(1.5).Background(theme.Accent).Transition(ui.ElementTransition{
-							Position: true, Animation: &navigationMotion, Match: settingsSelectionMarker{},
-						})
-					}
+	ui.Grid(c).Width(208).FillHeight().ColumnTracks(ui.Fr(1)).RowTracks(ui.Fr(1)).Children(func() {
+		// Paint one moving selection plate behind all rows so it never
+		// moves or paints over their icons, labels or pointer targets.
+		plate := ui.Box(c).ColumnStart(1).RowStart(1).Fill().IgnoreInput(true)
+		y := plate.AnimateTo("selection-y", float32(a.settingsPage)*(settingsSidebarRowHeight+2), navigationMotion)
+		color := plate.AnimateColor("selection-color", selectionTint(theme), feedbackMotion)
+		plate.Draw(func(p *ui.Painter, r ui.Rect) {
+			p.Fill(ui.Rect{X: r.X + 12, Y: r.Y + 8 + y, W: r.W - 24, H: settingsSidebarRowHeight}, color, 8)
+		})
+		ui.Column(c).ColumnStart(1).RowStart(1).Fill().Padding(8, 12).Gap(2).Children(func() {
+			for i, name := range pages {
+				background := ui.Transparent
+				text := theme.Text
+				if i != a.settingsPage && i == hover {
+					background = theme.Surface.Alpha(0.7)
+				}
+				c.Key(i)
+				row := ui.Row(c).Height(settingsSidebarRowHeight).Padding(9, 12).Gap(10).AlignItems(ui.Center).Radius(8).Background(background).
+					Transition(feedbackTransition)
+				row.Children(func() {
+					ui.Icon(c, pageIcons[i]).FontSize(16).TextColor(text)
+					ui.Text(c, name).FontSize(13).TextColor(text).Grow(1)
 				})
-				ui.Icon(c, pageIcons[i]).FontSize(16).TextColor(text)
-				ui.Text(c, name).FontSize(13).TextColor(text).Grow(1)
-			})
-			if row.Clicked() {
-				a.shortcutEdit = shortcutEditor{}
-				a.settingsPage = i
+				if row.Clicked() {
+					a.shortcutEdit = shortcutEditor{}
+					a.settingsPage = i
+				}
+				if row.Hovered() {
+					next = i
+				}
 			}
-			if row.Hovered() {
-				next = i
-			}
-		}
+		})
 	})
 	a.settingsHover = next
 }

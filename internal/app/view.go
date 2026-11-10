@@ -45,7 +45,6 @@ func (a *App) view(c *ui.Context) {
 			searchRow := ui.Row(c).Height(float32(clampFloat(value.SearchHeight, 36, 120))).
 				Padding(0, 18).Gap(12).AlignItems(ui.Center)
 			focused := a.input.Focused(c)
-			searchFocus(searchRow, focused, &theme)
 			searchRow.Children(func() {
 				icon := ui.Icon(c, searchIcon).FontSize(20)
 				color := theme.TextMuted

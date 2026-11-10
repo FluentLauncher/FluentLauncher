@@ -29,7 +29,7 @@ func newPluginsApp(t *testing.T) *App {
 		icons:         map[string]*ui.Bitmap{},
 		iconLoading:   map[string]bool{},
 	}
-	a.settingsPage = 6
+	a.settingsPage = pagePlugins
 	a.pluginRepo = plugin.NewRepository(filepath.Join(t.TempDir(), "plugins"))
 	if err := a.pluginRepo.Refresh(); err != nil {
 		t.Fatal(err)

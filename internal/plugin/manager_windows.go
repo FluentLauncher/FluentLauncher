@@ -5,6 +5,7 @@ package plugin
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"path/filepath"
 	"sort"
@@ -47,24 +48,37 @@ type runtimeState struct {
 
 // Manager owns plugin processes and exposes them as one search source.
 type Manager struct {
-	mu        sync.Mutex
-	installed []protocol.Registration
-	options   settings.PluginOptions
-	sessions  map[string]*session
-	history   map[string]runtimeState
-	paused    map[string]bool
-	version   int64
-	disposed  bool
-	replacing map[string]bool
+	mu                sync.Mutex
+	installed         []protocol.Registration
+	options           settings.PluginOptions
+	sessions          map[string]*session
+	history           map[string]runtimeState
+	paused            map[string]bool
+	version           int64
+	disposed          bool
+	replacing         map[string]bool
+	commandActive     map[string]bool
+	onCommandsChanged func()
+}
+
+func (m *Manager) OnCommandsChanged(fn func()) { m.mu.Lock(); m.onCommandsChanged = fn; m.mu.Unlock() }
+func (m *Manager) commandsChanged() {
+	m.mu.Lock()
+	fn := m.onCommandsChanged
+	m.mu.Unlock()
+	if fn != nil {
+		fn()
+	}
 }
 
 func NewManager() *Manager {
 	return &Manager{
-		sessions:  map[string]*session{},
-		history:   map[string]runtimeState{},
-		paused:    map[string]bool{},
-		replacing: map[string]bool{},
-		options:   settings.DefaultPluginOptions(),
+		sessions:      map[string]*session{},
+		history:       map[string]runtimeState{},
+		paused:        map[string]bool{},
+		replacing:     map[string]bool{},
+		commandActive: map[string]bool{},
+		options:       settings.DefaultPluginOptions(),
 	}
 }
 
@@ -102,6 +116,7 @@ func (m *Manager) Configure(installed []protocol.Registration, options settings.
 	for _, item := range closing {
 		go m.closeSession(item, true)
 	}
+	m.commandsChanged()
 }
 
 func (m *Manager) ID() string { return "plugins" }
@@ -239,6 +254,7 @@ func (m *Manager) searchOne(ctx context.Context, registration protocol.Registrat
 		message := err.Error()
 		if paused {
 			message = locales.PluginPausedWithErrors(failures, message)
+			m.commandsChanged()
 		}
 		return []model.Result{errorResult(id, registration.Manifest.Name, message)}
 	}
@@ -328,6 +344,81 @@ func (m *Manager) Execute(ctx context.Context, entry model.Entry, action model.A
 	return err
 }
 
+// ExecuteCommand starts an idle plugin on demand without fabricating a search
+// result. It follows the same process budget, replacement and idle lifecycle.
+func (m *Manager) ExecuteCommand(ctx context.Context, pluginID, commandID string) error {
+	m.mu.Lock()
+	if m.disposed || m.replacing[pluginID] {
+		m.mu.Unlock()
+		return errors.New(locales.PluginProcessRecycled())
+	}
+	if !containsFold(m.options.EnabledIDs, pluginID) {
+		m.mu.Unlock()
+		return errors.New(locales.PluginDisabledExecute(pluginID))
+	}
+	if m.paused[pluginID] {
+		m.mu.Unlock()
+		return errors.New(locales.PluginPausedByFailures())
+	}
+	var registration protocol.Registration
+	found := false
+	for _, installed := range m.installed {
+		if installed.Manifest.ID == pluginID {
+			registration = installed
+			for _, command := range installed.Manifest.Commands {
+				if command.ID == commandID && command.Activation == "invoke" {
+					found = true
+				}
+			}
+			break
+		}
+	}
+	if !found {
+		m.mu.Unlock()
+		return fmt.Errorf("unknown plugin command: %s/%s", pluginID, commandID)
+	}
+	key := pluginID + "/" + commandID
+	if m.commandActive[key] {
+		m.mu.Unlock()
+		return nil
+	}
+	sess := m.sessions[pluginID]
+	if sess == nil {
+		if len(m.sessions) >= m.options.MaxActiveProcesses {
+			m.mu.Unlock()
+			return errors.New(locales.PluginActiveProcessLimit())
+		}
+		sess = &session{client: NewClient(registration.Path(), pluginID)}
+		m.sessions[pluginID] = sess
+	}
+	m.commandActive[key] = true
+	if sess.idle != nil {
+		sess.idle.Stop()
+		sess.idle = nil
+	}
+	sess.busy++
+	timeout := time.Duration(m.options.QueryTimeoutMs) * time.Millisecond
+	m.mu.Unlock()
+	err := sess.client.ExecuteCommand(ctx, commandID, timeout)
+	m.mu.Lock()
+	delete(m.commandActive, key)
+	sess.busy--
+	if err != nil && ctx.Err() == nil {
+		sess.failures++
+		if sess.failures >= maxConsecutiveFailures {
+			m.paused[pluginID] = true
+		}
+	} else if err == nil {
+		sess.failures = 0
+	}
+	m.scheduleIdleLocked(pluginID, sess)
+	m.mu.Unlock()
+	if err != nil {
+		m.commandsChanged()
+	}
+	return err
+}
+
 // Statuses returns one row per installed plugin, in package order, including
 // the plugins whose process is not running: those keep the numbers they last
 // reported. The settings page draws these rows, so the call takes the
@@ -343,6 +434,7 @@ func (m *Manager) Statuses() []Status {
 			Enabled:      containsFold(m.options.EnabledIDs, id),
 			GlobalQuery:  containsFold(m.options.GlobalQueryIDs, id),
 			Paused:       m.paused[id],
+			Replacing:    m.replacing[id],
 		}
 		switch {
 		case m.sessions[id] != nil:
@@ -376,6 +468,7 @@ func (m *Manager) Restart(id string) {
 	m.mu.Unlock()
 	// No history: a restart is a clean slate, including the page's numbers.
 	m.closeSession(item, false)
+	m.commandsChanged()
 }
 
 // Stop ends a plugin's process. It waits for a query in flight to finish,
@@ -402,6 +495,7 @@ func (m *Manager) ReplacePackage(id string, apply func() ([]protocol.Registratio
 	m.replacing[id] = true
 	item := m.detachLocked(id)
 	m.mu.Unlock()
+	m.commandsChanged()
 	m.closeSession(item, true)
 	installed, err := apply()
 	m.mu.Lock()
@@ -411,6 +505,7 @@ func (m *Manager) ReplacePackage(id string, apply func() ([]protocol.Registratio
 	}
 	delete(m.replacing, id)
 	m.mu.Unlock()
+	m.commandsChanged()
 	return err
 }
 

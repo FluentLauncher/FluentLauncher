@@ -6,8 +6,44 @@ import (
 	"strings"
 	"testing"
 
+	"fluentlauncher/internal/core/shortcuts"
 	"fluentlauncher/internal/plugin/protocol"
 )
+
+func TestCommandManifestValidation(t *testing.T) {
+	valid := protocol.Manifest{ID: "vendor.tool", Name: "Tool", Version: "1.0.0", ProtocolVersion: 1, Executable: "tool.exe"}
+	command := protocol.Command{ID: "capture", Title: "Capture", Scope: shortcuts.Global, DefaultShortcuts: []string{"Ctrl+Alt+A"}, Activation: "invoke"}
+	valid.Commands = []protocol.Command{command}
+	if err := valid.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range []func(*protocol.Command){
+		func(c *protocol.Command) { c.ID = "../capture" },
+		func(c *protocol.Command) { c.Title = " " },
+		func(c *protocol.Command) { c.Scope = shortcuts.Actions },
+		func(c *protocol.Command) { c.Activation = "unknown" },
+		func(c *protocol.Command) { c.Activation = "showQuery"; c.Query = " " },
+		func(c *protocol.Command) { c.DefaultShortcuts = []string{"Ctrl+Alt+Delete"} },
+		func(c *protocol.Command) { c.DefaultShortcuts = []string{"ctrl+alt+a", "Alt+Ctrl+A"} },
+	} {
+		broken := command
+		change(&broken)
+		valid.Commands = []protocol.Command{broken}
+		if err := valid.Validate(); err == nil {
+			t.Fatalf("invalid command accepted: %+v", broken)
+		}
+	}
+	valid.Commands = []protocol.Command{command, command}
+	if err := valid.Validate(); err == nil {
+		t.Fatal("duplicate command ID accepted")
+	}
+	command.Activation = "showQuery"
+	command.Query = "clip "
+	valid.Commands = []protocol.Command{command}
+	if err := valid.Validate(); err != nil {
+		t.Fatal(err)
+	}
+}
 
 func TestManifestValidateExplainsWhatIsWrong(t *testing.T) {
 	valid := protocol.Manifest{

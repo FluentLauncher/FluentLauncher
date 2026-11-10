@@ -34,6 +34,7 @@ type Status struct {
 	Enabled      bool
 	GlobalQuery  bool
 	Paused       bool
+	Replacing    bool
 	// Failures counts consecutive failed queries; the manager pauses a plugin
 	// that keeps failing so one broken plugin cannot slow every search.
 	Failures int

@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 
+	"fluentlauncher/internal/core/shortcuts"
 	"fluentlauncher/locales"
 )
 
@@ -279,13 +280,14 @@ type LauncherSettings struct {
 	Version int `json:"Version"`
 	// Language is a BCP 47 tag of the interface language, or "" to follow
 	// the system. It is applied with mygo.App.SetLocale.
-	Language           string          `json:"Language"`
-	Hotkey             string          `json:"Hotkey"`
-	ShowRecentEntries  bool            `json:"ShowRecentEntries"`
-	ShowRecentSearches bool            `json:"ShowRecentSearches"`
-	RunAtLogin         bool            `json:"RunAtLogin"`
-	HideOnStartup      bool            `json:"HideOnStartup"`
-	Placement          WindowPlacement `json:"Placement"`
+	Language           string                       `json:"Language"`
+	Hotkey             string                       `json:"Hotkey"`
+	Shortcuts          map[string]shortcuts.Binding `json:"Shortcuts"`
+	ShowRecentEntries  bool                         `json:"ShowRecentEntries"`
+	ShowRecentSearches bool                         `json:"ShowRecentSearches"`
+	RunAtLogin         bool                         `json:"RunAtLogin"`
+	HideOnStartup      bool                         `json:"HideOnStartup"`
+	Placement          WindowPlacement              `json:"Placement"`
 	// AnchorX and AnchorY place the panel in the work area, as the share of
 	// the room left around it: 0 is flush with the left or top edge, 1 with
 	// the right or bottom edge, 0.5 centered. The settings preview sets them
@@ -311,6 +313,7 @@ func Default() LauncherSettings {
 	return LauncherSettings{
 		Version:           1,
 		Hotkey:            "Alt+Space",
+		Shortcuts:         map[string]shortcuts.Binding{},
 		Placement:         PlacementActiveScreen,
 		AnchorX:           0.5,
 		AnchorY:           0.45,
@@ -337,6 +340,13 @@ func (s *LauncherSettings) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*s = LauncherSettings(v)
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return err
+	}
+	if _, exists := fields["Shortcuts"]; !exists && s.Hotkey != "" && s.Hotkey != "Alt+Space" {
+		s.Shortcuts = map[string]shortcuts.Binding{shortcuts.Toggle: {Keys: []string{s.Hotkey}, Enabled: true}}
+	}
 	s.Normalize()
 	return nil
 }
@@ -344,6 +354,9 @@ func (s *LauncherSettings) UnmarshalJSON(data []byte) error {
 // Normalize fills groups and slices that older files lack, and migrates the
 // removed ShowRecentSearches field.
 func (s *LauncherSettings) Normalize() {
+	if s.Shortcuts == nil {
+		s.Shortcuts = map[string]shortcuts.Binding{}
+	}
 	s.ShowRecentEntries = s.ShowRecentEntries || s.ShowRecentSearches
 	s.ShowRecentSearches = false
 	s.AnchorX = clamp01(s.AnchorX, 0.5)
@@ -389,10 +402,11 @@ func (s LauncherSettings) Validate() error {
 	default:
 		return errors.New(locales.ValidateLanguage())
 	}
-	switch s.Hotkey {
-	case "Alt+Space", "Ctrl+Alt+Space", "Ctrl+Space":
-	default:
+	if _, err := shortcuts.ValidateKey(s.Hotkey, shortcuts.Global); err != nil {
 		return errors.New(locales.ValidateHotkey())
+	}
+	if err := shortcuts.Validate(s.Shortcuts); err != nil {
+		return err
 	}
 	if s.Width < 480 || s.Width > 1600 || s.Height < 320 || s.Height > 1200 ||
 		s.MaxResults < 5 || s.MaxResults > 200 {

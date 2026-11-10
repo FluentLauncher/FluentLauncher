@@ -32,27 +32,12 @@ func (a *App) view(c *ui.Context) {
 		a.executeSelected(model.Open)
 	}
 
-	if c.Shortcut(0, ui.KeyEscape) {
-		if a.query != "" {
-			a.query = ""
-			a.notice = ""
-			a.updateResults()
-		} else {
-			a.hidePanel()
+	for _, id := range []string{"search.dismiss", "search.execute", "search.next", "search.previous", "search.actions"} {
+		if a.shortcut(c, id) {
+			a.runSearchCommand(id)
 		}
 	}
-	if c.Shortcut(0, ui.KeyEnter) {
-		a.executeSelected(model.Open)
-	}
-	if c.Shortcut(0, ui.KeyDown) {
-		a.choose(1)
-	}
-	if c.Shortcut(0, ui.KeyUp) {
-		a.choose(-1)
-	}
-	if c.Shortcut(ui.Ctrl, ui.KeyK) || c.Shortcut(ui.Shift, ui.KeyF10) || c.Shortcut(0, ui.KeyContextMenu) {
-		a.openActions()
-	}
+	a.pluginShortcuts(c)
 
 	a.drawShell(c, &theme, func() {
 		ui.Column(c).Fill().Children(func() {
@@ -62,22 +47,10 @@ func (a *App) view(c *ui.Context) {
 			searchRow.Children(func() {
 				ui.Icon(c, searchIcon).FontSize(20).TextColor(theme.TextMuted)
 				in := ui.TextInputBase(c, &a.query).Bind(&a.input).Grow(1).FontSize(22).
-					Placeholder(locales.PanelSearchPlaceholder()).Label(locales.PanelSearchLabel()).
-					OnTextKey(func(k ui.TextKey) bool {
-						// MyGo's editor consumes the menu key before window
-						// shortcuts; route it to the selected result instead.
-						if k.Key == ui.KeyContextMenu && k.Mods == 0 {
-							a.openActions()
-							return true
-						}
-						return false
-					})
+					Placeholder(locales.PanelSearchPlaceholder()).Label(locales.PanelSearchLabel()).OnTextKey(a.searchTextKey)
 				if in.Changed() {
 					a.notice = ""
 					a.updateResults()
-				}
-				if in.Submitted() {
-					a.executeSelected(model.Open)
 				}
 				a.composing = in.Composing()
 				a.panelGrip(c, &theme)
@@ -128,7 +101,9 @@ func (a *App) resultsArea(c *ui.Context, theme *ui.Theme) {
 		})
 		ui.Divider(c)
 	}
-	a.list.Selected = &a.chosen
+	// Selection belongs to our configurable commands. Giving List.Selected a
+	// pointer also enables MyGo's fixed navigation keys, bypassing remapping.
+	a.list.Selected = nil
 	a.list.Key = func(i int) any { return a.results[i].Entry.ID }
 	a.list.Label = func(i int) string { return a.results[i].Entry.Title }
 	// The list paints the chosen row itself, in the theme's accent and accent
@@ -139,7 +114,17 @@ func (a *App) resultsArea(c *ui.Context, theme *ui.Theme) {
 	rowTheme.Accent = selectionTint(theme)
 	rowTheme.AccentText = theme.Text
 	ui.Themed(c, &rowTheme).Grow(1).Background(ui.Transparent).Children(func() {
-		list := ui.List(c, &a.list, len(a.results), func(i int) { a.row(c, theme, i) }).Grow(1).Padding(6).Children(func() {
+		ui.List(c, &a.list, len(a.results), func(i int) { a.row(c, theme, i) }).Focusable().Grow(1).Padding(6).HandleInput(func(ev ui.InputEvent) bool {
+			if ev.Kind == ui.InputKeyDown {
+				for _, id := range []string{"search.dismiss", "search.execute", "search.next", "search.previous", "search.actions"} {
+					if a.matchesShortcut(id, ev.Mods, ev.Key) {
+						a.runSearchCommand(id)
+						return true
+					}
+				}
+			}
+			return false
+		}).Children(func() {
 			if len(a.results) == 0 {
 				message := locales.PanelEmptySearch()
 				if strings.TrimSpace(a.query) == "" {
@@ -151,9 +136,6 @@ func (a *App) resultsArea(c *ui.Context, theme *ui.Theme) {
 				ui.Text(c, message).TextColor(theme.TextMuted).Padding(16)
 			}
 		})
-		if list.Submitted() {
-			a.executeSelected(model.Open)
-		}
 	})
 }
 
@@ -172,7 +154,8 @@ func (a *App) row(c *ui.Context, theme *ui.Theme, index int) {
 	if vertical < 3 {
 		vertical = 3
 	}
-	row := ui.Row(c).Padding(vertical, 10).Gap(12).AlignItems(ui.Center).Radius(8).Background(background)
+	row := ui.Row(c).Padding(vertical, 10).Gap(12).AlignItems(ui.Center).Radius(8).Background(background).
+		Role(ui.RoleListItem).Selected(index == a.chosen)
 	row.Children(func() {
 		if bitmap := a.resultIcon(item.Entry); bitmap != nil {
 			ui.Image(c, bitmap).Size(float32(a.iconSize), float32(a.iconSize))
@@ -191,8 +174,8 @@ func (a *App) row(c *ui.Context, theme *ui.Theme, index int) {
 			ui.Text(c, locales.PanelWorkspaceBadge()).FontSize(10).TextColor(muted)
 		}
 		if index == a.chosen {
-			ui.Text(c, locales.PanelActionsShortcut()).FontSize(theme.FontSize * 0.75).
-				TextColor(muted).SingleLine().Tooltip("Ctrl+K / Shift+F10")
+			ui.Text(c, a.primaryShortcutHint("search.actions")).FontSize(theme.FontSize * 0.75).
+				TextColor(muted).SingleLine().Tooltip(a.shortcutHint("search.actions"))
 		}
 	})
 	if row.RightClicked() {
@@ -222,16 +205,21 @@ func (a *App) footer(c *ui.Context, theme *ui.Theme) {
 	parts = append(parts, locales.PanelComposing(strconv.FormatBool(a.composing)))
 	ui.Row(c).Padding(8, 16).Gap(12).Children(func() {
 		ui.Text(c, strings.Join(parts, " · ")).FontSize(11).TextColor(theme.TextMuted).Grow(1).SingleLine()
-		hint := locales.PanelHint()
+		hints := []string{}
 		if a.hotkeyActive != "" {
-			hint = locales.PanelHintHotkey(a.hotkeyActive)
+			hints = append(hints, a.hotkeyActive)
 		}
-		ui.Text(c, hint).FontSize(11).TextColor(theme.TextMuted)
+		for _, id := range []string{"search.previous", "search.next", "search.execute", "search.actions", "search.dismiss"} {
+			if key := a.primaryShortcutHint(id); key != "" {
+				hints = append(hints, key)
+			}
+		}
+		ui.Text(c, strings.Join(hints, " · ")).FontSize(11).TextColor(theme.TextMuted).SingleLine()
 	})
 }
 
 func (a *App) drawPrompt(c *ui.Context, theme *ui.Theme) {
-	if c.Shortcut(0, ui.KeyEscape) {
+	if a.shortcut(c, "prompt.cancel") {
 		a.promptOpen = false
 		a.input.Focus()
 		return
@@ -241,13 +229,24 @@ func (a *App) drawPrompt(c *ui.Context, theme *ui.Theme) {
 		if a.promptReadOnly {
 			ui.TextArea(c, &a.promptValue).ReadOnly(true).Height(260)
 		} else {
-			field := ui.TextInput(c, &a.promptValue).AutoFocus().FontSize(18)
-			if field.Submitted() || c.Shortcut(0, ui.KeyEnter) {
+			ui.TextInput(c, &a.promptValue).AutoFocus().FontSize(18).OnTextKey(func(k ui.TextKey) bool {
+				if a.matchesShortcut("prompt.confirm", k.Mods, k.Key) {
+					a.savePrompt()
+					return true
+				}
+				if a.matchesShortcut("prompt.cancel", k.Mods, k.Key) {
+					a.promptOpen = false
+					a.input.Focus()
+					return true
+				}
+				return false
+			})
+			if a.shortcut(c, "prompt.confirm") {
 				a.savePrompt()
 				return
 			}
 		}
-		if !a.promptReadOnly && c.Shortcut(0, ui.KeyEnter) {
+		if !a.promptReadOnly && a.shortcut(c, "prompt.confirm") {
 			a.savePrompt()
 			return
 		}
@@ -264,26 +263,26 @@ func (a *App) drawPrompt(c *ui.Context, theme *ui.Theme) {
 }
 
 func (a *App) drawActions(c *ui.Context, theme *ui.Theme) {
-	if c.Shortcut(0, ui.KeyEscape) || c.Shortcut(ui.Ctrl, ui.KeyK) {
+	if a.shortcut(c, "actions.dismiss") {
 		a.hideActions()
 		return
 	}
 	// Numbered shortcuts follow the displayed order, including plugin and
 	// tool actions. Longer menus remain navigable with the arrow keys.
 	for i := 0; i < min(len(a.actions), 9); i++ {
-		if c.Shortcut(ui.Alt, ui.Key1+ui.Key(i)) {
+		if a.shortcut(c, "actions.slot."+strconv.Itoa(i+1)) {
 			a.actionIndex = i
 			a.runAction()
 			return
 		}
 	}
-	if c.Shortcut(0, ui.KeyDown) {
+	if a.shortcut(c, "actions.next") {
 		a.actionIndex = min(a.actionIndex+1, len(a.actions)-1)
 	}
-	if c.Shortcut(0, ui.KeyUp) {
+	if a.shortcut(c, "actions.previous") {
 		a.actionIndex = max(a.actionIndex-1, 0)
 	}
-	if c.Shortcut(0, ui.KeyEnter) {
+	if a.shortcut(c, "actions.execute") {
 		a.runAction()
 		return
 	}
@@ -309,7 +308,7 @@ func (a *App) drawActions(c *ui.Context, theme *ui.Theme) {
 				row := ui.Row(c).Padding(10, 14).Radius(6).Background(background).Children(func() {
 					ui.Text(c, command.Title).TextColor(text).Grow(1)
 					if i < 9 {
-						ui.Text(c, "Alt+"+strconv.Itoa(i+1)).FontSize(theme.FontSize * 0.8).TextColor(theme.TextMuted)
+						ui.Text(c, a.shortcutHint("actions.slot."+strconv.Itoa(i+1))).FontSize(theme.FontSize * 0.8).TextColor(theme.TextMuted)
 					}
 				})
 				if row.Clicked() {
@@ -324,7 +323,7 @@ func (a *App) drawActions(c *ui.Context, theme *ui.Theme) {
 		})
 		ui.Divider(c)
 		ui.Row(c).Padding(8, 16).Children(func() {
-			ui.Text(c, locales.PanelActionsHint()).FontSize(11).TextColor(theme.TextMuted)
+			ui.Text(c, strings.Join([]string{a.shortcutHint("actions.previous") + " / " + a.shortcutHint("actions.next"), a.shortcutHint("actions.execute"), a.shortcutHint("actions.dismiss")}, " · ")).FontSize(11).TextColor(theme.TextMuted)
 		})
 	})
 }

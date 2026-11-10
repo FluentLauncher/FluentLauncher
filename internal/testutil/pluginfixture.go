@@ -11,7 +11,9 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
+	"fluentlauncher/internal/core/shortcuts"
 	"fluentlauncher/internal/plugin/protocol"
 )
 
@@ -32,6 +34,13 @@ func PluginFixture(t testing.TB, id string) string {
 	if id == "official.devtools" {
 		manifest.Name = "开发工具"
 		manifest.Keywords = []string{"hash"}
+	}
+	if strings.HasPrefix(id, "vendor.commands") {
+		manifest.Commands = []protocol.Command{
+			{ID: "write", Title: "Write marker", Scope: shortcuts.Global, Activation: "invoke"},
+			{ID: "slow", Title: "Slow marker", Scope: shortcuts.Global, Activation: "invoke"},
+			{ID: "fail", Title: "Fail", Scope: shortcuts.Global, Activation: "invoke"},
+		}
 	}
 	data, err := json.Marshal(manifest)
 	if err != nil {
@@ -83,9 +92,32 @@ func runFixture() {
 			return
 		}
 		var result any = map[string]any{}
+		var rpcErr *protocol.RPCError
 		switch req.Method {
 		case "initialize":
-			result = protocol.InitializeResult{ProtocolVersion: 1, PluginID: registration.Manifest.ID}
+			initialized := protocol.InitializeResult{ProtocolVersion: 1, PluginID: registration.Manifest.ID}
+			if strings.HasPrefix(registration.Manifest.ID, "vendor.commands") && registration.Manifest.ID != "vendor.commands.old" {
+				initialized.Capabilities = []string{"executeCommand"}
+			}
+			result = initialized
+		case "executeCommand":
+			var command protocol.ExecuteCommandRequest
+			if json.Unmarshal(req.Params, &command) != nil {
+				return
+			}
+			if command.CommandID == "slow" {
+				time.Sleep(200 * time.Millisecond)
+			}
+			if command.CommandID == "fail" {
+				rpcErr = &protocol.RPCError{Code: -32000, Message: "command failed"}
+			} else {
+				file, err := os.OpenFile(filepath.Join(registration.Directory, "commands.txt"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+				if err != nil {
+					return
+				}
+				_, _ = file.WriteString(command.CommandID + "\n")
+				_ = file.Close()
+			}
 		case "ping":
 			result = "pong"
 		case "query":
@@ -102,7 +134,10 @@ func runFixture() {
 		case "$/cancelRequest":
 			continue
 		}
-		if err := protocol.WriteJSON(os.Stdout, protocol.Response{JSONRPC: "2.0", ID: req.ID, Result: result}); err != nil {
+		if rpcErr != nil {
+			result = nil
+		}
+		if err := protocol.WriteJSON(os.Stdout, protocol.Response{JSONRPC: "2.0", ID: req.ID, Result: result, Error: rpcErr}); err != nil {
 			return
 		}
 	}

@@ -2953,7 +2953,7 @@
   "@cmdCopyWithUnit": {
     "description": "Action panel: copy the converted value with its unit."
   },
-"updateTitle": "软件更新",
+  "updateTitle": "软件更新",
   "@updateTitle": {
     "description": "Launcher software update controls and status."
   },
@@ -3008,11 +3008,11 @@
     },
     "description": "Launcher software update controls and status."
   },
-"updateRenamed": "程序已改名，请恢复为 FluentLauncher.exe 后再更新。",
+  "updateRenamed": "程序已改名，请恢复为 FluentLauncher.exe 后再更新。",
   "@updateRenamed": {
     "description": "Update cannot target a renamed executable."
   },
-"pluginCatalogRefresh": "刷新官方目录",
+  "pluginCatalogRefresh": "刷新官方目录",
   "@pluginCatalogRefresh": {
     "description": "Official plugin catalogue downloads and installation."
   },
@@ -3061,5 +3061,43 @@
   "pluginCatalogUpgrade": "更新插件",
   "@pluginCatalogUpgrade": {
     "description": "Official plugin catalogue downloads and installation."
-  }
+  },
+  "settingsPageShortcuts": "快捷键",
+  "shortcutsHint": "统一配置内置功能与插件快捷键。插件推荐按键首次默认不启用。",
+  "shortcutsFilter": "搜索功能、插件或按键",
+  "shortcutsGlobal": "全局",
+  "shortcutsSearch": "搜索面板",
+  "shortcutsActions": "动作面板",
+  "shortcutsPrompt": "输入弹窗",
+  "shortcutsPreview": "布局预览",
+  "shortcutsToggle": "显示 / 隐藏启动器",
+  "shortcutsPrevious": "选择上一项",
+  "shortcutsNext": "选择下一项",
+  "shortcutsExecute": "执行所选项",
+  "shortcutsDismissSearch": "清空搜索，再按关闭",
+  "shortcutsOpenActions": "打开动作面板",
+  "shortcutsBack": "返回搜索",
+  "shortcutsSlot": "执行第 %d 项动作",
+  "shortcutsLeft": "向左移动面板",
+  "shortcutsRight": "向右移动面板",
+  "shortcutsUp": "向上移动面板",
+  "shortcutsDown": "向下移动面板",
+  "shortcutsClear": "清除绑定",
+  "shortcutsDefaults": "恢复默认",
+  "shortcutsUnbound": "未绑定",
+  "shortcutsDisabled": "未启用",
+  "shortcutsActive": "已生效",
+  "shortcutsUnavailable": "插件已禁用、暂停或正在更新",
+  "shortcutsActual": "实际生效",
+  "shortcutsConflict": "按键冲突",
+  "shortcutsReplace": "替换冲突绑定",
+  "shortcutsRecordHint": "点击录制区域后按组合键；Esc 和 Enter 也可录入。用 Tab 移动到按钮，确认后自动保存。",
+  "shortcutsRecordArea": "点击这里并按下快捷键",
+  "shortcutsAddKey": "加入组合键",
+  "shortcutsEmpty": "没有匹配的快捷键",
+  "shortcutsConfigure": "配置快捷键",
+  "shortcutsRegisterFailed": "热键注册失败，原绑定已尽力恢复",
+  "shortcutsLocalHint": "标准文本编辑和 Tab 导航遵循控件行为，不参与改键。",
+  "shortcutsPluginFailed": "插件命令执行失败",
+  "shortcutsTooMany": "每个功能最多绑定 12 个组合键"
 }

@@ -20,11 +20,24 @@ import (
 	"fluentlauncher/locales"
 )
 
+const (
+	pageGeneral = iota
+	pageShortcuts
+	pageAppearance
+	pageFiles
+	pageVolume
+	pageSites
+	pageLaunchItems
+	pagePlugins
+	pageOther
+)
+
 // settingPages returns the sidebar's page titles, localized per frame so a
 // language change shows at once.
 func settingPages() []string {
 	return []string{
 		locales.SettingsPageGeneral(),
+		locales.SettingsPageShortcuts(),
 		locales.SettingsPageAppearance(),
 		locales.SettingsPageFiles(),
 		locales.SettingsPageVolume(),
@@ -38,6 +51,7 @@ func settingPages() []string {
 // pageIcons are the sidebar's line icons, one per settings page.
 var pageIcons = []*ui.SVG{
 	ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><circle cx="9" cy="7" r="2.5"/><line x1="4" y1="15" x2="20" y2="15"/><circle cx="15" cy="15" r="2.5"/></svg>`)),
+	ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M8 16h8"/></svg>`)),
 	ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-.9 2-2s-.7-2 .3-2.8c.8-.6 2.2-.2 3.5-.2 1.8 0 3.2-1.2 3.2-3C21 7.6 17 3 12 3z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16.5" cy="10.5" r="1"/></svg>`)),
 	ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`)),
 	ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>`)),
@@ -74,19 +88,21 @@ func (a *App) settingsView(c *ui.Context) {
 				ui.Scroll(c).Grow(1).Children(func() {
 					ui.Column(c).Padding(20, 24).Gap(16).Children(func() {
 						switch a.settingsPage {
-						case 0:
+						case pageShortcuts:
+							a.shortcutsPage(c)
+						case pageGeneral:
 							a.generalPage(c)
-						case 1:
+						case pageAppearance:
 							a.appearancePage(c)
-						case 2:
+						case pageFiles:
 							a.filesPage(c)
-						case 3:
+						case pageVolume:
 							a.volumePage(c)
-						case 4:
+						case pageSites:
 							a.sitesPage(c)
-						case 5:
+						case pageLaunchItems:
 							a.launchItemsPage(c)
-						case 6:
+						case pagePlugins:
 							a.pluginsPage(c)
 						default:
 							a.aboutPage(c)
@@ -137,6 +153,7 @@ func (a *App) settingsSidebar(c *ui.Context, theme *ui.Theme, pages []string) {
 				ui.Text(c, name).FontSize(13).TextColor(text).Grow(1)
 			})
 			if row.Clicked() {
+				a.shortcutEdit = shortcutEditor{}
 				a.settingsPage = i
 			}
 			if row.Hovered() {
@@ -441,12 +458,7 @@ func (a *App) generalPage(c *ui.Context) {
 		})
 	})
 	settingCard(c, locales.SettingsGeneralWakeCard(), func(c *ui.Context) {
-		hotkeyHint := ""
-		if a.hotkeyActive != "" && a.hotkeyActive != a.settingsDraft.Hotkey {
-			hotkeyHint = locales.SettingsHotkeyActive(a.hotkeyActive)
-		}
-		a.themedSelect(c, "hotkey", locales.SettingsHotkey(), hotkeyHint, []string{"Alt+Space", "Ctrl+Alt+Space", "Ctrl+Space"},
-			a.settingsDraft.Hotkey, func(label string) { a.settingsDraft.Hotkey = label })
+
 		a.switchRow(c, locales.SettingsHideOnStartup(), locales.SettingsHideOnStartupHint(), &a.settingsDraft.HideOnStartup)
 		a.switchRow(c, locales.SettingsRunAtLogin(), locales.SettingsRunAtLoginHint(), &a.settingsDraft.RunAtLogin)
 	})
@@ -824,6 +836,10 @@ func (a *App) pluginEntry(c *ui.Context, theme *ui.Theme, status plugin.Status) 
 		if stderr := strings.TrimSpace(status.Stderr); stderr != "" {
 			ui.Text(c, locales.SettingsPluginsStderr(tailText(stderr, 400))).
 				FontSize(11).TextColor(theme.TextMuted).Wrap()
+		}
+		if len(manifest.Commands) > 0 && compactButton(c, locales.ShortcutsConfigure()).Clicked() {
+			a.shortcutFilter = manifest.Name
+			a.settingsPage = pageShortcuts
 		}
 		if enabled {
 			// The switch in the header decides whether the plugin is asked at

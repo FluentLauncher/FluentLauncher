@@ -153,7 +153,7 @@ func TestResultActionsShortcutHint(t *testing.T) {
 					Subtitle: "A long subtitle that must leave room for the action shortcut hint", Kind: model.Application,
 				}}}
 				tt := ui.NewTester(a.view, width, 560)
-				bounds, ok := tt.Find(locales.PanelActionsShortcut())
+				bounds, ok := tt.Find(a.primaryShortcutHint("search.actions"))
 				if !ok || bounds.W <= 0 || bounds.X < 0 || bounds.X+bounds.W > float32(width) {
 					t.Fatalf("%d: action entry shortcut missing or clipped: %+v", width, bounds)
 				}
@@ -242,8 +242,8 @@ func TestSettingsAppearanceInteractions(t *testing.T) {
 		tt.Frame()
 	}
 	clickText("外观")
-	if a.settingsPage != 1 {
-		t.Fatalf("settings page = %d, want 1", a.settingsPage)
+	if a.settingsPage != pageAppearance {
+		t.Fatalf("settings page = %d, want %d", a.settingsPage, pageAppearance)
 	}
 	if !tt.HasText("不透明度") {
 		t.Fatal("opacity card missing for acrylic")
@@ -263,7 +263,7 @@ func TestSettingsAppearanceInteractions(t *testing.T) {
 
 func TestSettingsSaveAutomatically(t *testing.T) {
 	a := &App{settings: settings.Default(), settingsDraft: settings.Default()}
-	a.settingsPage = 1
+	a.settingsPage = pageAppearance
 	tt := ui.NewTester(a.settingsView, 900, 660)
 	if tt.HasText("取消") {
 		t.Fatal("settings still offer a cancel button")
@@ -368,7 +368,7 @@ func TestOtherPageActionsReportDone(t *testing.T) {
 		fileEngine:      search.NewEngine(),
 		customEngine:    search.NewEngine(),
 		workspaceEngine: search.NewEngine(),
-		settingsPage:    7,
+		settingsPage:    pageOther,
 	}
 	tt := ui.NewTester(a.settingsView, 900, 660)
 	// resetLearning does the database wipe off the UI thread and marshals

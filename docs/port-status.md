@@ -32,6 +32,7 @@
 | 插件 | internal/plugin + internal/app/settings_view.go | 独立进程、manifest 校验、状态/耗时/重启、每次搜索查询开关；设置页按插件展示状态与诊断 |
 | 系统功能搜索 | internal/core/systemsearch + internal/core/search | 79 条 Windows 设置/控制面板/系统工具目录，支持中文同义词、英文名与拼音首字母；回车经 ms-settings: 或 ShellExecute 打开 |
 | 设置保存 | internal/app/settings_view.go | 无保存/取消按钮，改动 600ms 后自动应用并保存；校验失败时回退已保存值并提示 |
+| 统一快捷键 | internal/core/shortcuts + internal/app/shortcuts*.go | 内置命令与插件命令统一设置、录制/多绑定/启停/冲突替换；全局差异注册与失败恢复；插件 manifest commands、可选 executeCommand 能力和后台按需调用；详情见 docs/shortcuts.md |
 | 托盘菜单 | internal/app/app.go | 使用系统菜单，跟随应用深/浅色（mygo 设置首选应用模式） |
 | 选中态 | internal/app/view.go | 结果行/侧栏/下拉的选中用 42% 强调色着色 + 主题文字色，不再整块不透明确色 |
 | 图标 | internal/app/app.go + view.go | 结果图标按 32 DIP、以 设备像素=32×缩放 向 shell 取图，避免 1.5× 放大导致的模糊 |
@@ -47,7 +48,7 @@
 - 插件为新的可执行模型；旧 C# 插件不会运行（仓库会跳过 `entryAssembly` 包）。
 - 亚克力与云母都是「系统模糊 + 主题着色」：亚克力用主题背景色，云母取壁纸平均色，均不是 Windows 原生 Mica。
 - 设置页的启动项/站点/工作区是基础编辑，缺少 C# 的完整校验提示与图标选择。
-- 动作面板支持 Ctrl+K / Shift+F10 / 菜单键打开，方向键选择、回车或 Alt+1–9 执行，Esc / Ctrl+K 返回；自动化键盘回归覆盖焦点与返回查询。无障碍、主题包预览和高对比度仍需人工验收。
+- 动作面板默认支持 Ctrl+K / Shift+F10 / 菜单键打开，方向键选择、回车或 Alt+1–9 执行，Esc / Ctrl+K 返回；均可在快捷键页改键，自动化回归覆盖输入框/列表焦点、旧键停用、新键生效及返回查询。无障碍、主题包预览和高对比度仍需人工验收。
 - 插件为独立进程，其 manifest 名称/描述与结果文本不随界面语言翻译（属于插件内容，不在 catalog 内）；官方示例插件仍是中文。
 - 繁中用户输入繁体关键词可命中系统功能目录（繁体标题已并入关键词），但应用/文件的搜索匹配数据仍是用户自己的命名。
 - 截图插件（official.screenshot）方案已定于 `docs/plugin-screenshot.md`，待实现：全屏/窗口/区域/延时截图；交互与延时捕获走异步 execute 规避宿主 RPC 超时；滚动长截图与标注列 v2。取色器、汇率按用户决定不做。

@@ -9,6 +9,7 @@ import (
 
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/core/shortcuts"
 	"fluentlauncher/locales"
 )
 
@@ -58,6 +59,7 @@ func (c *ConfigStore) Load() (settings.LauncherSettings, error) {
 	value := settings.Default()
 	if hotkey, err := c.loadLegacyHotkey(); err == nil && hotkey != "" {
 		value.Hotkey = hotkey
+		value.Shortcuts[shortcuts.Toggle] = shortcuts.Binding{Keys: []string{hotkey}, Enabled: true}
 	}
 	if err := value.Validate(); err != nil {
 		return settings.LauncherSettings{}, err

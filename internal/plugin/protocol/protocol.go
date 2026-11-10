@@ -5,12 +5,14 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 	"unicode/utf8"
 
+	"fluentlauncher/internal/core/shortcuts"
 	"fluentlauncher/locales"
 )
 
@@ -68,8 +70,24 @@ type ExecuteRequest struct {
 }
 
 type InitializeResult struct {
-	ProtocolVersion int    `json:"protocolVersion"`
-	PluginID        string `json:"pluginId"`
+	ProtocolVersion int      `json:"protocolVersion"`
+	PluginID        string   `json:"pluginId"`
+	Capabilities    []string `json:"capabilities,omitempty"`
+}
+
+type ExecuteCommandRequest struct {
+	CommandID string `json:"commandId"`
+}
+
+// Command is a stable, result-independent command declared in plugin.json.
+type Command struct {
+	ID               string          `json:"id"`
+	Title            string          `json:"title"`
+	Description      string          `json:"description,omitempty"`
+	Scope            shortcuts.Scope `json:"scope"`
+	DefaultShortcuts []string        `json:"defaultShortcuts,omitempty"`
+	Activation       string          `json:"activation"`
+	Query            string          `json:"query,omitempty"`
 }
 
 type Request struct {
@@ -138,15 +156,16 @@ func WriteJSON(w io.Writer, value any) error {
 
 // Manifest is plugin.json.
 type Manifest struct {
-	ID              string   `json:"id"`
-	Name            string   `json:"name"`
-	Version         string   `json:"version"`
-	ProtocolVersion int      `json:"protocolVersion"`
-	Executable      string   `json:"executable"`
-	EntryAssembly   string   `json:"entryAssembly"`
-	Keywords        []string `json:"keywords"`
-	Permissions     []string `json:"permissions"`
-	Description     string   `json:"description"`
+	ID              string    `json:"id"`
+	Name            string    `json:"name"`
+	Version         string    `json:"version"`
+	ProtocolVersion int       `json:"protocolVersion"`
+	Executable      string    `json:"executable"`
+	EntryAssembly   string    `json:"entryAssembly"`
+	Keywords        []string  `json:"keywords"`
+	Permissions     []string  `json:"permissions"`
+	Description     string    `json:"description"`
+	Commands        []Command `json:"commands,omitempty"`
 }
 
 // Validate checks a manifest before the launcher runs the package. The
@@ -197,6 +216,39 @@ func (m Manifest) Validate() error {
 	}
 	if utf8.RuneCountInString(m.Description) > 10000 {
 		return errors.New(locales.PluginManifestDescriptionTooLong())
+	}
+	if len(m.Commands) > 100 {
+		return errors.New("plugin commands: maximum 100")
+	}
+	commandIDs := map[string]bool{}
+	for _, command := range m.Commands {
+		if !ValidID(command.ID) || commandIDs[command.ID] || strings.TrimSpace(command.Title) == "" || utf8.RuneCountInString(command.Title) > 200 || len(command.Description) > 4000 {
+			return fmt.Errorf("invalid or duplicate plugin command: %s", command.ID)
+		}
+		commandIDs[command.ID] = true
+		if command.Scope != shortcuts.Global && command.Scope != shortcuts.Search {
+			return fmt.Errorf("invalid command scope: %s", command.Scope)
+		}
+		if command.Activation != "invoke" && command.Activation != "showQuery" {
+			return fmt.Errorf("invalid command activation: %s", command.Activation)
+		}
+		if command.Activation == "showQuery" && (strings.TrimSpace(command.Query) == "" || len(command.Query) > 4096) {
+			return fmt.Errorf("invalid command query: %s", command.ID)
+		}
+		if len(command.DefaultShortcuts) > 12 {
+			return fmt.Errorf("too many command shortcuts: %s", command.ID)
+		}
+		seen := map[string]bool{}
+		for _, key := range command.DefaultShortcuts {
+			normal, err := shortcuts.ValidateKey(key, command.Scope)
+			if err != nil {
+				return fmt.Errorf("command %s: %w", command.ID, err)
+			}
+			if seen[normal] {
+				return fmt.Errorf("duplicate command shortcut: %s", normal)
+			}
+			seen[normal] = true
+		}
 	}
 	return nil
 }

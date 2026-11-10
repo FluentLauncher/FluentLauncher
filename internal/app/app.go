@@ -4,6 +4,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"math"
 	"os"
@@ -23,6 +24,7 @@ import (
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/search"
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/core/shortcuts"
 	"fluentlauncher/internal/diag"
 	"fluentlauncher/internal/plugin"
 	"fluentlauncher/internal/store"
@@ -104,6 +106,11 @@ type App struct {
 	settingsPage  int
 	settingsDraft settings.LauncherSettings
 	appliedTheme  settings.ThemeSettings
+
+	globalShortcuts   shortcuts.Registry
+	shortcutEdit      shortcutEditor
+	shortcutFilter    string
+	pluginCommandBusy map[string]bool
 
 	hotkeyActive string
 	hotkeyNotice string
@@ -320,6 +327,7 @@ func (a *App) ready() {
 
 	a.createVolumeOverlay()
 	a.setUpTray()
+	a.plugins.OnCommandsChanged(func() { a.publishUpdate(func() { a.registerHotkey() }) })
 	a.applyTheme()
 	a.registerHotkey()
 	a.applyVolumeSettings()
@@ -728,30 +736,6 @@ func isDoubleClick(last *time.Time, now time.Time) bool {
 	return false
 }
 
-func (a *App) registerHotkey() {
-	mygo.GlobalShortcut.UnregisterAll()
-	a.hotkeyActive = ""
-	for _, shortcut := range []string{a.settings.Hotkey, "Alt+Shift+Space", "Ctrl+Alt+Space"} {
-		if shortcut == "" {
-			continue
-		}
-		err := mygo.GlobalShortcut.Register(shortcut, a.toggle)
-		if err == nil {
-			log.Printf("hotkey: %s", shortcut)
-			a.hotkeyActive = shortcut
-			if shortcut != a.settings.Hotkey {
-				a.hotkeyNotice = locales.HotkeyOccupiedFallback(a.settings.Hotkey, shortcut)
-			} else {
-				a.hotkeyNotice = ""
-			}
-			return
-		}
-		log.Printf("hotkey %s: %v", shortcut, err)
-	}
-	a.hotkeyActive = ""
-	a.hotkeyNotice = locales.HotkeyAllOccupied()
-}
-
 func (a *App) applyOpenAtLogin() {
 	if err := mygo.App.SetOpenAtLogin(a.settings.RunAtLogin); err != nil {
 		log.Printf("open at login: %v", err)
@@ -783,12 +767,35 @@ func (a *App) applySettings(value settings.LauncherSettings) error {
 	if err := value.Validate(); err != nil {
 		return err
 	}
+	commands := a.shortcutCommands(value)
+	for _, command := range commands {
+		binding := shortcuts.Effective(command.Command, value.Shortcuts)
+		if command.Available {
+			for _, key := range binding.Keys {
+				if _, err := shortcuts.ValidateKey(key, command.Scope); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	shortcutsChanged := !reflect.DeepEqual(value.Shortcuts, a.settings.Shortcuts) || !reflect.DeepEqual(value.Plugins.EnabledIDs, a.settings.Plugins.EnabledIDs)
+	if conflicts := shortcuts.Conflicts(commandDefinitions(commands), value.Shortcuts); shortcutsChanged && len(conflicts) > 0 {
+		return fmt.Errorf("%s: %s (%s / %s)", locales.ShortcutsConflict(), conflicts[0].Key, conflicts[0].First, conflicts[0].Second)
+	}
+	if shortcutsChanged {
+		if err := a.syncGlobalShortcuts(value, true); err != nil {
+			return fmt.Errorf("%s: %w", locales.ShortcutsRegisterFailed(), err)
+		}
+	}
 	if err := a.config.Save(value); err != nil {
+		if shortcutsChanged {
+			_ = a.syncGlobalShortcuts(a.settings, false)
+		}
 		return err
 	}
 	a.settings = value
 	a.publishSettings()
-	a.settingsDraft = value
+	a.settingsDraft = cloneSettings(value)
 	a.lastPreview = value.Theme
 	a.applyLanguage()
 	a.catalog.SetOptions(value.Applications)
@@ -799,7 +806,9 @@ func (a *App) applySettings(value settings.LauncherSettings) error {
 	a.applyTheme()
 	a.applyWindowSize()
 	a.positionPanel()
-	a.registerHotkey()
+	if shortcutsChanged {
+		_ = a.syncGlobalShortcuts(a.settings, false)
+	}
 	a.applyVolumeSettings()
 	a.applyOpenAtLogin()
 	if a.db != nil {
@@ -844,6 +853,15 @@ func (a *App) flushSettingsDraft() {
 	if err := a.applySettings(a.settingsDraft); err != nil {
 		a.settingsError = err.Error()
 		a.settingsNotice = ""
+		// Failed shortcut edits must not keep unregistering/retrying every
+		// autosave tick. Keep the active bindings and unrelated draft edits.
+		pluginEnableChanged := !reflect.DeepEqual(a.settingsDraft.Plugins.EnabledIDs, a.settings.Plugins.EnabledIDs)
+		saved := cloneSettings(a.settings)
+		a.settingsDraft.Shortcuts = saved.Shortcuts
+		a.settingsDraft.Plugins.EnabledIDs = saved.Plugins.EnabledIDs
+		if pluginEnableChanged && a.plugins != nil && a.pluginRepo != nil {
+			a.plugins.Configure(a.pluginRepo.Installed(), a.settings.Plugins)
+		}
 		// Roll the preview back to the saved look — but only when it is not
 		// there already: an invalid draft keeps failing every 600 ms, and
 		// re-applying the same theme would re-read and re-decode the
@@ -1221,8 +1239,15 @@ func (a *App) openSettings() {
 		}
 		e.PreventDefault()
 		// Everything applies as it is set; closing keeps what is valid.
+		a.shortcutEdit = shortcutEditor{}
 		a.flushSettingsDraft()
 		a.settingsWin.Hide()
+	})
+	a.settingsWin.OnBlur(func() {
+		if a.shortcutEdit.ID != "" {
+			a.shortcutEdit = shortcutEditor{}
+			a.settingsWin.Invalidate()
+		}
 	})
 	if icon := windowIconPNG(); icon != nil {
 		if err := a.settingsWin.SetIcon(icon); err != nil {
@@ -1257,6 +1282,9 @@ func (a *App) clampToWorkArea(win *mygo.Window) {
 }
 
 func (a *App) close() {
+	if a.globalShortcuts.Unregister != nil {
+		_ = a.globalShortcuts.Apply(map[string]string{}, false)
+	}
 	if a.updateCancel != nil {
 		a.updateCancel()
 	}

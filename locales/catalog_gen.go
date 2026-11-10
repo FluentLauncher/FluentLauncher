@@ -8671,3 +8671,383 @@ func PluginCatalogUpgrade() string { return In(i18n.Locale()).PluginCatalogUpgra
 func (msgs Messages) PluginCatalogUpgrade() string {
 	return Catalog.Format(msgs.locale, "pluginCatalogUpgrade", nil)
 }
+
+// SettingsPageShortcuts says "快捷键"
+// in the language the app shows.
+func SettingsPageShortcuts() string { return In(i18n.Locale()).SettingsPageShortcuts() }
+
+// SettingsPageShortcuts says "快捷键"
+// in the language of msgs.
+func (msgs Messages) SettingsPageShortcuts() string {
+	return Catalog.Format(msgs.locale, "settingsPageShortcuts", nil)
+}
+
+// ShortcutsHint says "统一配置内置功能与插件快捷键。插件推荐按键首次默认不启用。"
+// in the language the app shows.
+func ShortcutsHint() string { return In(i18n.Locale()).ShortcutsHint() }
+
+// ShortcutsHint says "统一配置内置功能与插件快捷键。插件推荐按键首次默认不启用。"
+// in the language of msgs.
+func (msgs Messages) ShortcutsHint() string {
+	return Catalog.Format(msgs.locale, "shortcutsHint", nil)
+}
+
+// ShortcutsFilter says "搜索功能、插件或按键"
+// in the language the app shows.
+func ShortcutsFilter() string { return In(i18n.Locale()).ShortcutsFilter() }
+
+// ShortcutsFilter says "搜索功能、插件或按键"
+// in the language of msgs.
+func (msgs Messages) ShortcutsFilter() string {
+	return Catalog.Format(msgs.locale, "shortcutsFilter", nil)
+}
+
+// ShortcutsGlobal says "全局"
+// in the language the app shows.
+func ShortcutsGlobal() string { return In(i18n.Locale()).ShortcutsGlobal() }
+
+// ShortcutsGlobal says "全局"
+// in the language of msgs.
+func (msgs Messages) ShortcutsGlobal() string {
+	return Catalog.Format(msgs.locale, "shortcutsGlobal", nil)
+}
+
+// ShortcutsSearch says "搜索面板"
+// in the language the app shows.
+func ShortcutsSearch() string { return In(i18n.Locale()).ShortcutsSearch() }
+
+// ShortcutsSearch says "搜索面板"
+// in the language of msgs.
+func (msgs Messages) ShortcutsSearch() string {
+	return Catalog.Format(msgs.locale, "shortcutsSearch", nil)
+}
+
+// ShortcutsActions says "动作面板"
+// in the language the app shows.
+func ShortcutsActions() string { return In(i18n.Locale()).ShortcutsActions() }
+
+// ShortcutsActions says "动作面板"
+// in the language of msgs.
+func (msgs Messages) ShortcutsActions() string {
+	return Catalog.Format(msgs.locale, "shortcutsActions", nil)
+}
+
+// ShortcutsPrompt says "输入弹窗"
+// in the language the app shows.
+func ShortcutsPrompt() string { return In(i18n.Locale()).ShortcutsPrompt() }
+
+// ShortcutsPrompt says "输入弹窗"
+// in the language of msgs.
+func (msgs Messages) ShortcutsPrompt() string {
+	return Catalog.Format(msgs.locale, "shortcutsPrompt", nil)
+}
+
+// ShortcutsPreview says "布局预览"
+// in the language the app shows.
+func ShortcutsPreview() string { return In(i18n.Locale()).ShortcutsPreview() }
+
+// ShortcutsPreview says "布局预览"
+// in the language of msgs.
+func (msgs Messages) ShortcutsPreview() string {
+	return Catalog.Format(msgs.locale, "shortcutsPreview", nil)
+}
+
+// ShortcutsToggle says "显示 / 隐藏启动器"
+// in the language the app shows.
+func ShortcutsToggle() string { return In(i18n.Locale()).ShortcutsToggle() }
+
+// ShortcutsToggle says "显示 / 隐藏启动器"
+// in the language of msgs.
+func (msgs Messages) ShortcutsToggle() string {
+	return Catalog.Format(msgs.locale, "shortcutsToggle", nil)
+}
+
+// ShortcutsPrevious says "选择上一项"
+// in the language the app shows.
+func ShortcutsPrevious() string { return In(i18n.Locale()).ShortcutsPrevious() }
+
+// ShortcutsPrevious says "选择上一项"
+// in the language of msgs.
+func (msgs Messages) ShortcutsPrevious() string {
+	return Catalog.Format(msgs.locale, "shortcutsPrevious", nil)
+}
+
+// ShortcutsNext says "选择下一项"
+// in the language the app shows.
+func ShortcutsNext() string { return In(i18n.Locale()).ShortcutsNext() }
+
+// ShortcutsNext says "选择下一项"
+// in the language of msgs.
+func (msgs Messages) ShortcutsNext() string {
+	return Catalog.Format(msgs.locale, "shortcutsNext", nil)
+}
+
+// ShortcutsExecute says "执行所选项"
+// in the language the app shows.
+func ShortcutsExecute() string { return In(i18n.Locale()).ShortcutsExecute() }
+
+// ShortcutsExecute says "执行所选项"
+// in the language of msgs.
+func (msgs Messages) ShortcutsExecute() string {
+	return Catalog.Format(msgs.locale, "shortcutsExecute", nil)
+}
+
+// ShortcutsDismissSearch says "清空搜索，再按关闭"
+// in the language the app shows.
+func ShortcutsDismissSearch() string { return In(i18n.Locale()).ShortcutsDismissSearch() }
+
+// ShortcutsDismissSearch says "清空搜索，再按关闭"
+// in the language of msgs.
+func (msgs Messages) ShortcutsDismissSearch() string {
+	return Catalog.Format(msgs.locale, "shortcutsDismissSearch", nil)
+}
+
+// ShortcutsOpenActions says "打开动作面板"
+// in the language the app shows.
+func ShortcutsOpenActions() string { return In(i18n.Locale()).ShortcutsOpenActions() }
+
+// ShortcutsOpenActions says "打开动作面板"
+// in the language of msgs.
+func (msgs Messages) ShortcutsOpenActions() string {
+	return Catalog.Format(msgs.locale, "shortcutsOpenActions", nil)
+}
+
+// ShortcutsBack says "返回搜索"
+// in the language the app shows.
+func ShortcutsBack() string { return In(i18n.Locale()).ShortcutsBack() }
+
+// ShortcutsBack says "返回搜索"
+// in the language of msgs.
+func (msgs Messages) ShortcutsBack() string {
+	return Catalog.Format(msgs.locale, "shortcutsBack", nil)
+}
+
+// ShortcutsSlot says "执行第 %d 项动作"
+// in the language the app shows.
+func ShortcutsSlot() string { return In(i18n.Locale()).ShortcutsSlot() }
+
+// ShortcutsSlot says "执行第 %d 项动作"
+// in the language of msgs.
+func (msgs Messages) ShortcutsSlot() string {
+	return Catalog.Format(msgs.locale, "shortcutsSlot", nil)
+}
+
+// ShortcutsLeft says "向左移动面板"
+// in the language the app shows.
+func ShortcutsLeft() string { return In(i18n.Locale()).ShortcutsLeft() }
+
+// ShortcutsLeft says "向左移动面板"
+// in the language of msgs.
+func (msgs Messages) ShortcutsLeft() string {
+	return Catalog.Format(msgs.locale, "shortcutsLeft", nil)
+}
+
+// ShortcutsRight says "向右移动面板"
+// in the language the app shows.
+func ShortcutsRight() string { return In(i18n.Locale()).ShortcutsRight() }
+
+// ShortcutsRight says "向右移动面板"
+// in the language of msgs.
+func (msgs Messages) ShortcutsRight() string {
+	return Catalog.Format(msgs.locale, "shortcutsRight", nil)
+}
+
+// ShortcutsUp says "向上移动面板"
+// in the language the app shows.
+func ShortcutsUp() string { return In(i18n.Locale()).ShortcutsUp() }
+
+// ShortcutsUp says "向上移动面板"
+// in the language of msgs.
+func (msgs Messages) ShortcutsUp() string {
+	return Catalog.Format(msgs.locale, "shortcutsUp", nil)
+}
+
+// ShortcutsDown says "向下移动面板"
+// in the language the app shows.
+func ShortcutsDown() string { return In(i18n.Locale()).ShortcutsDown() }
+
+// ShortcutsDown says "向下移动面板"
+// in the language of msgs.
+func (msgs Messages) ShortcutsDown() string {
+	return Catalog.Format(msgs.locale, "shortcutsDown", nil)
+}
+
+// ShortcutsClear says "清除绑定"
+// in the language the app shows.
+func ShortcutsClear() string { return In(i18n.Locale()).ShortcutsClear() }
+
+// ShortcutsClear says "清除绑定"
+// in the language of msgs.
+func (msgs Messages) ShortcutsClear() string {
+	return Catalog.Format(msgs.locale, "shortcutsClear", nil)
+}
+
+// ShortcutsDefaults says "恢复默认"
+// in the language the app shows.
+func ShortcutsDefaults() string { return In(i18n.Locale()).ShortcutsDefaults() }
+
+// ShortcutsDefaults says "恢复默认"
+// in the language of msgs.
+func (msgs Messages) ShortcutsDefaults() string {
+	return Catalog.Format(msgs.locale, "shortcutsDefaults", nil)
+}
+
+// ShortcutsUnbound says "未绑定"
+// in the language the app shows.
+func ShortcutsUnbound() string { return In(i18n.Locale()).ShortcutsUnbound() }
+
+// ShortcutsUnbound says "未绑定"
+// in the language of msgs.
+func (msgs Messages) ShortcutsUnbound() string {
+	return Catalog.Format(msgs.locale, "shortcutsUnbound", nil)
+}
+
+// ShortcutsDisabled says "未启用"
+// in the language the app shows.
+func ShortcutsDisabled() string { return In(i18n.Locale()).ShortcutsDisabled() }
+
+// ShortcutsDisabled says "未启用"
+// in the language of msgs.
+func (msgs Messages) ShortcutsDisabled() string {
+	return Catalog.Format(msgs.locale, "shortcutsDisabled", nil)
+}
+
+// ShortcutsActive says "已生效"
+// in the language the app shows.
+func ShortcutsActive() string { return In(i18n.Locale()).ShortcutsActive() }
+
+// ShortcutsActive says "已生效"
+// in the language of msgs.
+func (msgs Messages) ShortcutsActive() string {
+	return Catalog.Format(msgs.locale, "shortcutsActive", nil)
+}
+
+// ShortcutsUnavailable says "插件已禁用、暂停或正在更新"
+// in the language the app shows.
+func ShortcutsUnavailable() string { return In(i18n.Locale()).ShortcutsUnavailable() }
+
+// ShortcutsUnavailable says "插件已禁用、暂停或正在更新"
+// in the language of msgs.
+func (msgs Messages) ShortcutsUnavailable() string {
+	return Catalog.Format(msgs.locale, "shortcutsUnavailable", nil)
+}
+
+// ShortcutsActual says "实际生效"
+// in the language the app shows.
+func ShortcutsActual() string { return In(i18n.Locale()).ShortcutsActual() }
+
+// ShortcutsActual says "实际生效"
+// in the language of msgs.
+func (msgs Messages) ShortcutsActual() string {
+	return Catalog.Format(msgs.locale, "shortcutsActual", nil)
+}
+
+// ShortcutsConflict says "按键冲突"
+// in the language the app shows.
+func ShortcutsConflict() string { return In(i18n.Locale()).ShortcutsConflict() }
+
+// ShortcutsConflict says "按键冲突"
+// in the language of msgs.
+func (msgs Messages) ShortcutsConflict() string {
+	return Catalog.Format(msgs.locale, "shortcutsConflict", nil)
+}
+
+// ShortcutsReplace says "替换冲突绑定"
+// in the language the app shows.
+func ShortcutsReplace() string { return In(i18n.Locale()).ShortcutsReplace() }
+
+// ShortcutsReplace says "替换冲突绑定"
+// in the language of msgs.
+func (msgs Messages) ShortcutsReplace() string {
+	return Catalog.Format(msgs.locale, "shortcutsReplace", nil)
+}
+
+// ShortcutsRecordHint says "点击录制区域后按组合键；Esc 和 Enter 也可录入。用 Tab 移动到按钮，确认后自动保存。"
+// in the language the app shows.
+func ShortcutsRecordHint() string { return In(i18n.Locale()).ShortcutsRecordHint() }
+
+// ShortcutsRecordHint says "点击录制区域后按组合键；Esc 和 Enter 也可录入。用 Tab 移动到按钮，确认后自动保存。"
+// in the language of msgs.
+func (msgs Messages) ShortcutsRecordHint() string {
+	return Catalog.Format(msgs.locale, "shortcutsRecordHint", nil)
+}
+
+// ShortcutsRecordArea says "点击这里并按下快捷键"
+// in the language the app shows.
+func ShortcutsRecordArea() string { return In(i18n.Locale()).ShortcutsRecordArea() }
+
+// ShortcutsRecordArea says "点击这里并按下快捷键"
+// in the language of msgs.
+func (msgs Messages) ShortcutsRecordArea() string {
+	return Catalog.Format(msgs.locale, "shortcutsRecordArea", nil)
+}
+
+// ShortcutsAddKey says "加入组合键"
+// in the language the app shows.
+func ShortcutsAddKey() string { return In(i18n.Locale()).ShortcutsAddKey() }
+
+// ShortcutsAddKey says "加入组合键"
+// in the language of msgs.
+func (msgs Messages) ShortcutsAddKey() string {
+	return Catalog.Format(msgs.locale, "shortcutsAddKey", nil)
+}
+
+// ShortcutsEmpty says "没有匹配的快捷键"
+// in the language the app shows.
+func ShortcutsEmpty() string { return In(i18n.Locale()).ShortcutsEmpty() }
+
+// ShortcutsEmpty says "没有匹配的快捷键"
+// in the language of msgs.
+func (msgs Messages) ShortcutsEmpty() string {
+	return Catalog.Format(msgs.locale, "shortcutsEmpty", nil)
+}
+
+// ShortcutsConfigure says "配置快捷键"
+// in the language the app shows.
+func ShortcutsConfigure() string { return In(i18n.Locale()).ShortcutsConfigure() }
+
+// ShortcutsConfigure says "配置快捷键"
+// in the language of msgs.
+func (msgs Messages) ShortcutsConfigure() string {
+	return Catalog.Format(msgs.locale, "shortcutsConfigure", nil)
+}
+
+// ShortcutsRegisterFailed says "热键注册失败，原绑定已尽力恢复"
+// in the language the app shows.
+func ShortcutsRegisterFailed() string { return In(i18n.Locale()).ShortcutsRegisterFailed() }
+
+// ShortcutsRegisterFailed says "热键注册失败，原绑定已尽力恢复"
+// in the language of msgs.
+func (msgs Messages) ShortcutsRegisterFailed() string {
+	return Catalog.Format(msgs.locale, "shortcutsRegisterFailed", nil)
+}
+
+// ShortcutsLocalHint says "标准文本编辑和 Tab 导航遵循控件行为，不参与改键。"
+// in the language the app shows.
+func ShortcutsLocalHint() string { return In(i18n.Locale()).ShortcutsLocalHint() }
+
+// ShortcutsLocalHint says "标准文本编辑和 Tab 导航遵循控件行为，不参与改键。"
+// in the language of msgs.
+func (msgs Messages) ShortcutsLocalHint() string {
+	return Catalog.Format(msgs.locale, "shortcutsLocalHint", nil)
+}
+
+// ShortcutsPluginFailed says "插件命令执行失败"
+// in the language the app shows.
+func ShortcutsPluginFailed() string { return In(i18n.Locale()).ShortcutsPluginFailed() }
+
+// ShortcutsPluginFailed says "插件命令执行失败"
+// in the language of msgs.
+func (msgs Messages) ShortcutsPluginFailed() string {
+	return Catalog.Format(msgs.locale, "shortcutsPluginFailed", nil)
+}
+
+// ShortcutsTooMany says "每个功能最多绑定 12 个组合键"
+// in the language the app shows.
+func ShortcutsTooMany() string { return In(i18n.Locale()).ShortcutsTooMany() }
+
+// ShortcutsTooMany says "每个功能最多绑定 12 个组合键"
+// in the language of msgs.
+func (msgs Messages) ShortcutsTooMany() string {
+	return Catalog.Format(msgs.locale, "shortcutsTooMany", nil)
+}

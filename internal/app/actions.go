@@ -100,7 +100,7 @@ func (a *App) runAction() {
 		})
 		a.hideActions()
 	case search.CommandRestoreHidden:
-		a.settingsPage = 7
+		a.settingsPage = pageOther
 		a.openSettings()
 		a.hideActions()
 	}

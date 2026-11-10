@@ -40,16 +40,17 @@ type Client struct {
 
 	// opMu serializes the requests of one process. Nothing that draws a frame
 	// may take it: a request can last the whole timeout.
-	opMu      sync.Mutex
-	writeMu   sync.Mutex
-	stderrMu  sync.Mutex
-	cmd       *exec.Cmd
-	stdin     io.WriteCloser
-	stdout    *bufio.Reader
-	job       *job
-	stderr    string
-	closed    bool
-	requestID int64
+	opMu         sync.Mutex
+	writeMu      sync.Mutex
+	stderrMu     sync.Mutex
+	cmd          *exec.Cmd
+	stdin        io.WriteCloser
+	stdout       *bufio.Reader
+	job          *job
+	stderr       string
+	closed       bool
+	requestID    int64
+	capabilities []string
 
 	// statsMu guards stats alone, so the settings page can read a snapshot
 	// while a query is in flight instead of waiting for it.
@@ -111,6 +112,33 @@ func (c *Client) Execute(ctx context.Context, request protocol.ExecuteRequest, t
 		return errors.New(locales.PluginExecuteStartFailed(err))
 	}
 	if _, err := c.requestLocked(ctx, "execute", reqExecute, request, timeout); err != nil {
+		c.fail(err, ctx)
+		if ctx.Err() == nil {
+			c.stopLocked()
+		}
+		return err
+	}
+	c.statsMu.Lock()
+	c.stats.LastUsed = time.Now()
+	c.stats.Error = ""
+	c.statsMu.Unlock()
+	return nil
+}
+
+func (c *Client) ExecuteCommand(ctx context.Context, commandID string, timeout time.Duration) error {
+	c.opMu.Lock()
+	defer c.opMu.Unlock()
+	if err := c.startLocked(ctx); err != nil {
+		c.fail(err, ctx)
+		return err
+	}
+	if !containsFold(c.capabilities, "executeCommand") {
+		err := fmt.Errorf("plugin %s does not support executeCommand; update the plugin", c.id)
+		c.fail(err, ctx)
+		return err
+	}
+	_, err := c.requestLocked(ctx, "executeCommand", reqExecute, protocol.ExecuteCommandRequest{CommandID: commandID}, timeout)
+	if err != nil {
 		c.fail(err, ctx)
 		if ctx.Err() == nil {
 			c.stopLocked()
@@ -203,6 +231,7 @@ func (c *Client) startLocked(ctx context.Context) error {
 		c.stopLocked()
 		return err
 	}
+	c.capabilities = append([]string(nil), initialized.Capabilities...)
 	startupMs := float64(time.Since(start).Microseconds()) / 1000
 	c.statsMu.Lock()
 	c.stats.Running = true

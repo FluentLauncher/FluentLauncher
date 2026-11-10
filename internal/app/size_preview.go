@@ -187,16 +187,16 @@ func (a *App) panelSizePreview(c *ui.Context) {
 		// The keyboard moves the panel too, once the preview has the focus.
 		step := float32(0.05)
 		switch {
-		case preview.Shortcut(0, ui.KeyLeft):
+		case a.elementShortcut(c, preview, "preview.left"):
 			a.settingsDraft.AnchorX = clampFloat01(a.settingsDraft.AnchorX - float64(step))
 			a.previewPanelSize()
-		case preview.Shortcut(0, ui.KeyRight):
+		case a.elementShortcut(c, preview, "preview.right"):
 			a.settingsDraft.AnchorX = clampFloat01(a.settingsDraft.AnchorX + float64(step))
 			a.previewPanelSize()
-		case preview.Shortcut(0, ui.KeyUp):
+		case a.elementShortcut(c, preview, "preview.up"):
 			a.settingsDraft.AnchorY = clampFloat01(a.settingsDraft.AnchorY - float64(step))
 			a.previewPanelSize()
-		case preview.Shortcut(0, ui.KeyDown):
+		case a.elementShortcut(c, preview, "preview.down"):
 			a.settingsDraft.AnchorY = clampFloat01(a.settingsDraft.AnchorY + float64(step))
 			a.previewPanelSize()
 		}

@@ -138,7 +138,7 @@ type WebSearchSite struct {
 	Enabled     bool   `json:"Enabled"`
 }
 
-var ReservedKeywords = []string{"app", "file", "web", "win"}
+var ReservedKeywords = []string{"app", "file", "web", "win", "tool"}
 
 func (w *WebSearchSite) UnmarshalJSON(data []byte) error {
 	type alias WebSearchSite

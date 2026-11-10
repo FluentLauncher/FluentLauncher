@@ -29,6 +29,7 @@ const (
 	pageSites
 	pageLaunchItems
 	pagePlugins
+	pageTools
 	pageOther
 )
 
@@ -44,6 +45,7 @@ func settingPages() []string {
 		locales.SettingsPageSites(),
 		locales.SettingsPageLaunchItems(),
 		locales.SettingsPagePlugins(),
+		locales.SettingsPageTools(),
 		locales.SettingsPageOther(),
 	}
 }
@@ -58,6 +60,7 @@ var pageIcons = []*ui.SVG{
 	ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18"/><path d="M12 3a14 14 0 0 0 0 18"/></svg>`)),
 	ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>`)),
 	ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7V3"/><path d="M15 7V3"/><path d="M18 7v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V7z"/><path d="M12 16v5"/></svg>`)),
+	ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 12h2m4 0h2M8 17h2m4 0h2"/></svg>`)),
 	ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.5h.01"/></svg>`)),
 }
 
@@ -118,6 +121,8 @@ func (a *App) settingsView(c *ui.Context) {
 							a.launchItemsPage(c)
 						case pagePlugins:
 							a.pluginsPage(c)
+						case pageTools:
+							a.toolsPage(c)
 						default:
 							a.aboutPage(c)
 						}
@@ -641,6 +646,7 @@ func (a *App) appearancePage(c *ui.Context) {
 }
 
 func (a *App) filesPage(c *ui.Context) {
+	a.everythingCard(c)
 	settingCard(c, locales.SettingsFilesIndexCard(), func(c *ui.Context) {
 		ui.Column(c).Gap(4).Children(func() {
 			ui.Text(c, locales.SettingsFilesDirectoriesHint()).FontSize(12).TextColor(c.Theme().TextMuted)
@@ -658,9 +664,8 @@ func (a *App) filesPage(c *ui.Context) {
 		})
 		a.numberRow(c, locales.SettingsFilesMaxEntries(), locales.SettingsFilesMaxEntriesHint(), &a.settingsDraft.Files.MaxEntries, 1000, 500000, 1000)
 		a.switchRow(c, locales.SettingsFilesIncludeDirectories(), locales.SettingsFilesIncludeDirectoriesHint(), &a.settingsDraft.Files.IncludeDirectories)
-		a.switchRow(c, locales.SettingsFilesEverything(), locales.SettingsFilesEverythingHint(), &a.settingsDraft.Files.EnableEverything)
 		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-			if compactButton(c, locales.SettingsFilesRebuild()).Clicked() && a.fileIndex != nil {
+			if compactButton(c, locales.SettingsFilesLocalRebuild()).Clicked() && a.fileIndex != nil {
 				go func() {
 					if err := a.fileIndex.Rebuild(context.Background()); err != nil {
 						a.settingsWin.Update(func() { a.settingsError = err.Error() })

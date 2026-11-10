@@ -26,14 +26,25 @@ type UtilityProvider struct {
 func (p UtilityProvider) ID() string { return "utilities" }
 
 func (p UtilityProvider) Supports(q Query) bool {
-	return q.Scope == ScopeAll || q.Scope == ScopeWeb
+	return q.Scope == ScopeAll || q.Scope == ScopeWeb || q.Scope == ScopeTools
 }
 
 func (p UtilityProvider) Search(ctx context.Context, q Query, limit int) ([]model.Result, error) {
-	if q.Text == "" {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	if limit <= 0 {
 		return nil, nil
 	}
 	cfg := p.Settings()
+	q = RouteTools(q, cfg)
+	if q.Scope == ScopeTools {
+		results, err := toolsSearch(q, cfg)
+		return results[:min(len(results), limit)], err
+	}
+	if q.Text == "" || ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
 	if q.Scope == ScopeWeb {
 		target := strings.ReplaceAll(cfg.WebSearchTemplate, "{query}", escapeQuery(q.Text))
 		return []model.Result{{Entry: model.Entry{
@@ -67,22 +78,7 @@ func (p UtilityProvider) Search(ctx context.Context, q Query, limit int) ([]mode
 		}, Score: 20000}}, nil
 	}
 	if q.Scope == ScopeAll {
-		if results := utilityTools(q.Text); results != nil {
-			return results, nil
-		}
-	}
-	if cfg.EnableCalculator {
-		if value, ok := Evaluate(strings.TrimSpace(strings.TrimPrefix(q.Text, "="))); ok {
-			formatted := strconv.FormatFloat(value, 'G', 15, 64)
-			return []model.Result{{Entry: model.Entry{
-				ID:       "calc:" + q.Text,
-				Title:    formatted,
-				Subtitle: locales.ResultCalcHint(q.Text),
-				Kind:     model.Calculation,
-				CopyText: formatted,
-				SourceID: "utilities",
-			}, Score: 20000}}, nil
-		}
+		return automaticTools(q.Text, cfg), nil
 	}
 	return nil, nil
 }

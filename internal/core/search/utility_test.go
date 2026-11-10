@@ -39,7 +39,7 @@ func TestEvaluate(t *testing.T) {
 func TestUtilityProvider(t *testing.T) {
 	cfg := settings.Default()
 	p := UtilityProvider{Settings: func() settings.LauncherSettings { return cfg }}
-	got, err := p.Search(context.Background(), Query{Text: "2+2", Scope: ScopeAll}, 10)
+	got, err := p.Search(context.Background(), Query{Text: "=2+2", Scope: ScopeAll}, 10)
 	if err != nil || len(got) == 0 || got[0].Entry.Kind != model.Calculation || got[0].Entry.CopyText != "4" {
 		t.Fatalf("calculator = %+v, %v", got, err)
 	}
@@ -87,6 +87,12 @@ func TestUtilityTools(t *testing.T) {
 
 func TestUtilityToolsExtended(t *testing.T) {
 	cfg := settings.Default()
+	// Automatic recognition of conversion/color is an explicit preference.
+	for i := range cfg.Tools {
+		if cfg.Tools[i].ID == "convert" || cfg.Tools[i].ID == "color" {
+			cfg.Tools[i].GlobalQuery = true
+		}
+	}
 	p := UtilityProvider{Settings: func() settings.LauncherSettings { return cfg }}
 	search := func(text string) []model.Result {
 		got, err := p.Search(context.Background(), Query{Text: text, Scope: ScopeAll}, 10)

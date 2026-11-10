@@ -1,0 +1,163 @@
+package app
+
+import (
+	"encoding/json"
+	"fmt"
+	"image/png"
+	"os"
+	"path/filepath"
+	"testing"
+	"time"
+
+	"github.com/egoist/mygo/ui"
+
+	"fluentlauncher/internal/core/search"
+	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/plugin"
+	"fluentlauncher/internal/testutil"
+	"fluentlauncher/internal/winapi/everything"
+	"fluentlauncher/locales"
+)
+
+func TestToolPluginConflictsOnlyBlockRelatedChanges(t *testing.T) {
+	a := newLocalizedApp()
+	a.pluginRepo = plugin.NewRepository(filepath.Join(t.TempDir(), "plugins"))
+	source := testutil.PluginFixture(t, "vendor.example")
+	manifest := filepath.Join(source, "plugin.json")
+	data, err := os.ReadFile(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Fixture uses echo; change it to a custom trigger shared with UUID.
+	var registration map[string]any
+	if err := json.Unmarshal(data, &registration); err != nil {
+		t.Fatal(err)
+	}
+	registration["keywords"] = []string{"uid"}
+	data, err = json.Marshal(registration)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(manifest, data, 0600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := a.pluginRepo.Install(source, false); err != nil {
+		t.Fatal(err)
+	}
+	value := cloneSettings(a.settings)
+	value.Plugins.EnabledIDs = []string{"vendor.example"}
+	for i := range value.Tools {
+		if value.Tools[i].ID == "uuid" {
+			value.Tools[i].Keywords = []string{"uid"}
+		}
+	}
+	if a.validateToolPluginConflicts(value) == nil {
+		t.Fatal("new tool/plugin overlap was accepted")
+	}
+	// A historical overlap must not prevent changing an unrelated setting.
+	a.settings = cloneSettings(value)
+	value.Width = 800
+	if err := a.validateToolPluginConflicts(value); err != nil {
+		t.Fatal(err)
+	}
+	a.settings.Plugins.EnabledIDs = nil
+	if a.validateToolPluginConflicts(value) == nil {
+		t.Fatal("enabling a conflicting plugin was accepted")
+	}
+}
+
+func TestToolsSettingsEditAndSwitchIdentity(t *testing.T) {
+	a := newLocalizedApp()
+	a.settingsPage = pageTools
+	tt := ui.NewTester(a.settingsView, 1180, 840)
+	if !tt.HasText(locales.ToolsIntro()) || !tt.HasText(locales.ToolsPrefix()) {
+		t.Fatal("tool configuration is not discoverable")
+	}
+	if err := tt.Click(locales.ToolsPrefix() + ": " + search.ToolName("calc")); err != nil {
+		t.Fatal(err)
+	}
+	tt.Key(ui.Ctrl, ui.KeyA)
+	tt.Type("@@")
+	tt.Frame()
+	if a.settingsDraft.Tool("calc").Prefix != "@@" {
+		t.Fatal("prefix edit was lost on rebuild")
+	}
+	// Switch tools while the editor's previous text field disappears.
+	a.toolSelection = "uuid"
+	tt.Frame()
+	if err := tt.Click(locales.ToolsKeywords() + ": " + search.ToolName("uuid")); err != nil {
+		t.Fatal(err)
+	}
+	tt.Key(ui.Ctrl, ui.KeyA)
+	tt.Type("uid")
+	tt.Frame()
+	if a.settingsDraft.Tool("uuid").Keywords[0] != "uid" {
+		t.Fatal("keyword edit was lost")
+	}
+	// Commas typed one event at a time must survive normalization/rebuilds.
+	tt.Type(",")
+	tt.Frame()
+	tt.Type(" unique")
+	tt.Frame()
+	if words := a.settingsDraft.Tool("uuid").Keywords; len(words) != 2 || words[1] != "unique" {
+		t.Fatalf("typing an alias separator lost input: %v", words)
+	}
+	if err := tt.Click(locales.ToolsGlobal() + ": " + search.ToolName("uuid")); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if a.settingsDraft.Tool("uuid").GlobalQuery {
+		t.Fatal("normal-search switch did not disable tool routing")
+	}
+	a.toolSelection = "calc"
+	tt.Frame()
+	if a.settingsDraft.Tool("calc").Prefix != "@@" {
+		t.Fatal("changing tools lost the calculator prefix")
+	}
+}
+
+func TestSearchSettingsLayouts(t *testing.T) {
+	for _, lang := range []string{"zh-Hans", "zh-Hant", "en"} {
+		setCatalogLocale(t, lang)
+		for _, dark := range []bool{false, true} {
+			for _, size := range [][2]int{{900, 660}, {1180, 840}} {
+				for _, page := range []int{pageTools, pageFiles} {
+					a := newLocalizedApp()
+					a.settingsPage = page
+					a.settings.Theme.Background = settings.BackgroundSolid
+					a.settings.Theme.Opacity = 1
+					a.settingsDraft = cloneSettings(a.settings)
+					a.everything = everything.NewProvider(func() settings.FileIndexOptions { return a.settings.Files }, nil)
+					tt := ui.NewTester(a.settingsView, size[0], size[1])
+					tt.SetDark(dark)
+					tt.Advance(300 * time.Millisecond)
+					if page == pageTools {
+						for _, label := range []string{locales.ToolsPrefix(), locales.ToolsKeywords(), locales.ToolsGlobal()} {
+							bounds, ok := tt.Find(label)
+							if !ok || bounds.W <= 0 || bounds.X < 0 || bounds.X+bounds.W > float32(size[0]) {
+								t.Fatalf("%s %v: clipped %s %+v", lang, size, label, bounds)
+							}
+						}
+					} else if !tt.HasText(locales.EverythingCard()) || !tt.HasText(locales.SettingsFilesLocalRebuild()) {
+						t.Fatal("Everything and local indexing were not separated")
+					}
+					if dir := os.Getenv("FL_SEARCH_ARTIFACT_DIR"); dir != "" && size[0] == 1180 {
+						if err := os.MkdirAll(dir, 0755); err != nil {
+							t.Fatal(err)
+						}
+						path := filepath.Join(dir, fmt.Sprintf("search-settings-%s-%d-dark-%t.png", lang, page, dark))
+						file, err := os.Create(path)
+						if err != nil {
+							t.Fatal(err)
+						}
+						err = png.Encode(file, tt.Image())
+						file.Close()
+						if err != nil {
+							t.Fatal(err)
+						}
+					}
+				}
+			}
+		}
+	}
+}

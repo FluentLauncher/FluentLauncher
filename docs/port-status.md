@@ -21,7 +21,7 @@
 | ThemePackage | internal/store/theme.go | zip 导入导出、路径/大小限制 |
 | StartMenuCatalog | internal/winapi/apps | Shell 应用列表、便携目录、PATH、监听 |
 | WindowsApplicationLauncher | internal/winapi/apps/launch.go | ShellExecuteEx、runas、UAC 取消、打开位置 |
-| EverythingProvider | internal/winapi/everything | WM_COPYDATA Unicode 查询 |
+| EverythingProvider | internal/winapi/everything | WM_COPYDATA Unicode 查询、按需后台启动、程序检测/手动选择、合并启动与退避、连接诊断；真实启动行为见本轮验证说明 |
 | WindowCatalog | internal/winapi/windowlist | EnumWindows、cloaked/tool 过滤、还原置前 |
 | ShortcutResolver | internal/winapi/shortcut | WScript.Shell 读取 .lnk 目标/参数/工作目录，用于去重 |
 | Plugin Host/Manager | internal/plugin | 帧协议、进程、Job Object、超时/取消/回收/暂停、按需下载安装与独立升级 |
@@ -39,12 +39,12 @@
 | 设置窗口 | internal/app/app.go | 默认 1180×840（更宽更矮），StateKey 换新以丢弃旧的过高窗口尺寸 |
 | 弹出位置与尺寸 | internal/app/size_preview.go + internal/core/layout | 拖动缩略图或面板手柄设置尺寸与相对位置（AnchorX/AnchorY），按屏幕比例记忆；搜索框高度、结果行高度可调 |
 | 界面国际化 | locales/（mygo ARB catalog）+ settings.Language | 简体中文（source）、繁体中文、英文；默认跟随系统语言，设置页可切换、立即生效；窗口标题/托盘菜单经 OnLocaleChanged 重建；系统功能目录三语显示，匹配关键词保持多语言 |
-| 即时工具与内置图标 | internal/core/search/utility.go + internal/app/builtin_icons.go | date（含日期算术，月移钳到月末）/time/timestamp/uuid/days/week/rand/pass/单位换算（中英单位、温度特例）/b64 与 URL 编解码/颜色（HEX⇄RGB⇄HSL）关键词出结果、回车复制；计算器/网址/设置/工作区/插件等无文件图标的条目改绘内置线性图标 |
+| 即时工具与内置图标 | internal/core/search/utility.go + tools.go + internal/app/tools_view.go | 逐项启停、固定前缀、自定义触发词、普通搜索参与；计算器默认仅 `=` 前缀，`tool` 为显式入口；工具命令独占路由，保留复制与变体动作；详见 search-tools.md |
 | 官方插件清单 | internal/plugin/catalog.go | 在线签名三语目录、缓存、固定版本 ZIP 与哈希校验；内置名称仅作无下载能力的回退 |
 
 ## 仍需补齐
 
-- Everything 协议已实现并在本机真实客户端联调（修复过查询串 NUL 导致的 StringToUTF16 panic）；客户端未运行时给出提示而非崩溃。
+- Everything 协议此前已在本机真实客户端联调；本轮增加自动启动与连接诊断，真实客户端探测未找到程序，冷启动验收仍待完成；模拟并发启动、退避与取消测试已通过。默认实例之外的命名实例尚不支持。
 - 插件为新的可执行模型；旧 C# 插件不会运行（仓库会跳过 `entryAssembly` 包）。
 - 云母使用 Windows 原生 Mica，不提供背景色、透明度或强度控件；系统材质不可用时回退为主题不透明底色。无窗口渲染仅能验证应用绘制与回退，真实 Mica 合成由 Windows 管理。
 - 设置页的启动项/站点/工作区是基础编辑，缺少 C# 的完整校验提示与图标选择。

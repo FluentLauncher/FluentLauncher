@@ -99,9 +99,11 @@ type App struct {
 	mem         string
 	background  *ui.Bitmap
 
-	settingsPage  int
-	settingsDraft settings.LauncherSettings
-	appliedTheme  settings.ThemeSettings
+	settingsPage   int
+	settingsDraft  settings.LauncherSettings
+	toolSelection  string
+	everythingBusy bool
+	appliedTheme   settings.ThemeSettings
 
 	globalShortcuts   shortcuts.Registry
 	shortcutEdit      shortcutEditor
@@ -239,7 +241,9 @@ func (a *App) ready() {
 			a.panel.Update(func() { a.updateResults() })
 		}
 	})
-	a.everything = &everything.Provider{Enabled: func() bool { return a.currentSettings().Files.EnableEverything }}
+	a.everything = everything.NewProvider(func() settings.FileIndexOptions { return a.currentSettings().Files }, func() {
+		a.publishUpdate(func() {})
+	})
 	a.pluginRepo = plugin.NewRepository(filepath.Join(a.dataDir, "plugins"))
 	a.plugins = plugin.NewManager()
 	a.official.client = plugin.NewCatalogClient(filepath.Join(a.dataDir, "cache", "official-catalog.json"))
@@ -494,6 +498,7 @@ func (a *App) refreshApps() {
 		ms := time.Since(start).Milliseconds()
 		if err == nil {
 			a.appEngine.ReplaceEntries(entries, a.profileMap())
+			a.rememberEverything(entries)
 		}
 		if a.panel == nil {
 			return
@@ -750,6 +755,9 @@ func (a *App) applyLanguage() {
 // applySettings persists and applies the whole configuration.
 func (a *App) applySettings(value settings.LauncherSettings) error {
 	if err := value.Validate(); err != nil {
+		return err
+	}
+	if err := a.validateToolPluginConflicts(value); err != nil {
 		return err
 	}
 	commands := a.shortcutCommands(value)
@@ -1017,7 +1025,7 @@ func (a *App) updateResults() {
 		a.panel.Update(func() {})
 		return
 	}
-	q := search.ParseQuery(a.query)
+	q := search.RouteTools(search.ParseQuery(a.query), snap)
 	log.Printf("query %q scope=%d", q.Text, q.Scope)
 	go func() {
 		batches := make([]search.Batch, 0, len(providers))
@@ -1030,17 +1038,21 @@ func (a *App) updateResults() {
 			if len(matches) == 0 {
 				continue
 			}
+			currentBatches := append([]search.Batch(nil), batches...)
 			a.panel.Update(func() {
+				if generation != a.queryGeneration.Load() {
+					return
+				}
 				a.setResults(matches, preferred)
 				a.resultsReady = true
-				a.lastBatches = batches
+				a.lastBatches = currentBatches
 			})
 		}
 		a.panel.Update(func() {
 			if generation != a.queryGeneration.Load() {
 				return
 			}
-			if len(batches) == 0 {
+			if len(search.Merge(batches, snap.MaxResults)) == 0 {
 				a.setResults(nil, preferred)
 			}
 			a.resultsReady = true
@@ -1114,6 +1126,12 @@ func (a *App) executeSelected(action model.EntryAction) {
 	}
 	entry, ok := a.selected()
 	if !ok {
+		return
+	}
+	if action == model.Open && strings.HasPrefix(entry.ID, "tool-query:") {
+		a.query = entry.LaunchTarget
+		a.updateResults()
+		a.input.Focus()
 		return
 	}
 	if action == model.Open && entry.ID == search.SettingsID {

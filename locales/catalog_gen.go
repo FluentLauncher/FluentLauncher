@@ -9095,3 +9095,453 @@ func ShortcutsNotRegistered() string { return In(i18n.Locale()).ShortcutsNotRegi
 func (msgs Messages) ShortcutsNotRegistered() string {
 	return Catalog.Format(msgs.locale, "shortcutsNotRegistered", nil)
 }
+
+// SettingsPageTools says "搜索与工具"
+// in the language the app shows.
+func SettingsPageTools() string { return In(i18n.Locale()).SettingsPageTools() }
+
+// SettingsPageTools says "搜索与工具"
+// in the language of msgs.
+func (msgs Messages) SettingsPageTools() string {
+	return Catalog.Format(msgs.locale, "settingsPageTools", nil)
+}
+
+// ToolsIntro says "固定前缀优先：配置 = 后，只有 = 开头才计算。关闭普通搜索参与后，仍可通过 tool …"
+// in the language the app shows.
+func ToolsIntro() string { return In(i18n.Locale()).ToolsIntro() }
+
+// ToolsIntro says "固定前缀优先：配置 = 后，只有 = 开头才计算。关闭普通搜索参与后，仍可通过 tool …"
+// in the language of msgs.
+func (msgs Messages) ToolsIntro() string {
+	return Catalog.Format(msgs.locale, "toolsIntro", nil)
+}
+
+// ToolsPrefix says "固定触发前缀"
+// in the language the app shows.
+func ToolsPrefix() string { return In(i18n.Locale()).ToolsPrefix() }
+
+// ToolsPrefix says "固定触发前缀"
+// in the language of msgs.
+func (msgs Messages) ToolsPrefix() string {
+	return Catalog.Format(msgs.locale, "toolsPrefix", nil)
+}
+
+// ToolsPrefixHint says "原样匹配开头，例如 = 或 @；留空后使用触发词或自动识别。"
+// in the language the app shows.
+func ToolsPrefixHint() string { return In(i18n.Locale()).ToolsPrefixHint() }
+
+// ToolsPrefixHint says "原样匹配开头，例如 = 或 @；留空后使用触发词或自动识别。"
+// in the language of msgs.
+func (msgs Messages) ToolsPrefixHint() string {
+	return Catalog.Format(msgs.locale, "toolsPrefixHint", nil)
+}
+
+// ToolsKeywords says "触发词"
+// in the language the app shows.
+func ToolsKeywords() string { return In(i18n.Locale()).ToolsKeywords() }
+
+// ToolsKeywords says "触发词"
+// in the language of msgs.
+func (msgs Messages) ToolsKeywords() string {
+	return Catalog.Format(msgs.locale, "toolsKeywords", nil)
+}
+
+// ToolsKeywordsHint says "逗号分隔；也用于 tool 命令，例如 tool uid。"
+// in the language the app shows.
+func ToolsKeywordsHint() string { return In(i18n.Locale()).ToolsKeywordsHint() }
+
+// ToolsKeywordsHint says "逗号分隔；也用于 tool 命令，例如 tool uid。"
+// in the language of msgs.
+func (msgs Messages) ToolsKeywordsHint() string {
+	return Catalog.Format(msgs.locale, "toolsKeywordsHint", nil)
+}
+
+// ToolsGlobal says "参与普通搜索"
+// in the language the app shows.
+func ToolsGlobal() string { return In(i18n.Locale()).ToolsGlobal() }
+
+// ToolsGlobal says "参与普通搜索"
+// in the language of msgs.
+func (msgs Messages) ToolsGlobal() string {
+	return Catalog.Format(msgs.locale, "toolsGlobal", nil)
+}
+
+// ToolsGlobalHint says "无固定前缀时生效。命中触发词只查询该工具；计算器、换算与颜色还支持自动识别。"
+// in the language the app shows.
+func ToolsGlobalHint() string { return In(i18n.Locale()).ToolsGlobalHint() }
+
+// ToolsGlobalHint says "无固定前缀时生效。命中触发词只查询该工具；计算器、换算与颜色还支持自动识别。"
+// in the language of msgs.
+func (msgs Messages) ToolsGlobalHint() string {
+	return Catalog.Format(msgs.locale, "toolsGlobalHint", nil)
+}
+
+// ToolsInvalid says "工具触发词无效或重复"
+// in the language the app shows.
+func ToolsInvalid() string { return In(i18n.Locale()).ToolsInvalid() }
+
+// ToolsInvalid says "工具触发词无效或重复"
+// in the language of msgs.
+func (msgs Messages) ToolsInvalid() string {
+	return Catalog.Format(msgs.locale, "toolsInvalid", nil)
+}
+
+// ToolsInvalidPrefix says "固定前缀不能包含空白，且最多 32 字节"
+// in the language the app shows.
+func ToolsInvalidPrefix() string { return In(i18n.Locale()).ToolsInvalidPrefix() }
+
+// ToolsInvalidPrefix says "固定前缀不能包含空白，且最多 32 字节"
+// in the language of msgs.
+func (msgs Messages) ToolsInvalidPrefix() string {
+	return Catalog.Format(msgs.locale, "toolsInvalidPrefix", nil)
+}
+
+// ToolsConflict says "触发词或前缀冲突，请修改"
+// in the language the app shows.
+func ToolsConflict() string { return In(i18n.Locale()).ToolsConflict() }
+
+// ToolsConflict says "触发词或前缀冲突，请修改"
+// in the language of msgs.
+func (msgs Messages) ToolsConflict() string {
+	return Catalog.Format(msgs.locale, "toolsConflict", nil)
+}
+
+// ToolsUnknown says "未知工具，请输入 tool 查看可用工具"
+// in the language the app shows.
+func ToolsUnknown() string { return In(i18n.Locale()).ToolsUnknown() }
+
+// ToolsUnknown says "未知工具，请输入 tool 查看可用工具"
+// in the language of msgs.
+func (msgs Messages) ToolsUnknown() string {
+	return Catalog.Format(msgs.locale, "toolsUnknown", nil)
+}
+
+// ToolsDisabled says "此工具已关闭，可在搜索与工具中启用"
+// in the language the app shows.
+func ToolsDisabled() string { return In(i18n.Locale()).ToolsDisabled() }
+
+// ToolsDisabled says "此工具已关闭，可在搜索与工具中启用"
+// in the language of msgs.
+func (msgs Messages) ToolsDisabled() string {
+	return Catalog.Format(msgs.locale, "toolsDisabled", nil)
+}
+
+// ToolCalc says "计算器"
+// in the language the app shows.
+func ToolCalc() string { return In(i18n.Locale()).ToolCalc() }
+
+// ToolCalc says "计算器"
+// in the language of msgs.
+func (msgs Messages) ToolCalc() string {
+	return Catalog.Format(msgs.locale, "toolCalc", nil)
+}
+
+// ToolUUID says "UUID 生成"
+// in the language the app shows.
+func ToolUUID() string { return In(i18n.Locale()).ToolUUID() }
+
+// ToolUUID says "UUID 生成"
+// in the language of msgs.
+func (msgs Messages) ToolUUID() string {
+	return Catalog.Format(msgs.locale, "toolUUID", nil)
+}
+
+// ToolDate says "日期与日期计算"
+// in the language the app shows.
+func ToolDate() string { return In(i18n.Locale()).ToolDate() }
+
+// ToolDate says "日期与日期计算"
+// in the language of msgs.
+func (msgs Messages) ToolDate() string {
+	return Catalog.Format(msgs.locale, "toolDate", nil)
+}
+
+// ToolTime says "当前时间"
+// in the language the app shows.
+func ToolTime() string { return In(i18n.Locale()).ToolTime() }
+
+// ToolTime says "当前时间"
+// in the language of msgs.
+func (msgs Messages) ToolTime() string {
+	return Catalog.Format(msgs.locale, "toolTime", nil)
+}
+
+// ToolTimestamp says "时间戳"
+// in the language the app shows.
+func ToolTimestamp() string { return In(i18n.Locale()).ToolTimestamp() }
+
+// ToolTimestamp says "时间戳"
+// in the language of msgs.
+func (msgs Messages) ToolTimestamp() string {
+	return Catalog.Format(msgs.locale, "toolTimestamp", nil)
+}
+
+// ToolWeek says "ISO 周数"
+// in the language the app shows.
+func ToolWeek() string { return In(i18n.Locale()).ToolWeek() }
+
+// ToolWeek says "ISO 周数"
+// in the language of msgs.
+func (msgs Messages) ToolWeek() string {
+	return Catalog.Format(msgs.locale, "toolWeek", nil)
+}
+
+// ToolDays says "日期间隔"
+// in the language the app shows.
+func ToolDays() string { return In(i18n.Locale()).ToolDays() }
+
+// ToolDays says "日期间隔"
+// in the language of msgs.
+func (msgs Messages) ToolDays() string {
+	return Catalog.Format(msgs.locale, "toolDays", nil)
+}
+
+// ToolRand says "随机数"
+// in the language the app shows.
+func ToolRand() string { return In(i18n.Locale()).ToolRand() }
+
+// ToolRand says "随机数"
+// in the language of msgs.
+func (msgs Messages) ToolRand() string {
+	return Catalog.Format(msgs.locale, "toolRand", nil)
+}
+
+// ToolPass says "密码生成"
+// in the language the app shows.
+func ToolPass() string { return In(i18n.Locale()).ToolPass() }
+
+// ToolPass says "密码生成"
+// in the language of msgs.
+func (msgs Messages) ToolPass() string {
+	return Catalog.Format(msgs.locale, "toolPass", nil)
+}
+
+// ToolConvert says "单位换算"
+// in the language the app shows.
+func ToolConvert() string { return In(i18n.Locale()).ToolConvert() }
+
+// ToolConvert says "单位换算"
+// in the language of msgs.
+func (msgs Messages) ToolConvert() string {
+	return Catalog.Format(msgs.locale, "toolConvert", nil)
+}
+
+// ToolB64 says "Base64 编码"
+// in the language the app shows.
+func ToolB64() string { return In(i18n.Locale()).ToolB64() }
+
+// ToolB64 says "Base64 编码"
+// in the language of msgs.
+func (msgs Messages) ToolB64() string {
+	return Catalog.Format(msgs.locale, "toolB64", nil)
+}
+
+// ToolUnb64 says "Base64 解码"
+// in the language the app shows.
+func ToolUnb64() string { return In(i18n.Locale()).ToolUnb64() }
+
+// ToolUnb64 says "Base64 解码"
+// in the language of msgs.
+func (msgs Messages) ToolUnb64() string {
+	return Catalog.Format(msgs.locale, "toolUnb64", nil)
+}
+
+// ToolURLEncode says "URL 编码"
+// in the language the app shows.
+func ToolURLEncode() string { return In(i18n.Locale()).ToolURLEncode() }
+
+// ToolURLEncode says "URL 编码"
+// in the language of msgs.
+func (msgs Messages) ToolURLEncode() string {
+	return Catalog.Format(msgs.locale, "toolURLEncode", nil)
+}
+
+// ToolURLDecode says "URL 解码"
+// in the language the app shows.
+func ToolURLDecode() string { return In(i18n.Locale()).ToolURLDecode() }
+
+// ToolURLDecode says "URL 解码"
+// in the language of msgs.
+func (msgs Messages) ToolURLDecode() string {
+	return Catalog.Format(msgs.locale, "toolURLDecode", nil)
+}
+
+// ToolColor says "颜色转换"
+// in the language the app shows.
+func ToolColor() string { return In(i18n.Locale()).ToolColor() }
+
+// ToolColor says "颜色转换"
+// in the language of msgs.
+func (msgs Messages) ToolColor() string {
+	return Catalog.Format(msgs.locale, "toolColor", nil)
+}
+
+// EverythingCard says "Everything 连接器"
+// in the language the app shows.
+func EverythingCard() string { return In(i18n.Locale()).EverythingCard() }
+
+// EverythingCard says "Everything 连接器"
+// in the language of msgs.
+func (msgs Messages) EverythingCard() string {
+	return Catalog.Format(msgs.locale, "everythingCard", nil)
+}
+
+// EverythingAutoStart says "未运行时自动后台启动"
+// in the language the app shows.
+func EverythingAutoStart() string { return In(i18n.Locale()).EverythingAutoStart() }
+
+// EverythingAutoStart says "未运行时自动后台启动"
+// in the language of msgs.
+func (msgs Messages) EverythingAutoStart() string {
+	return Catalog.Format(msgs.locale, "everythingAutoStart", nil)
+}
+
+// EverythingAutoStartHint says "文件搜索需要时启动，不弹出 Everything 窗口。"
+// in the language the app shows.
+func EverythingAutoStartHint() string { return In(i18n.Locale()).EverythingAutoStartHint() }
+
+// EverythingAutoStartHint says "文件搜索需要时启动，不弹出 Everything 窗口。"
+// in the language of msgs.
+func (msgs Messages) EverythingAutoStartHint() string {
+	return Catalog.Format(msgs.locale, "everythingAutoStartHint", nil)
+}
+
+// EverythingPath says "程序位置"
+// in the language the app shows.
+func EverythingPath() string { return In(i18n.Locale()).EverythingPath() }
+
+// EverythingPath says "程序位置"
+// in the language of msgs.
+func (msgs Messages) EverythingPath() string {
+	return Catalog.Format(msgs.locale, "everythingPath", nil)
+}
+
+// EverythingPathHint says "留空自动检测；便携版可选择 Everything.exe。"
+// in the language the app shows.
+func EverythingPathHint() string { return In(i18n.Locale()).EverythingPathHint() }
+
+// EverythingPathHint says "留空自动检测；便携版可选择 Everything.exe。"
+// in the language of msgs.
+func (msgs Messages) EverythingPathHint() string {
+	return Catalog.Format(msgs.locale, "everythingPathHint", nil)
+}
+
+// EverythingChoose says "选择程序"
+// in the language the app shows.
+func EverythingChoose() string { return In(i18n.Locale()).EverythingChoose() }
+
+// EverythingChoose says "选择程序"
+// in the language of msgs.
+func (msgs Messages) EverythingChoose() string {
+	return Catalog.Format(msgs.locale, "everythingChoose", nil)
+}
+
+// EverythingConnect says "后台启动并连接"
+// in the language the app shows.
+func EverythingConnect() string { return In(i18n.Locale()).EverythingConnect() }
+
+// EverythingConnect says "后台启动并连接"
+// in the language of msgs.
+func (msgs Messages) EverythingConnect() string {
+	return Catalog.Format(msgs.locale, "everythingConnect", nil)
+}
+
+// EverythingOpen says "打开 Everything"
+// in the language the app shows.
+func EverythingOpen() string { return In(i18n.Locale()).EverythingOpen() }
+
+// EverythingOpen says "打开 Everything"
+// in the language of msgs.
+func (msgs Messages) EverythingOpen() string {
+	return Catalog.Format(msgs.locale, "everythingOpen", nil)
+}
+
+// EverythingDisconnected says "未连接，首次文件搜索时检查"
+// in the language the app shows.
+func EverythingDisconnected() string { return In(i18n.Locale()).EverythingDisconnected() }
+
+// EverythingDisconnected says "未连接，首次文件搜索时检查"
+// in the language of msgs.
+func (msgs Messages) EverythingDisconnected() string {
+	return Catalog.Format(msgs.locale, "everythingDisconnected", nil)
+}
+
+// EverythingStarting says "正在启动并等待连接…"
+// in the language the app shows.
+func EverythingStarting() string { return In(i18n.Locale()).EverythingStarting() }
+
+// EverythingStarting says "正在启动并等待连接…"
+// in the language of msgs.
+func (msgs Messages) EverythingStarting() string {
+	return Catalog.Format(msgs.locale, "everythingStarting", nil)
+}
+
+// EverythingConnected says "已连接"
+// in the language the app shows.
+func EverythingConnected() string { return In(i18n.Locale()).EverythingConnected() }
+
+// EverythingConnected says "已连接"
+// in the language of msgs.
+func (msgs Messages) EverythingConnected() string {
+	return Catalog.Format(msgs.locale, "everythingConnected", nil)
+}
+
+// EverythingFailed says "连接失败"
+// in the language the app shows.
+func EverythingFailed() string { return In(i18n.Locale()).EverythingFailed() }
+
+// EverythingFailed says "连接失败"
+// in the language of msgs.
+func (msgs Messages) EverythingFailed() string {
+	return Catalog.Format(msgs.locale, "everythingFailed", nil)
+}
+
+// EverythingNotFound says "未找到 Everything，请在文件设置中选择程序位置"
+// in the language the app shows.
+func EverythingNotFound() string { return In(i18n.Locale()).EverythingNotFound() }
+
+// EverythingNotFound says "未找到 Everything，请在文件设置中选择程序位置"
+// in the language of msgs.
+func (msgs Messages) EverythingNotFound() string {
+	return Catalog.Format(msgs.locale, "everythingNotFound", nil)
+}
+
+// EverythingInvalidPath says "Everything 程序路径无效，请重新选择 EXE"
+// in the language the app shows.
+func EverythingInvalidPath() string { return In(i18n.Locale()).EverythingInvalidPath() }
+
+// EverythingInvalidPath says "Everything 程序路径无效，请重新选择 EXE"
+// in the language of msgs.
+func (msgs Messages) EverythingInvalidPath() string {
+	return Catalog.Format(msgs.locale, "everythingInvalidPath", nil)
+}
+
+// EverythingStartFailed says "无法启动 Everything"
+// in the language the app shows.
+func EverythingStartFailed() string { return In(i18n.Locale()).EverythingStartFailed() }
+
+// EverythingStartFailed says "无法启动 Everything"
+// in the language of msgs.
+func (msgs Messages) EverythingStartFailed() string {
+	return Catalog.Format(msgs.locale, "everythingStartFailed", nil)
+}
+
+// EverythingStartTimeout says "Everything 已启动但未能连接；请检查客户端、索引状态及是否使用命名实例，然后重试"
+// in the language the app shows.
+func EverythingStartTimeout() string { return In(i18n.Locale()).EverythingStartTimeout() }
+
+// EverythingStartTimeout says "Everything 已启动但未能连接；请检查客户端、索引状态及是否使用命名实例，然后重试"
+// in the language of msgs.
+func (msgs Messages) EverythingStartTimeout() string {
+	return Catalog.Format(msgs.locale, "everythingStartTimeout", nil)
+}
+
+// SettingsFilesLocalRebuild says "重建本地目录索引"
+// in the language the app shows.
+func SettingsFilesLocalRebuild() string { return In(i18n.Locale()).SettingsFilesLocalRebuild() }
+
+// SettingsFilesLocalRebuild says "重建本地目录索引"
+// in the language of msgs.
+func (msgs Messages) SettingsFilesLocalRebuild() string {
+	return Catalog.Format(msgs.locale, "settingsFilesLocalRebuild", nil)
+}

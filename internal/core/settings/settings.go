@@ -198,10 +198,12 @@ type FileIndexOptions struct {
 	MaxEntries          int      `json:"MaxEntries"`
 	IncludeDirectories  bool     `json:"IncludeDirectories"`
 	EnableEverything    bool     `json:"EnableEverything"`
+	EverythingAutoStart bool     `json:"EverythingAutoStart"`
+	EverythingPath      string   `json:"EverythingPath"`
 }
 
 func DefaultFileIndexOptions() FileIndexOptions {
-	return FileIndexOptions{MaxEntries: 100000, IncludeDirectories: true}
+	return FileIndexOptions{MaxEntries: 100000, IncludeDirectories: true, EverythingAutoStart: true}
 }
 
 func (f *FileIndexOptions) UnmarshalJSON(data []byte) error {
@@ -307,6 +309,7 @@ type LauncherSettings struct {
 	Workspaces        []Workspace        `json:"Workspaces"`
 	WebSearchTemplate string             `json:"WebSearchTemplate"`
 	EnableCalculator  bool               `json:"EnableCalculator"`
+	Tools             []ToolOptions      `json:"Tools"`
 }
 
 func Default() LauncherSettings {
@@ -330,6 +333,7 @@ func Default() LauncherSettings {
 		Workspaces:        []Workspace{},
 		WebSearchTemplate: "https://www.bing.com/search?q={query}",
 		EnableCalculator:  true,
+		Tools:             DefaultTools(),
 	}
 }
 
@@ -354,6 +358,7 @@ func (s *LauncherSettings) UnmarshalJSON(data []byte) error {
 // Normalize fills groups and slices that older files lack, and migrates the
 // removed ShowRecentSearches field.
 func (s *LauncherSettings) Normalize() {
+	s.normalizeTools()
 	if s.Shortcuts == nil {
 		s.Shortcuts = map[string]shortcuts.Binding{}
 	}
@@ -394,6 +399,9 @@ func (s *LauncherSettings) Normalize() {
 }
 
 func (s LauncherSettings) Validate() error {
+	if err := s.validateTools(); err != nil {
+		return err
+	}
 	if s.Version != 1 {
 		return errors.New(locales.ValidateVersion())
 	}

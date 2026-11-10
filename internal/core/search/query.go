@@ -19,11 +19,13 @@ const (
 	ScopeWeb
 	ScopePlugins
 	ScopeWindows
+	ScopeTools
 )
 
 type Query struct {
-	Text  string
-	Scope Scope
+	Text   string
+	Scope  Scope
+	ToolID string
 }
 
 // ParseQuery recognizes the scope prefixes. "win" alone lists windows;
@@ -33,6 +35,9 @@ func ParseQuery(text string) Query {
 	if strings.EqualFold(trimmed, "win") {
 		return Query{Scope: ScopeWindows}
 	}
+	if strings.EqualFold(trimmed, "tool") {
+		return Query{Scope: ScopeTools}
+	}
 	for _, prefix := range []struct {
 		text  string
 		scope Scope
@@ -41,6 +46,7 @@ func ParseQuery(text string) Query {
 		{"file ", ScopeFiles},
 		{"web ", ScopeWeb},
 		{"win ", ScopeWindows},
+		{"tool ", ScopeTools},
 		{">", ScopePlugins},
 	} {
 		if len(text) >= len(prefix.text) && strings.EqualFold(text[:len(prefix.text)], prefix.text) {

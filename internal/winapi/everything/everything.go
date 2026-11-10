@@ -21,6 +21,7 @@ import (
 
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/search"
+	"fluentlauncher/internal/core/settings"
 	"fluentlauncher/locales"
 )
 
@@ -52,22 +53,80 @@ var (
 
 // Provider is the optional Everything file-name source.
 type Provider struct {
-	Enabled func() bool
-	mu      sync.Mutex
+	Options    func() settings.FileIndexOptions
+	connection *connection
+	mu         sync.Mutex
+}
+
+func NewProvider(options func() settings.FileIndexOptions, changed func()) *Provider {
+	return &Provider{Options: options, connection: newConnection(changed)}
+}
+
+func (p *Provider) Status() ConnectionStatus { return p.connection.snapshot() }
+
+// RememberExecutable receives the existing app discovery's resolved candidate.
+func (p *Provider) RememberExecutable(path string) {
+	p.connection.mu.Lock()
+	if p.connection.discovered != path {
+		p.connection.discovered = path
+		p.connection.retryAt = time.Time{}
+	}
+	p.connection.mu.Unlock()
+}
+
+func (p *Provider) Connect(ctx context.Context) error {
+	return p.ConnectWithOptions(ctx, p.Options())
+}
+
+func (p *Provider) ConnectWithOptions(ctx context.Context, options settings.FileIndexOptions) error {
+	return p.connection.ensure(ctx, options, true)
+}
+
+func (p *Provider) Open() error {
+	return p.OpenWithOptions(p.Options())
+}
+
+func (p *Provider) OpenWithOptions(options settings.FileIndexOptions) error {
+	path, err := p.connection.resolve(options.EverythingPath)
+	if err != nil {
+		return err
+	}
+	return p.connection.launch(path, true)
 }
 
 func (p *Provider) ID() string { return "everything" }
 
 func (p *Provider) Supports(q search.Query) bool {
-	return p.Enabled != nil && p.Enabled() && (q.Scope == search.ScopeAll || q.Scope == search.ScopeFiles) && q.Text != ""
+	return p.Options != nil && p.Options().EnableEverything && (q.Scope == search.ScopeAll || q.Scope == search.ScopeFiles) && q.Text != ""
 }
 
 func (p *Provider) Search(ctx context.Context, q search.Query, limit int) ([]model.Result, error) {
+	// Debounce only external I/O, leaving in-memory providers immediate.
+	timer := time.NewTimer(100 * time.Millisecond)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case <-timer.C:
+	}
+	if err := p.connection.ensure(ctx, p.Options(), false); err != nil {
+		return nil, err
+	}
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	ctx, cancel := context.WithTimeout(ctx, queryTimeout)
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
-	return query(ctx, q.Text, limit)
+	results, err := query(queryCtx, q.Text, limit)
+	if err != nil && ctx.Err() == nil {
+		p.connection.mu.Lock()
+		p.connection.status.State, p.connection.status.Error = ConnectionFailed, err.Error()
+		p.connection.mu.Unlock()
+		p.connection.notify()
+	}
+	return results, err
 }
 
 type wndClass struct {
@@ -139,6 +198,9 @@ var queryCallback = syscall.NewCallback(func(hwnd uintptr, message uint32, wPara
 })
 
 func query(ctx context.Context, text string, limit int) ([]model.Result, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
 

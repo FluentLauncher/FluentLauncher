@@ -32,7 +32,6 @@ import (
 	"fluentlauncher/internal/winapi/everything"
 	"fluentlauncher/internal/winapi/glass"
 	"fluentlauncher/internal/winapi/volume"
-	"fluentlauncher/internal/winapi/wallpaper"
 	"fluentlauncher/internal/winapi/windowlist"
 	"fluentlauncher/locales"
 )
@@ -99,9 +98,6 @@ type App struct {
 	scaleFactor float64
 	mem         string
 	background  *ui.Bitmap
-	// wallpaperTint is the average color of the desktop wallpaper, which
-	// tints the mica material; zero until it has been read.
-	wallpaperTint ui.Color
 
 	settingsPage  int
 	settingsDraft settings.LauncherSettings
@@ -293,10 +289,13 @@ func (a *App) ready() {
 	}
 
 	a.panel = mygo.NewWindow(mygo.WindowOptions{
-		Panel:         true,
-		Hidden:        true,
-		Frameless:     true,
-		Transparent:   true,
+		Panel:       true,
+		Hidden:      true,
+		Frameless:   true,
+		Transparent: true,
+		// Initialize material-capable composition before selecting the
+		// current backdrop; Windows cannot add it to an opaque surface later.
+		Vibrancy:      mygo.VibrancyMica,
 		CornerRadius:  16,
 		Width:         a.settings.Width,
 		Height:        a.settings.Height,
@@ -313,18 +312,6 @@ func (a *App) ready() {
 	a.panel.OnBlur(a.hidePanel)
 	a.panel.OnShow(func() { log.Printf("panel shown") })
 	a.panel.OnMove(a.scheduleAnchorCapture)
-	// The mica material tints the window with the wallpaper, as Windows'
-	// own mica does; read its average color while the app starts.
-	go func() {
-		red, green, blue, ok := wallpaper.Average()
-		if !ok {
-			return
-		}
-		log.Printf("wallpaper tint #%02X%02X%02X", red, green, blue)
-		tint := ui.RGB(red, green, blue)
-		a.panel.Update(func() { a.wallpaperTint = tint })
-	}()
-
 	a.createVolumeOverlay()
 	a.setUpTray()
 	a.plugins.OnCommandsChanged(func() { a.publishUpdate(func() { a.registerHotkey() }) })
@@ -923,25 +910,38 @@ func (a *App) applyThemeFrom(value settings.ThemeSettings) {
 	a.appliedTheme = value
 }
 
-// applyBackdrop keeps the blur behind every window in step with the theme:
-// acrylic and mica blur what is behind the window, and the other backgrounds
-// paint over it, so the blur goes away.
+// applyBackdrop gives mica its native wallpaper-based material. Only acrylic
+// blurs the live windows below; always clear that blur when changing materials.
 func (a *App) applyBackdrop(value settings.ThemeSettings) {
 	blur := blursBehind(value)
 	for _, win := range []*mygo.Window{a.panel, a.settingsWin, a.workspaceWin} {
 		if win == nil {
 			continue
 		}
+		// Remove the system material before enabling legacy blur; remove
+		// legacy blur before enabling a system material in the other direction.
+		if blur {
+			win.SetVibrancy(mygo.VibrancyNone)
+		}
 		if err := glass.SetBlur(win.NativeHandle(), blur); err != nil {
 			log.Printf("theme: %v", err)
+		}
+		if !blur {
+			win.SetVibrancy(backdropMaterial(value))
 		}
 	}
 }
 
-// blursBehind reports whether the background material is one of the
-// see-through ones.
+func backdropMaterial(value settings.ThemeSettings) mygo.Vibrancy {
+	if value.Background == settings.BackgroundMica {
+		return mygo.VibrancyMica
+	}
+	return mygo.VibrancyNone
+}
+
+// blursBehind selects live desktop blur, independently of native mica.
 func blursBehind(value settings.ThemeSettings) bool {
-	return value.Background == settings.BackgroundAcrylic || value.Background == settings.BackgroundMica
+	return value.Background == settings.BackgroundAcrylic
 }
 
 // recordUse updates the personal profile and the search snapshots.
@@ -1220,12 +1220,14 @@ func (a *App) openSettings() {
 	// wider than tall: the pages read as a column of cards, and a window the
 	// height of the whole screen wasted the width.
 	a.settingsWin = mygo.NewWindow(mygo.WindowOptions{
+		Hidden:            true,
 		Title:             locales.SettingsWindowTitle(),
 		Width:             1180,
 		Height:            840,
 		MinWidth:          820,
 		MinHeight:         560,
 		Transparent:       true,
+		Vibrancy:          mygo.VibrancyMica,
 		TitleBarStyle:     mygo.TitleBarHidden,
 		HideWindowButtons: true,
 		DisableMaximize:   true,

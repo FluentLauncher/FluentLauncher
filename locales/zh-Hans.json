@@ -2295,7 +2295,7 @@
   "@settingsThemeBackground": {
     "description": "Appearance page: the background material dropdown label."
   },
-  "settingsThemeBackgroundHint": "亚克力与云母模糊透出下层窗口",
+  "settingsThemeBackgroundHint": "亚克力模糊透出下层窗口；云母使用随主题与壁纸变化的系统底色",
   "@settingsThemeBackgroundHint": {
     "description": "Appearance page: hint of the background material dropdown."
   },
@@ -2329,7 +2329,11 @@
   },
   "settingsBackgroundColorBlurHint": "模糊背景上的着色，留空跟随系统",
   "@settingsBackgroundColorBlurHint": {
-    "description": "Appearance page: hint of the background color well for acrylic and mica backgrounds."
+    "description": "Appearance page: hint of the background color well for acrylic backgrounds."
+  },
+  "settingsBackgroundColorMicaHint": "系统云母底色上的着色，留空跟随主题",
+  "@settingsBackgroundColorMicaHint": {
+    "description": "Appearance page: tint applied above the native Mica material."
   },
   "settingsGradientEnd": "渐变终点",
   "@settingsGradientEnd": {
@@ -2349,7 +2353,11 @@
   },
   "settingsOpacityBlurHint": "模糊材质的着色强度：0% 只保留模糊后景，100% 完全不透明",
   "@settingsOpacityBlurHint": {
-    "description": "Appearance page: hint of the opacity slider for acrylic and mica backgrounds."
+    "description": "Appearance page: hint of the opacity slider for acrylic backgrounds."
+  },
+  "settingsOpacityMicaHint": "云母上的着色强度：0% 保留系统云母，100% 使用不透明背景色；云母不透出下层窗口",
+  "@settingsOpacityMicaHint": {
+    "description": "Appearance page: Mica remains opaque while the slider controls the app tint."
   },
   "settingsOpacityImageHint": "图片整体的不透明度，蒙版另算",
   "@settingsOpacityImageHint": {

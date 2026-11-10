@@ -2,11 +2,9 @@
 // launcher's acrylic does: the window keeps its pixels transparent and
 // Windows blurs what is behind them.
 //
-// The Windows 11 system backdrops (DwmSetWindowAttribute's Mica and Acrylic)
-// are opaque: they tint the window with the wallpaper instead of showing the
-// windows below it. ACCENT_ENABLE_BLURBEHIND is the composition attribute
-// that blurs the real background behind a transparent window, which lets the
-// app tint it itself and stay see-through.
+// Native Mica is a separate wallpaper-based, opaque system backdrop, selected
+// through MyGo's SetVibrancy. ACCENT_ENABLE_BLURBEHIND blurs the real windows
+// behind a transparent surface, which the app uses for acrylic only.
 package glass
 
 import (

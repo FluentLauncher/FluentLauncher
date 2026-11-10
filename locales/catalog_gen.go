@@ -6288,13 +6288,13 @@ func (msgs Messages) SettingsThemeBackground() string {
 	return Catalog.Format(msgs.locale, "settingsThemeBackground", nil)
 }
 
-// SettingsThemeBackgroundHint says "亚克力与云母模糊透出下层窗口"
+// SettingsThemeBackgroundHint says "亚克力模糊透出下层窗口；云母使用随主题与壁纸变化的系统底色"
 // in the language the app shows.
 //
 // Appearance page: hint of the background material dropdown.
 func SettingsThemeBackgroundHint() string { return In(i18n.Locale()).SettingsThemeBackgroundHint() }
 
-// SettingsThemeBackgroundHint says "亚克力与云母模糊透出下层窗口"
+// SettingsThemeBackgroundHint says "亚克力模糊透出下层窗口；云母使用随主题与壁纸变化的系统底色"
 // in the language of msgs.
 //
 // Appearance page: hint of the background material dropdown.
@@ -6407,7 +6407,7 @@ func (msgs Messages) SettingsBackgroundColorSolidHint() string {
 // SettingsBackgroundColorBlurHint says "模糊背景上的着色，留空跟随系统"
 // in the language the app shows.
 //
-// Appearance page: hint of the background color well for acrylic and mica
+// Appearance page: hint of the background color well for acrylic
 // backgrounds.
 func SettingsBackgroundColorBlurHint() string {
 	return In(i18n.Locale()).SettingsBackgroundColorBlurHint()
@@ -6416,10 +6416,26 @@ func SettingsBackgroundColorBlurHint() string {
 // SettingsBackgroundColorBlurHint says "模糊背景上的着色，留空跟随系统"
 // in the language of msgs.
 //
-// Appearance page: hint of the background color well for acrylic and mica
+// Appearance page: hint of the background color well for acrylic
 // backgrounds.
 func (msgs Messages) SettingsBackgroundColorBlurHint() string {
 	return Catalog.Format(msgs.locale, "settingsBackgroundColorBlurHint", nil)
+}
+
+// SettingsBackgroundColorMicaHint says "系统云母底色上的着色，留空跟随主题"
+// in the language the app shows.
+//
+// Appearance page: tint applied above the native Mica material.
+func SettingsBackgroundColorMicaHint() string {
+	return In(i18n.Locale()).SettingsBackgroundColorMicaHint()
+}
+
+// SettingsBackgroundColorMicaHint says "系统云母底色上的着色，留空跟随主题"
+// in the language of msgs.
+//
+// Appearance page: tint applied above the native Mica material.
+func (msgs Messages) SettingsBackgroundColorMicaHint() string {
+	return Catalog.Format(msgs.locale, "settingsBackgroundColorMicaHint", nil)
 }
 
 // SettingsGradientEnd says "渐变终点"
@@ -6481,17 +6497,31 @@ func (msgs Messages) SettingsOpacityHint() string {
 // SettingsOpacityBlurHint says "模糊材质的着色强度：0% 只保留模糊后景，100% 完全不透明"
 // in the language the app shows.
 //
-// Appearance page: hint of the opacity slider for acrylic and mica
-// backgrounds.
+// Appearance page: hint of the opacity slider for acrylic backgrounds.
 func SettingsOpacityBlurHint() string { return In(i18n.Locale()).SettingsOpacityBlurHint() }
 
 // SettingsOpacityBlurHint says "模糊材质的着色强度：0% 只保留模糊后景，100% 完全不透明"
 // in the language of msgs.
 //
-// Appearance page: hint of the opacity slider for acrylic and mica
-// backgrounds.
+// Appearance page: hint of the opacity slider for acrylic backgrounds.
 func (msgs Messages) SettingsOpacityBlurHint() string {
 	return Catalog.Format(msgs.locale, "settingsOpacityBlurHint", nil)
+}
+
+// SettingsOpacityMicaHint says "云母上的着色强度：0% 保留系统云母，100% 使用不透明背景色；云母不透出下层窗口"
+// in the language the app shows.
+//
+// Appearance page: Mica remains opaque while the slider controls the app
+// tint.
+func SettingsOpacityMicaHint() string { return In(i18n.Locale()).SettingsOpacityMicaHint() }
+
+// SettingsOpacityMicaHint says "云母上的着色强度：0% 保留系统云母，100% 使用不透明背景色；云母不透出下层窗口"
+// in the language of msgs.
+//
+// Appearance page: Mica remains opaque while the slider controls the app
+// tint.
+func (msgs Messages) SettingsOpacityMicaHint() string {
+	return Catalog.Format(msgs.locale, "settingsOpacityMicaHint", nil)
 }
 
 // SettingsOpacityImageHint says "图片整体的不透明度，蒙版另算"

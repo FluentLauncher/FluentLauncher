@@ -558,8 +558,10 @@ func (a *App) appearancePage(c *ui.Context) {
 		switch background {
 		case settings.BackgroundSolid, settings.BackgroundGradient:
 			a.colorRow(c, locales.SettingsBackgroundColor(), locales.SettingsBackgroundColorSolidHint(), &draft.BackgroundColor, theme.Background, true)
-		case settings.BackgroundAcrylic, settings.BackgroundMica:
+		case settings.BackgroundAcrylic:
 			a.colorRow(c, locales.SettingsBackgroundColor(), locales.SettingsBackgroundColorBlurHint(), &draft.BackgroundColor, theme.Background, true)
+		case settings.BackgroundMica:
+			a.colorRow(c, locales.SettingsBackgroundColor(), locales.SettingsBackgroundColorMicaHint(), &draft.BackgroundColor, theme.Background, true)
 		}
 		if background == settings.BackgroundGradient {
 			a.colorRow(c, locales.SettingsGradientEnd(), locales.SettingsGradientEndHint(), &draft.GradientColor, theme.Surface, true)
@@ -568,8 +570,10 @@ func (a *App) appearancePage(c *ui.Context) {
 	settingCard(c, locales.SettingsOpacity(), func(c *ui.Context) {
 		hint := locales.SettingsOpacityHint()
 		switch background {
-		case settings.BackgroundAcrylic, settings.BackgroundMica:
+		case settings.BackgroundAcrylic:
 			hint = locales.SettingsOpacityBlurHint()
+		case settings.BackgroundMica:
+			hint = locales.SettingsOpacityMicaHint()
 		case settings.BackgroundImage:
 			hint = locales.SettingsOpacityImageHint()
 		}

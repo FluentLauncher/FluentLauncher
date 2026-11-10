@@ -304,13 +304,13 @@ func TestSettingsSizePreview(t *testing.T) {
 }
 
 func TestBlursBehind(t *testing.T) {
-	for _, name := range []settings.BackgroundMode{settings.BackgroundAcrylic, settings.BackgroundMica} {
+	for _, name := range []settings.BackgroundMode{settings.BackgroundAcrylic} {
 		if !blursBehind(settings.ThemeSettings{Background: name}) {
 			t.Fatalf("%s does not blur what is behind the window", name)
 		}
 	}
 	for _, name := range []settings.BackgroundMode{
-		settings.BackgroundSolid, settings.BackgroundGradient, settings.BackgroundImage,
+		settings.BackgroundMica, settings.BackgroundSolid, settings.BackgroundGradient, settings.BackgroundImage,
 	} {
 		if blursBehind(settings.ThemeSettings{Background: name}) {
 			t.Fatalf("%s blurs what is behind the window", name)

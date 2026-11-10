@@ -225,11 +225,13 @@ func (a *App) showWorkspaceResult(name string, steps []settings.WorkspaceStep) {
 	a.workspaceSteps = steps
 	old := a.workspaceWin
 	a.workspaceWin = mygo.NewWindow(mygo.WindowOptions{
+		Hidden:            true,
 		Title:             locales.WorkspaceResultTitle(),
 		Width:             520,
 		Height:            420,
 		MinWidth:          420,
 		Transparent:       true,
+		Vibrancy:          mygo.VibrancyMica,
 		TitleBarStyle:     mygo.TitleBarHidden,
 		HideWindowButtons: true,
 		DisableMaximize:   true,

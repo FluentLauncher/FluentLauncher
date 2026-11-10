@@ -79,7 +79,14 @@ func (a *App) panelSizePreview(c *ui.Context) {
 			p.Stroke(desk, theme.Border, 6, 1)
 			panel := ui.Rect{X: r.X + panelX, Y: r.Y + panelY, W: panelWidth, H: panelHeight}
 			p.Clip(panel, 4, func() {
-				p.Fill(panel, theme.Accent.Alpha(0.14), 4)
+				// The miniature cannot ask DWM for a second material inside
+				// this window. Mica uses the same opaque theme fallback as
+				// the real view when native materials are unavailable.
+				if a.settingsDraft.Theme.Background == settings.BackgroundMica || a.settingsDraft.Theme.Background == settings.BackgroundAcrylic {
+					drawBackgroundPlate(p, panel, theme, a.settingsDraft.Theme, false)
+				} else {
+					p.Fill(panel, theme.Accent.Alpha(0.14), 4)
+				}
 				// The miniature keeps the panel's real proportions: the
 				// search field's height, the result rows' height, and as
 				// many rows as the window height leaves room for, so that

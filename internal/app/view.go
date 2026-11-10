@@ -387,14 +387,9 @@ func (a *App) drawBackground(c *ui.Context, theme *ui.Theme) {
 	value := a.displayTheme()
 	opacity := float32(clampFloat(value.Opacity, 0, 1))
 	// The window has per-pixel alpha: whatever the view leaves unpainted
-	// shows what is behind the window (the desktop, blurred for acrylic and
-	// mica), which is what makes the translucency real instead of a wash
-	// towards a background color.
+	// shows the live desktop for acrylic, or the native system backdrop for
+	// mica. Keep the content surface transparent so DWM can draw the material.
 	c.Root().Background(ui.Transparent)
-	tint := theme.Background
-	if parsed, ok := parseOpaqueColor(value.BackgroundColor); ok {
-		tint = parsed
-	}
 	image := value.Background == settings.BackgroundImage
 	layer := func() ui.Element {
 		return ui.Box(c).ColumnStart(1).RowStart(1).Fill().IgnoreInput(true)
@@ -429,39 +424,37 @@ func (a *App) drawBackground(c *ui.Context, theme *ui.Theme) {
 	// the background of every mode; a color's own alpha is ignored, so it
 	// cannot make the window translucent twice.
 	plate := layer()
+	nativeMica := c.Vibrancy()
 	plate.Draw(func(p *ui.Painter, r ui.Rect) {
-		switch value.Background {
-		case settings.BackgroundImage:
-		case settings.BackgroundGradient:
-			to := theme.Surface
-			if parsed, ok := parseOpaqueColor(value.GradientColor); ok {
-				to = parsed
-			}
-			p.FillGradient(r, ui.LinearGradient{From: withAlpha(tint, opacity), To: withAlpha(to, opacity), Angle: 180}, 0)
-		case settings.BackgroundSolid:
-			p.Fill(r, withAlpha(tint, opacity), 0)
-		default:
-			// Acrylic and mica blur what is behind the window, which the
-			// glass package turns on; the plate tints it. Mica takes the
-			// wallpaper's color, as Windows' mica does; acrylic stays with
-			// the theme's own background.
-			plateTint := tint
-			if value.Background == settings.BackgroundMica {
-				plateTint = a.micaTint(theme)
-			}
-			p.Fill(r, withAlpha(plateTint, opacity), 0)
-		}
+		drawBackgroundPlate(p, r, theme, value, nativeMica)
 	})
 }
 
-// micaTint is the plate color over a blurred background in the mica
-// material: the wallpaper's average color, toned towards the theme's own
-// background so that text keeps its contrast.
-func (a *App) micaTint(theme *ui.Theme) ui.Color {
-	if a.wallpaperTint != (ui.Color{}) {
-		return a.wallpaperTint.Mix(theme.Background, 0.25)
+// drawBackgroundPlate is shared with the miniature. Native mica owns its
+// opaque base; without a system backdrop (including headless previews), use
+// the theme's opaque fallback instead of accidentally showing sharp windows.
+func drawBackgroundPlate(p *ui.Painter, r ui.Rect, theme *ui.Theme, value settings.ThemeSettings, nativeMica bool) {
+	opacity := float32(clampFloat(value.Opacity, 0, 1))
+	tint := theme.Background
+	if parsed, ok := parseOpaqueColor(value.BackgroundColor); ok {
+		tint = parsed
 	}
-	return theme.Background.Mix(theme.Accent, 0.12)
+	switch value.Background {
+	case settings.BackgroundImage:
+	case settings.BackgroundGradient:
+		to := theme.Surface
+		if parsed, ok := parseOpaqueColor(value.GradientColor); ok {
+			to = parsed
+		}
+		p.FillGradient(r, ui.LinearGradient{From: withAlpha(tint, opacity), To: withAlpha(to, opacity), Angle: 180}, 0)
+	case settings.BackgroundMica:
+		if !nativeMica {
+			p.Fill(r, theme.Background.Alpha(1), 0)
+		}
+		p.Fill(r, withAlpha(tint, opacity), 0)
+	default:
+		p.Fill(r, withAlpha(tint, opacity), 0)
+	}
 }
 
 // withAlpha scales a color's alpha by factor, for the theme's opacity.

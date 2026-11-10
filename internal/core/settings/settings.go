@@ -123,7 +123,6 @@ type ThemeSettings struct {
 	ImageBlur        int            `json:"ImageBlur"`
 	ImageMaskOpacity float64        `json:"ImageMaskOpacity"`
 	Opacity          float64        `json:"Opacity"`
-	MicaStrength     float64        `json:"MicaStrength"`
 	FontFamily       string         `json:"FontFamily"`
 	FontSize         float64        `json:"FontSize"`
 	// SearchHeight is the height of the search field, in DIPs.
@@ -140,7 +139,6 @@ func DefaultTheme() ThemeSettings {
 		ImageCover:       true,
 		ImageMaskOpacity: 0.3,
 		Opacity:          0.55,
-		MicaStrength:     0.35,
 		FontFamily:       "Segoe UI Variable",
 		FontSize:         17,
 		SearchHeight:     64,
@@ -508,7 +506,6 @@ func ValidateTheme(t ThemeSettings) error {
 		!finite(t.SearchHeight) || t.SearchHeight < 36 || t.SearchHeight > 120 ||
 		!finite(t.RowPadding) || t.RowPadding < 2 || t.RowPadding > 24 ||
 		!finite(t.Opacity) || t.Opacity < 0 || t.Opacity > 1 ||
-		!finite(t.MicaStrength) || t.MicaStrength < 0 || t.MicaStrength > 1 ||
 		!finite(t.ImageMaskOpacity) || t.ImageMaskOpacity < 0 || t.ImageMaskOpacity > 0.9 ||
 		!finite(t.CornerRadius) || t.CornerRadius < 0 || t.CornerRadius > 32 ||
 		t.ImageBlur < 0 || t.ImageBlur > 24 {

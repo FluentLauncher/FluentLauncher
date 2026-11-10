@@ -354,14 +354,21 @@ func (a *App) applyUITheme(t *ui.Theme) {
 	if colorValue, ok := parseColor(value.ForegroundColor); ok {
 		t.Text = colorValue
 	}
-	if colorValue, ok := parseOpaqueColor(value.BackgroundColor); ok {
-		t.Background = colorValue
+	if value.Background != settings.BackgroundMica {
+		if colorValue, ok := parseOpaqueColor(value.BackgroundColor); ok {
+			t.Background = colorValue
+		}
 	}
 	// The fields, buttons and cards take a translucent plate of their own, so
 	// that they read as part of the glass instead of opaque holes cut in it.
 	// The plate stays visible at any window opacity, and follows the slider:
-	// the more see-through the window, the lighter the plate.
-	plate := 0.35 + 0.45*float32(clampFloat(value.Opacity, 0, 1))
+	// the more see-through the window, the lighter the plate. Native mica
+	// uses a fixed plate because its appearance has no opacity control.
+	opacity := float32(clampFloat(value.Opacity, 0, 1))
+	if value.Background == settings.BackgroundMica {
+		opacity = 1
+	}
+	plate := 0.35 + 0.45*opacity
 	t.Surface = t.Surface.Alpha(plate)
 	t.SurfaceHover = t.SurfaceHover.Alpha(min(plate+0.08, 1))
 	t.SurfacePressed = t.SurfacePressed.Alpha(min(plate+0.16, 1))
@@ -387,8 +394,8 @@ func (a *App) drawBackground(c *ui.Context, theme *ui.Theme) {
 	value := a.displayTheme()
 	opacity := float32(clampFloat(value.Opacity, 0, 1))
 	// The window has per-pixel alpha: whatever the view leaves unpainted
-	// shows the live desktop (blurred for acrylic). Only the background
-	// receives opacity, so the controls and text remain sharp and readable.
+	// exposes the native mica material, or the desktop for other modes
+	// (blurred for acrylic). Controls and text keep their own opacity.
 	c.Root().Background(ui.Transparent)
 	image := value.Background == settings.BackgroundImage
 	layer := func() ui.Element {
@@ -420,20 +427,19 @@ func (a *App) drawBackground(c *ui.Context, theme *ui.Theme) {
 	}
 
 	// 3. The plate of color: the solid, the gradient, or the tint of a
-	// material over the blur the window turns on. One opacity slider fades
-	// the background of every mode; a color's own alpha is ignored, so it
-	// cannot make the window translucent twice.
+	// material over the blur the window turns on. Mica leaves the system
+	// material unpainted; other modes use the opacity slider and ignore a
+	// color's own alpha so it cannot make the window translucent twice.
 	plate := layer()
-	mica := a.micaSurface(theme, value)
+	nativeMica := c.Vibrancy()
 	plate.Draw(func(p *ui.Painter, r ui.Rect) {
-		a.drawBackgroundPlate(p, r, theme, value, mica)
+		a.drawBackgroundPlate(p, r, theme, value, nativeMica)
 	})
 }
 
-// drawBackgroundPlate is shared with the miniature. Each material uses the
-// same background alpha; neither a native opaque base nor stacked translucent
-// layers can bypass the opacity slider.
-func (a *App) drawBackgroundPlate(p *ui.Painter, r ui.Rect, theme *ui.Theme, value settings.ThemeSettings, mica *ui.Bitmap) {
+// Native mica paints nothing over DWM's material. The theme's opaque base is
+// used only when the system material is unavailable, including the miniature.
+func (a *App) drawBackgroundPlate(p *ui.Painter, r ui.Rect, theme *ui.Theme, value settings.ThemeSettings, nativeMica bool) {
 	opacity := float32(clampFloat(value.Opacity, 0, 1))
 	tint := theme.Background
 	if parsed, ok := parseOpaqueColor(value.BackgroundColor); ok {
@@ -448,10 +454,8 @@ func (a *App) drawBackgroundPlate(p *ui.Painter, r ui.Rect, theme *ui.Theme, val
 		}
 		p.FillGradient(r, ui.LinearGradient{From: withAlpha(tint, opacity), To: withAlpha(to, opacity), Angle: 180}, 0)
 	case settings.BackgroundMica:
-		if mica != nil {
-			p.ImageRegion(mica, ui.Rect{}, r, ui.ImageOptions{Tint: ui.RGBA(255, 255, 255, opacity)})
-		} else {
-			p.Fill(r, withAlpha(tint, opacity), 0)
+		if !nativeMica {
+			p.Fill(r, theme.Background.Alpha(1), 0)
 		}
 	default:
 		p.Fill(r, withAlpha(tint, opacity), 0)

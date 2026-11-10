@@ -2295,7 +2295,7 @@
   "@settingsThemeBackground": {
     "description": "Appearance page: the background material dropdown label."
   },
-  "settingsThemeBackgroundHint": "亚克力模糊下层窗口；云母呈现柔化的壁纸光影，两者均可调背景透明度",
+  "settingsThemeBackgroundHint": "亚克力模糊下层窗口；云母使用 Windows 原生材质，随系统壁纸和主题变化",
   "@settingsThemeBackgroundHint": {
     "description": "Appearance page: hint of the background material dropdown."
   },
@@ -2331,10 +2331,6 @@
   "@settingsBackgroundColorBlurHint": {
     "description": "Appearance page: hint of the background color well for acrylic backgrounds."
   },
-  "settingsBackgroundColorMicaHint": "云母的基础色调，留空跟随主题；壁纸提供柔和光影",
-  "@settingsBackgroundColorMicaHint": {
-    "description": "Appearance page: base tint of the adjustable wallpaper-derived mica material."
-  },
   "settingsGradientEnd": "渐变终点",
   "@settingsGradientEnd": {
     "description": "Appearance page: the gradient end color well label."
@@ -2355,25 +2351,9 @@
   "@settingsOpacityBlurHint": {
     "description": "Appearance page: hint of the opacity slider for acrylic backgrounds."
   },
-  "settingsOpacityMicaHint": "云母背景的不透明度：0% 完全透明，100% 完全不透明；文字与控件保持清晰",
-  "@settingsOpacityMicaHint": {
-    "description": "Appearance page: mica opacity affects only the rendered background, not text or controls."
-  },
-  "settingsBackgroundOpacity": "背景不透明度",
-  "@settingsBackgroundOpacity": {
-    "description": "Appearance page: background opacity slider label, separate from material strength."
-  },
-  "settingsMicaMaterialCard": "云母与透明度",
-  "@settingsMicaMaterialCard": {
-    "description": "Appearance page: card containing independent mica strength and opacity sliders."
-  },
-  "settingsMicaStrength": "云母强度",
-  "@settingsMicaStrength": {
-    "description": "Appearance page: wallpaper-derived mica strength slider label."
-  },
-  "settingsMicaStrengthHint": "0% 只用背景色，100% 壁纸光影与柔和色彩最明显；不改变背景不透明度",
-  "@settingsMicaStrengthHint": {
-    "description": "Appearance page: mica color strength is independent of the background alpha."
+  "settingsMicaNativeHint": "使用 Windows 原生云母，跟随系统壁纸和深浅主题，不提供透明度或强度调节。",
+  "@settingsMicaNativeHint": {
+    "description": "Appearance page: native Mica has no app tint, opacity or strength controls."
   },
   "settingsOpacityImageHint": "图片整体的不透明度，蒙版另算",
   "@settingsOpacityImageHint": {

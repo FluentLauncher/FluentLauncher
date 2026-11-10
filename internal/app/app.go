@@ -98,7 +98,6 @@ type App struct {
 	scaleFactor float64
 	mem         string
 	background  *ui.Bitmap
-	mica        micaState
 
 	settingsPage  int
 	settingsDraft settings.LauncherSettings
@@ -294,6 +293,7 @@ func (a *App) ready() {
 		Hidden:        true,
 		Frameless:     true,
 		Transparent:   true,
+		Vibrancy:      mygo.VibrancyMica,
 		CornerRadius:  16,
 		Width:         a.settings.Width,
 		Height:        a.settings.Height,
@@ -532,9 +532,6 @@ func (a *App) refreshIfStale() {
 }
 
 func (a *App) show() {
-	if a.displayTheme().Background == settings.BackgroundMica {
-		a.refreshMicaWallpaper()
-	}
 	a.positionPanel()
 	a.query = ""
 	a.notice = ""
@@ -893,9 +890,6 @@ func (a *App) applyThemeFrom(value settings.ThemeSettings) {
 		mygo.Theme.SetSource(mygo.ThemeSystem)
 	}
 	a.applyBackdrop(value)
-	if value.Background == settings.BackgroundMica {
-		a.refreshMicaWallpaper()
-	}
 	if value.Background == settings.BackgroundImage && value.ImagePath != "" {
 		if data, err := os.ReadFile(value.ImagePath); err == nil {
 			if bitmap, err := ui.DecodeBitmap(data); err == nil {
@@ -914,23 +908,34 @@ func (a *App) applyThemeFrom(value settings.ThemeSettings) {
 	a.appliedTheme = value
 }
 
-// Only acrylic blurs the live desktop. Mica is rendered from wallpaper colors
-// by the view so its background can fade without fading text and controls.
+// Mica uses the unmodified system backdrop. Clear live desktop blur before
+// enabling it, and clear the system backdrop before enabling acrylic blur.
 func (a *App) applyBackdrop(value settings.ThemeSettings) {
 	blur := blursBehind(value)
 	for _, win := range []*mygo.Window{a.panel, a.settingsWin, a.workspaceWin} {
 		if win == nil {
 			continue
 		}
-		// An opaque native Mica backdrop would defeat the background slider.
-		win.SetVibrancy(mygo.VibrancyNone)
+		if blur {
+			win.SetVibrancy(mygo.VibrancyNone)
+		}
 		if err := glass.SetBlur(win.NativeHandle(), blur); err != nil {
 			log.Printf("theme: %v", err)
+		}
+		if !blur {
+			win.SetVibrancy(backdropMaterial(value))
 		}
 	}
 }
 
-// blursBehind selects live desktop blur, independently of wallpaper-based mica.
+func backdropMaterial(value settings.ThemeSettings) mygo.Vibrancy {
+	if value.Background == settings.BackgroundMica {
+		return mygo.VibrancyMica
+	}
+	return mygo.VibrancyNone
+}
+
+// blursBehind selects live desktop blur, independently of native mica.
 func blursBehind(value settings.ThemeSettings) bool {
 	return value.Background == settings.BackgroundAcrylic
 }
@@ -1218,6 +1223,7 @@ func (a *App) openSettings() {
 		MinWidth:          820,
 		MinHeight:         560,
 		Transparent:       true,
+		Vibrancy:          mygo.VibrancyMica,
 		TitleBarStyle:     mygo.TitleBarHidden,
 		HideWindowButtons: true,
 		DisableMaximize:   true,

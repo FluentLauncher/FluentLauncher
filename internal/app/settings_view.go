@@ -560,38 +560,29 @@ func (a *App) appearancePage(c *ui.Context) {
 			a.colorRow(c, locales.SettingsBackgroundColor(), locales.SettingsBackgroundColorSolidHint(), &draft.BackgroundColor, theme.Background, true)
 		case settings.BackgroundAcrylic:
 			a.colorRow(c, locales.SettingsBackgroundColor(), locales.SettingsBackgroundColorBlurHint(), &draft.BackgroundColor, theme.Background, true)
-		case settings.BackgroundMica:
-			a.colorRow(c, locales.SettingsBackgroundColor(), locales.SettingsBackgroundColorMicaHint(), &draft.BackgroundColor, theme.Background, true)
 		}
 		if background == settings.BackgroundGradient {
 			a.colorRow(c, locales.SettingsGradientEnd(), locales.SettingsGradientEndHint(), &draft.GradientColor, theme.Surface, true)
 		}
 	})
-	materialCard := locales.SettingsOpacity()
 	if background == settings.BackgroundMica {
-		materialCard = locales.SettingsMicaMaterialCard()
-	}
-	settingCard(c, materialCard, func(c *ui.Context) {
-		hint := locales.SettingsOpacityHint()
-		opacityLabel := locales.SettingsOpacity()
-		switch background {
-		case settings.BackgroundAcrylic:
-			hint = locales.SettingsOpacityBlurHint()
-		case settings.BackgroundMica:
-			hint = locales.SettingsOpacityMicaHint()
-			opacityLabel = locales.SettingsBackgroundOpacity()
-		case settings.BackgroundImage:
-			hint = locales.SettingsOpacityImageHint()
-		}
-		a.sliderRow(c, opacityLabel, hint, &draft.Opacity, 0, 1, func(v float64) string {
-			return fmt.Sprintf("%.0f%%", v*100)
+		settingCard(c, locales.SettingsBackgroundMica(), func(c *ui.Context) {
+			ui.Text(c, locales.SettingsMicaNativeHint()).TextColor(c.Theme().TextMuted)
 		})
-		if background == settings.BackgroundMica {
-			a.sliderRow(c, locales.SettingsMicaStrength(), locales.SettingsMicaStrengthHint(), &draft.MicaStrength, 0, 1, func(v float64) string {
+	} else {
+		settingCard(c, locales.SettingsOpacity(), func(c *ui.Context) {
+			hint := locales.SettingsOpacityHint()
+			switch background {
+			case settings.BackgroundAcrylic:
+				hint = locales.SettingsOpacityBlurHint()
+			case settings.BackgroundImage:
+				hint = locales.SettingsOpacityImageHint()
+			}
+			a.sliderRow(c, locales.SettingsOpacity(), hint, &draft.Opacity, 0, 1, func(v float64) string {
 				return fmt.Sprintf("%.0f%%", v*100)
 			})
-		}
-	})
+		})
+	}
 	if background == settings.BackgroundImage {
 		settingCard(c, locales.SettingsImageCard(), func(c *ui.Context) {
 			settingRow(c, locales.SettingsImagePath(), locales.SettingsImagePathHint(), func(c *ui.Context) {

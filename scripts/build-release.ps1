@@ -9,6 +9,7 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $projectRoot
 $configPath = Join-Path $projectRoot 'mygo.json'
 $originalConfig = [IO.File]::ReadAllText($configPath)
+$originalLinkFlags = $env:MYGO_LDFLAGS
 $utf8 = [Text.UTF8Encoding]::new($false)
 try {
     $config = $originalConfig | ConvertFrom-Json
@@ -25,11 +26,23 @@ try {
         if (-not $env:MYGO_UPDATER_PUBLIC_KEY -or -not $env:MYGO_UPDATER_PRIVATE_KEY) {
             throw 'Signed releases require MYGO_UPDATER_PUBLIC_KEY and MYGO_UPDATER_PRIVATE_KEY'
         }
+        if (-not $env:FLUENTLAUNCHER_PLUGIN_PUBLIC_KEY) {
+            throw 'Signed releases require FLUENTLAUNCHER_PLUGIN_PUBLIC_KEY for the independent official plugin catalogue'
+        }
         $config | Add-Member -NotePropertyName updates -NotePropertyValue @{
             publicKey = $env:MYGO_UPDATER_PUBLIC_KEY.Trim()
             github = $Repository
             deltas = 0
         } -Force
+    }
+    $pluginRepository = $env:FLUENTLAUNCHER_PLUGIN_REPOSITORY
+    if (-not $pluginRepository) { $pluginRepository = 'mistquay/FluentLauncher-plugins' }
+    if ($pluginRepository -notmatch '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$') { throw 'Invalid FLUENTLAUNCHER_PLUGIN_REPOSITORY' }
+    $pluginPublicKey = $env:FLUENTLAUNCHER_PLUGIN_PUBLIC_KEY
+    if ($pluginPublicKey) {
+        $pluginPublicKey = $pluginPublicKey.Trim()
+        if ([Convert]::FromBase64String($pluginPublicKey).Length -ne 32) { throw 'Invalid official plugin catalogue public key' }
+        $env:MYGO_LDFLAGS = ($originalLinkFlags + ' -X fluentlauncher/internal/plugin.OfficialPublicKey=' + $pluginPublicKey + ' -X fluentlauncher/internal/plugin.OfficialRepository=' + $pluginRepository).Trim()
     }
     [IO.File]::WriteAllText($configPath, ($config | ConvertTo-Json -Depth 10) + "`n", $utf8)
     # Verify the embedded DLL against the manifest in the pinned MyGo module.
@@ -58,9 +71,8 @@ try {
             throw 'The update archive must contain only FluentLauncher.exe'
         }
     }
-    # MyGo copies native libraries and legacy development examples beside the
-    # EXE. They are not runtime dependencies of the portable distribution.
-    foreach ($sidecarName in @('examples', 'mygo-sqlite3.dll')) {
+    # SQLite is embedded; no official plugin files exist in the main repo.
+    foreach ($sidecarName in @('mygo-sqlite3.dll')) {
         $sidecar = [IO.Path]::GetFullPath((Join-Path $output $sidecarName))
         if (-not $sidecar.StartsWith([IO.Path]::GetFullPath($output) + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
             throw 'Sidecar path outside release output'
@@ -75,5 +87,6 @@ try {
     Write-Output "Portable release: $exe"
 } finally {
     [IO.File]::WriteAllText($configPath, $originalConfig, $utf8)
+    $env:MYGO_LDFLAGS = $originalLinkFlags
     Pop-Location
 }

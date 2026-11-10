@@ -24,8 +24,8 @@
 | EverythingProvider | internal/winapi/everything | WM_COPYDATA Unicode 查询 |
 | WindowCatalog | internal/winapi/windowlist | EnumWindows、cloaked/tool 过滤、还原置前 |
 | ShortcutResolver | internal/winapi/shortcut | WScript.Shell 读取 .lnk 目标/参数/工作目录，用于去重 |
-| Plugin SDK/Host/Manager | internal/plugin + pkg/pluginsdk | 帧协议、进程、Job Object、超时/取消/回收/暂停、安装升级 |
-| Echo/DevTools/Clipboard 插件 | plugins/echo、plugins/devtools、plugins/clipboard | 可执行插件，行为按 C# 版本；剪贴板历史为内存环形（50 条、退出清空），轮询序列号捕获复制 |
+| Plugin Host/Manager | internal/plugin | 帧协议、进程、Job Object、超时/取消/回收/暂停、按需下载安装与独立升级 |
+| SDK 与 Echo/DevTools/Clipboard 插件 | 独立 FluentLauncher-plugins 仓库 | 标准库 SDK；三个可执行插件与开发模板独立构建发布，剪贴板历史仅内存 50 条 |
 | MainWindow / SettingsWindow | internal/app | 搜索面板、动作面板、设置页、浮层、工作区结果 |
 | 窗口材质与标题栏 | internal/winapi/glass + internal/app/chrome.go | 亚克力/云母走系统模糊，真实透出下层窗口；设置与工作区窗口自绘标题栏 |
 | 音量浮层 | internal/app/volume.go | 底部居中的胶囊：图标、进度条、百分比，自身带模糊 |
@@ -39,7 +39,7 @@
 | 弹出位置与尺寸 | internal/app/size_preview.go + internal/core/layout | 拖动缩略图或面板手柄设置尺寸与相对位置（AnchorX/AnchorY），按屏幕比例记忆；搜索框高度、结果行高度可调 |
 | 界面国际化 | locales/（mygo ARB catalog）+ settings.Language | 简体中文（source）、繁体中文、英文；默认跟随系统语言，设置页可切换、立即生效；窗口标题/托盘菜单经 OnLocaleChanged 重建；系统功能目录三语显示，匹配关键词保持多语言 |
 | 即时工具与内置图标 | internal/core/search/utility.go + internal/app/builtin_icons.go | date（含日期算术，月移钳到月末）/time/timestamp/uuid/days/week/rand/pass/单位换算（中英单位、温度特例）/b64 与 URL 编解码/颜色（HEX⇄RGB⇄HSL）关键词出结果、回车复制；计算器/网址/设置/工作区/插件等无文件图标的条目改绘内置线性图标 |
-| 官方插件清单 | internal/plugin/official_index.json（embed） | 数据驱动三语清单，设置页下拉选择安装；新增官方插件不改 Go 代码 |
+| 官方插件清单 | internal/plugin/catalog.go | 在线签名三语目录、缓存、固定版本 ZIP 与哈希校验；内置名称仅作无下载能力的回退 |
 
 ## 仍需补齐
 

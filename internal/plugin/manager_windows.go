@@ -55,14 +55,16 @@ type Manager struct {
 	paused    map[string]bool
 	version   int64
 	disposed  bool
+	replacing map[string]bool
 }
 
 func NewManager() *Manager {
 	return &Manager{
-		sessions: map[string]*session{},
-		history:  map[string]runtimeState{},
-		paused:   map[string]bool{},
-		options:  settings.DefaultPluginOptions(),
+		sessions:  map[string]*session{},
+		history:   map[string]runtimeState{},
+		paused:    map[string]bool{},
+		replacing: map[string]bool{},
+		options:   settings.DefaultPluginOptions(),
 	}
 }
 
@@ -170,7 +172,20 @@ func (m *Manager) searchOne(ctx context.Context, registration protocol.Registrat
 	limit int, version int64, options settings.PluginOptions) []model.Result {
 	id := registration.Manifest.ID
 	m.mu.Lock()
-	if m.disposed {
+	if m.disposed || m.replacing[id] {
+		m.mu.Unlock()
+		return nil
+	}
+	// A routed query may have been queued just before replacement. Use the
+	// current manifest/path after the replacement unblocks, not that snapshot.
+	current := false
+	for _, installed := range m.installed {
+		if installed.Manifest.ID == id {
+			registration, current = installed, true
+			break
+		}
+	}
+	if !current {
 		m.mu.Unlock()
 		return nil
 	}
@@ -286,6 +301,10 @@ func (m *Manager) Execute(ctx context.Context, entry model.Entry, action model.A
 	m.mu.Lock()
 	sess := m.sessions[entry.PluginID]
 	options := m.options
+	if m.replacing[entry.PluginID] {
+		m.mu.Unlock()
+		return errors.New(locales.PluginProcessRecycled())
+	}
 	if !containsFold(options.EnabledIDs, entry.PluginID) {
 		m.mu.Unlock()
 		return errors.New(locales.PluginDisabledExecute(entry.PluginID))
@@ -368,6 +387,31 @@ func (m *Manager) Stop(id string) {
 	delete(m.paused, id)
 	m.mu.Unlock()
 	m.closeSession(item, true)
+}
+
+// ReplacePackage blocks new queries/actions while replacing an installed
+// executable. Download and verification must finish before calling this, so
+// the current version remains usable during network requests. It waits for
+// the detached process to exit before the installer touches its files.
+func (m *Manager) ReplacePackage(id string, apply func() ([]protocol.Registration, error)) error {
+	m.mu.Lock()
+	if m.disposed || m.replacing[id] {
+		m.mu.Unlock()
+		return errors.New("plugin manager is closing or already replacing this package")
+	}
+	m.replacing[id] = true
+	item := m.detachLocked(id)
+	m.mu.Unlock()
+	m.closeSession(item, true)
+	installed, err := apply()
+	m.mu.Lock()
+	if err == nil {
+		m.installed = installed
+		delete(m.paused, id)
+	}
+	delete(m.replacing, id)
+	m.mu.Unlock()
+	return err
 }
 
 func (m *Manager) Dispose() {

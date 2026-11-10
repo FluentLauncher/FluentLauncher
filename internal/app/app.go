@@ -116,6 +116,7 @@ type App struct {
 
 	selectOpen        string
 	officialPick      string
+	official          officialState
 	lastPreview       settings.ThemeSettings
 	blurSlider        float64
 	blurSliderInt     int
@@ -238,6 +239,7 @@ func (a *App) ready() {
 	a.everything = &everything.Provider{Enabled: func() bool { return a.currentSettings().Files.EnableEverything }}
 	a.pluginRepo = plugin.NewRepository(filepath.Join(a.dataDir, "plugins"))
 	a.plugins = plugin.NewManager()
+	a.official.client = plugin.NewCatalogClient(filepath.Join(a.dataDir, "cache", "official-catalog.json"))
 	// Plugins are only needed at the first query or when the settings page
 	// opens; the directory scan stays off the path to the first frame.
 	pluginOptions := a.settings.Plugins
@@ -1171,6 +1173,9 @@ func learnableKind(kind model.Kind) bool {
 }
 
 func (a *App) openSettings() {
+	if !a.official.loaded {
+		a.refreshOfficialCatalog(false)
+	}
 	// A plugin package copied into the directory while the app ran appears
 	// when the settings open, without a restart.
 	if a.pluginRepo != nil && a.plugins != nil {

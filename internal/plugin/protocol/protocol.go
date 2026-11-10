@@ -14,8 +14,8 @@ import (
 	"fluentlauncher/locales"
 )
 
-// MaxMessageBytes is the largest frame either side accepts. pkg/pluginsdk
-// declares the same limit so a plugin can be built against the SDK alone.
+// MaxMessageBytes is the largest v1 frame either side accepts. The independent
+// FluentLauncher-plugins/sdk module implements the same documented wire format.
 const MaxMessageBytes = 4 << 20
 
 // ProtocolVersion is the wire version this launcher speaks. A package that

@@ -2673,7 +2673,7 @@
   "@settingsPluginsInstallCard": {
     "description": "Plugins page: card where plugins are installed from."
   },
-  "settingsPluginsInstallHint": "官方示例随启动器提供，安装后立即可用；第三方插件需要是包含 plugin.json 的 ZIP 包，或已经解压好的目录。",
+  "settingsPluginsInstallHint": "官方插件独立分发，点击安装时下载并校验；第三方插件可从包含 plugin.json 的 ZIP 包或目录安装。",
   "@settingsPluginsInstallHint": {
     "description": "Plugins page: explanation of the official examples and third-party package formats."
   },
@@ -3007,5 +3007,55 @@
 "updateRenamed": "程序已改名，请恢复为 FluentLauncher.exe 后再更新。",
   "@updateRenamed": {
     "description": "Update cannot target a renamed executable."
+  },
+"pluginCatalogRefresh": "刷新官方目录",
+  "@pluginCatalogRefresh": {
+    "description": "Official plugin catalogue downloads and installation."
+  },
+  "pluginCatalogLoading": "正在获取官方插件目录…",
+  "@pluginCatalogLoading": {
+    "description": "Official plugin catalogue downloads and installation."
+  },
+  "pluginCatalogUnconfigured": "此版本尚未启用官方插件源。请使用正式发布版本，或从 ZIP/目录安装。",
+  "@pluginCatalogUnconfigured": {
+    "description": "Official plugin catalogue downloads and installation."
+  },
+  "pluginCatalogFailed": "官方插件操作失败：{err}；已有插件和可用目录仍会保留。",
+  "@pluginCatalogFailed": {
+    "placeholders": {
+      "err": {
+        "type": "Object"
+      }
+    },
+    "description": "Official plugin catalogue downloads and installation."
+  },
+  "pluginCatalogReady": "官方目录已验证。仅在点击安装或更新时下载插件。",
+  "@pluginCatalogReady": {
+    "description": "Official plugin catalogue downloads and installation."
+  },
+  "pluginCatalogInstalling": "正在下载、校验并安装 {name}…",
+  "@pluginCatalogInstalling": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Official plugin catalogue downloads and installation."
+  },
+  "pluginCatalogInstalled": "已安装 {name} {version}。",
+  "@pluginCatalogInstalled": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Official plugin catalogue downloads and installation."
+  },
+  "pluginCatalogUpgrade": "更新插件",
+  "@pluginCatalogUpgrade": {
+    "description": "Official plugin catalogue downloads and installation."
   }
 }

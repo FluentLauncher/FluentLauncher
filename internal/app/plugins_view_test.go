@@ -9,6 +9,7 @@ import (
 
 	"fluentlauncher/internal/core/settings"
 	"fluentlauncher/internal/plugin"
+	"fluentlauncher/internal/testutil"
 )
 
 // writeBrokenPackage leaves a directory with no plugin.json in the plugin
@@ -41,10 +42,7 @@ func newPluginsApp(t *testing.T) *App {
 
 func installExample(t *testing.T, a *App, id string) {
 	t.Helper()
-	source, err := filepath.Abs(filepath.Join("../../resources/examples", id))
-	if err != nil {
-		t.Fatal(err)
-	}
+	source := testutil.PluginFixture(t, id)
 	if _, err := a.pluginRepo.Install(source, false); err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +59,7 @@ func TestPluginsPageEmptyState(t *testing.T) {
 			t.Fatalf("empty page does not show %q", want)
 		}
 	}
-	if !tt.HasText("安装后立即可用") {
+	if !tt.HasText("点击安装时下载") {
 		t.Fatal("install card does not explain where plugins come from")
 	}
 	// The picker names one bundled plugin at a time; opening it lists the
@@ -163,5 +161,28 @@ func TestPluginsPageListsBrokenPackages(t *testing.T) {
 		if !tt.HasText(want) {
 			t.Fatalf("problem card does not show %q", want)
 		}
+	}
+}
+
+func TestOfficialCatalogOffersIndependentUpgrade(t *testing.T) {
+	a := newPluginsApp(t)
+	installExample(t, a, "official.echo")
+	a.official.catalog = &plugin.Catalog{SchemaVersion: 1, Plugins: []plugin.CatalogEntry{{ID: "official.echo", Version: "2.0.0", Name: map[string]string{"zh-Hans": "回显示例"}, Summary: map[string]string{"zh-Hans": "新版插件"}}}}
+	tt := ui.NewTester(a.settingsView, 1180, 900)
+	if !tt.HasText("更新插件") || !tt.HasText("2.0.0") {
+		t.Fatal("new official version does not offer an upgrade")
+	}
+	a.official.installing = true
+	tt.Frame()
+	_ = tt.Click("更新插件")
+	tt.Frame()
+	if !a.official.installing {
+		t.Fatal("busy download accepted a duplicate operation")
+	}
+	a.official.installing = false
+	a.official.catalog.Plugins[0].Version = "1.0.0"
+	tt.Frame()
+	if tt.HasText("更新插件") {
+		t.Fatal("current version still offers an upgrade")
 	}
 }

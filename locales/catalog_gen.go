@@ -7570,14 +7570,14 @@ func (msgs Messages) SettingsPluginsInstallCard() string {
 	return Catalog.Format(msgs.locale, "settingsPluginsInstallCard", nil)
 }
 
-// SettingsPluginsInstallHint says "官方示例随启动器提供，安装后立即可用；第三方插件需要是包含 plugin.json 的 ZIP …"
+// SettingsPluginsInstallHint says "官方插件独立分发，点击安装时下载并校验；第三方插件可从包含 plugin.json 的 ZIP …"
 // in the language the app shows.
 //
 // Plugins page: explanation of the official examples and third-party
 // package formats.
 func SettingsPluginsInstallHint() string { return In(i18n.Locale()).SettingsPluginsInstallHint() }
 
-// SettingsPluginsInstallHint says "官方示例随启动器提供，安装后立即可用；第三方插件需要是包含 plugin.json 的 ZIP …"
+// SettingsPluginsInstallHint says "官方插件独立分发，点击安装时下载并校验；第三方插件可从包含 plugin.json 的 ZIP …"
 // in the language of msgs.
 //
 // Plugins page: explanation of the official examples and third-party
@@ -8540,4 +8540,120 @@ func UpdateRenamed() string { return In(i18n.Locale()).UpdateRenamed() }
 // Update cannot target a renamed executable.
 func (msgs Messages) UpdateRenamed() string {
 	return Catalog.Format(msgs.locale, "updateRenamed", nil)
+}
+
+// PluginCatalogRefresh says "刷新官方目录"
+// in the language the app shows.
+//
+// Official plugin catalogue downloads and installation.
+func PluginCatalogRefresh() string { return In(i18n.Locale()).PluginCatalogRefresh() }
+
+// PluginCatalogRefresh says "刷新官方目录"
+// in the language of msgs.
+//
+// Official plugin catalogue downloads and installation.
+func (msgs Messages) PluginCatalogRefresh() string {
+	return Catalog.Format(msgs.locale, "pluginCatalogRefresh", nil)
+}
+
+// PluginCatalogLoading says "正在获取官方插件目录…"
+// in the language the app shows.
+//
+// Official plugin catalogue downloads and installation.
+func PluginCatalogLoading() string { return In(i18n.Locale()).PluginCatalogLoading() }
+
+// PluginCatalogLoading says "正在获取官方插件目录…"
+// in the language of msgs.
+//
+// Official plugin catalogue downloads and installation.
+func (msgs Messages) PluginCatalogLoading() string {
+	return Catalog.Format(msgs.locale, "pluginCatalogLoading", nil)
+}
+
+// PluginCatalogUnconfigured says "此版本尚未启用官方插件源。请使用正式发布版本，或从 ZIP/目录安装。"
+// in the language the app shows.
+//
+// Official plugin catalogue downloads and installation.
+func PluginCatalogUnconfigured() string { return In(i18n.Locale()).PluginCatalogUnconfigured() }
+
+// PluginCatalogUnconfigured says "此版本尚未启用官方插件源。请使用正式发布版本，或从 ZIP/目录安装。"
+// in the language of msgs.
+//
+// Official plugin catalogue downloads and installation.
+func (msgs Messages) PluginCatalogUnconfigured() string {
+	return Catalog.Format(msgs.locale, "pluginCatalogUnconfigured", nil)
+}
+
+// PluginCatalogFailed says "官方插件操作失败：{err}；已有插件和可用目录仍会保留。"
+// in the language the app shows.
+//
+// Official plugin catalogue downloads and installation.
+func PluginCatalogFailed(err any) string { return In(i18n.Locale()).PluginCatalogFailed(err) }
+
+// PluginCatalogFailed says "官方插件操作失败：{err}；已有插件和可用目录仍会保留。"
+// in the language of msgs.
+//
+// Official plugin catalogue downloads and installation.
+func (msgs Messages) PluginCatalogFailed(err any) string {
+	return Catalog.Format(msgs.locale, "pluginCatalogFailed", map[string]any{"err": err})
+}
+
+// PluginCatalogReady says "官方目录已验证。仅在点击安装或更新时下载插件。"
+// in the language the app shows.
+//
+// Official plugin catalogue downloads and installation.
+func PluginCatalogReady() string { return In(i18n.Locale()).PluginCatalogReady() }
+
+// PluginCatalogReady says "官方目录已验证。仅在点击安装或更新时下载插件。"
+// in the language of msgs.
+//
+// Official plugin catalogue downloads and installation.
+func (msgs Messages) PluginCatalogReady() string {
+	return Catalog.Format(msgs.locale, "pluginCatalogReady", nil)
+}
+
+// PluginCatalogInstalling says "正在下载、校验并安装 {name}…"
+// in the language the app shows.
+//
+// Official plugin catalogue downloads and installation.
+func PluginCatalogInstalling(name string) string {
+	return In(i18n.Locale()).PluginCatalogInstalling(name)
+}
+
+// PluginCatalogInstalling says "正在下载、校验并安装 {name}…"
+// in the language of msgs.
+//
+// Official plugin catalogue downloads and installation.
+func (msgs Messages) PluginCatalogInstalling(name string) string {
+	return Catalog.Format(msgs.locale, "pluginCatalogInstalling", map[string]any{"name": name})
+}
+
+// PluginCatalogInstalled says "已安装 {name} {version}。"
+// in the language the app shows.
+//
+// Official plugin catalogue downloads and installation.
+func PluginCatalogInstalled(version string, name string) string {
+	return In(i18n.Locale()).PluginCatalogInstalled(version, name)
+}
+
+// PluginCatalogInstalled says "已安装 {name} {version}。"
+// in the language of msgs.
+//
+// Official plugin catalogue downloads and installation.
+func (msgs Messages) PluginCatalogInstalled(version string, name string) string {
+	return Catalog.Format(msgs.locale, "pluginCatalogInstalled", map[string]any{"version": version, "name": name})
+}
+
+// PluginCatalogUpgrade says "更新插件"
+// in the language the app shows.
+//
+// Official plugin catalogue downloads and installation.
+func PluginCatalogUpgrade() string { return In(i18n.Locale()).PluginCatalogUpgrade() }
+
+// PluginCatalogUpgrade says "更新插件"
+// in the language of msgs.
+//
+// Official plugin catalogue downloads and installation.
+func (msgs Messages) PluginCatalogUpgrade() string {
+	return Catalog.Format(msgs.locale, "pluginCatalogUpgrade", nil)
 }

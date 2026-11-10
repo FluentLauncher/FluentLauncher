@@ -48,10 +48,8 @@ internal/core/layout/       # 弹窗定位
 internal/core/volume/       # 边缘命中与滚轮累积
 internal/store/             # SQLite、配置、文件索引、主题包
 internal/plugin/            # 协议、客户端、进程管理、安装
-pkg/pluginsdk/              # 第三方 Go 插件 SDK
-plugins/echo/               # 官方回显示例
-plugins/devtools/           # 官方开发工具插件
-resources/examples/         # 开发用的独立插件包（不嵌入主程序）
+internal/bundled/           # 主程序图标与 SQLite 运行库
+internal/testutil/          # 宿主测试专用的插件进程，不参与分发
 ```
 
 ## 数据
@@ -67,7 +65,7 @@ resources/examples/         # 开发用的独立插件包（不嵌入主程序�
 
 ## 插件
 
-插件是独立可执行文件，`plugin.json` 的 `executable` 指向包内程序；stdin/stdout 使用 4 字节大端长度 + JSON-RPC 2.0。开发用示例包位于 `resources/examples`，不嵌入主程序，清单在 `internal/plugin/official_index.json`（含三语名称与简介，新增官方插件只需加目录与清单项），独立官方插件仓库与按需下载方案见 `docs/official-plugin-repository.md`，迁移前便携版本请通过 ZIP/目录安装插件。
+插件是独立可执行文件，`plugin.json` 的 `executable` 指向包内程序；stdin/stdout 使用 4 字节大端长度 + JSON-RPC 2.0。官方插件源码、轻量 SDK、开发模板与发布工具已经迁入独立的 `FluentLauncher-plugins` 仓库。启动器后台获取并验证签名目录，点击安装或更新时才下载、校验对应 ZIP；主程序不携带官方插件。目录获取失败时保留已验证缓存，现有插件可以继续使用，也支持从 ZIP/目录安装第三方插件。配置与开发说明见 [官方插件仓库](docs/official-plugin-repository.md)。
 
 ## 调试
 

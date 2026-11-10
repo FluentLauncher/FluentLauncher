@@ -10,6 +10,7 @@ import (
 	"fluentlauncher/internal/core/search"
 	"fluentlauncher/internal/core/settings"
 	"fluentlauncher/internal/plugin/protocol"
+	"fluentlauncher/internal/testutil"
 )
 
 func protocolResult(id, title string) protocol.Result {
@@ -33,10 +34,7 @@ func echoOptions() settings.PluginOptions {
 // The page has to show timings for a plugin that is not running, which means
 // the numbers have to outlive the process: they are kept when it is recycled.
 func TestStatusesKeepNumbersAfterStop(t *testing.T) {
-	source, err := filepath.Abs("../../resources/examples/official.echo")
-	if err != nil {
-		t.Fatal(err)
-	}
+	source := testutil.PluginFixture(t, "official.echo")
 	repo := NewRepository(filepath.Join(t.TempDir(), "plugins"))
 	if _, err := repo.Install(source, false); err != nil {
 		t.Fatal(err)
@@ -121,10 +119,7 @@ func TestFailuresPauseAndRestartClears(t *testing.T) {
 // caller on a query in flight, and the numbers it reported still show: the row
 // reads "未启用" with the timings it had, not an empty one.
 func TestConfigureKeepsNumbersOfDisabledPlugin(t *testing.T) {
-	source, err := filepath.Abs("../../resources/examples/official.echo")
-	if err != nil {
-		t.Fatal(err)
-	}
+	source := testutil.PluginFixture(t, "official.echo")
 	repo := NewRepository(filepath.Join(t.TempDir(), "plugins"))
 	if _, err := repo.Install(source, false); err != nil {
 		t.Fatal(err)

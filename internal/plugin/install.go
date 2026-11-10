@@ -35,10 +35,11 @@ type Problem struct {
 // Repository installs and enumerates plugin packages under the user's
 // plugin directory.
 type Repository struct {
-	dir       string
-	mu        sync.Mutex
-	installed []protocol.Registration
-	problems  []Problem
+	dir        string
+	mu         sync.Mutex
+	operations sync.Mutex
+	installed  []protocol.Registration
+	problems   []Problem
 }
 
 func NewRepository(dir string) *Repository {
@@ -61,6 +62,14 @@ func (r *Repository) Problems() []Problem {
 }
 
 func (r *Repository) Refresh() error {
+	r.operations.Lock()
+	defer r.operations.Unlock()
+	return r.refresh()
+}
+
+// refresh runs while operations is held, so a concurrent scan cannot observe
+// the installer's staging/backup transition as an extra installed plugin.
+func (r *Repository) refresh() error {
 	if err := os.MkdirAll(r.dir, 0o755); err != nil {
 		return errors.New(locales.PluginDirCreateFailed(err))
 	}
@@ -159,6 +168,8 @@ func (r *Repository) CheckUpdate(source string) (UpdateCheck, error) {
 // Install extracts a zip or copies a directory into the plugin repository.
 // It rejects path traversal, absolute paths, symlinks and oversized entries.
 func (r *Repository) Install(source string, upgrade bool) (protocol.Registration, error) {
+	r.operations.Lock()
+	defer r.operations.Unlock()
 	if err := os.MkdirAll(r.dir, 0o755); err != nil {
 		return protocol.Registration{}, err
 	}
@@ -199,7 +210,7 @@ func (r *Repository) Install(source string, upgrade bool) (protocol.Registration
 		return protocol.Registration{}, err
 	}
 	_ = os.RemoveAll(backup)
-	if err := r.Refresh(); err != nil {
+	if err := r.refresh(); err != nil {
 		return protocol.Registration{}, err
 	}
 	return protocol.ReadManifest(target)
@@ -210,6 +221,8 @@ func (r *Repository) Install(source string, upgrade bool) (protocol.Registration
 // name and manifest id differ still uninstalls, which is what the settings page
 // promises when it shows the plugin.
 func (r *Repository) Uninstall(id string) error {
+	r.operations.Lock()
+	defer r.operations.Unlock()
 	if !protocol.ValidID(id) {
 		return errors.New(locales.PluginInvalidID())
 	}
@@ -226,7 +239,7 @@ func (r *Repository) Uninstall(id string) error {
 	if err := os.RemoveAll(directory); err != nil {
 		return errors.New(locales.PluginDirDeleteFailed(filepath.Base(directory), err))
 	}
-	return r.Refresh()
+	return r.refresh()
 }
 
 func readPackageManifest(source string) (protocol.Manifest, error) {

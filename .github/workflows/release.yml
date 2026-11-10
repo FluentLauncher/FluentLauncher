@@ -49,6 +49,8 @@ jobs:
         env:
           MYGO_UPDATER_PUBLIC_KEY: ${{ vars.MYGO_UPDATER_PUBLIC_KEY }}
           MYGO_UPDATER_PRIVATE_KEY: ${{ secrets.MYGO_UPDATER_PRIVATE_KEY }}
+          FLUENTLAUNCHER_PLUGIN_PUBLIC_KEY: ${{ vars.FLUENTLAUNCHER_PLUGIN_PUBLIC_KEY }}
+          FLUENTLAUNCHER_PLUGIN_REPOSITORY: ${{ vars.FLUENTLAUNCHER_PLUGIN_REPOSITORY }}
           SIGNED_BUILD: ${{ startsWith(github.ref, 'refs/tags/') || inputs.signed }}
         run: |
           $tag = ''

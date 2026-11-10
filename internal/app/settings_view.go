@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -799,10 +798,10 @@ func (a *App) pluginEntry(c *ui.Context, theme *ui.Theme, status plugin.Status) 
 					}()
 				}
 			}
-			if compactButton(c, locales.CommonUninstall()).Clicked() {
+			if compactButton(c, locales.CommonUninstall()).Disabled(a.official.installing).Clicked() {
 				go a.uninstallPlugin(manifest.ID)
 			}
-			if ui.Switch(c, &enabled).Changed() {
+			if ui.Switch(c, &enabled).Disabled(a.official.installing).Changed() {
 				a.setPluginEnabled(manifest.ID, enabled)
 			}
 		})
@@ -829,7 +828,7 @@ func (a *App) pluginEntry(c *ui.Context, theme *ui.Theme, status plugin.Status) 
 		if enabled {
 			// The switch in the header decides whether the plugin is asked at
 			// all; this decides whether it needs its keywords first.
-			if ui.Checkbox(c, &global, locales.SettingsPluginsGlobalQuery()).Changed() {
+			if ui.Checkbox(c, &global, locales.SettingsPluginsGlobalQuery()).Disabled(a.official.installing).Changed() {
 				a.setPluginGlobalQuery(manifest.ID, global)
 			}
 		}
@@ -861,10 +860,22 @@ func (a *App) installPluginsCard(c *ui.Context, theme *ui.Theme) {
 	settingCard(c, locales.SettingsPluginsInstallCard(), func(c *ui.Context) {
 		ui.Text(c, locales.SettingsPluginsInstallHint()).
 			FontSize(12).TextColor(theme.TextMuted).Wrap()
+		if compactButton(c, locales.PluginCatalogRefresh()).Disabled(a.official.busy || a.official.installing).Clicked() {
+			a.refreshOfficialCatalog(true)
+		}
+		if a.official.message != "" {
+			ui.Text(c, a.official.message).FontSize(12).TextColor(theme.TextMuted).Wrap()
+		}
 		installed := a.pluginRepo.Installed()
 		pending := make([]plugin.OfficialPlugin, 0)
-		for _, official := range plugin.OfficialPlugins() {
-			if !pluginInstalled(installed, official.ID) {
+		for _, official := range a.officialPlugins() {
+			needsInstall := !pluginInstalled(installed, official.ID)
+			for _, registration := range installed {
+				if registration.Manifest.ID == official.ID && official.NewerThan(registration.Manifest.Version) {
+					needsInstall = true
+				}
+			}
+			if needsInstall {
 				pending = append(pending, official)
 			}
 		}
@@ -879,10 +890,12 @@ func (a *App) installPluginsCard(c *ui.Context, theme *ui.Theme) {
 			}
 			summary := ""
 			pickID := ""
+			var selected plugin.OfficialPlugin
 			for _, official := range pending {
 				if official.Name == pick {
 					summary = official.Summary
 					pickID = official.ID
+					selected = official
 				}
 			}
 			a.themedSelect(c, "officialPlugin", locales.SettingsPluginsOfficialPick(),
@@ -891,16 +904,23 @@ func (a *App) installPluginsCard(c *ui.Context, theme *ui.Theme) {
 			if summary != "" {
 				ui.Text(c, summary).FontSize(11).TextColor(theme.TextMuted).Wrap()
 			}
-			if compactPrimaryButton(c, locales.CommonInstall()).Clicked() && pickID != "" {
-				go a.installOfficialPlugin(pickID)
+			buttonLabel := locales.CommonInstall()
+			if pluginInstalled(installed, pickID) {
+				buttonLabel = locales.PluginCatalogUpgrade()
+			}
+			if selected.Version != "" {
+				ui.Text(c, selected.Version).FontSize(11).TextColor(theme.TextMuted)
+			}
+			if compactPrimaryButton(c, buttonLabel).Disabled(a.official.installing || selected.Version == "").Clicked() && pickID != "" {
+				a.installOfficialPlugin(selected)
 			}
 		}
 		ui.Divider(c)
 		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-			if compactButton(c, locales.SettingsPluginsInstallZip()).Clicked() {
+			if compactButton(c, locales.SettingsPluginsInstallZip()).Disabled(a.official.installing).Clicked() {
 				go a.installPlugin(false)
 			}
-			if compactButton(c, locales.SettingsPluginsInstallDir()).Clicked() {
+			if compactButton(c, locales.SettingsPluginsInstallDir()).Disabled(a.official.installing).Clicked() {
 				go a.installPlugin(true)
 			}
 			ui.Text(c, a.pluginRepo.Dir()).FontSize(11).TextColor(theme.TextMuted).Grow(1).SingleLine()
@@ -982,19 +1002,6 @@ func (a *App) uninstallPlugin(id string) {
 	a.settingsWin.Update(func() { a.settingsError = "" })
 }
 
-// installOfficialPlugin installs a bundled example and switches it on in one
-// step: an installed but disabled plugin looks like a broken one, because the
-// search stays empty until it is enabled.
-func (a *App) installOfficialPlugin(id string) {
-	a.installOfficial(id)
-	if !pluginInstalled(a.pluginRepo.Installed(), id) {
-		return
-	}
-	if !containsFold(a.settingsDraft.Plugins.EnabledIDs, id) {
-		a.setPluginEnabled(id, true)
-	}
-}
-
 // tailText keeps the end of a long message, where the actual error is, and
 // marks what it cut.
 func tailText(text string, limit int) string {
@@ -1062,21 +1069,6 @@ func (a *App) aboutPage(c *ui.Context) {
 			}
 		})
 	})
-}
-
-func (a *App) installOfficial(id string) {
-	resources, err := mygo.App.Path(mygo.PathResources)
-	if err != nil {
-		a.settingsWin.Update(func() { a.settingsError = err.Error() })
-		return
-	}
-	source := filepath.Join(resources, "examples", id)
-	if _, err := a.pluginRepo.Install(source, false); err != nil {
-		a.settingsWin.Update(func() { a.settingsError = err.Error() })
-		return
-	}
-	a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins)
-	a.settingsWin.Update(func() { a.settingsError = "" })
 }
 
 func pluginInstalled(installed []protocol.Registration, id string) bool {

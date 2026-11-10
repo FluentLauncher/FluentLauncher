@@ -55,7 +55,7 @@
 
 - `pluginsdk.Handler`：`Query` 按 §2 路由出菜单行/窗口行；`Execute` 对即时动作同步做、对交互动作起 goroutine 后立刻返回 nil。
 - manifest：`id=official.screenshot`，`executable=screenshot.exe`，`keywords=["截图","screenshot","snap","截屏"]`，`permissions=[]`（Windows 截屏无需特殊权限），描述含隐私边界。
-- 分发：`resources/examples/official.screenshot/` + `official_index.json` 三语条目（截图工具 / Screenshot / 螢幕截圖）+ `scripts/build-plugins.ps1` 一行。
+- 分发：独立 `FluentLauncher-plugins` 仓库中的 `plugins/screenshot/` + `catalog.source.json` 三语条目（截图工具 / Screenshot / 螢幕截圖），由该仓库 Actions 生成 ZIP 与签名目录。
 - 图标：宿主侧 builtin_icons 无需新增（插件行目前无图标，与其他插件一致）。
 
 ## 6. 风险与已知限制

@@ -7,13 +7,11 @@ import (
 
 	"fluentlauncher/internal/core/search"
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/testutil"
 )
 
 func TestManagerEcho(t *testing.T) {
-	source, err := filepath.Abs("../../resources/examples/official.echo")
-	if err != nil {
-		t.Fatal(err)
-	}
+	source := testutil.PluginFixture(t, "official.echo")
 	repo := NewRepository(filepath.Join(t.TempDir(), "plugins"))
 	if _, err := repo.Install(source, false); err != nil {
 		t.Fatal(err)
@@ -43,10 +41,7 @@ func TestManagerEcho(t *testing.T) {
 	}
 }
 func TestManagerDevTools(t *testing.T) {
-	source, err := filepath.Abs("../../resources/examples/official.devtools")
-	if err != nil {
-		t.Fatal(err)
-	}
+	source := testutil.PluginFixture(t, "official.devtools")
 	repo := NewRepository(filepath.Join(t.TempDir(), "plugins"))
 	if _, err := repo.Install(source, false); err != nil {
 		t.Fatal(err)

@@ -1,16 +1,12 @@
 package plugin
 
 import (
-	"path/filepath"
 	"testing"
 
 	"fluentlauncher/internal/plugin/protocol"
 )
 
-// The install area lists the bundled examples before anything is installed, so
-// their names and ids come from this catalog rather than from the packages.
-// This keeps the catalog and the packages from drifting apart.
-func TestOfficialPluginsMatchTheirPackages(t *testing.T) {
+func TestFallbackMetadataHasNoUnverifiedDownloads(t *testing.T) {
 	official := OfficialPlugins()
 	if len(official) == 0 {
 		t.Fatal("the catalog is empty")
@@ -24,20 +20,8 @@ func TestOfficialPluginsMatchTheirPackages(t *testing.T) {
 		if entry.Name == "" || entry.Summary == "" {
 			t.Fatalf("%s has no name or summary: %+v", entry.ID, entry)
 		}
-		source, err := filepath.Abs(filepath.Join("../../resources/examples", entry.ID))
-		if err != nil {
-			t.Fatal(err)
-		}
-		registration, err := protocol.ReadManifest(source)
-		if err != nil {
-			t.Fatalf("%s: %v", entry.ID, err)
-		}
-		if registration.Manifest.Name != entry.Name {
-			t.Fatalf("%s is called %q in its package and %q in the catalog",
-				entry.ID, registration.Manifest.Name, entry.Name)
-		}
-		if len(registration.Manifest.Keywords) == 0 {
-			t.Fatalf("%s has no keywords, so no search would reach it", entry.ID)
+		if !protocol.ValidID(entry.ID) || entry.Version != "" || entry.Package.URL != "" {
+			t.Fatalf("fallback metadata must not offer unverified downloads: %+v", entry)
 		}
 	}
 }

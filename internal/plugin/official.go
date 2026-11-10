@@ -11,19 +11,17 @@ import (
 //go:embed official_index.json
 var officialIndexData []byte
 
-// OfficialPlugin describes one of the plugins that ship with the launcher,
-// named and summarised in the language the app shows. The install area lists
-// them by this catalog before any of them is installed, which is text the
-// page cannot take from the packages themselves: reading plugin.json for
-// every frame would be file I/O on the UI thread.
+// OfficialPlugin is one catalogue entry in the current UI language. Embedded
+// fallback names have no Version or Package and cannot offer downloads.
 type OfficialPlugin struct {
-	// ID is both the manifest id and the package directory under
-	// resources/examples.
+	// ID is both the manifest id and its installed package directory name.
 	ID string
 	// Name is what the page shows; it repeats the manifest's name.
 	Name string
 	// Summary is one sentence about what the plugin answers.
 	Summary string
+	Version string
+	Package PluginPackage
 }
 
 type officialIndexEntry struct {
@@ -37,10 +35,8 @@ var (
 	officialIndex []officialIndexEntry
 )
 
-// OfficialPlugins returns the bundled plugins, in the order the settings page
-// lists them. The list is data (official_index.json), not code: shipping one
-// more official plugin is a folder under resources/examples plus an entry in
-// the index, in every language at once.
+// OfficialPlugins supplies names while the signed catalogue is unavailable.
+// Download metadata and newly published plugins come from Catalog.Localized.
 func OfficialPlugins() []OfficialPlugin {
 	officialOnce.Do(func() {
 		if err := json.Unmarshal(officialIndexData, &officialIndex); err != nil {

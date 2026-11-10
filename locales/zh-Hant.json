@@ -524,7 +524,7 @@
   "settingsPluginsStderr": "錯誤輸出：{stderr}",
   "settingsPluginsGlobalQuery": "每次搜尋都查詢（無需觸發詞）",
   "settingsPluginsInstallCard": "安裝外掛程式",
-  "settingsPluginsInstallHint": "官方範例隨啟動器提供，安裝後立即可用；第三方外掛程式需要是包含 plugin.json 的 ZIP 套件，或已經解壓縮好的目錄。",
+  "settingsPluginsInstallHint": "官方外掛程式獨立分發，點選安裝時下載並驗證；第三方外掛程式可從含 plugin.json 的 ZIP 或目錄安裝。",
   "settingsPluginsInstallZip": "安裝 ZIP…",
   "settingsPluginsInstallDir": "安裝目錄…",
   "settingsPluginsInstalledBadge": "已安裝",
@@ -591,5 +591,13 @@
   "updateAvailable": "發現新版本 {version}",
   "updateFailed": "更新失敗：{err}",
   "updateDownloading": "正在下載並驗證更新… {percent}%",
-"updateRenamed": "程式已改名，請恢復為 FluentLauncher.exe 後再更新。"
+"updateRenamed": "程式已改名，請恢復為 FluentLauncher.exe 後再更新。",
+"pluginCatalogRefresh": "重新整理官方目錄",
+  "pluginCatalogLoading": "正在取得官方外掛程式目錄…",
+  "pluginCatalogUnconfigured": "此版本尚未啟用官方外掛程式來源。請使用正式發佈版本，或從 ZIP/目錄安裝。",
+  "pluginCatalogFailed": "官方外掛程式操作失敗：{err}；現有外掛程式和可用目錄仍會保留。",
+  "pluginCatalogReady": "官方目錄已驗證。僅在點選安裝或更新時下載外掛程式。",
+  "pluginCatalogInstalling": "正在下載、驗證並安裝 {name}…",
+  "pluginCatalogInstalled": "已安裝 {name} {version}。",
+  "pluginCatalogUpgrade": "更新外掛程式"
 }

@@ -524,7 +524,7 @@
   "settingsPluginsStderr": "Error output: {stderr}",
   "settingsPluginsGlobalQuery": "Query on every search (no trigger word needed)",
   "settingsPluginsInstallCard": "Install Plugins",
-  "settingsPluginsInstallHint": "Official examples ship with the launcher and are ready to use as soon as they are installed; third-party plugins must be a ZIP package containing plugin.json, or an already extracted directory.",
+  "settingsPluginsInstallHint": "Official plugins are distributed separately and downloaded and verified when installed. Third-party plugins can be installed from a ZIP or directory containing plugin.json.",
   "settingsPluginsInstallZip": "Install ZIP…",
   "settingsPluginsInstallDir": "Install Directory…",
   "settingsPluginsInstalledBadge": "Installed",
@@ -591,5 +591,13 @@
   "updateAvailable": "Version {version} is available",
   "updateFailed": "Update failed: {err}",
   "updateDownloading": "Downloading and verifying update… {percent}%",
-"updateRenamed": "Restore the executable name to FluentLauncher.exe before updating."
+"updateRenamed": "Restore the executable name to FluentLauncher.exe before updating.",
+"pluginCatalogRefresh": "Refresh official catalogue",
+  "pluginCatalogLoading": "Fetching the official plugin catalogue…",
+  "pluginCatalogUnconfigured": "The official plugin source is not enabled in this build. Use an official release, or install from ZIP or a directory.",
+  "pluginCatalogFailed": "Official plugin operation failed: {err}. Existing plugins and the last available catalogue are retained.",
+  "pluginCatalogReady": "Official catalogue verified. Plugins are downloaded only when you choose to install or update.",
+  "pluginCatalogInstalling": "Downloading, verifying and installing {name}…",
+  "pluginCatalogInstalled": "Installed {name} {version}.",
+  "pluginCatalogUpgrade": "Update plugin"
 }

@@ -18,8 +18,12 @@ go tool mygo keygen
 | --- | --- | --- |
 | Repository variable | `MYGO_UPDATER_PUBLIC_KEY` | `mygo-update.pub` 的完整内容 |
 | Repository secret | `MYGO_UPDATER_PRIVATE_KEY` | `mygo-update.key` 的完整内容 |
+| Repository variable | `FLUENTLAUNCHER_PLUGIN_PUBLIC_KEY` | 独立插件仓库目录签名的公钥，必须与插件仓库一致 |
+| Repository variable | `FLUENTLAUNCHER_PLUGIN_REPOSITORY` | 独立插件仓库 owner/name，默认 `mistquay/FluentLauncher-plugins` |
 
 密钥仅生成一次。私钥要另行备份，不要提交到 Git；以后发版沿用同一对密钥，已安装版本才能验证后续更新。更新包的 Ed25519 签名与 Windows Authenticode 代码签名是两回事，目前工作流仅配置前者。
+
+插件目录使用独立密钥，其私钥只存在插件仓库发布端，主程序只需要插件公钥。配置步骤见 `official-plugin-repository.md`；正式签名构建缺少插件公钥时会停止，避免发布无法访问官方插件的构建。
 
 工作流需要写入 Releases 的权限（文件中已声明 `contents: write`）；组织策略如果禁止，需要在仓库或组织设置放行。
 
@@ -55,7 +59,7 @@ Actions 的 **Run workflow** 可只构建、下载 Artifact，不创建 Release�
 - 托盘的“检查更新”和设置页的同名按钮均可手动检查，失败时显示原因并支持重试。
 - 用户点击“更新并重启”后下载更新包，显示进度，校验大小和 Ed25519 签名，成功后原地替换 EXE 并按正常退出流程重启。
 - 替换前的下载或校验失败不会替换程序；MyGo 替换过程中失败会尝试回滚。运行中的旧 EXE 会临时改名，下次启动清理。
-- 配置、数据库、主题与已安装插件留在 `%LOCALAPPDATA%\FluentLauncher`，更新包不包含这些目录。主程序更新不更新插件。官方仓库迁移完成前，便携版本通过 ZIP/目录安装插件；原有开发用本地示例安装入口尚未改为下载。
+- 配置、数据库、主题与已安装插件留在 `%LOCALAPPDATA%\FluentLauncher`，更新包不包含这些目录。主程序更新不更新插件；官方插件由独立仓库提供签名目录，用户选择安装或更新时才下载对应 ZIP。
 - 保持 `FluentLauncher.exe` 文件名；程序所在目录及其父目录应可写（更新会在相邻目录暂存）。没有权限时不提权，界面说明当前构建无法自行更新。
 - 普通 `go build` 与未签名的本地构建不配置更新源，设置页会说明不支持在线更新。
 
@@ -72,6 +76,8 @@ Actions 的 **Run workflow** 可只构建、下载 Artifact，不创建 Release�
 ```powershell
 $env:MYGO_UPDATER_PUBLIC_KEY = Get-Content -Raw '<公钥文件路径>'
 $env:MYGO_UPDATER_PRIVATE_KEY = Get-Content -Raw '<私钥文件路径>'
+$env:FLUENTLAUNCHER_PLUGIN_PUBLIC_KEY = Get-Content -Raw '<独立插件公钥路径>'
+$env:FLUENTLAUNCHER_PLUGIN_REPOSITORY = 'owner/FluentLauncher-plugins'
 ./scripts/build-release.ps1 -Signed -Tag v0.2.0 -Repository owner/FluentLauncher
 Remove-Item Env:MYGO_UPDATER_PRIVATE_KEY
 ```

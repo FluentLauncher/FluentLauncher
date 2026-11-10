@@ -7,31 +7,7 @@ import (
 	"testing"
 
 	"fluentlauncher/internal/plugin/protocol"
-	"fluentlauncher/pkg/pluginsdk"
 )
-
-// The SDK is meant to be usable on its own, so its copies of the shared
-// constants are not imported but typed out; these checks keep the copies from
-// drifting away from the launcher.
-func TestSDKContractMatchesHost(t *testing.T) {
-	if pluginsdk.MaxMessageBytes != protocol.MaxMessageBytes {
-		t.Fatalf("message limit: sdk %d, host %d", pluginsdk.MaxMessageBytes, protocol.MaxMessageBytes)
-	}
-	if pluginsdk.ProtocolVersion != protocol.ProtocolVersion {
-		t.Fatalf("protocol version: sdk %d, host %d", pluginsdk.ProtocolVersion, protocol.ProtocolVersion)
-	}
-	kinds := map[string]string{
-		pluginsdk.KindCopyText: protocol.KindCopyText,
-		pluginsdk.KindInvoke:   protocol.KindInvoke,
-		pluginsdk.KindOpenURL:  protocol.KindOpenURL,
-		pluginsdk.KindOpenPath: protocol.KindOpenPath,
-	}
-	for kind, host := range kinds {
-		if host != kind {
-			t.Fatalf("action kind %q is %q on the host", kind, host)
-		}
-	}
-}
 
 func TestManifestValidateExplainsWhatIsWrong(t *testing.T) {
 	valid := protocol.Manifest{

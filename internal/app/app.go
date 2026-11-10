@@ -212,6 +212,14 @@ func (a *App) ready() {
 		a.notice = locales.AppCannotReadSettings(err)
 	} else {
 		a.settings = value
+		if value.UpdateChannel == settings.UpdateChannelDefault {
+			// Resolve once so a nightly user stays on preview updates even
+			// after installing the next stable release.
+			a.settings.UpdateChannel = value.EffectiveUpdateChannel(appVersion())
+			if err := a.config.Save(a.settings); err != nil {
+				a.notice = err.Error()
+			}
+		}
 	}
 	a.settingsDraft = a.settings
 	a.publishSettings()
@@ -786,6 +794,11 @@ func (a *App) applySettings(value settings.LauncherSettings) error {
 			_ = a.syncGlobalShortcuts(a.settings, false)
 		}
 		return err
+	}
+	if a.settings.EffectiveUpdateChannel(appVersion()) != value.EffectiveUpdateChannel(appVersion()) {
+		a.updates.available = nil
+		a.updates.notesOpen = false
+		a.updates.message = ""
 	}
 	a.settings = value
 	a.publishSettings()

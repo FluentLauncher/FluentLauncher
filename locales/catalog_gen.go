@@ -8416,6 +8416,244 @@ func (msgs Messages) CmdCopyWithUnit() string {
 	return Catalog.Format(msgs.locale, "cmdCopyWithUnit", nil)
 }
 
+// UpdateChannel says "更新通道"
+// in the language the app shows.
+//
+// Software update channel selector.
+func UpdateChannel() string { return In(i18n.Locale()).UpdateChannel() }
+
+// UpdateChannel says "更新通道"
+// in the language of msgs.
+//
+// Software update channel selector.
+func (msgs Messages) UpdateChannel() string {
+	return Catalog.Format(msgs.locale, "updateChannel", nil)
+}
+
+// UpdateVersion says "版本"
+// in the language the app shows.
+//
+// Update settings row showing the installed version and status.
+func UpdateVersion() string { return In(i18n.Locale()).UpdateVersion() }
+
+// UpdateVersion says "版本"
+// in the language of msgs.
+//
+// Update settings row showing the installed version and status.
+func (msgs Messages) UpdateVersion() string {
+	return Catalog.Format(msgs.locale, "updateVersion", nil)
+}
+
+// UpdateSchedule says "每 24 小时自动检查一次。"
+// in the language the app shows.
+//
+// Short idle update status; full schedule is in the check button tooltip.
+func UpdateSchedule() string { return In(i18n.Locale()).UpdateSchedule() }
+
+// UpdateSchedule says "每 24 小时自动检查一次。"
+// in the language of msgs.
+//
+// Short idle update status; full schedule is in the check button tooltip.
+func (msgs Messages) UpdateSchedule() string {
+	return Catalog.Format(msgs.locale, "updateSchedule", nil)
+}
+
+// UpdateNotes says "更新内容"
+// in the language the app shows.
+//
+// Release notes settings row and dialog label.
+func UpdateNotes() string { return In(i18n.Locale()).UpdateNotes() }
+
+// UpdateNotes says "更新内容"
+// in the language of msgs.
+//
+// Release notes settings row and dialog label.
+func (msgs Messages) UpdateNotes() string {
+	return Catalog.Format(msgs.locale, "updateNotes", nil)
+}
+
+// UpdateNotesHint says "查看本次更新的改进与修复。"
+// in the language the app shows.
+//
+// Release notes are available for the offered update.
+func UpdateNotesHint() string { return In(i18n.Locale()).UpdateNotesHint() }
+
+// UpdateNotesHint says "查看本次更新的改进与修复。"
+// in the language of msgs.
+//
+// Release notes are available for the offered update.
+func (msgs Messages) UpdateNotesHint() string {
+	return Catalog.Format(msgs.locale, "updateNotesHint", nil)
+}
+
+// UpdateNotesPending says "发现新版本后，可在此查看更新说明。"
+// in the language the app shows.
+//
+// Release notes row before finding an update.
+func UpdateNotesPending() string { return In(i18n.Locale()).UpdateNotesPending() }
+
+// UpdateNotesPending says "发现新版本后，可在此查看更新说明。"
+// in the language of msgs.
+//
+// Release notes row before finding an update.
+func (msgs Messages) UpdateNotesPending() string {
+	return Catalog.Format(msgs.locale, "updateNotesPending", nil)
+}
+
+// UpdateNotesEmpty says "此版本未提供更新说明。"
+// in the language the app shows.
+//
+// An offered update has no release notes.
+func UpdateNotesEmpty() string { return In(i18n.Locale()).UpdateNotesEmpty() }
+
+// UpdateNotesEmpty says "此版本未提供更新说明。"
+// in the language of msgs.
+//
+// An offered update has no release notes.
+func (msgs Messages) UpdateNotesEmpty() string {
+	return Catalog.Format(msgs.locale, "updateNotesEmpty", nil)
+}
+
+// UpdateStableHint says "只接收正式发布的版本。"
+// in the language the app shows.
+//
+// Short explanation of the stable update channel.
+func UpdateStableHint() string { return In(i18n.Locale()).UpdateStableHint() }
+
+// UpdateStableHint says "只接收正式发布的版本。"
+// in the language of msgs.
+//
+// Short explanation of the stable update channel.
+func (msgs Messages) UpdateStableHint() string {
+	return Catalog.Format(msgs.locale, "updateStableHint", nil)
+}
+
+// UpdatePreviewHint says "接收最新开发改动，可能尚不稳定。"
+// in the language the app shows.
+//
+// Short explanation of the preview update channel.
+func UpdatePreviewHint() string { return In(i18n.Locale()).UpdatePreviewHint() }
+
+// UpdatePreviewHint says "接收最新开发改动，可能尚不稳定。"
+// in the language of msgs.
+//
+// Short explanation of the preview update channel.
+func (msgs Messages) UpdatePreviewHint() string {
+	return Catalog.Format(msgs.locale, "updatePreviewHint", nil)
+}
+
+// UpdateToVersion says "更新到 v{version}"
+// in the language the app shows.
+//
+// Release notes dialog title.
+func UpdateToVersion(version string) string { return In(i18n.Locale()).UpdateToVersion(version) }
+
+// UpdateToVersion says "更新到 v{version}"
+// in the language of msgs.
+//
+// Release notes dialog title.
+func (msgs Messages) UpdateToVersion(version string) string {
+	return Catalog.Format(msgs.locale, "updateToVersion", map[string]any{"version": version})
+}
+
+// UpdateFromVersion says "当前版本 v{version}"
+// in the language the app shows.
+//
+// Release notes dialog installed version.
+func UpdateFromVersion(version string) string { return In(i18n.Locale()).UpdateFromVersion(version) }
+
+// UpdateFromVersion says "当前版本 v{version}"
+// in the language of msgs.
+//
+// Release notes dialog installed version.
+func (msgs Messages) UpdateFromVersion(version string) string {
+	return Catalog.Format(msgs.locale, "updateFromVersion", map[string]any{"version": version})
+}
+
+// UpdateLater says "稍后"
+// in the language the app shows.
+//
+// Dismiss release notes without installing.
+func UpdateLater() string { return In(i18n.Locale()).UpdateLater() }
+
+// UpdateLater says "稍后"
+// in the language of msgs.
+//
+// Dismiss release notes without installing.
+func (msgs Messages) UpdateLater() string {
+	return Catalog.Format(msgs.locale, "updateLater", nil)
+}
+
+// UpdateDataKept says "更新会重启应用，保留个人数据。"
+// in the language the app shows.
+//
+// Release notes footer explaining installation.
+func UpdateDataKept() string { return In(i18n.Locale()).UpdateDataKept() }
+
+// UpdateDataKept says "更新会重启应用，保留个人数据。"
+// in the language of msgs.
+//
+// Release notes footer explaining installation.
+func (msgs Messages) UpdateDataKept() string {
+	return Catalog.Format(msgs.locale, "updateDataKept", nil)
+}
+
+// UpdateChannelStable says "稳定版"
+// in the language the app shows.
+//
+// Stable software updates only.
+func UpdateChannelStable() string { return In(i18n.Locale()).UpdateChannelStable() }
+
+// UpdateChannelStable says "稳定版"
+// in the language of msgs.
+//
+// Stable software updates only.
+func (msgs Messages) UpdateChannelStable() string {
+	return Catalog.Format(msgs.locale, "updateChannelStable", nil)
+}
+
+// UpdateChannelNightly says "预览版 / Nightly"
+// in the language the app shows.
+//
+// Software updates including nightly prereleases.
+func UpdateChannelNightly() string { return In(i18n.Locale()).UpdateChannelNightly() }
+
+// UpdateChannelNightly says "预览版 / Nightly"
+// in the language of msgs.
+//
+// Software updates including nightly prereleases.
+func (msgs Messages) UpdateChannelNightly() string {
+	return Catalog.Format(msgs.locale, "updateChannelNightly", nil)
+}
+
+// UpdateChannelHint says "…"
+// in the language the app shows.
+//
+// Explains nightly builds and switching back without downgrading.
+func UpdateChannelHint() string { return In(i18n.Locale()).UpdateChannelHint() }
+
+// UpdateChannelHint says "…"
+// in the language of msgs.
+//
+// Explains nightly builds and switching back without downgrading.
+func (msgs Messages) UpdateChannelHint() string {
+	return Catalog.Format(msgs.locale, "updateChannelHint", nil)
+}
+
+// ValidateUpdateChannel says "更新通道不受支持"
+// in the language the app shows.
+//
+// Settings validation: unsupported update channel.
+func ValidateUpdateChannel() string { return In(i18n.Locale()).ValidateUpdateChannel() }
+
+// ValidateUpdateChannel says "更新通道不受支持"
+// in the language of msgs.
+//
+// Settings validation: unsupported update channel.
+func (msgs Messages) ValidateUpdateChannel() string {
+	return Catalog.Format(msgs.locale, "validateUpdateChannel", nil)
+}
+
 // UpdateTitle says "软件更新"
 // in the language the app shows.
 //

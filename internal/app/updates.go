@@ -8,18 +8,23 @@ import (
 	"time"
 
 	"github.com/egoist/mygo"
-	"github.com/egoist/mygo/ui"
 
+	"fluentlauncher/internal/core/settings"
 	"fluentlauncher/locales"
 )
 
 // State belongs to the UI thread. Network and disk work publishes through the
 // main panel, which lives until app exit, even while settings are hidden.
 type updateState struct {
-	busy      bool
-	message   string
-	available *mygo.Update
-	ctx       context.Context
+	busy         bool
+	message      string
+	available    *mygo.Update
+	ctx          context.Context
+	installing   bool
+	progress     int
+	notesOpen    bool
+	channel      string
+	channelIndex int
 }
 
 func appVersion() string {
@@ -52,27 +57,6 @@ func (a *App) startUpdateChecks() {
 	}()
 }
 
-func (a *App) updateCard(c *ui.Context) {
-	settingCard(c, locales.UpdateTitle(), func(c *ui.Context) {
-		ui.Text(c, locales.UpdateHint()).TextColor(c.Theme().TextMuted).Wrap()
-		if a.updates.message != "" {
-			ui.Text(c, a.updates.message).TextColor(c.Theme().TextMuted).Wrap()
-		}
-		if up := a.updates.available; up != nil {
-			ui.Text(c, locales.UpdateAvailable(up.Version)).TextColor(c.Theme().Text).Wrap()
-			if up.Notes != "" {
-				ui.Text(c, up.Notes).TextColor(c.Theme().TextMuted).Wrap()
-			}
-			if compactPrimaryButton(c, locales.UpdateInstall()).Disabled(a.updates.busy).Clicked() {
-				a.installUpdate()
-			}
-		}
-		if compactButton(c, locales.UpdateCheck()).Disabled(a.updates.busy).Clicked() {
-			a.checkForUpdates(false)
-		}
-	})
-}
-
 func (a *App) publishUpdate(fn func()) {
 	a.panel.Update(func() {
 		if a.quitting {
@@ -91,6 +75,8 @@ func (a *App) checkForUpdates(background bool) {
 	}
 	a.updates.busy = true
 	a.updates.message = locales.UpdateChecking()
+	channel := a.settings.EffectiveUpdateChannel(appVersion())
+	mygo.Updater.SetPrereleases(channel == settings.UpdateChannelNightly)
 	ctx, cancel := context.WithTimeout(a.updates.ctx, 45*time.Second)
 	go func() {
 		defer cancel()
@@ -112,6 +98,12 @@ func (a *App) checkForUpdates(background bool) {
 		up, err := mygo.Updater.Check(ctx)
 		a.publishUpdate(func() {
 			a.updates.busy = false
+			if channel != a.settings.EffectiveUpdateChannel(appVersion()) {
+				a.updates.available = nil
+				a.updates.notesOpen = false
+				a.updates.message = ""
+				return
+			}
 			if err != nil {
 				a.updates.message = locales.UpdateFailed(err)
 				return
@@ -136,6 +128,8 @@ func (a *App) installUpdate() {
 	}
 	up := a.updates.available
 	a.updates.busy = true
+	a.updates.installing = true
+	a.updates.progress = 0
 	a.updates.message = locales.UpdateDownloading(0)
 	ctx, cancel := context.WithTimeout(a.updates.ctx, 15*time.Minute)
 	go func() {
@@ -148,11 +142,15 @@ func (a *App) installUpdate() {
 			percent := int(downloaded * 100 / total)
 			if percent != last {
 				last = percent
-				a.publishUpdate(func() { a.updates.message = locales.UpdateDownloading(percent) })
+				a.publishUpdate(func() {
+					a.updates.progress = percent
+					a.updates.message = locales.UpdateDownloading(percent)
+				})
 			}
 		})
 		a.publishUpdate(func() {
 			a.updates.busy = false
+			a.updates.installing = false
 			if err != nil {
 				a.updates.message = locales.UpdateFailed(err)
 				return

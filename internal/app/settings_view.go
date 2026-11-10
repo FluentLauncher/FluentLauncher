@@ -145,6 +145,7 @@ func (a *App) settingsView(c *ui.Context) {
 			})
 		})
 	})
+	a.updateNotesDialog(c)
 	if a.settingsWin != nil && a.draftChanged() {
 		a.scheduleSettingsSave()
 	}
@@ -1081,7 +1082,7 @@ func (a *App) aboutPage(c *ui.Context) {
 				ui.Image(c, logo).Size(40, 40).Radius(9)
 			}
 			ui.Column(c).Gap(2).Children(func() {
-				ui.Text(c, "FluentLauncher "+appVersion()).FontSize(14).Bold().TextColor(c.Theme().Text)
+				ui.Text(c, "FluentLauncher").FontSize(14).Bold().TextColor(c.Theme().Text)
 				ui.Text(c, locales.SettingsAboutDataDir(a.dataDir)).FontSize(12).TextColor(c.Theme().TextMuted)
 			})
 		})

@@ -1,7 +1,8 @@
 param(
     [string]$Tag = '',
     [string]$Repository = $env:GITHUB_REPOSITORY,
-    [switch]$Signed
+    [switch]$Signed,
+    [string]$NotesFile = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -14,8 +15,8 @@ $utf8 = [Text.UTF8Encoding]::new($false)
 try {
     $config = $originalConfig | ConvertFrom-Json
     if ($Tag) {
-        if ($Tag -notmatch '^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$') {
-            throw 'Release tags must be stable versions such as v0.2.0'
+        if ($Tag -notmatch '^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-nightly\.[1-9][0-9]*\.[1-9][0-9]*\.[1-9][0-9]*)?$') {
+            throw 'Release tags must be stable versions or versioned nightly builds'
         }
         $config.version = $Tag.Substring(1)
     }
@@ -34,6 +35,9 @@ try {
             github = $Repository
             deltas = 0
         } -Force
+        if ($NotesFile) {
+            $config.updates.changelog = [IO.Path]::GetFullPath($NotesFile)
+        }
     }
     $pluginRepository = $env:FLUENTLAUNCHER_PLUGIN_REPOSITORY
     if (-not $pluginRepository) { $pluginRepository = 'FluentLauncher/FluentLauncher-plugins' }
@@ -79,8 +83,9 @@ try {
         }
         if (Test-Path -LiteralPath $sidecar) { Remove-Item -LiteralPath $sidecar -Recurse -Force }
     }
-    $checksums = Get-ChildItem -LiteralPath $output -File |
-        Where-Object Name -ne 'SHA256SUMS' |
+    $releaseFiles = @($exe)
+    if ($Signed) { $releaseFiles += @($archive, $manifest) }
+    $checksums = Get-Item -LiteralPath $releaseFiles |
         Sort-Object Name |
         ForEach-Object { (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() + '  ' + $_.Name }
     [IO.File]::WriteAllText((Join-Path $output 'SHA256SUMS'), ($checksums -join "`n") + "`n", $utf8)

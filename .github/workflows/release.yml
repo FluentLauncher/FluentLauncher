@@ -2,9 +2,15 @@ name: Windows release
 
 on:
   push:
+    branches: ['main']
     tags: ['v*']
   workflow_dispatch:
     inputs:
+      action:
+        description: 'Build only, publish nightly, or bump and publish stable'
+        type: choice
+        options: [build, nightly, patch, minor, major]
+        default: build
       signed:
         description: 'Build with signed updates (requires repository keys)'
         type: boolean
@@ -14,7 +20,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: windows-release
   cancel-in-progress: false
 
 jobs:
@@ -29,11 +35,22 @@ jobs:
         shell: pwsh
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
           cache: true
+      - name: Test release planning and publishing guards
+        run: ./scripts/test-release.ps1
+      - name: Plan release and generate notes
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ACTION: ${{ startsWith(github.ref, 'refs/tags/') && 'tag' || (github.event_name == 'push' && 'nightly' || inputs.action) }}
+        run: ./scripts/prepare-release.ps1 -Action $env:RELEASE_ACTION -Tag $env:GITHUB_REF_NAME
       - name: Validate
+        if: steps.release.outputs.skip != 'true'
         run: |
           go build ./...
           if ($LASTEXITCODE -ne 0) { throw 'go build failed' }
@@ -46,35 +63,26 @@ jobs:
           go tool mygo i18n check .
           if ($LASTEXITCODE -ne 0) { throw 'i18n check failed' }
       - name: Build portable EXE and signed updates
+        if: steps.release.outputs.skip != 'true'
         env:
           MYGO_UPDATER_PUBLIC_KEY: ${{ vars.MYGO_UPDATER_PUBLIC_KEY }}
           MYGO_UPDATER_PRIVATE_KEY: ${{ secrets.MYGO_UPDATER_PRIVATE_KEY }}
           FLUENTLAUNCHER_PLUGIN_PUBLIC_KEY: ${{ vars.FLUENTLAUNCHER_PLUGIN_PUBLIC_KEY }}
           FLUENTLAUNCHER_PLUGIN_REPOSITORY: ${{ vars.FLUENTLAUNCHER_PLUGIN_REPOSITORY }}
-          SIGNED_BUILD: ${{ startsWith(github.ref, 'refs/tags/') || inputs.signed }}
+          SIGNED_BUILD: ${{ steps.release.outputs.publish == 'true' || inputs.signed }}
         run: |
-          $tag = ''
-          if ($env:GITHUB_REF.StartsWith('refs/tags/')) { $tag = $env:GITHUB_REF_NAME }
-          ./scripts/build-release.ps1 -Tag $tag -Signed:($env:SIGNED_BUILD -eq 'true')
+          $plan = Get-Content -Raw build/release-plan.json | ConvertFrom-Json
+          $notes = ''
+          if ($plan.publish) { $notes = Join-Path $PWD 'build/update-changelog.md' }
+          ./scripts/build-release.ps1 -Tag $plan.tag -NotesFile $notes -Signed:($env:SIGNED_BUILD -eq 'true')
       - uses: actions/upload-artifact@v4
+        if: steps.release.outputs.skip != 'true'
         with:
           name: FluentLauncher-windows-x64
           path: build/release/windows-amd64/*
           if-no-files-found: error
       - name: Publish release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: steps.release.outputs.publish == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          $release = gh release view $env:GITHUB_REF_NAME --repo $env:GITHUB_REPOSITORY --json isDraft 2>$null
-          if ($LASTEXITCODE -eq 0) {
-            if (-not ($release | ConvertFrom-Json).isDraft) { throw 'Refusing to replace an already published release; use a new version tag' }
-          } else {
-            gh release create $env:GITHUB_REF_NAME --repo $env:GITHUB_REPOSITORY --verify-tag --draft --title $env:GITHUB_REF_NAME --generate-notes
-            if ($LASTEXITCODE -ne 0) { throw 'Creating draft release failed' }
-          }
-          $files = @(Get-ChildItem -LiteralPath build/release/windows-amd64 -File | ForEach-Object FullName)
-          gh release upload $env:GITHUB_REF_NAME --repo $env:GITHUB_REPOSITORY --clobber @files
-          if ($LASTEXITCODE -ne 0) { throw 'Uploading release assets failed' }
-          gh release edit $env:GITHUB_REF_NAME --repo $env:GITHUB_REPOSITORY --draft=false --latest
-          if ($LASTEXITCODE -ne 0) { throw 'Publishing release failed' }
+        run: ./scripts/publish-release.ps1

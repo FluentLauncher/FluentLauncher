@@ -12,6 +12,43 @@ func TestDefaultValidates(t *testing.T) {
 	}
 }
 
+func TestUpdateChannelDefaultsAndPersistence(t *testing.T) {
+	for _, input := range []string{`{}`, `{"UpdateChannel":"stable"}`, `{"UpdateChannel":"nightly"}`} {
+		var s LauncherSettings
+		if err := json.Unmarshal([]byte(input), &s); err != nil {
+			t.Fatal(err)
+		}
+		if err := s.Validate(); err != nil {
+			t.Fatal(err)
+		}
+		for _, version := range []string{"0.1.0", "0.1.1-nightly.20261110.123.1"} {
+			want := s.UpdateChannel
+			if want == UpdateChannelDefault {
+				want = UpdateChannelStable
+				if version != "0.1.0" {
+					want = UpdateChannelNightly
+				}
+			}
+			if got := s.EffectiveUpdateChannel(version); got != want {
+				t.Fatalf("%s on %s: got %s, want %s", input, version, got, want)
+			}
+		}
+		data, err := json.Marshal(s)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var restored LauncherSettings
+		if err := json.Unmarshal(data, &restored); err != nil || restored.UpdateChannel != s.UpdateChannel {
+			t.Fatalf("channel choice did not persist: %s, %v", data, err)
+		}
+	}
+	s := Default()
+	s.UpdateChannel = "unknown"
+	if err := s.Validate(); err == nil {
+		t.Fatal("unsupported update channel was accepted")
+	}
+}
+
 func TestLegacyMicaControlsAreIgnored(t *testing.T) {
 	var theme ThemeSettings
 	if err := json.Unmarshal([]byte(`{"Background":"Mica","Opacity":0.4,"MicaStrength":0.8}`), &theme); err != nil {

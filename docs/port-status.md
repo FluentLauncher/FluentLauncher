@@ -4,7 +4,7 @@
 
 ## 已复刻
 
-新增发布能力：GitHub Actions 生成 Windows x64 单文件 EXE，官方插件不嵌入；签名正式版本支持后台检测、手动检测和原地更新后重启。配置与验证边界见 docs/releasing.md。
+新增发布能力：GitHub Actions 生成 Windows x64 单文件 EXE，main 自动发布独立 nightly，正式版支持一键递增版本；官方插件不嵌入。签名构建支持稳定版／预览版更新通道、后台检测、手动检测和原地更新后重启。配置与验证边界见 docs/releasing.md。
 
 | 原 C# 模块 | Go 落点 | 状态 |
 | --- | --- | --- |

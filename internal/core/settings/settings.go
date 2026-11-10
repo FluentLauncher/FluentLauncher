@@ -276,6 +276,24 @@ const (
 	LanguageEn     = "en"
 )
 
+const (
+	UpdateChannelDefault = ""
+	UpdateChannelStable  = "stable"
+	UpdateChannelNightly = "nightly"
+)
+
+// EffectiveUpdateChannel follows the build until the user explicitly chooses
+// a channel. Older settings therefore also work when a nightly is downloaded.
+func (s LauncherSettings) EffectiveUpdateChannel(version string) string {
+	if s.UpdateChannel != UpdateChannelDefault {
+		return s.UpdateChannel
+	}
+	if strings.Contains(version, "-nightly.") {
+		return UpdateChannelNightly
+	}
+	return UpdateChannelStable
+}
+
 // LauncherSettings is settings.json. JSON names stay PascalCase so the C#
 // implementation and user-edited files keep working.
 type LauncherSettings struct {
@@ -283,6 +301,7 @@ type LauncherSettings struct {
 	// Language is a BCP 47 tag of the interface language, or "" to follow
 	// the system. It is applied with mygo.App.SetLocale.
 	Language           string                       `json:"Language"`
+	UpdateChannel      string                       `json:"UpdateChannel,omitempty"`
 	Hotkey             string                       `json:"Hotkey"`
 	Shortcuts          map[string]shortcuts.Binding `json:"Shortcuts"`
 	ShowRecentEntries  bool                         `json:"ShowRecentEntries"`
@@ -409,6 +428,11 @@ func (s LauncherSettings) Validate() error {
 	case LanguageSystem, LanguageZhHans, LanguageZhHant, LanguageEn:
 	default:
 		return errors.New(locales.ValidateLanguage())
+	}
+	switch s.UpdateChannel {
+	case UpdateChannelDefault, UpdateChannelStable, UpdateChannelNightly:
+	default:
+		return errors.New(locales.ValidateUpdateChannel())
 	}
 	if _, err := shortcuts.ValidateKey(s.Hotkey, shortcuts.Global); err != nil {
 		return errors.New(locales.ValidateHotkey())

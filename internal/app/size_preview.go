@@ -41,6 +41,7 @@ type panelDrag struct {
 // settings.
 func (a *App) panelSizePreview(c *ui.Context) {
 	theme := c.Theme()
+	mica := a.micaSurface(theme, a.settingsDraft.Theme)
 	workWidth, workHeight := float32(a.workArea.Width), float32(a.workArea.Height)
 	if workWidth <= 0 || workHeight <= 0 {
 		workWidth, workHeight = 1920, 1080
@@ -81,7 +82,7 @@ func (a *App) panelSizePreview(c *ui.Context) {
 			p.Clip(panel, 4, func() {
 				// Share material colors and alpha with the real panel.
 				if a.settingsDraft.Theme.Background == settings.BackgroundMica || a.settingsDraft.Theme.Background == settings.BackgroundAcrylic {
-					a.drawBackgroundPlate(p, panel, theme, a.settingsDraft.Theme)
+					a.drawBackgroundPlate(p, panel, theme, a.settingsDraft.Theme, mica)
 				} else {
 					p.Fill(panel, theme.Accent.Alpha(0.14), 4)
 				}

@@ -6288,13 +6288,13 @@ func (msgs Messages) SettingsThemeBackground() string {
 	return Catalog.Format(msgs.locale, "settingsThemeBackground", nil)
 }
 
-// SettingsThemeBackgroundHint says "亚克力模糊后景；云母融合壁纸色调，两者均可调背景透明度"
+// SettingsThemeBackgroundHint says "亚克力模糊下层窗口；云母呈现柔化的壁纸光影，两者均可调背景透明度"
 // in the language the app shows.
 //
 // Appearance page: hint of the background material dropdown.
 func SettingsThemeBackgroundHint() string { return In(i18n.Locale()).SettingsThemeBackgroundHint() }
 
-// SettingsThemeBackgroundHint says "亚克力模糊后景；云母融合壁纸色调，两者均可调背景透明度"
+// SettingsThemeBackgroundHint says "亚克力模糊下层窗口；云母呈现柔化的壁纸光影，两者均可调背景透明度"
 // in the language of msgs.
 //
 // Appearance page: hint of the background material dropdown.
@@ -6422,7 +6422,7 @@ func (msgs Messages) SettingsBackgroundColorBlurHint() string {
 	return Catalog.Format(msgs.locale, "settingsBackgroundColorBlurHint", nil)
 }
 
-// SettingsBackgroundColorMicaHint says "与壁纸色调融合的底色，留空跟随主题"
+// SettingsBackgroundColorMicaHint says "云母的基础色调，留空跟随主题；壁纸提供柔和光影"
 // in the language the app shows.
 //
 // Appearance page: base tint of the adjustable wallpaper-derived mica
@@ -6431,7 +6431,7 @@ func SettingsBackgroundColorMicaHint() string {
 	return In(i18n.Locale()).SettingsBackgroundColorMicaHint()
 }
 
-// SettingsBackgroundColorMicaHint says "与壁纸色调融合的底色，留空跟随主题"
+// SettingsBackgroundColorMicaHint says "云母的基础色调，留空跟随主题；壁纸提供柔和光影"
 // in the language of msgs.
 //
 // Appearance page: base tint of the adjustable wallpaper-derived mica
@@ -6572,14 +6572,14 @@ func (msgs Messages) SettingsMicaStrength() string {
 	return Catalog.Format(msgs.locale, "settingsMicaStrength", nil)
 }
 
-// SettingsMicaStrengthHint says "0% 只用背景色，100% 使用壁纸色调；不改变背景不透明度"
+// SettingsMicaStrengthHint says "0% 只用背景色，100% 壁纸光影与柔和色彩最明显；不改变背景不透明度"
 // in the language the app shows.
 //
 // Appearance page: mica color strength is independent of the background
 // alpha.
 func SettingsMicaStrengthHint() string { return In(i18n.Locale()).SettingsMicaStrengthHint() }
 
-// SettingsMicaStrengthHint says "0% 只用背景色，100% 使用壁纸色调；不改变背景不透明度"
+// SettingsMicaStrengthHint says "0% 只用背景色，100% 壁纸光影与柔和色彩最明显；不改变背景不透明度"
 // in the language of msgs.
 //
 // Appearance page: mica color strength is independent of the background

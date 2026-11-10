@@ -3,8 +3,8 @@
 // Windows blurs what is behind them.
 //
 // ACCENT_ENABLE_BLURBEHIND blurs the real windows behind a transparent surface,
-// which the app uses for acrylic only. Adjustable mica is drawn from cached
-// wallpaper colors in the app, without enabling an opaque system backdrop.
+// which the app uses for acrylic only. Adjustable mica is drawn from a cached
+// diffuse wallpaper texture, without enabling an opaque system backdrop.
 package glass
 
 import (

@@ -2295,7 +2295,7 @@
   "@settingsThemeBackground": {
     "description": "Appearance page: the background material dropdown label."
   },
-  "settingsThemeBackgroundHint": "亚克力模糊后景；云母融合壁纸色调，两者均可调背景透明度",
+  "settingsThemeBackgroundHint": "亚克力模糊下层窗口；云母呈现柔化的壁纸光影，两者均可调背景透明度",
   "@settingsThemeBackgroundHint": {
     "description": "Appearance page: hint of the background material dropdown."
   },
@@ -2331,7 +2331,7 @@
   "@settingsBackgroundColorBlurHint": {
     "description": "Appearance page: hint of the background color well for acrylic backgrounds."
   },
-  "settingsBackgroundColorMicaHint": "与壁纸色调融合的底色，留空跟随主题",
+  "settingsBackgroundColorMicaHint": "云母的基础色调，留空跟随主题；壁纸提供柔和光影",
   "@settingsBackgroundColorMicaHint": {
     "description": "Appearance page: base tint of the adjustable wallpaper-derived mica material."
   },
@@ -2371,7 +2371,7 @@
   "@settingsMicaStrength": {
     "description": "Appearance page: wallpaper-derived mica strength slider label."
   },
-  "settingsMicaStrengthHint": "0% 只用背景色，100% 使用壁纸色调；不改变背景不透明度",
+  "settingsMicaStrengthHint": "0% 只用背景色，100% 壁纸光影与柔和色彩最明显；不改变背景不透明度",
   "@settingsMicaStrengthHint": {
     "description": "Appearance page: mica color strength is independent of the background alpha."
   },

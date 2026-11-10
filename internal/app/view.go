@@ -424,15 +424,16 @@ func (a *App) drawBackground(c *ui.Context, theme *ui.Theme) {
 	// the background of every mode; a color's own alpha is ignored, so it
 	// cannot make the window translucent twice.
 	plate := layer()
+	mica := a.micaSurface(theme, value)
 	plate.Draw(func(p *ui.Painter, r ui.Rect) {
-		a.drawBackgroundPlate(p, r, theme, value)
+		a.drawBackgroundPlate(p, r, theme, value, mica)
 	})
 }
 
 // drawBackgroundPlate is shared with the miniature. Each material uses the
 // same background alpha; neither a native opaque base nor stacked translucent
 // layers can bypass the opacity slider.
-func (a *App) drawBackgroundPlate(p *ui.Painter, r ui.Rect, theme *ui.Theme, value settings.ThemeSettings) {
+func (a *App) drawBackgroundPlate(p *ui.Painter, r ui.Rect, theme *ui.Theme, value settings.ThemeSettings, mica *ui.Bitmap) {
 	opacity := float32(clampFloat(value.Opacity, 0, 1))
 	tint := theme.Background
 	if parsed, ok := parseOpaqueColor(value.BackgroundColor); ok {
@@ -447,15 +448,11 @@ func (a *App) drawBackgroundPlate(p *ui.Painter, r ui.Rect, theme *ui.Theme, val
 		}
 		p.FillGradient(r, ui.LinearGradient{From: withAlpha(tint, opacity), To: withAlpha(to, opacity), Angle: 180}, 0)
 	case settings.BackgroundMica:
-		from, to := tint, tint
-		if a.micaPalette[0].A != 0 && a.micaPalette[1].A != 0 {
-			// Material strength changes the wallpaper colors, independently
-			// of the final background alpha controlled by Opacity.
-			strength := float32(clampFloat(value.MicaStrength, 0, 1))
-			from = tint.Mix(a.micaPalette[0], strength)
-			to = tint.Mix(a.micaPalette[1], strength)
+		if mica != nil {
+			p.ImageRegion(mica, ui.Rect{}, r, ui.ImageOptions{Tint: ui.RGBA(255, 255, 255, opacity)})
+		} else {
+			p.Fill(r, withAlpha(tint, opacity), 0)
 		}
-		p.FillGradient(r, ui.LinearGradient{From: withAlpha(from, opacity), To: withAlpha(to, opacity), Angle: 180}, 0)
 	default:
 		p.Fill(r, withAlpha(tint, opacity), 0)
 	}

@@ -2,6 +2,8 @@ package app
 
 import (
 	"fmt"
+	"image"
+	"image/color"
 	"image/png"
 	"os"
 	"path/filepath"
@@ -12,8 +14,19 @@ import (
 
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/winapi/wallpaper"
 	"fluentlauncher/locales"
 )
+
+func testMicaWallpaper() *image.NRGBA {
+	img := image.NewNRGBA(image.Rect(0, 0, 64, 40))
+	for y := 0; y < 40; y++ {
+		for x := 0; x < 64; x++ {
+			img.SetNRGBA(x, y, color.NRGBA{R: uint8(40 + x), G: uint8(60 + y*3), B: uint8(40 + x/2), A: 255})
+		}
+	}
+	return img
+}
 
 func TestBackdropMaterialsStayDistinct(t *testing.T) {
 	for _, mode := range []settings.BackgroundMode{
@@ -33,7 +46,7 @@ func TestMicaBackgroundOpacity(t *testing.T) {
 			t.Run(fmt.Sprintf("wallpaper=%t/opacity=%g", wallpaper, opacity), func(t *testing.T) {
 				a := newLocalizedApp()
 				if wallpaper {
-					a.micaPalette = [2]ui.Color{ui.RGB(80, 120, 200), ui.RGB(180, 100, 60)}
+					a.mica.wallpaper = testMicaWallpaper()
 				}
 				a.settings.Theme.Background = settings.BackgroundMica
 				a.settings.Theme.BackgroundColor = "#80336699"
@@ -86,7 +99,7 @@ func TestMicaStrengthDoesNotChangeOpacity(t *testing.T) {
 		a.settings.Theme.Background = settings.BackgroundMica
 		a.settings.Theme.Opacity = opacity
 		a.settings.Theme.MicaStrength = 0
-		a.micaPalette = [2]ui.Color{ui.RGB(40, 150, 70), ui.RGB(30, 60, 140)}
+		a.mica.wallpaper = testMicaWallpaper()
 		tt := ui.NewTester(func(c *ui.Context) {
 			theme := *c.Theme()
 			a.applyUITheme(&theme)
@@ -102,6 +115,34 @@ func TestMicaStrengthDoesNotChangeOpacity(t *testing.T) {
 		}
 		if tt.Image().RGBAAt(50, 10) == tt.Image().RGBAAt(50, 70) {
 			t.Fatal("full opacity erased the wallpaper-derived mica variation")
+		}
+	}
+}
+
+func TestMicaMaximumStrengthKeepsThemeBrightness(t *testing.T) {
+	for _, dark := range []bool{false, true} {
+		a := newLocalizedApp()
+		a.settings.Theme.Background = settings.BackgroundMica
+		a.settings.Theme.Opacity, a.settings.Theme.MicaStrength = 1, 1
+		a.mica.wallpaper = testMicaWallpaper()
+		tt := ui.NewTester(func(c *ui.Context) {
+			theme := *c.Theme()
+			a.applyUITheme(&theme)
+			c.SetTheme(&theme)
+			ui.Grid(c).Fill().Children(func() { a.drawBackground(c, &theme) })
+		}, 120, 80)
+		tt.SetDark(dark)
+		for _, pt := range []image.Point{{5, 5}, {60, 40}, {115, 75}} {
+			p := tt.Image().RGBAAt(pt.X, pt.Y)
+			if dark && max(p.R, p.G, p.B) > 70 || !dark && min(p.R, p.G, p.B) < 210 {
+				t.Fatalf("raw wallpaper brightness overrode theme: dark=%t pixel=%+v", dark, p)
+			}
+		}
+		first := a.mica.surface
+		a.settings.Theme.Opacity = 0.4
+		tt.Frame()
+		if a.mica.surface != first {
+			t.Fatal("opacity rebuilt the cached wallpaper surface")
 		}
 	}
 }
@@ -130,27 +171,38 @@ func TestMicaPreview(t *testing.T) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatal(err)
 	}
+	texture := testMicaWallpaper()
+	if os.Getenv("FL_MATERIAL_ACTUAL_WALLPAPER") == "1" {
+		var ok bool
+		texture, ok = wallpaper.Diffuse()
+		if !ok {
+			t.Fatal("actual wallpaper could not be diffused")
+		}
+	}
 	for _, dark := range []bool{false, true} {
-		for _, opacity := range []float64{0.25, 0.55, 1} {
-			a := newLocalizedApp()
-			a.settingsHover = -1
-			a.settingsPage = pageAppearance
-			a.settings.Theme.Background = settings.BackgroundMica
-			a.settings.Theme.Opacity = opacity
-			a.micaPalette = [2]ui.Color{ui.RGB(80, 120, 200), ui.RGB(180, 100, 60)}
-			a.settingsDraft = a.settings
-			tt := ui.NewTester(a.settingsView, 1180, 840)
-			tt.SetDark(dark)
-			tt.Advance(time.Second)
-			path := filepath.Join(dir, fmt.Sprintf("mica-dark-%t-opacity-%.2f.png", dark, opacity))
-			f, err := os.Create(path)
-			if err != nil {
-				t.Fatal(err)
-			}
-			err = png.Encode(f, tt.Image())
-			closeErr := f.Close()
-			if err != nil || closeErr != nil {
-				t.Fatalf("write preview: encode=%v, close=%v", err, closeErr)
+		for _, strength := range []float64{0, 0.42, 1} {
+			for _, opacity := range []float64{0.55, 1} {
+				a := newLocalizedApp()
+				a.settingsHover = -1
+				a.settingsPage = pageAppearance
+				a.settings.Theme.Background = settings.BackgroundMica
+				a.settings.Theme.Opacity = opacity
+				a.settings.Theme.MicaStrength = strength
+				a.mica.wallpaper = texture
+				a.settingsDraft = a.settings
+				tt := ui.NewTester(a.settingsView, 1180, 840)
+				tt.SetDark(dark)
+				tt.Advance(time.Second)
+				path := filepath.Join(dir, fmt.Sprintf("mica-dark-%t-opacity-%.2f-strength-%.2f.png", dark, opacity, strength))
+				f, err := os.Create(path)
+				if err != nil {
+					t.Fatal(err)
+				}
+				err = png.Encode(f, tt.Image())
+				closeErr := f.Close()
+				if err != nil || closeErr != nil {
+					t.Fatalf("write preview: encode=%v, close=%v", err, closeErr)
+				}
 			}
 		}
 	}

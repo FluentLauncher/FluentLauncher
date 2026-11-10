@@ -91,16 +91,14 @@ type App struct {
 	loading        atomic.Bool
 	lastDiscovery  time.Time
 
-	icons              map[string]*ui.Bitmap
-	iconLoading        map[string]bool
-	iconSize           int
-	iconPixels         int
-	scaleFactor        float64
-	mem                string
-	background         *ui.Bitmap
-	micaPalette        [2]ui.Color
-	micaPaletteAt      time.Time
-	micaPaletteLoading bool
+	icons       map[string]*ui.Bitmap
+	iconLoading map[string]bool
+	iconSize    int
+	iconPixels  int
+	scaleFactor float64
+	mem         string
+	background  *ui.Bitmap
+	mica        micaState
 
 	settingsPage  int
 	settingsDraft settings.LauncherSettings
@@ -535,7 +533,7 @@ func (a *App) refreshIfStale() {
 
 func (a *App) show() {
 	if a.displayTheme().Background == settings.BackgroundMica {
-		a.refreshMicaPalette()
+		a.refreshMicaWallpaper()
 	}
 	a.positionPanel()
 	a.query = ""
@@ -896,7 +894,7 @@ func (a *App) applyThemeFrom(value settings.ThemeSettings) {
 	}
 	a.applyBackdrop(value)
 	if value.Background == settings.BackgroundMica {
-		a.refreshMicaPalette()
+		a.refreshMicaWallpaper()
 	}
 	if value.Background == settings.BackgroundImage && value.ImagePath != "" {
 		if data, err := os.ReadFile(value.ImagePath); err == nil {

@@ -6288,13 +6288,13 @@ func (msgs Messages) SettingsThemeBackground() string {
 	return Catalog.Format(msgs.locale, "settingsThemeBackground", nil)
 }
 
-// SettingsThemeBackgroundHint says "亚克力模糊透出下层窗口；云母使用随主题与壁纸变化的系统底色"
+// SettingsThemeBackgroundHint says "亚克力模糊后景；云母融合壁纸色调，两者均可调背景透明度"
 // in the language the app shows.
 //
 // Appearance page: hint of the background material dropdown.
 func SettingsThemeBackgroundHint() string { return In(i18n.Locale()).SettingsThemeBackgroundHint() }
 
-// SettingsThemeBackgroundHint says "亚克力模糊透出下层窗口；云母使用随主题与壁纸变化的系统底色"
+// SettingsThemeBackgroundHint says "亚克力模糊后景；云母融合壁纸色调，两者均可调背景透明度"
 // in the language of msgs.
 //
 // Appearance page: hint of the background material dropdown.
@@ -6422,18 +6422,20 @@ func (msgs Messages) SettingsBackgroundColorBlurHint() string {
 	return Catalog.Format(msgs.locale, "settingsBackgroundColorBlurHint", nil)
 }
 
-// SettingsBackgroundColorMicaHint says "系统云母底色上的着色，留空跟随主题"
+// SettingsBackgroundColorMicaHint says "与壁纸色调融合的底色，留空跟随主题"
 // in the language the app shows.
 //
-// Appearance page: tint applied above the native Mica material.
+// Appearance page: base tint of the adjustable wallpaper-derived mica
+// material.
 func SettingsBackgroundColorMicaHint() string {
 	return In(i18n.Locale()).SettingsBackgroundColorMicaHint()
 }
 
-// SettingsBackgroundColorMicaHint says "系统云母底色上的着色，留空跟随主题"
+// SettingsBackgroundColorMicaHint says "与壁纸色调融合的底色，留空跟随主题"
 // in the language of msgs.
 //
-// Appearance page: tint applied above the native Mica material.
+// Appearance page: base tint of the adjustable wallpaper-derived mica
+// material.
 func (msgs Messages) SettingsBackgroundColorMicaHint() string {
 	return Catalog.Format(msgs.locale, "settingsBackgroundColorMicaHint", nil)
 }
@@ -6508,20 +6510,82 @@ func (msgs Messages) SettingsOpacityBlurHint() string {
 	return Catalog.Format(msgs.locale, "settingsOpacityBlurHint", nil)
 }
 
-// SettingsOpacityMicaHint says "云母上的着色强度：0% 保留系统云母，100% 使用不透明背景色；云母不透出下层窗口"
+// SettingsOpacityMicaHint says "云母背景的不透明度：0% 完全透明，100% 完全不透明；文字与控件保持清晰"
 // in the language the app shows.
 //
-// Appearance page: Mica remains opaque while the slider controls the app
-// tint.
+// Appearance page: mica opacity affects only the rendered background, not
+// text or controls.
 func SettingsOpacityMicaHint() string { return In(i18n.Locale()).SettingsOpacityMicaHint() }
 
-// SettingsOpacityMicaHint says "云母上的着色强度：0% 保留系统云母，100% 使用不透明背景色；云母不透出下层窗口"
+// SettingsOpacityMicaHint says "云母背景的不透明度：0% 完全透明，100% 完全不透明；文字与控件保持清晰"
 // in the language of msgs.
 //
-// Appearance page: Mica remains opaque while the slider controls the app
-// tint.
+// Appearance page: mica opacity affects only the rendered background, not
+// text or controls.
 func (msgs Messages) SettingsOpacityMicaHint() string {
 	return Catalog.Format(msgs.locale, "settingsOpacityMicaHint", nil)
+}
+
+// SettingsBackgroundOpacity says "背景不透明度"
+// in the language the app shows.
+//
+// Appearance page: background opacity slider label, separate from material
+// strength.
+func SettingsBackgroundOpacity() string { return In(i18n.Locale()).SettingsBackgroundOpacity() }
+
+// SettingsBackgroundOpacity says "背景不透明度"
+// in the language of msgs.
+//
+// Appearance page: background opacity slider label, separate from material
+// strength.
+func (msgs Messages) SettingsBackgroundOpacity() string {
+	return Catalog.Format(msgs.locale, "settingsBackgroundOpacity", nil)
+}
+
+// SettingsMicaMaterialCard says "云母与透明度"
+// in the language the app shows.
+//
+// Appearance page: card containing independent mica strength and opacity
+// sliders.
+func SettingsMicaMaterialCard() string { return In(i18n.Locale()).SettingsMicaMaterialCard() }
+
+// SettingsMicaMaterialCard says "云母与透明度"
+// in the language of msgs.
+//
+// Appearance page: card containing independent mica strength and opacity
+// sliders.
+func (msgs Messages) SettingsMicaMaterialCard() string {
+	return Catalog.Format(msgs.locale, "settingsMicaMaterialCard", nil)
+}
+
+// SettingsMicaStrength says "云母强度"
+// in the language the app shows.
+//
+// Appearance page: wallpaper-derived mica strength slider label.
+func SettingsMicaStrength() string { return In(i18n.Locale()).SettingsMicaStrength() }
+
+// SettingsMicaStrength says "云母强度"
+// in the language of msgs.
+//
+// Appearance page: wallpaper-derived mica strength slider label.
+func (msgs Messages) SettingsMicaStrength() string {
+	return Catalog.Format(msgs.locale, "settingsMicaStrength", nil)
+}
+
+// SettingsMicaStrengthHint says "0% 只用背景色，100% 使用壁纸色调；不改变背景不透明度"
+// in the language the app shows.
+//
+// Appearance page: mica color strength is independent of the background
+// alpha.
+func SettingsMicaStrengthHint() string { return In(i18n.Locale()).SettingsMicaStrengthHint() }
+
+// SettingsMicaStrengthHint says "0% 只用背景色，100% 使用壁纸色调；不改变背景不透明度"
+// in the language of msgs.
+//
+// Appearance page: mica color strength is independent of the background
+// alpha.
+func (msgs Messages) SettingsMicaStrengthHint() string {
+	return Catalog.Format(msgs.locale, "settingsMicaStrengthHint", nil)
 }
 
 // SettingsOpacityImageHint says "图片整体的不透明度，蒙版另算"

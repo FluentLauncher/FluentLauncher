@@ -567,19 +567,30 @@ func (a *App) appearancePage(c *ui.Context) {
 			a.colorRow(c, locales.SettingsGradientEnd(), locales.SettingsGradientEndHint(), &draft.GradientColor, theme.Surface, true)
 		}
 	})
-	settingCard(c, locales.SettingsOpacity(), func(c *ui.Context) {
+	materialCard := locales.SettingsOpacity()
+	if background == settings.BackgroundMica {
+		materialCard = locales.SettingsMicaMaterialCard()
+	}
+	settingCard(c, materialCard, func(c *ui.Context) {
 		hint := locales.SettingsOpacityHint()
+		opacityLabel := locales.SettingsOpacity()
 		switch background {
 		case settings.BackgroundAcrylic:
 			hint = locales.SettingsOpacityBlurHint()
 		case settings.BackgroundMica:
 			hint = locales.SettingsOpacityMicaHint()
+			opacityLabel = locales.SettingsBackgroundOpacity()
 		case settings.BackgroundImage:
 			hint = locales.SettingsOpacityImageHint()
 		}
-		a.sliderRow(c, locales.SettingsOpacity(), hint, &draft.Opacity, 0, 1, func(v float64) string {
+		a.sliderRow(c, opacityLabel, hint, &draft.Opacity, 0, 1, func(v float64) string {
 			return fmt.Sprintf("%.0f%%", v*100)
 		})
+		if background == settings.BackgroundMica {
+			a.sliderRow(c, locales.SettingsMicaStrength(), locales.SettingsMicaStrengthHint(), &draft.MicaStrength, 0, 1, func(v float64) string {
+				return fmt.Sprintf("%.0f%%", v*100)
+			})
+		}
 	})
 	if background == settings.BackgroundImage {
 		settingCard(c, locales.SettingsImageCard(), func(c *ui.Context) {

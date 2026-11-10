@@ -79,11 +79,9 @@ func (a *App) panelSizePreview(c *ui.Context) {
 			p.Stroke(desk, theme.Border, 6, 1)
 			panel := ui.Rect{X: r.X + panelX, Y: r.Y + panelY, W: panelWidth, H: panelHeight}
 			p.Clip(panel, 4, func() {
-				// The miniature cannot ask DWM for a second material inside
-				// this window. Mica uses the same opaque theme fallback as
-				// the real view when native materials are unavailable.
+				// Share material colors and alpha with the real panel.
 				if a.settingsDraft.Theme.Background == settings.BackgroundMica || a.settingsDraft.Theme.Background == settings.BackgroundAcrylic {
-					drawBackgroundPlate(p, panel, theme, a.settingsDraft.Theme, false)
+					a.drawBackgroundPlate(p, panel, theme, a.settingsDraft.Theme)
 				} else {
 					p.Fill(panel, theme.Accent.Alpha(0.14), 4)
 				}

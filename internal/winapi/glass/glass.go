@@ -2,9 +2,9 @@
 // launcher's acrylic does: the window keeps its pixels transparent and
 // Windows blurs what is behind them.
 //
-// Native Mica is a separate wallpaper-based, opaque system backdrop, selected
-// through MyGo's SetVibrancy. ACCENT_ENABLE_BLURBEHIND blurs the real windows
-// behind a transparent surface, which the app uses for acrylic only.
+// ACCENT_ENABLE_BLURBEHIND blurs the real windows behind a transparent surface,
+// which the app uses for acrylic only. Adjustable mica is drawn from cached
+// wallpaper colors in the app, without enabling an opaque system backdrop.
 package glass
 
 import (

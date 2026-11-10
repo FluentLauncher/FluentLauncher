@@ -2,12 +2,46 @@ package settings
 
 import (
 	"encoding/json"
+	"math"
 	"testing"
 )
 
 func TestDefaultValidates(t *testing.T) {
 	if err := Default().Validate(); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestMicaStrengthDefaultsAndValidation(t *testing.T) {
+	for _, data := range []string{`{}`, `{"Background":"Mica","Opacity":0.7}`} {
+		var theme ThemeSettings
+		if err := json.Unmarshal([]byte(data), &theme); err != nil {
+			t.Fatal(err)
+		}
+		if theme.MicaStrength != DefaultTheme().MicaStrength {
+			t.Fatalf("legacy theme lost mica default: %+v", theme)
+		}
+	}
+	var theme ThemeSettings
+	if err := json.Unmarshal([]byte(`{"MicaStrength":0}`), &theme); err != nil || theme.MicaStrength != 0 {
+		t.Fatal("explicit zero mica strength was replaced by its default")
+	}
+	for _, value := range []float64{-0.1, 1.1, math.NaN(), math.Inf(1)} {
+		theme = DefaultTheme()
+		theme.MicaStrength = value
+		if ValidateTheme(theme) == nil {
+			t.Fatalf("invalid mica strength %v accepted", value)
+		}
+	}
+	theme = DefaultTheme()
+	theme.MicaStrength, theme.Opacity = 0.8, 0.4
+	data, err := json.Marshal(theme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var restored ThemeSettings
+	if err := json.Unmarshal(data, &restored); err != nil || restored.MicaStrength != 0.8 || restored.Opacity != 0.4 {
+		t.Fatal("mica strength and opacity did not persist independently")
 	}
 }
 

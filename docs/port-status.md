@@ -27,7 +27,7 @@
 | Plugin Host/Manager | internal/plugin | 帧协议、进程、Job Object、超时/取消/回收/暂停、按需下载安装与独立升级 |
 | SDK 与 Echo/DevTools/Clipboard 插件 | 独立 FluentLauncher-plugins 仓库 | 标准库 SDK；三个可执行插件与开发模板独立构建发布，剪贴板历史仅内存 50 条 |
 | MainWindow / SettingsWindow | internal/app | 搜索面板、动作面板、设置页、浮层、工作区结果 |
-| 窗口材质与标题栏 | internal/winapi/glass + internal/app/chrome.go | 亚克力模糊透出下层窗口；云母通过 MyGo VibrancyMica 使用 Windows 系统材质，不透出下层窗口；设置与工作区窗口自绘标题栏 |
+| 窗口材质与标题栏 | internal/winapi/glass + internal/app/chrome.go | 亚克力模糊透出下层窗口；云母通过缓存的壁纸上下区域色调与主题混合绘制，支持背景透明度；设置与工作区窗口自绘标题栏 |
 | 音量浮层 | internal/app/volume.go | 底部居中的胶囊：图标、进度条、百分比，自身带模糊 |
 | 插件 | internal/plugin + internal/app/settings_view.go | 独立进程、manifest 校验、状态/耗时/重启、每次搜索查询开关；设置页按插件展示状态与诊断 |
 | 系统功能搜索 | internal/core/systemsearch + internal/core/search | 79 条 Windows 设置/控制面板/系统工具目录，支持中文同义词、英文名与拼音首字母；回车经 ms-settings: 或 ShellExecute 打开 |
@@ -46,7 +46,7 @@
 
 - Everything 协议已实现并在本机真实客户端联调（修复过查询串 NUL 导致的 StringToUTF16 panic）；客户端未运行时给出提示而非崩溃。
 - 插件为新的可执行模型；旧 C# 插件不会运行（仓库会跳过 `entryAssembly` 包）。
-- 云母使用 Windows 原生 Mica，不支持或关闭系统材质时回退主题纯色；不透明度控制材质上的着色强度。无窗口预览只显示回退底色，无法替代真实 DWM 材质合成的视觉验收。
+- 为支持背景透明度，云母使用壁纸取色模拟，未启用不透明的 Windows 原生 Mica；壁纸不可读时使用主题底色。背景不透明度与云母强度独立：前者只影响背景 alpha，后者控制壁纸色调混合，文字与控件不随背景淡出；与亚克力的实时后景模糊分开。
 - 设置页的启动项/站点/工作区是基础编辑，缺少 C# 的完整校验提示与图标选择。
 - 动作面板默认支持 Ctrl+K / Shift+F10 / 菜单键打开，方向键选择、回车或 Alt+1–9 执行，Esc / Ctrl+K 返回；均可在快捷键页改键，自动化回归覆盖输入框/列表焦点、旧键停用、新键生效及返回查询。无障碍、主题包预览和高对比度仍需人工验收。
 - 插件为独立进程，其 manifest 名称/描述与结果文本不随界面语言翻译（属于插件内容，不在 catalog 内）；官方示例插件仍是中文。

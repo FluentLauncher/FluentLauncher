@@ -91,13 +91,16 @@ type App struct {
 	loading        atomic.Bool
 	lastDiscovery  time.Time
 
-	icons       map[string]*ui.Bitmap
-	iconLoading map[string]bool
-	iconSize    int
-	iconPixels  int
-	scaleFactor float64
-	mem         string
-	background  *ui.Bitmap
+	icons              map[string]*ui.Bitmap
+	iconLoading        map[string]bool
+	iconSize           int
+	iconPixels         int
+	scaleFactor        float64
+	mem                string
+	background         *ui.Bitmap
+	micaPalette        [2]ui.Color
+	micaPaletteAt      time.Time
+	micaPaletteLoading bool
 
 	settingsPage  int
 	settingsDraft settings.LauncherSettings
@@ -289,13 +292,10 @@ func (a *App) ready() {
 	}
 
 	a.panel = mygo.NewWindow(mygo.WindowOptions{
-		Panel:       true,
-		Hidden:      true,
-		Frameless:   true,
-		Transparent: true,
-		// Initialize material-capable composition before selecting the
-		// current backdrop; Windows cannot add it to an opaque surface later.
-		Vibrancy:      mygo.VibrancyMica,
+		Panel:         true,
+		Hidden:        true,
+		Frameless:     true,
+		Transparent:   true,
 		CornerRadius:  16,
 		Width:         a.settings.Width,
 		Height:        a.settings.Height,
@@ -534,6 +534,9 @@ func (a *App) refreshIfStale() {
 }
 
 func (a *App) show() {
+	if a.displayTheme().Background == settings.BackgroundMica {
+		a.refreshMicaPalette()
+	}
 	a.positionPanel()
 	a.query = ""
 	a.notice = ""
@@ -892,6 +895,9 @@ func (a *App) applyThemeFrom(value settings.ThemeSettings) {
 		mygo.Theme.SetSource(mygo.ThemeSystem)
 	}
 	a.applyBackdrop(value)
+	if value.Background == settings.BackgroundMica {
+		a.refreshMicaPalette()
+	}
 	if value.Background == settings.BackgroundImage && value.ImagePath != "" {
 		if data, err := os.ReadFile(value.ImagePath); err == nil {
 			if bitmap, err := ui.DecodeBitmap(data); err == nil {
@@ -910,36 +916,23 @@ func (a *App) applyThemeFrom(value settings.ThemeSettings) {
 	a.appliedTheme = value
 }
 
-// applyBackdrop gives mica its native wallpaper-based material. Only acrylic
-// blurs the live windows below; always clear that blur when changing materials.
+// Only acrylic blurs the live desktop. Mica is rendered from wallpaper colors
+// by the view so its background can fade without fading text and controls.
 func (a *App) applyBackdrop(value settings.ThemeSettings) {
 	blur := blursBehind(value)
 	for _, win := range []*mygo.Window{a.panel, a.settingsWin, a.workspaceWin} {
 		if win == nil {
 			continue
 		}
-		// Remove the system material before enabling legacy blur; remove
-		// legacy blur before enabling a system material in the other direction.
-		if blur {
-			win.SetVibrancy(mygo.VibrancyNone)
-		}
+		// An opaque native Mica backdrop would defeat the background slider.
+		win.SetVibrancy(mygo.VibrancyNone)
 		if err := glass.SetBlur(win.NativeHandle(), blur); err != nil {
 			log.Printf("theme: %v", err)
 		}
-		if !blur {
-			win.SetVibrancy(backdropMaterial(value))
-		}
 	}
 }
 
-func backdropMaterial(value settings.ThemeSettings) mygo.Vibrancy {
-	if value.Background == settings.BackgroundMica {
-		return mygo.VibrancyMica
-	}
-	return mygo.VibrancyNone
-}
-
-// blursBehind selects live desktop blur, independently of native mica.
+// blursBehind selects live desktop blur, independently of wallpaper-based mica.
 func blursBehind(value settings.ThemeSettings) bool {
 	return value.Background == settings.BackgroundAcrylic
 }
@@ -1227,7 +1220,6 @@ func (a *App) openSettings() {
 		MinWidth:          820,
 		MinHeight:         560,
 		Transparent:       true,
-		Vibrancy:          mygo.VibrancyMica,
 		TitleBarStyle:     mygo.TitleBarHidden,
 		HideWindowButtons: true,
 		DisableMaximize:   true,

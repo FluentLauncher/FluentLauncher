@@ -387,8 +387,8 @@ func (a *App) drawBackground(c *ui.Context, theme *ui.Theme) {
 	value := a.displayTheme()
 	opacity := float32(clampFloat(value.Opacity, 0, 1))
 	// The window has per-pixel alpha: whatever the view leaves unpainted
-	// shows the live desktop for acrylic, or the native system backdrop for
-	// mica. Keep the content surface transparent so DWM can draw the material.
+	// shows the live desktop (blurred for acrylic). Only the background
+	// receives opacity, so the controls and text remain sharp and readable.
 	c.Root().Background(ui.Transparent)
 	image := value.Background == settings.BackgroundImage
 	layer := func() ui.Element {
@@ -424,16 +424,15 @@ func (a *App) drawBackground(c *ui.Context, theme *ui.Theme) {
 	// the background of every mode; a color's own alpha is ignored, so it
 	// cannot make the window translucent twice.
 	plate := layer()
-	nativeMica := c.Vibrancy()
 	plate.Draw(func(p *ui.Painter, r ui.Rect) {
-		drawBackgroundPlate(p, r, theme, value, nativeMica)
+		a.drawBackgroundPlate(p, r, theme, value)
 	})
 }
 
-// drawBackgroundPlate is shared with the miniature. Native mica owns its
-// opaque base; without a system backdrop (including headless previews), use
-// the theme's opaque fallback instead of accidentally showing sharp windows.
-func drawBackgroundPlate(p *ui.Painter, r ui.Rect, theme *ui.Theme, value settings.ThemeSettings, nativeMica bool) {
+// drawBackgroundPlate is shared with the miniature. Each material uses the
+// same background alpha; neither a native opaque base nor stacked translucent
+// layers can bypass the opacity slider.
+func (a *App) drawBackgroundPlate(p *ui.Painter, r ui.Rect, theme *ui.Theme, value settings.ThemeSettings) {
 	opacity := float32(clampFloat(value.Opacity, 0, 1))
 	tint := theme.Background
 	if parsed, ok := parseOpaqueColor(value.BackgroundColor); ok {
@@ -448,10 +447,15 @@ func drawBackgroundPlate(p *ui.Painter, r ui.Rect, theme *ui.Theme, value settin
 		}
 		p.FillGradient(r, ui.LinearGradient{From: withAlpha(tint, opacity), To: withAlpha(to, opacity), Angle: 180}, 0)
 	case settings.BackgroundMica:
-		if !nativeMica {
-			p.Fill(r, theme.Background.Alpha(1), 0)
+		from, to := tint, tint
+		if a.micaPalette[0].A != 0 && a.micaPalette[1].A != 0 {
+			// Material strength changes the wallpaper colors, independently
+			// of the final background alpha controlled by Opacity.
+			strength := float32(clampFloat(value.MicaStrength, 0, 1))
+			from = tint.Mix(a.micaPalette[0], strength)
+			to = tint.Mix(a.micaPalette[1], strength)
 		}
-		p.Fill(r, withAlpha(tint, opacity), 0)
+		p.FillGradient(r, ui.LinearGradient{From: withAlpha(from, opacity), To: withAlpha(to, opacity), Angle: 180}, 0)
 	default:
 		p.Fill(r, withAlpha(tint, opacity), 0)
 	}

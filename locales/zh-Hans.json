@@ -2295,7 +2295,7 @@
   "@settingsThemeBackground": {
     "description": "Appearance page: the background material dropdown label."
   },
-  "settingsThemeBackgroundHint": "亚克力模糊透出下层窗口；云母使用随主题与壁纸变化的系统底色",
+  "settingsThemeBackgroundHint": "亚克力模糊后景；云母融合壁纸色调，两者均可调背景透明度",
   "@settingsThemeBackgroundHint": {
     "description": "Appearance page: hint of the background material dropdown."
   },
@@ -2331,9 +2331,9 @@
   "@settingsBackgroundColorBlurHint": {
     "description": "Appearance page: hint of the background color well for acrylic backgrounds."
   },
-  "settingsBackgroundColorMicaHint": "系统云母底色上的着色，留空跟随主题",
+  "settingsBackgroundColorMicaHint": "与壁纸色调融合的底色，留空跟随主题",
   "@settingsBackgroundColorMicaHint": {
-    "description": "Appearance page: tint applied above the native Mica material."
+    "description": "Appearance page: base tint of the adjustable wallpaper-derived mica material."
   },
   "settingsGradientEnd": "渐变终点",
   "@settingsGradientEnd": {
@@ -2355,9 +2355,25 @@
   "@settingsOpacityBlurHint": {
     "description": "Appearance page: hint of the opacity slider for acrylic backgrounds."
   },
-  "settingsOpacityMicaHint": "云母上的着色强度：0% 保留系统云母，100% 使用不透明背景色；云母不透出下层窗口",
+  "settingsOpacityMicaHint": "云母背景的不透明度：0% 完全透明，100% 完全不透明；文字与控件保持清晰",
   "@settingsOpacityMicaHint": {
-    "description": "Appearance page: Mica remains opaque while the slider controls the app tint."
+    "description": "Appearance page: mica opacity affects only the rendered background, not text or controls."
+  },
+  "settingsBackgroundOpacity": "背景不透明度",
+  "@settingsBackgroundOpacity": {
+    "description": "Appearance page: background opacity slider label, separate from material strength."
+  },
+  "settingsMicaMaterialCard": "云母与透明度",
+  "@settingsMicaMaterialCard": {
+    "description": "Appearance page: card containing independent mica strength and opacity sliders."
+  },
+  "settingsMicaStrength": "云母强度",
+  "@settingsMicaStrength": {
+    "description": "Appearance page: wallpaper-derived mica strength slider label."
+  },
+  "settingsMicaStrengthHint": "0% 只用背景色，100% 使用壁纸色调；不改变背景不透明度",
+  "@settingsMicaStrengthHint": {
+    "description": "Appearance page: mica color strength is independent of the background alpha."
   },
   "settingsOpacityImageHint": "图片整体的不透明度，蒙版另算",
   "@settingsOpacityImageHint": {

@@ -687,5 +687,14 @@
   "everythingInvalidPath": "Everything 程式路徑無效，請重新選擇 EXE",
   "everythingStartFailed": "無法啟動 Everything",
   "everythingStartTimeout": "Everything 已啟動但無法連線；請檢查用戶端、索引狀態及是否使用具名執行個體，然後重試",
-  "settingsFilesLocalRebuild": "重建本機目錄索引"
+  "settingsFilesLocalRebuild": "重建本機目錄索引",
+  "toolsBuiltIn": "內建工具",
+  "toolsBuiltInHint": "這裡是隨啟動器提供的內建工具。第三方外掛請在「外掛」頁管理。",
+  "toolsFilter": "尋找工具、前綴或觸發詞",
+  "toolsListHint": "可直接逐列修改。固定前綴優先；前綴留空時，「一般搜尋」開關才生效。",
+  "toolsNormalSearch": "一般搜尋",
+  "toolsGroupValues": "計算與實用工具",
+  "toolsGroupDates": "日期與時間",
+  "toolsGroupText": "編碼與文字",
+  "toolsFilterEmpty": "沒有符合的內建工具，試試名稱或觸發詞。"
 }

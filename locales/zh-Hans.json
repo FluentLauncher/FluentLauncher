@@ -3151,5 +3151,14 @@
   "everythingInvalidPath": "Everything 程序路径无效，请重新选择 EXE",
   "everythingStartFailed": "无法启动 Everything",
   "everythingStartTimeout": "Everything 已启动但未能连接；请检查客户端、索引状态及是否使用命名实例，然后重试",
-  "settingsFilesLocalRebuild": "重建本地目录索引"
+  "settingsFilesLocalRebuild": "重建本地目录索引",
+  "toolsBuiltIn": "内置工具",
+  "toolsBuiltInHint": "这里是随启动器提供的内置工具。第三方插件请在“插件”页管理。",
+  "toolsFilter": "查找工具、前缀或触发词",
+  "toolsListHint": "可直接逐行修改。固定前缀优先；前缀留空时，“普通搜索”开关才生效。",
+  "toolsNormalSearch": "普通搜索",
+  "toolsGroupValues": "计算与实用工具",
+  "toolsGroupDates": "日期与时间",
+  "toolsGroupText": "编码与文本",
+  "toolsFilterEmpty": "没有匹配的内置工具，试试名称或触发词。"
 }

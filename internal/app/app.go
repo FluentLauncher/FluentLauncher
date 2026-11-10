@@ -101,7 +101,8 @@ type App struct {
 
 	settingsPage   int
 	settingsDraft  settings.LauncherSettings
-	toolSelection  string
+	toolFilter     string
+	toolRowHandles map[string]*ui.Handle
 	everythingBusy bool
 	appliedTheme   settings.ThemeSettings
 

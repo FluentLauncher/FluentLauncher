@@ -687,5 +687,14 @@
   "everythingInvalidPath": "Invalid Everything executable path; select an EXE",
   "everythingStartFailed": "Could not start Everything",
   "everythingStartTimeout": "Everything did not become available; check the client, index status and named instances, then retry",
-  "settingsFilesLocalRebuild": "Rebuild local folder index"
+  "settingsFilesLocalRebuild": "Rebuild local folder index",
+  "toolsBuiltIn": "Built-in tools",
+  "toolsBuiltInHint": "These tools are included with the launcher. Manage third-party plugins on the Plugins page.",
+  "toolsFilter": "Find a tool, prefix or keyword",
+  "toolsListHint": "Edit each row directly. Fixed prefixes take precedence; Normal search applies only when the prefix is empty.",
+  "toolsNormalSearch": "Normal search",
+  "toolsGroupValues": "Calculation & utilities",
+  "toolsGroupDates": "Date & time",
+  "toolsGroupText": "Encoding & text",
+  "toolsFilterEmpty": "No matching built-in tools. Try a name or keyword."
 }

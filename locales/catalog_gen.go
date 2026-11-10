@@ -9545,3 +9545,93 @@ func SettingsFilesLocalRebuild() string { return In(i18n.Locale()).SettingsFiles
 func (msgs Messages) SettingsFilesLocalRebuild() string {
 	return Catalog.Format(msgs.locale, "settingsFilesLocalRebuild", nil)
 }
+
+// ToolsBuiltIn says "内置工具"
+// in the language the app shows.
+func ToolsBuiltIn() string { return In(i18n.Locale()).ToolsBuiltIn() }
+
+// ToolsBuiltIn says "内置工具"
+// in the language of msgs.
+func (msgs Messages) ToolsBuiltIn() string {
+	return Catalog.Format(msgs.locale, "toolsBuiltIn", nil)
+}
+
+// ToolsBuiltInHint says "这里是随启动器提供的内置工具。第三方插件请在“插件”页管理。"
+// in the language the app shows.
+func ToolsBuiltInHint() string { return In(i18n.Locale()).ToolsBuiltInHint() }
+
+// ToolsBuiltInHint says "这里是随启动器提供的内置工具。第三方插件请在“插件”页管理。"
+// in the language of msgs.
+func (msgs Messages) ToolsBuiltInHint() string {
+	return Catalog.Format(msgs.locale, "toolsBuiltInHint", nil)
+}
+
+// ToolsFilter says "查找工具、前缀或触发词"
+// in the language the app shows.
+func ToolsFilter() string { return In(i18n.Locale()).ToolsFilter() }
+
+// ToolsFilter says "查找工具、前缀或触发词"
+// in the language of msgs.
+func (msgs Messages) ToolsFilter() string {
+	return Catalog.Format(msgs.locale, "toolsFilter", nil)
+}
+
+// ToolsListHint says "可直接逐行修改。固定前缀优先；前缀留空时，“普通搜索”开关才生效。"
+// in the language the app shows.
+func ToolsListHint() string { return In(i18n.Locale()).ToolsListHint() }
+
+// ToolsListHint says "可直接逐行修改。固定前缀优先；前缀留空时，“普通搜索”开关才生效。"
+// in the language of msgs.
+func (msgs Messages) ToolsListHint() string {
+	return Catalog.Format(msgs.locale, "toolsListHint", nil)
+}
+
+// ToolsNormalSearch says "普通搜索"
+// in the language the app shows.
+func ToolsNormalSearch() string { return In(i18n.Locale()).ToolsNormalSearch() }
+
+// ToolsNormalSearch says "普通搜索"
+// in the language of msgs.
+func (msgs Messages) ToolsNormalSearch() string {
+	return Catalog.Format(msgs.locale, "toolsNormalSearch", nil)
+}
+
+// ToolsGroupValues says "计算与实用工具"
+// in the language the app shows.
+func ToolsGroupValues() string { return In(i18n.Locale()).ToolsGroupValues() }
+
+// ToolsGroupValues says "计算与实用工具"
+// in the language of msgs.
+func (msgs Messages) ToolsGroupValues() string {
+	return Catalog.Format(msgs.locale, "toolsGroupValues", nil)
+}
+
+// ToolsGroupDates says "日期与时间"
+// in the language the app shows.
+func ToolsGroupDates() string { return In(i18n.Locale()).ToolsGroupDates() }
+
+// ToolsGroupDates says "日期与时间"
+// in the language of msgs.
+func (msgs Messages) ToolsGroupDates() string {
+	return Catalog.Format(msgs.locale, "toolsGroupDates", nil)
+}
+
+// ToolsGroupText says "编码与文本"
+// in the language the app shows.
+func ToolsGroupText() string { return In(i18n.Locale()).ToolsGroupText() }
+
+// ToolsGroupText says "编码与文本"
+// in the language of msgs.
+func (msgs Messages) ToolsGroupText() string {
+	return Catalog.Format(msgs.locale, "toolsGroupText", nil)
+}
+
+// ToolsFilterEmpty says "没有匹配的内置工具，试试名称或触发词。"
+// in the language the app shows.
+func ToolsFilterEmpty() string { return In(i18n.Locale()).ToolsFilterEmpty() }
+
+// ToolsFilterEmpty says "没有匹配的内置工具，试试名称或触发词。"
+// in the language of msgs.
+func (msgs Messages) ToolsFilterEmpty() string {
+	return Catalog.Format(msgs.locale, "toolsFilterEmpty", nil)
+}

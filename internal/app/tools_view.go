@@ -39,55 +39,120 @@ func (a *App) rememberEverything(entries []model.Entry) {
 }
 
 func (a *App) toolsPage(c *ui.Context) {
-	if a.toolSelection == "" {
-		a.toolSelection = "calc"
-	}
-	ui.Text(c, locales.ToolsIntro()).TextColor(c.Theme().TextMuted).Wrap()
-	names := make([]string, 0, len(a.settingsDraft.Tools))
-	for _, tool := range a.settingsDraft.Tools {
-		names = append(names, search.ToolName(tool.ID))
-	}
-	a.themedSelect(c, "tool-choice", locales.SettingsPageTools(), "", names, search.ToolName(a.toolSelection), func(name string) {
-		for _, tool := range a.settingsDraft.Tools {
-			if search.ToolName(tool.ID) == name {
-				a.toolSelection = tool.ID
-			}
-		}
-	})
-	for i := range a.settingsDraft.Tools {
-		tool := &a.settingsDraft.Tools[i]
-		if tool.ID != a.toolSelection {
-			continue
-		}
-		c.Key(tool.ID)
-		settingCard(c, search.ToolName(tool.ID), func(c *ui.Context) {
-			searchSettingRow(c, locales.CommonEnable(), "", func(c *ui.Context) {
-				if ui.Switch(c, &tool.Enabled).Label(locales.CommonEnable()).Changed() && tool.ID == "calc" {
-					a.settingsDraft.EnableCalculator = tool.Enabled
+	theme := c.Theme()
+	ui.Column(c).Gap(theme.Space(3)).Children(func() {
+		ui.Text(c, locales.ToolsBuiltInHint()).TextColor(theme.TextMuted).Wrap()
+		ui.Row(c).Gap(theme.Space(3)).AlignItems(ui.Center).Children(func() {
+			ui.TextInput(c, &a.toolFilter).Grow(1).Height(theme.Space(8)).
+				Placeholder(locales.ToolsFilter()).Label(locales.ToolsFilter())
+			ui.Text(c, fmt.Sprintf("%s · %d", locales.ToolsBuiltIn(), len(a.settingsDraft.Tools))).TextColor(theme.TextMuted)
+		})
+		ui.Text(c, locales.ToolsListHint()).FontSize(theme.FontSize * 0.9).TextColor(theme.TextMuted).Wrap().Tooltip(locales.ToolsIntro())
+		query := strings.ToLower(strings.TrimSpace(a.toolFilter))
+		c.Key("tool-table")
+		ui.Column(c).Gap(0).Border(1, theme.Border).Radius(theme.Radius).Children(func() {
+			toolsGrid(c).Padding(theme.Space(2), theme.Space(3)).Background(theme.Surface).Children(func() {
+				for i, label := range []string{locales.ToolsBuiltIn(), locales.ToolsPrefix(), locales.ToolsKeywords(), locales.ToolsNormalSearch(), locales.CommonEnable()} {
+					text := ui.Text(c, label).ColumnStart(i + 1).Bold().Wrap().TextColor(theme.TextMuted)
+					switch i {
+					case 1:
+						text.Tooltip(locales.ToolsPrefixHint())
+					case 2:
+						text.Tooltip(locales.ToolsKeywordsHint())
+					case 3:
+						text.Tooltip(locales.ToolsGlobalHint())
+					}
 				}
 			})
-			searchSettingRow(c, locales.ToolsPrefix(), locales.ToolsPrefixHint(), func(c *ui.Context) {
-				ui.TextInput(c, &tool.Prefix).Width(180).Label(locales.ToolsPrefix() + ": " + search.ToolName(tool.ID))
-			})
-			searchSettingRow(c, locales.ToolsKeywords(), locales.ToolsKeywordsHint(), func(c *ui.Context) {
-				row := ui.Row(c)
-				words := ui.Local[string](row, "keywords", func() string { return strings.Join(tool.Keywords, ", ") })
-				row.Children(func() {
-					field := ui.TextInput(c, words).Width(240).Label(locales.ToolsKeywords() + ": " + search.ToolName(tool.ID))
-					if field.Changed() {
-						tool.Keywords = splitComma(*words)
+			count := 0
+			for _, group := range []struct {
+				title string
+				ids   []string
+			}{
+				{locales.ToolsGroupValues(), []string{"calc", "uuid", "rand", "pass", "convert", "color"}},
+				{locales.ToolsGroupDates(), []string{"date", "time", "timestamp", "week", "days"}},
+				{locales.ToolsGroupText(), []string{"b64", "unb64", "urlencode", "urldecode"}},
+			} {
+				heading := false
+				for _, id := range group.ids {
+					for i := range a.settingsDraft.Tools {
+						tool := &a.settingsDraft.Tools[i]
+						if tool.ID != id {
+							continue
+						}
+						matches := query == "" || strings.Contains(strings.ToLower(search.ToolName(id)+" "+id+" "+tool.Prefix+" "+strings.Join(tool.Keywords, " ")), query)
+						if !matches && !a.toolRowHandle(id).FocusWithin(c) {
+							continue
+						}
+						if !heading {
+							c.Key("group:" + group.ids[0])
+							ui.Text(c, group.title).Padding(theme.Space(2), theme.Space(3)).FontSize(theme.FontSize * 0.9).Bold().TextColor(theme.TextMuted)
+							heading = true
+						}
+						c.Key(tool.ID)
+						a.toolSettingsRow(c, tool)
+						count++
 					}
-					if !field.Focused() {
-						*words = strings.Join(tool.Keywords, ", ")
-					}
-				})
-			})
-			searchSettingRow(c, locales.ToolsGlobal(), locales.ToolsGlobalHint(), func(c *ui.Context) {
-				ui.Switch(c, &tool.GlobalQuery).Label(locales.ToolsGlobal() + ": " + search.ToolName(tool.ID)).Disabled(tool.Prefix != "")
-			})
-			ui.Text(c, "tool "+strings.Join(tool.Keywords, " / tool ")).TextColor(c.Theme().TextMuted).Wrap()
+				}
+			}
+			if count == 0 {
+				ui.Text(c, locales.ToolsFilterEmpty()).Padding(theme.Space(4), theme.Space(3)).TextColor(theme.TextMuted).Wrap()
+			}
 		})
+	})
+}
+
+// Every row and its header share tracks, so editing stays aligned as the
+// settings window changes size. Flexible name/keyword tracks absorb the space.
+func toolsGrid(c *ui.Context) ui.Element {
+	theme := c.Theme()
+	return ui.Grid(c).ColumnTracks(ui.Fr(1.2), ui.Fixed(theme.Space(24)), ui.Fr(1.8), ui.Fixed(theme.Space(20)), ui.Fixed(theme.Space(14))).
+		Gap(theme.Space(3)).FillWidth()
+}
+
+func (a *App) toolSettingsRow(c *ui.Context, tool *settings.ToolOptions) {
+	theme := c.Theme()
+	name := search.ToolName(tool.ID)
+	row := toolsGrid(c).Bind(a.toolRowHandle(tool.ID)).MinHeight(theme.Space(11)).Padding(theme.Space(1.5), theme.Space(3)).Transition(feedbackTransition)
+	if row.Hovered() {
+		row.Background(theme.SurfaceHover)
 	}
+	words := ui.Local[string](row, "keywords", func() string { return strings.Join(tool.Keywords, ", ") })
+	row.Children(func() {
+		color := theme.Text
+		if !tool.Enabled {
+			color = theme.TextMuted
+		}
+		ui.Row(c).ColumnStart(1).AlignItems(ui.Center).Children(func() {
+			ui.Text(c, name).TextColor(color).Wrap().Tooltip("tool " + strings.Join(tool.Keywords, " / tool "))
+		})
+		ui.TextInput(c, &tool.Prefix).ColumnStart(2).FillWidth().Label(locales.ToolsPrefix() + ": " + name).Tooltip(locales.ToolsPrefixHint())
+		field := ui.TextInput(c, words).ColumnStart(3).FillWidth().Label(locales.ToolsKeywords() + ": " + name).Tooltip(locales.ToolsKeywordsHint())
+		if field.Changed() {
+			tool.Keywords = splitComma(*words)
+		}
+		if !field.Focused() {
+			*words = strings.Join(tool.Keywords, ", ")
+		}
+		ui.Row(c).ColumnStart(4).Center().Children(func() {
+			ui.Switch(c, &tool.GlobalQuery).Label(locales.ToolsGlobal() + ": " + name).Tooltip(locales.ToolsGlobalHint()).Disabled(tool.Prefix != "")
+		})
+		ui.Row(c).ColumnStart(5).Center().Children(func() {
+			if ui.Switch(c, &tool.Enabled).Label(locales.CommonEnable()+": "+name).Changed() && tool.ID == "calc" {
+				a.settingsDraft.EnableCalculator = tool.Enabled
+			}
+		})
+	})
+}
+
+func (a *App) toolRowHandle(id string) *ui.Handle {
+	if a.toolRowHandles == nil {
+		a.toolRowHandles = map[string]*ui.Handle{}
+	}
+	if a.toolRowHandles[id] == nil {
+		a.toolRowHandles[id] = &ui.Handle{}
+	}
+	return a.toolRowHandles[id]
 }
 
 func searchSettingRow(c *ui.Context, label, hint string, control func(*ui.Context)) {

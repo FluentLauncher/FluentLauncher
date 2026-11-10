@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	app.SetBrandIcon(bundled.Icon)
+	app.SetBrandIcon(bundled.Icon, bundled.TrayIcon)
 	if err := app.Run(); err != nil {
 		log.Fatal(err)
 	}

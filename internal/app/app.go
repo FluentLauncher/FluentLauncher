@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -91,13 +92,14 @@ type App struct {
 	loading        atomic.Bool
 	lastDiscovery  time.Time
 
-	icons       map[string]*ui.Bitmap
-	iconLoading map[string]bool
-	iconSize    int
-	iconPixels  int
-	scaleFactor float64
-	mem         string
-	background  *ui.Bitmap
+	icons           map[string]*ui.Bitmap
+	iconLoading     map[string]bool
+	iconSize        int
+	iconPixels      int
+	scaleFactor     float64
+	mem             string
+	background      *ui.Bitmap
+	backgroundImage backgroundLoader
 
 	settingsPage   int
 	settingsDraft  settings.LauncherSettings
@@ -153,6 +155,7 @@ type App struct {
 	updateCancel context.CancelFunc
 
 	queryCancel     context.CancelFunc
+	fileIndexCancel context.CancelFunc
 	queryGeneration atomic.Int64
 	lastBatches     []search.Batch
 	catalogTimer    *time.Timer
@@ -382,7 +385,9 @@ func (a *App) ready() {
 			time.AfterFunc(time.Duration(milliseconds)*time.Millisecond, mygo.App.Quit)
 		}
 	}
-	go a.memLoop()
+	if os.Getenv("FL_DEBUG_MEMORY") == "1" {
+		go a.memLoop()
+	}
 }
 
 func (a *App) loadDatabase() {
@@ -476,8 +481,12 @@ func (a *App) loadFileCache() {
 	// Up to MaxEntries rows from SQLite plus a full engine rebuild: all of
 	// it stays off the path to the first frame.
 	fileOptions := a.settings.Files
+	ctx := a.restartFileIndexContext()
 	go func() {
-		cached, err := a.fileIndex.LoadCached(context.Background(), fileOptions)
+		cached, err := a.fileIndex.LoadCached(ctx, fileOptions)
+		if ctx.Err() != nil {
+			return
+		}
 		if err != nil {
 			if a.panel != nil {
 				a.panel.Update(func() { a.notice = locales.AppCannotReadFileIndex(err) })
@@ -488,7 +497,7 @@ func (a *App) loadFileCache() {
 		if a.panel != nil {
 			a.panel.Update(func() { a.updateResults() })
 		}
-		if err := a.fileIndex.Configure(context.Background(), fileOptions); err != nil {
+		if err := a.fileIndex.Configure(ctx, fileOptions); err != nil && ctx.Err() == nil {
 			log.Printf("file index: %v", err)
 		}
 	}()
@@ -509,7 +518,7 @@ func (a *App) refreshApps() {
 			a.appEngine.ReplaceEntries(entries, a.profileMap())
 			a.rememberEverything(entries)
 		}
-		if a.panel == nil {
+		if a.panel == nil || a.panel.IsDestroyed() {
 			return
 		}
 		a.panel.Update(func() {
@@ -554,12 +563,14 @@ func (a *App) show() {
 	a.input.Focus()
 	a.panel.Show()
 	a.refreshIfStale()
-	if len(a.results) == 0 {
-		a.updateResults()
-	}
+	a.updateResults()
 }
 
 func (a *App) hidePanel() {
+	if a.queryCancel != nil {
+		a.queryCancel()
+		a.queryGeneration.Add(1)
+	}
 	a.panel.Hide()
 }
 
@@ -745,15 +756,13 @@ func (a *App) memLoop() {
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
 	for range ticker.C {
-		if a.panel == nil {
+		if a.panel == nil || a.panel.IsDestroyed() {
 			return
 		}
 		m := diag.Mem()
 		a.panel.Update(func() { a.mem = m })
 	}
 }
-
-// profileMapFor is used by callers that need a stable copy.
 
 // applyLanguage shows the app in the settings' language; the empty tag
 // follows the system's languages again.
@@ -800,27 +809,49 @@ func (a *App) applySettings(value settings.LauncherSettings) error {
 		a.updates.notesOpen = false
 		a.updates.message = ""
 	}
+	previous := a.settings
 	a.settings = value
 	a.publishSettings()
 	a.settingsDraft = cloneSettings(value)
 	a.lastPreview = value.Theme
-	a.applyLanguage()
-	a.catalog.SetOptions(value.Applications)
-	if a.plugins != nil {
+	if value.Language != previous.Language {
+		a.applyLanguage()
+	}
+	if value.Applications.IncludeStoreApps != previous.Applications.IncludeStoreApps || value.Applications.IncludePath != previous.Applications.IncludePath || !slices.Equal(value.Applications.PortableDirectories, previous.Applications.PortableDirectories) {
+		a.catalog.SetOptions(value.Applications)
+		a.catalog.Close()
+		a.catalog.Watch(context.Background())
+		a.refreshApps()
+	}
+	if a.plugins != nil && !reflect.DeepEqual(value.Plugins, previous.Plugins) {
 		a.plugins.Configure(a.pluginRepo.Installed(), value.Plugins)
 	}
-	a.rebuildCustom()
-	a.applyTheme()
-	a.applyWindowSize()
-	a.positionPanel()
+	if !reflect.DeepEqual(value.CustomItems, previous.CustomItems) || !reflect.DeepEqual(value.Workspaces, previous.Workspaces) {
+		a.rebuildCustom()
+	}
+	if value.Theme != a.appliedTheme {
+		a.applyTheme()
+	}
+	if value.Width != previous.Width || value.Height != previous.Height {
+		a.applyWindowSize()
+		a.loadBackground(value.Theme)
+	}
+	if value.Width != previous.Width || value.Height != previous.Height || value.Placement != previous.Placement || value.AnchorX != previous.AnchorX || value.AnchorY != previous.AnchorY {
+		a.positionPanel()
+	}
 	if shortcutsChanged {
 		_ = a.syncGlobalShortcuts(a.settings, false)
 	}
-	a.applyVolumeSettings()
-	a.applyOpenAtLogin()
-	if a.db != nil {
+	if value.VolumeWheel != previous.VolumeWheel {
+		a.applyVolumeSettings()
+	}
+	if value.RunAtLogin != previous.RunAtLogin {
+		a.applyOpenAtLogin()
+	}
+	if a.db != nil && !value.Files.SameIndex(previous.Files) {
+		ctx := a.restartFileIndexContext()
 		go func() {
-			if err := a.fileIndex.Configure(context.Background(), value.Files); err != nil {
+			if err := a.fileIndex.Configure(ctx, value.Files); err != nil && ctx.Err() == nil {
 				log.Printf("file index: %v", err)
 			}
 		}()
@@ -911,16 +942,10 @@ func (a *App) applyThemeFrom(value settings.ThemeSettings) {
 	default:
 		mygo.Theme.SetSource(mygo.ThemeSystem)
 	}
-	a.applyBackdrop(value)
-	if value.Background == settings.BackgroundImage && value.ImagePath != "" {
-		if data, err := os.ReadFile(value.ImagePath); err == nil {
-			if bitmap, err := ui.DecodeBitmap(data); err == nil {
-				a.background = bitmap
-			}
-		}
-	} else {
-		a.background = nil
+	if a.appliedTheme == (settings.ThemeSettings{}) || backdropMaterial(value) != backdropMaterial(a.appliedTheme) || blursBehind(value) != blursBehind(a.appliedTheme) {
+		a.applyBackdrop(value)
 	}
+	a.loadBackground(value)
 	if a.panel != nil {
 		a.panel.Update(func() {})
 	}
@@ -1025,6 +1050,10 @@ func (a *App) updateResults() {
 	ctx, cancel := context.WithCancel(context.Background())
 	a.queryCancel = cancel
 	generation := a.queryGeneration.Add(1)
+	if !a.panel.IsVisible() {
+		cancel()
+		return
+	}
 	a.resultsReady = false
 	preferred := a.selectedID
 	// The query goroutine must not read fields the UI thread replaces on
@@ -1312,6 +1341,12 @@ func (a *App) clampToWorkArea(win *mygo.Window) {
 }
 
 func (a *App) close() {
+	if a.fileIndexCancel != nil {
+		a.fileIndexCancel()
+	}
+	if a.backgroundImage.cancel != nil {
+		a.backgroundImage.cancel()
+	}
 	if a.globalShortcuts.Unregister != nil {
 		_ = a.globalShortcuts.Apply(map[string]string{}, false)
 	}
@@ -1321,11 +1356,11 @@ func (a *App) close() {
 	if a.queryCancel != nil {
 		a.queryCancel()
 	}
-	if a.db != nil {
-		a.db.Close()
-	}
 	if a.fileIndex != nil {
 		a.fileIndex.Close()
+	}
+	if a.db != nil {
+		a.db.Close()
 	}
 	if a.catalog != nil {
 		a.catalog.Close()

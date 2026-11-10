@@ -8,6 +8,7 @@ import (
 	"math"
 	"net/url"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -204,6 +205,13 @@ type FileIndexOptions struct {
 
 func DefaultFileIndexOptions() FileIndexOptions {
 	return FileIndexOptions{MaxEntries: 100000, IncludeDirectories: true, EverythingAutoStart: true}
+}
+
+// SameIndex reports whether the local file snapshot and its watches can be
+// reused. Everything connection options do not change the local index.
+func (f FileIndexOptions) SameIndex(other FileIndexOptions) bool {
+	return f.MaxEntries == other.MaxEntries && f.IncludeDirectories == other.IncludeDirectories &&
+		slices.Equal(f.Directories, other.Directories) && slices.Equal(f.ExcludedDirectories, other.ExcludedDirectories)
 }
 
 func (f *FileIndexOptions) UnmarshalJSON(data []byte) error {

@@ -12,6 +12,11 @@ import (
 //go:embed icon.png
 var Icon []byte
 
+//go:generate go run ../../scripts/icons -source ../../assets/brand/source.png -out .
+
+//go:embed tray.png
+var TrayIcon []byte
+
 //go:embed mygo-sqlite3.dll
 var sqliteLibrary []byte
 

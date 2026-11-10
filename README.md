@@ -47,6 +47,8 @@ go tool mygo build -skip-installer
 
 构建产物在 `build/windows-amd64/`。运行中的应用会锁住该目录，重新构建前先退出。
 
+品牌原图保存在 `assets/brand/source.png`，运行时只携带生成的 256px 应用图标与 48px 托盘图标。替换原图后运行 `go generate ./internal/bundled`，并提交生成资源。性能基准、测量边界与后续优化项见 [性能与体积](docs/performance.md)。
+
 单文件发布使用 `./scripts/build-release.ps1`，输出 `build/release/windows-amd64/FluentLauncher.exe`。GitHub Actions、更新签名密钥和版本发布步骤见 [发布文档](docs/releasing.md)。
 
 ## 目录
@@ -91,6 +93,7 @@ FL_DEBUG_SETTINGS_PAGE=1    # 配合上一项，直接打开指定设置页（0 
 FL_DEBUG_VOLUME=64          # 固定显示音量浮层，便于调整样式
 FL_DEBUG_TRAY_MENU=1        # 启动后弹出托盘菜单，便于检查菜单项
 FL_DEBUG_EXIT_MS=6000       # 启动后自动退出
+FL_DEBUG_MEMORY=1           # 每 2 秒采样 Go 内存并在页脚显示；默认关闭
 ```
 
 界面交互与动效优先通过 `ui.NewTester` 在内存中验证，不打开窗口、不移动桌面鼠标或抢占焦点，也不读取个人配置。可导出设置页与搜索框的深浅主题 GIF，以及设置页的减少动态效果版本：

@@ -26,8 +26,10 @@ type FileIndex struct {
 	warning   string
 	onUpdate  func([]model.Entry)
 	cancel    context.CancelFunc
+	watchCtx  context.Context
 	rebuild   sync.Mutex
 	timer     *time.Timer
+	closed    bool
 }
 
 func NewFileIndex(db *DB) *FileIndex {
@@ -82,12 +84,24 @@ func (f *FileIndex) Configure(ctx context.Context, options settings.FileIndexOpt
 		return errIndexClosed
 	}
 	f.mu.Lock()
+	if f.closed || ctx.Err() != nil {
+		f.mu.Unlock()
+		return context.Canceled
+	}
+	if f.cancel != nil && f.watchCtx.Err() == nil && f.options.SameIndex(options) {
+		f.mu.Unlock()
+		return nil
+	}
 	f.options = options
 	if f.cancel != nil {
 		f.cancel()
 	}
 	watchCtx, cancel := context.WithCancel(ctx)
 	f.cancel = cancel
+	f.watchCtx = watchCtx
+	if f.timer != nil {
+		f.timer.Stop()
+	}
 	f.mu.Unlock()
 
 	for _, root := range options.Directories {
@@ -96,7 +110,7 @@ func (f *FileIndex) Configure(ctx context.Context, options settings.FileIndexOpt
 		}
 		go f.watch(watchCtx, root)
 	}
-	return f.Rebuild(ctx)
+	return f.Rebuild(watchCtx)
 }
 
 func (f *FileIndex) watch(ctx context.Context, root string) {
@@ -111,17 +125,21 @@ func (f *FileIndex) watch(ctx context.Context, root string) {
 		if err != nil || len(events) == 0 {
 			return
 		}
-		f.schedule()
+		f.schedule(ctx)
 	}
 }
 
-func (f *FileIndex) schedule() {
+func (f *FileIndex) schedule(ctx context.Context) {
 	f.mu.Lock()
+	if f.closed || ctx.Err() != nil {
+		f.mu.Unlock()
+		return
+	}
 	if f.timer != nil {
 		f.timer.Stop()
 	}
 	f.timer = time.AfterFunc(750*time.Millisecond, func() {
-		if err := f.Rebuild(context.Background()); err != nil {
+		if err := f.Rebuild(ctx); err != nil && ctx.Err() == nil {
 			f.setWarning(locales.StoreFileIndexUpdateFailed(err))
 		}
 	})
@@ -135,11 +153,35 @@ func (f *FileIndex) Rebuild(ctx context.Context) error {
 	}
 	f.rebuild.Lock()
 	defer f.rebuild.Unlock()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	f.mu.Lock()
-	options := f.options
+	if f.closed {
+		f.mu.Unlock()
+		return errIndexClosed
+	}
+	options, watchCtx := f.options, f.watchCtx
 	f.mu.Unlock()
+	if watchCtx != nil {
+		// Manual rebuilds also belong to this configuration. A later settings
+		// change must cancel them before they can persist an obsolete scan.
+		scanCtx, cancel := context.WithCancel(ctx)
+		stop := context.AfterFunc(watchCtx, cancel)
+		defer stop()
+		defer cancel()
+		ctx = scanCtx
+		if watchCtx.Err() != nil {
+			return watchCtx.Err()
+		}
+	}
 
 	entries := Scan(ctx, options)
+	// Scan may return a partial slice on cancellation. It must never delete
+	// the unvisited part of the persisted index or publish it as complete.
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	next := make(map[string]model.Entry, len(entries))
 	for _, entry := range entries {
 		next[strings.ToLower(entry.LaunchTarget)] = entry
@@ -175,6 +217,10 @@ func (f *FileIndex) Rebuild(ctx context.Context) error {
 		}
 	}
 	f.mu.Lock()
+	if f.closed || ctx.Err() != nil {
+		f.mu.Unlock()
+		return context.Canceled
+	}
 	f.persisted = next
 	callback := f.onUpdate
 	f.mu.Unlock()
@@ -214,6 +260,9 @@ func Scan(ctx context.Context, options settings.FileIndexOptions) []model.Entry 
 			continue
 		}
 		for _, item := range items {
+			if ctx.Err() != nil {
+				return nil
+			}
 			if len(entries) >= options.MaxEntries {
 				break
 			}
@@ -267,6 +316,7 @@ func insideAny(roots []string, path string) bool {
 func (f *FileIndex) Close() {
 	f.mu.Lock()
 	defer f.mu.Unlock()
+	f.closed = true
 	if f.cancel != nil {
 		f.cancel()
 		f.cancel = nil

@@ -3099,5 +3099,8 @@
   "shortcutsRegisterFailed": "热键注册失败，原绑定已尽力恢复",
   "shortcutsLocalHint": "标准文本编辑和 Tab 导航遵循控件行为，不参与改键。",
   "shortcutsPluginFailed": "插件命令执行失败",
-  "shortcutsTooMany": "每个功能最多绑定 12 个组合键"
+  "shortcutsTooMany": "每个功能最多绑定 12 个组合键",
+  "shortcutsCompactHint": "点击按键修改，其他操作在更多菜单中。",
+  "shortcutsMore": "更多操作",
+  "shortcutsNotRegistered": "尚未注册"
 }

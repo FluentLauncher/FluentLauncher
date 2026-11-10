@@ -86,7 +86,11 @@ func (a *App) settingsView(c *ui.Context) {
 				})
 				ui.Divider(c)
 				ui.Scroll(c).Grow(1).Children(func() {
-					ui.Column(c).Padding(20, 24).Gap(16).Children(func() {
+					content := ui.Column(c).Padding(20, 24).Gap(16)
+					if a.settingsPage == pageShortcuts {
+						content.Padding(12, 24).Gap(0)
+					}
+					content.Children(func() {
 						switch a.settingsPage {
 						case pageShortcuts:
 							a.shortcutsPage(c)

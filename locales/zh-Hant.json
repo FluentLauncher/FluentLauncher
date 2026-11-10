@@ -638,5 +638,8 @@
   "shortcutsRegisterFailed": "熱鍵註冊失敗，已嘗試還原原繫結",
   "shortcutsLocalHint": "標準文字編輯與 Tab 導覽遵循控制項行為，不參與改鍵。",
   "shortcutsPluginFailed": "外掛命令執行失敗",
-  "shortcutsTooMany": "每個功能最多繫結 12 個組合鍵"
+  "shortcutsTooMany": "每個功能最多繫結 12 個組合鍵",
+  "shortcutsCompactHint": "點選按鍵修改，其他操作在更多選單中。",
+  "shortcutsMore": "更多操作",
+  "shortcutsNotRegistered": "尚未註冊"
 }

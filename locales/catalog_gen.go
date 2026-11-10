@@ -9051,3 +9051,33 @@ func ShortcutsTooMany() string { return In(i18n.Locale()).ShortcutsTooMany() }
 func (msgs Messages) ShortcutsTooMany() string {
 	return Catalog.Format(msgs.locale, "shortcutsTooMany", nil)
 }
+
+// ShortcutsCompactHint says "点击按键修改，其他操作在更多菜单中。"
+// in the language the app shows.
+func ShortcutsCompactHint() string { return In(i18n.Locale()).ShortcutsCompactHint() }
+
+// ShortcutsCompactHint says "点击按键修改，其他操作在更多菜单中。"
+// in the language of msgs.
+func (msgs Messages) ShortcutsCompactHint() string {
+	return Catalog.Format(msgs.locale, "shortcutsCompactHint", nil)
+}
+
+// ShortcutsMore says "更多操作"
+// in the language the app shows.
+func ShortcutsMore() string { return In(i18n.Locale()).ShortcutsMore() }
+
+// ShortcutsMore says "更多操作"
+// in the language of msgs.
+func (msgs Messages) ShortcutsMore() string {
+	return Catalog.Format(msgs.locale, "shortcutsMore", nil)
+}
+
+// ShortcutsNotRegistered says "尚未注册"
+// in the language the app shows.
+func ShortcutsNotRegistered() string { return In(i18n.Locale()).ShortcutsNotRegistered() }
+
+// ShortcutsNotRegistered says "尚未注册"
+// in the language of msgs.
+func (msgs Messages) ShortcutsNotRegistered() string {
+	return Catalog.Format(msgs.locale, "shortcutsNotRegistered", nil)
+}

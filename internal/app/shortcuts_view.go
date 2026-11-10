@@ -2,6 +2,8 @@ package app
 
 import (
 	"fmt"
+	"slices"
+	"sort"
 	"strings"
 
 	"fluentlauncher/internal/core/shortcuts"
@@ -9,123 +11,170 @@ import (
 	"github.com/egoist/mygo/ui"
 )
 
+var shortcutMoreIcon = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>`))
+var shortcutEditIcon = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m15 4 5 5M4 20l5-1L20 8a2 2 0 0 0-5-5L4 14z"/></svg>`))
+
 func (a *App) shortcutsPage(c *ui.Context) {
 	theme := c.Theme()
-	ui.Text(c, locales.ShortcutsHint()).TextColor(theme.TextMuted).Wrap()
-	if a.shortcutEdit.ID != "" {
-		a.shortcutRecorder(c)
-		return
-	}
-	ui.TextInput(c, &a.shortcutFilter).Placeholder(locales.ShortcutsFilter()).Label(locales.ShortcutsFilter())
-	commands := a.shortcutCommands(a.settingsDraft)
-	conflicts := shortcuts.Conflicts(commandDefinitions(commands), a.settingsDraft.Shortcuts)
-	query := strings.ToLower(strings.TrimSpace(a.shortcutFilter))
-	group := ""
-	count := 0
-	for _, command := range commands {
-		binding := shortcuts.Effective(command.Command, a.settingsDraft.Shortcuts)
-		if query != "" && !strings.Contains(strings.ToLower(command.Title+" "+command.Group+" "+command.PluginID+" "+strings.Join(binding.Keys, " ")), query) {
-			continue
+	// The shared settings column spaces sections, not individual command rows.
+	// Keep this page in one child and own its compact rhythm here.
+	ui.Column(c).Gap(theme.Space(2)).Children(func() {
+		if a.shortcutEdit.ID != "" {
+			a.shortcutRecorder(c)
+			return
 		}
-		if command.Group != group {
-			group = command.Group
-			ui.Text(c, group).Bold().TextColor(theme.Text).Padding(8, 0)
-		}
-		c.Key(command.ID)
-		ui.Column(c).Gap(6).Padding(10, 0).Children(func() {
-			status := locales.ShortcutsDisabled()
-			color := theme.TextMuted
-			if binding.Enabled && len(binding.Keys) > 0 {
-				if !command.Available {
-					status = locales.ShortcutsUnavailable()
-				} else {
-					status = locales.ShortcutsActive()
-					color = theme.Success
-					if command.Scope == shortcuts.Global {
-						active := []string{}
-						for key, id := range a.globalShortcuts.Active {
-							if id == command.ID {
-								active = append(active, key)
-							}
-						}
-						if len(active) == 0 {
-							status = locales.ShortcutsDisabled()
-							color = theme.Warning
-						} else {
-							status = locales.ShortcutsActual() + ": " + strings.Join(active, " / ")
-						}
-					}
-				}
+		ui.TextInput(c, &a.shortcutFilter).Height(theme.Space(8)).Placeholder(locales.ShortcutsFilter()).Label(locales.ShortcutsFilter())
+		ui.Text(c, locales.ShortcutsCompactHint()).FontSize(theme.FontSize * 0.9).TextColor(theme.TextMuted).Wrap().Tooltip(locales.ShortcutsHint() + "\n" + locales.ShortcutsLocalHint())
+		commands := a.shortcutCommands(a.settingsDraft)
+		scopeOrder := map[shortcuts.Scope]int{shortcuts.Global: 0, shortcuts.Search: 1, shortcuts.Actions: 2, shortcuts.Prompt: 3, shortcuts.Preview: 4}
+		sort.SliceStable(commands, func(i, j int) bool {
+			left, right := commands[i], commands[j]
+			if left.PluginID != "" || right.PluginID != "" {
+				return left.PluginID == "" && right.PluginID != ""
 			}
-			for _, conflict := range conflicts {
-				if conflict.First == command.ID || conflict.Second == command.ID {
-					status = locales.ShortcutsConflict() + ": " + conflict.Key
-					color = theme.Warning
-					break
+			return scopeOrder[left.Scope] < scopeOrder[right.Scope]
+		})
+		conflicts := shortcuts.Conflicts(commandDefinitions(commands), a.settingsDraft.Shortcuts)
+		query := strings.ToLower(strings.TrimSpace(a.shortcutFilter))
+		ui.Column(c).Gap(0).Children(func() {
+			group := ""
+			count := 0
+			for _, command := range commands {
+				binding := shortcuts.Effective(command.Command, a.settingsDraft.Shortcuts)
+				if query != "" && !strings.Contains(strings.ToLower(command.Title+" "+command.Group+" "+command.PluginID+" "+strings.Join(binding.Keys, " ")), query) {
+					continue
 				}
-			}
-			ui.Row(c).Gap(12).AlignItems(ui.Center).Children(func() {
-				ui.Text(c, command.Title).Grow(1).TextColor(theme.Text).Wrap()
+				groupID := "builtin:" + string(command.Scope)
 				if command.PluginID != "" {
-					ui.Text(c, shortcutScope(command.Scope)).TextColor(theme.TextMuted).SingleLine()
+					groupID = "plugin:" + command.PluginID
 				}
-				ui.Text(c, status).TextColor(color).Wrap()
-			})
-			if command.Description != "" {
-				ui.Text(c, command.Description).TextColor(theme.TextMuted).Wrap()
+				if groupID != group {
+					group = groupID
+					ui.Row(c).Padding(theme.Space(2), theme.Space(2)).Gap(theme.Space(3)).AlignItems(ui.Center).Children(func() {
+						ui.Text(c, command.Group).Bold().TextColor(theme.TextMuted).Tooltip(command.PluginID)
+						ui.Divider(c).Grow(1).Height(1)
+					})
+				}
+				a.shortcutRow(c, command, binding, conflicts)
+				count++
 			}
-			keys := strings.Join(binding.Keys, " / ")
-			if keys == "" {
-				keys = locales.ShortcutsUnbound()
+			if count == 0 {
+				ui.Text(c, locales.ShortcutsEmpty()).Padding(theme.Space(3), theme.Space(2)).TextColor(theme.TextMuted)
 			}
-			ui.Row(c).Gap(6).AlignItems(ui.Center).Children(func() {
-				ui.Text(c, keys).Grow(1).TextColor(theme.Text).Wrap()
-				if compactButton(c, locales.CommonEdit()).Clicked() {
-					a.beginShortcutEdit(command.ID, binding.Keys)
+		})
+		if a.hotkeyNotice != "" {
+			ui.Text(c, a.hotkeyNotice).TextColor(theme.Warning).Wrap()
+		}
+	})
+}
+
+func (a *App) shortcutRow(c *ui.Context, command shortcutCommand, binding shortcuts.Binding, conflicts []shortcuts.Conflict) {
+	theme := c.Theme()
+	issue := ""
+	if binding.Enabled && len(binding.Keys) > 0 {
+		if !command.Available {
+			issue = locales.ShortcutsUnavailable()
+		} else if command.Scope == shortcuts.Global {
+			active := []string{}
+			for key, id := range a.globalShortcuts.Active {
+				if id == command.ID {
+					active = append(active, key)
 				}
-				label := locales.CommonEnable()
-				if binding.Enabled {
-					label = locales.CommonDisable()
-				}
-				if compactButton(c, label).Clicked() {
-					if !binding.Enabled && len(binding.Keys) == 0 {
-						a.beginShortcutEdit(command.ID, nil)
-					} else {
-						binding.Enabled = !binding.Enabled
-						a.setShortcutBinding(command.ID, binding, false)
-					}
-				}
-				if compactButton(c, locales.ShortcutsClear()).Clicked() {
-					a.setShortcutBinding(command.ID, shortcuts.Binding{Keys: []string{}}, false)
-				}
-				if compactButton(c, locales.ShortcutsDefaults()).Clicked() {
-					// Restoring a conflicting default opens an explicit replacement.
-					candidate := cloneSettings(a.settingsDraft)
-					delete(candidate.Shortcuts, command.ID)
-					conflicted := false
-					for _, conflict := range shortcuts.Conflicts(commandDefinitions(commands), candidate.Shortcuts) {
-						if conflict.First == command.ID || conflict.Second == command.ID {
-							conflicted = true
-						}
-					}
-					if conflicted {
-						a.beginShortcutEdit(command.ID, command.Defaults)
-					} else {
-						a.settingsDraft = candidate
-					}
-				}
+			}
+			sort.Strings(active)
+			configured := append([]string{}, binding.Keys...)
+			sort.Strings(configured)
+			if len(active) == 0 {
+				issue = locales.ShortcutsNotRegistered()
+			} else if !slices.Equal(active, configured) {
+				issue = locales.ShortcutsActual() + ": " + strings.Join(active, " / ")
+			}
+		}
+	}
+	for _, conflict := range conflicts {
+		if conflict.First == command.ID || conflict.Second == command.ID {
+			issue = locales.ShortcutsConflict() + ": " + conflict.Key
+			break
+		}
+	}
+	keys := strings.Join(binding.Keys, " / ")
+	if keys == "" {
+		keys = locales.ShortcutsUnbound()
+	}
+	summary := keys
+	if len(binding.Keys) > 3 {
+		summary = strings.Join(binding.Keys[:2], " / ") + fmt.Sprintf("  +%d", len(binding.Keys)-2)
+	}
+	c.Key(command.ID)
+	row := ui.Row(c).Gap(theme.Space(2)).Padding(theme.Space(1), theme.Space(2)).AlignItems(ui.Center).Radius(theme.Radius)
+	row.Children(func() {
+		ui.Column(c).Grow(1).MinWidth(0).Gap(theme.Space(0.5)).Children(func() {
+			ui.Text(c, command.Title).TextColor(theme.Text).SingleLine().Tooltip(strings.TrimSpace(command.Title + "\n" + command.Description))
+			if issue != "" {
+				ui.Text(c, issue).FontSize(theme.FontSize * 0.85).TextColor(theme.Warning).Wrap()
+			}
+		})
+		if command.PluginID != "" {
+			ui.Text(c, shortcutScope(command.Scope)).FontSize(theme.FontSize * 0.85).TextColor(theme.TextMuted).SingleLine()
+		}
+		edit := ui.ButtonBase(c).Width(theme.Space(66)).Height(theme.Space(8)).Radius(theme.Radius).
+			Border(1, theme.Border).Background(theme.Surface).Label(locales.CommonEdit() + ": " + command.Title).Tooltip(locales.CommonEdit() + " · " + keys)
+		if edit.Hovered() {
+			edit.Background(theme.SurfaceHover)
+		}
+		edit.Children(func() {
+			ui.Row(c).Fill().Padding(0, theme.Space(2)).Gap(theme.Space(2)).AlignItems(ui.Center).Children(func() {
+				ui.Text(c, summary).Grow(1).SingleLine().TextColor(theme.Text)
+				ui.Icon(c, shortcutEditIcon).FontSize(theme.FontSize).TextColor(theme.TextMuted)
 			})
 		})
-		ui.Divider(c)
-		count++
+		if edit.Clicked() {
+			a.beginShortcutEdit(command.ID, binding.Keys)
+		}
+		enabled := binding.Enabled
+		ui.Switch(c, &enabled).Label(locales.CommonEnable() + ": " + command.Title).Tooltip(locales.CommonEnable() + " / " + locales.CommonDisable()).OnClick(func() {
+			if enabled && len(binding.Keys) == 0 {
+				a.beginShortcutEdit(command.ID, nil)
+				return
+			}
+			binding.Enabled = enabled
+			a.setShortcutBinding(command.ID, binding, false)
+		})
+		moreLabel := locales.ShortcutsMore() + ": " + command.Title
+		more := ui.ButtonBase(c).Size(theme.Space(7), theme.Space(7)).Radius(theme.Radius).Label(moreLabel).Tooltip(moreLabel)
+		if more.Hovered() {
+			more.Background(theme.SurfaceHover)
+		}
+		more.Children(func() { ui.Icon(c, shortcutMoreIcon).FontSize(theme.FontSize * 1.2).TextColor(theme.TextMuted) })
+		more.PopoverMenuButton(func(m *ui.Menu) {
+			if m.Item(locales.CommonEdit()).Chosen() {
+				a.beginShortcutEdit(command.ID, binding.Keys)
+			}
+			m.Separator()
+			if m.Item(locales.ShortcutsClear()).Chosen() {
+				a.setShortcutBinding(command.ID, shortcuts.Binding{Keys: []string{}}, false)
+			}
+			if m.Item(locales.ShortcutsDefaults()).Chosen() {
+				a.restoreShortcutDefaults(command)
+			}
+		})
+	})
+	if row.Hovered() {
+		row.Background(theme.Surface.Alpha(0.35))
 	}
-	if count == 0 {
-		ui.Text(c, locales.ShortcutsEmpty()).TextColor(theme.TextMuted)
+}
+
+func (a *App) restoreShortcutDefaults(command shortcutCommand) {
+	candidate := cloneSettings(a.settingsDraft)
+	delete(candidate.Shortcuts, command.ID)
+	commands := a.shortcutCommands(candidate)
+	for _, conflict := range shortcuts.Conflicts(commandDefinitions(commands), candidate.Shortcuts) {
+		if conflict.First == command.ID || conflict.Second == command.ID {
+			a.beginShortcutEdit(command.ID, command.Defaults)
+			return
+		}
 	}
-	ui.Text(c, locales.ShortcutsLocalHint()).TextColor(theme.TextMuted).Wrap()
-	if a.hotkeyNotice != "" {
-		ui.Text(c, a.hotkeyNotice).TextColor(theme.Warning).Wrap()
-	}
+	a.settingsDraft = candidate
 }
 
 func (a *App) beginShortcutEdit(id string, keys []string) {

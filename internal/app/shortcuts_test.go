@@ -93,6 +93,7 @@ func TestShortcutsRender(t *testing.T) {
 		for _, recording := range []bool{false, true} {
 			a := newLocalizedApp()
 			a.settingsPage = pageShortcuts
+			a.globalShortcuts.Active = map[string]string{"Alt+Space": shortcuts.Toggle}
 			if recording {
 				a.beginShortcutEdit("search.actions", []string{"Ctrl+K", "Shift+F10", "Menu"})
 				a.shortcutEdit.Recorded = "Ctrl+J"
@@ -104,25 +105,33 @@ func TestShortcutsRender(t *testing.T) {
 			if recording {
 				name += "-recording"
 			}
-			image := ui.Render(func(c *ui.Context) {
-				theme := ui.LightTheme()
-				if dark {
-					theme = ui.DarkTheme()
+			for _, viewport := range []struct {
+				width, height int
+				scale         float32
+				suffix        string
+			}{
+				{1180, 840, 1, ""}, {820, 660, 1, "-narrow"}, {1180, 840, 1.5, "-150"},
+			} {
+				image := ui.Render(func(c *ui.Context) {
+					theme := ui.LightTheme()
+					if dark {
+						theme = ui.DarkTheme()
+					}
+					c.SetTheme(theme)
+					a.settingsView(c)
+				}, viewport.width, viewport.height, viewport.scale)
+				file, err := os.Create(filepath.Join(dir, "shortcuts-"+name+viewport.suffix+".png"))
+				if err != nil {
+					t.Fatal(err)
 				}
-				c.SetTheme(theme)
-				a.settingsView(c)
-			}, 1180, 840, 1)
-			file, err := os.Create(filepath.Join(dir, "shortcuts-"+name+".png"))
-			if err != nil {
-				t.Fatal(err)
-			}
-			err = png.Encode(file, image)
-			closeErr := file.Close()
-			if err != nil {
-				t.Fatal(err)
-			}
-			if closeErr != nil {
-				t.Fatal(closeErr)
+				err = png.Encode(file, image)
+				closeErr := file.Close()
+				if err != nil {
+					t.Fatal(err)
+				}
+				if closeErr != nil {
+					t.Fatal(closeErr)
+				}
 			}
 		}
 	}
@@ -209,7 +218,8 @@ func TestShortcutRecorderAndPageSizes(t *testing.T) {
 			a.settingsPage = pageShortcuts
 			a.shortcutFilter = shortcutTitle(shortcuts.Toggle)
 			tt := ui.NewTester(a.settingsView, width, 660)
-			if err := tt.Click(locales.CommonEdit()); err != nil {
+			editLabel := locales.CommonEdit() + ": " + shortcutTitle(shortcuts.Toggle)
+			if err := tt.Click(editLabel); err != nil {
 				t.Fatal(err)
 			}
 			tt.Frame()
@@ -225,13 +235,89 @@ func TestShortcutRecorderAndPageSizes(t *testing.T) {
 			if a.shortcutEdit.ID != "" || !containsFold(a.settingsDraft.Shortcuts[shortcuts.Toggle].Keys, "Ctrl+Shift+F7") {
 				t.Fatalf("recording not saved: %+v", a.shortcutEdit)
 			}
-			for _, label := range []string{locales.CommonEdit(), locales.ShortcutsClear(), locales.ShortcutsDefaults()} {
+			for _, label := range []string{editLabel, locales.CommonEnable() + ": " + shortcutTitle(shortcuts.Toggle), locales.ShortcutsMore() + ": " + shortcutTitle(shortcuts.Toggle)} {
 				bounds, ok := tt.Find(label)
 				if !ok || bounds.W <= 0 || bounds.X < 0 || bounds.X+bounds.W > float32(width) {
 					t.Fatalf("%s at %d: clipped %s %+v", tag, width, label, bounds)
 				}
 			}
 		}
+	}
+}
+
+func TestCompactShortcutRowsAndMenu(t *testing.T) {
+	a := newLocalizedApp()
+	a.settingsPage = pageShortcuts
+	a.globalShortcuts.Active = map[string]string{"Alt+Space": shortcuts.Toggle}
+	tt := ui.NewTester(a.settingsView, 1180, 840)
+	previous, ok := tt.Find(locales.CommonEdit() + ": " + shortcutTitle("search.previous"))
+	if !ok {
+		t.Fatal("previous row missing")
+	}
+	next, ok := tt.Find(locales.CommonEdit() + ": " + shortcutTitle("search.next"))
+	if !ok {
+		t.Fatal("next row missing")
+	}
+	if delta := next.Y - previous.Y; delta > 48 || delta < 32 {
+		t.Fatalf("rows are not compact: %.1f DIP", delta)
+	}
+	if tt.HasText(locales.ShortcutsActive()) || tt.HasText(locales.ShortcutsClear()) {
+		t.Fatal("repeated statuses or secondary buttons remain in the list")
+	}
+	if _, ok := tt.Find(locales.CommonEdit() + ": " + shortcutTitle("actions.dismiss")); !ok {
+		t.Fatal("first viewport does not reach the action panel commands")
+	}
+
+	a.shortcutFilter = shortcutTitle(shortcuts.Toggle)
+	tt.Frame()
+	toggleLabel := locales.CommonEnable() + ": " + shortcutTitle(shortcuts.Toggle)
+	if err := tt.Click(toggleLabel); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if a.settingsDraft.Shortcuts[shortcuts.Toggle].Enabled {
+		t.Fatal("switch did not disable shortcut")
+	}
+	tt.Key(0, ui.KeySpace)
+	tt.Frame()
+	if !a.settingsDraft.Shortcuts[shortcuts.Toggle].Enabled {
+		t.Fatal("keyboard did not enable shortcut")
+	}
+	moreLabel := locales.ShortcutsMore() + ": " + shortcutTitle(shortcuts.Toggle)
+	if err := tt.Click(moreLabel); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if !tt.HasText(locales.ShortcutsDefaults()) {
+		t.Fatal("more menu did not open")
+	}
+	tt.Key(0, ui.KeyEscape)
+	tt.Frame()
+	if tt.HasText(locales.ShortcutsDefaults()) {
+		t.Fatal("Escape did not dismiss more menu")
+	}
+	if !tt.Focused(moreLabel) {
+		t.Fatal("menu did not return focus to its button")
+	}
+	tt.Key(0, ui.KeySpace)
+	tt.Frame()
+	if err := tt.Click(locales.ShortcutsClear()); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if len(a.settingsDraft.Shortcuts[shortcuts.Toggle].Keys) != 0 {
+		t.Fatal("menu did not clear binding")
+	}
+	if err := tt.Click(moreLabel); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if err := tt.Click(locales.ShortcutsDefaults()); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if _, overridden := a.settingsDraft.Shortcuts[shortcuts.Toggle]; overridden {
+		t.Fatal("menu did not restore defaults")
 	}
 }
 

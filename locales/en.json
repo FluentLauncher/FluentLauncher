@@ -638,5 +638,8 @@
   "shortcutsRegisterFailed": "Registration failed; previous bindings were restored where possible",
   "shortcutsLocalHint": "Standard text editing and Tab navigation keep their usual behavior.",
   "shortcutsPluginFailed": "Plugin command failed",
-  "shortcutsTooMany": "A command supports up to 12 shortcuts"
+  "shortcutsTooMany": "A command supports up to 12 shortcuts",
+  "shortcutsCompactHint": "Click a shortcut to edit. Other actions are in the more menu.",
+  "shortcutsMore": "More actions",
+  "shortcutsNotRegistered": "Not registered"
 }

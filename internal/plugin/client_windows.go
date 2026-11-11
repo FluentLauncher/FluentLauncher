@@ -203,6 +203,30 @@ func (c *Client) ExecuteCommand(ctx context.Context, commandID string, timeout t
 	return nil
 }
 
+// HasActivity never starts a process. Older plugins retain the original idle
+// policy; capable plugins may keep live UI until their last window is closed.
+func (c *Client) HasActivity(ctx context.Context) (bool, error) {
+	if err := c.lock(ctx); err != nil {
+		return false, err
+	}
+	defer func() { <-c.opGate }()
+	if c.cmd == nil || !containsFold(c.capabilities, "activity") {
+		return false, nil
+	}
+	raw, err := c.requestLocked(ctx, "activity", reqExecute, nil, time.Second)
+	if err != nil {
+		c.fail(err, ctx)
+		return false, err
+	}
+	var result struct {
+		Active *bool `json:"active"`
+	}
+	if err := json.Unmarshal(raw, &result); err != nil || result.Active == nil {
+		return false, errors.New("invalid plugin activity response")
+	}
+	return *result.Active, nil
+}
+
 // succeed records a completed request. QueryMs is the round trip alone:
 // startup is reported separately, so a slow first search does not look like
 // a slow plugin.

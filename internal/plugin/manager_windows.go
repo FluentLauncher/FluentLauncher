@@ -31,9 +31,10 @@ type session struct {
 	// dropped counts results the launcher refused because they broke the
 	// protocol, and dropNote keeps the first reason, which is what a plugin
 	// author needs to see when a plugin "returns nothing".
-	dropped  int
-	dropNote string
-	idle     *time.Timer
+	dropped   int
+	dropNote  string
+	idle      *time.Timer
+	idleEpoch uint64
 }
 
 // runtimeState is what survives a plugin process: the last numbers it
@@ -538,6 +539,7 @@ func (m *Manager) Dispose() {
 }
 
 func (m *Manager) scheduleIdleLocked(id string, session *session) {
+	session.idleEpoch++
 	if session.busy != 0 || m.disposed {
 		return
 	}
@@ -545,16 +547,40 @@ func (m *Manager) scheduleIdleLocked(id string, session *session) {
 	if seconds <= 0 {
 		seconds = 120
 	}
-	session.idle = time.AfterFunc(time.Duration(seconds)*time.Second, func() {
-		m.mu.Lock()
-		if m.sessions[id] != session || session.busy != 0 {
-			m.mu.Unlock()
-			return
-		}
-		item := m.detachLocked(id)
+	if session.idle != nil {
+		session.idle.Stop()
+	}
+	epoch := session.idleEpoch
+	session.idle = time.AfterFunc(time.Duration(seconds)*time.Second, func() { m.recycleIdle(id, session, epoch) })
+}
+
+func (m *Manager) recycleIdle(id string, sess *session, epoch uint64) {
+	m.mu.Lock()
+	if m.sessions[id] != sess || sess.busy != 0 || m.disposed || epoch != sess.idleEpoch {
 		m.mu.Unlock()
-		m.closeSession(item, true)
-	})
+		return
+	}
+	// Checking activity participates in the same busy count as user requests.
+	// A request arriving during the check must keep the session alive as well.
+	sess.busy++
+	m.mu.Unlock()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	active, err := sess.client.HasActivity(ctx)
+	cancel()
+	m.mu.Lock()
+	sess.busy--
+	if m.sessions[id] != sess || m.disposed {
+		m.mu.Unlock()
+		return
+	}
+	if (err == nil && active) || sess.busy != 0 || epoch != sess.idleEpoch {
+		m.scheduleIdleLocked(id, sess)
+		m.mu.Unlock()
+		return
+	}
+	item := m.detachLocked(id)
+	m.mu.Unlock()
+	m.closeSession(item, true)
 }
 
 // detached pairs a session with its plugin id, so it can be closed after the

@@ -99,7 +99,13 @@ func runFixture() {
 			if strings.HasPrefix(registration.Manifest.ID, "vendor.commands") && registration.Manifest.ID != "vendor.commands.old" {
 				initialized.Capabilities = []string{"executeCommand"}
 			}
+			if registration.Manifest.ID == "vendor.commands.activity" {
+				initialized.Capabilities = append(initialized.Capabilities, "activity")
+			}
 			result = initialized
+		case "activity":
+			data, _ := os.ReadFile(filepath.Join(registration.Directory, "active.txt"))
+			result = map[string]bool{"active": strings.TrimSpace(string(data)) == "true"}
 		case "executeCommand":
 			var command protocol.ExecuteCommandRequest
 			if json.Unmarshal(req.Params, &command) != nil {

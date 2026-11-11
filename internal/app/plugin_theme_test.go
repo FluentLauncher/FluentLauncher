@@ -47,3 +47,21 @@ func TestPluginPaletteMatchesMyGoDesktopPreferences(t *testing.T) {
 		}
 	}
 }
+
+func TestPluginThemeCarriesSurfaceAppearance(t *testing.T) {
+	v := settings.DefaultTheme()
+	v.Opacity = 0.37
+	theme := pluginTheme(v, false, mygo.ThemePreferences{})
+	if theme.Backdrop != "acrylic" || theme.Opacity == nil || *theme.Opacity != float32(0.37) {
+		t.Fatal("acrylic appearance lost", theme)
+	}
+	v.Background = settings.BackgroundMica
+	theme = pluginTheme(v, true, mygo.ThemePreferences{})
+	if theme.Backdrop != "mica" || *theme.Opacity != 1 {
+		t.Fatal("mica appearance lost", theme)
+	}
+	theme = pluginTheme(v, true, mygo.ThemePreferences{HighContrast: true})
+	if theme.Backdrop != "none" || *theme.Opacity != 1 {
+		t.Fatal("high contrast should be opaque", theme)
+	}
+}

@@ -37,7 +37,17 @@ func pluginTheme(value settings.ThemeSettings, dark bool, prefs mygo.ThemePrefer
 		blend := func(v, b uint8) uint32 { return (uint32(v)*a + uint32(b)*(255-a) + 127) / 255 }
 		return blend(c.R, t.Background.R)<<16 | blend(c.G, t.Background.G)<<8 | blend(c.B, t.Background.B)
 	}
-	return protocol.Theme{Dark: dark, Background: flatten(t.Background), Surface: flatten(t.Surface), SurfaceHover: flatten(t.SurfaceHover), Border: flatten(t.Border), Text: flatten(t.Text), TextMuted: flatten(t.TextMuted), Accent: flatten(t.Accent), AccentText: flatten(t.AccentText), Danger: flatten(t.Danger), Inverse: flatten(t.Inverse), InverseText: flatten(t.InverseText), Radius: t.Radius, Spacing: t.Spacing}
+	opacity, backdrop := float32(value.Opacity), "none"
+	if value.Background == settings.BackgroundAcrylic {
+		backdrop = "acrylic"
+	}
+	if value.Background == settings.BackgroundMica {
+		backdrop, opacity = "mica", 1
+	}
+	if prefs.HighContrast {
+		backdrop, opacity = "none", 1
+	}
+	return protocol.Theme{Dark: dark, Background: flatten(t.Background), Surface: flatten(t.Surface), SurfaceHover: flatten(t.SurfaceHover), Border: flatten(t.Border), Text: flatten(t.Text), TextMuted: flatten(t.TextMuted), Accent: flatten(t.Accent), AccentText: flatten(t.AccentText), Danger: flatten(t.Danger), Inverse: flatten(t.Inverse), InverseText: flatten(t.InverseText), Radius: t.Radius, Spacing: t.Spacing, Opacity: &opacity, Backdrop: backdrop}
 }
 
 func (a *App) syncPluginTheme(value settings.ThemeSettings) {

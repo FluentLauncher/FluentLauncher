@@ -17,4 +17,7 @@ type Theme struct {
 	InverseText  uint32  `json:"inverseText"`
 	Radius       float32 `json:"radius"`
 	Spacing      float32 `json:"spacing"`
+	// Optional surface appearance; missing fields keep legacy plugins opaque.
+	Opacity  *float32 `json:"opacity,omitempty"`
+	Backdrop string   `json:"backdrop,omitempty"`
 }

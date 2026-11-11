@@ -18,6 +18,7 @@ type Theme struct {
 	Radius       float32 `json:"radius"`
 	Spacing      float32 `json:"spacing"`
 	// Optional surface appearance; missing fields keep legacy plugins opaque.
-	Opacity  *float32 `json:"opacity,omitempty"`
-	Backdrop string   `json:"backdrop,omitempty"`
+	Opacity     *float32 `json:"opacity,omitempty"`
+	Backdrop    string   `json:"backdrop,omitempty"`
+	GradientEnd *uint32  `json:"gradientEnd,omitempty"` // top-to-bottom, matching the launcher plate
 }

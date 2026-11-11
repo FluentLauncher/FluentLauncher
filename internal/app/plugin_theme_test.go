@@ -65,3 +65,27 @@ func TestPluginThemeCarriesSurfaceAppearance(t *testing.T) {
 		t.Fatal("high contrast should be opaque", theme)
 	}
 }
+
+func TestPluginThemeCarriesGradientEndAndClearsIt(t *testing.T) {
+	v := settings.DefaultTheme()
+	v.Background = settings.BackgroundGradient
+	v.BackgroundColor = "#112233"
+	v.GradientColor = "#000000"
+	v.Opacity = 0.28
+	theme := pluginTheme(v, false, mygo.ThemePreferences{})
+	if theme.Background != 0x112233 || theme.GradientEnd == nil || *theme.GradientEnd != 0 || *theme.Opacity != float32(0.28) {
+		t.Fatal("gradient or opacity lost", theme)
+	}
+	v.GradientColor = "#AABBCC"
+	theme = pluginTheme(v, true, mygo.ThemePreferences{})
+	if theme.GradientEnd == nil || *theme.GradientEnd != 0xaabbcc {
+		t.Fatal("gradient end update lost", theme)
+	}
+	if got := pluginTheme(v, true, mygo.ThemePreferences{HighContrast: true}); got.GradientEnd != nil {
+		t.Fatal("high contrast retained gradient")
+	}
+	v.Background = settings.BackgroundSolid
+	if got := pluginTheme(v, true, mygo.ThemePreferences{}); got.GradientEnd != nil {
+		t.Fatal("switching to solid retained gradient")
+	}
+}

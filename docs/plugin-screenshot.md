@@ -1,8 +1,15 @@
 # 截图插件方案（official.screenshot）
 
-状态：按 2026-11-11 讨论完成首版、主题 / 图像操作与纵向滚动长截图，当前为 1.5.0 细线预览、底部操作与持续选区提示。截图与贴图全部位于独立 `FluentLauncher-plugins/plugins/screenshot/`，宿主提供可选的活动会话保活和主题同步能力。
+状态：当前为 1.6.0 工具栏透明度与完整渐变同步修正，保留细线预览、底部操作与持续选区提示。截图与贴图全部位于独立 `FluentLauncher-plugins/plugins/screenshot/`，宿主提供可选的活动会话保活和主题同步能力。
 
 ## 本轮完善（2026-11-11）
+
+### 完整背景同步（1.6.0）
+
+- [x] 宿主 / SDK 增加可选 `gradientEnd`，支持有效黑色、模式切换清理、高对比度回退；与宿主同样自上而下渐变。
+- [x] 普通冻结工具栏、长截图底部工具条和菜单共用渐变与背景不透明度；图片 / 文字 / 交互表面保持清晰。
+- [x] 冻结画面逐像素混合、长图背景 / 前景 alpha、实时主题更新与实际桌面合成检查。
+- [x] 完整构建 / 检查、配套宿主与插件打包、最终 ZIP 验收与本地提交。
 
 ### 轻量预览与持续选区提示（1.5.0）
 
@@ -139,3 +146,11 @@
 - 已查看 `build/screenshot-outline/layout-light-live.png`、`layout-dark-complete.png` 等深浅 / 采集 / 暂停 / 完成验收图。图像由实际原生绘图缓冲、窗口区域与合成内容组成，不含用户桌面数据。
 - 最终 1.5.0 ZIP 真实进程握手 / 两次材质参数 / 10 项菜单 / activity=false / hide 命令 / stdin EOF 正常退出通过。包 SHA-256 与目录一致：`379bfa14eb508ec02038b82cecd516780e9a6894d25853f43a1393c1ec9519c2`。
 - 包位于插件仓库 `build/release/official.screenshot-1.5.0-windows-amd64.zip`，沿用 1.3.0 配套宿主。真实应用动态内容、混合 DPI 与用户输入法仍需按设备验收；未替换运行实例或已安装插件，未推送发布。
+
+## 1.6.0 验证记录（2026-11-11）
+
+- 宿主 CGO_ENABLED=0 的构建、vet、测试与 MyGo 检查通过；CGO_ENABLED=1 的 `go test -race ./internal/plugin` 通过。新增主题测试验证黑色结束色、实时更新、切换纯色清理及高对比度回退。协议版本仍为 1。
+- 插件根模块 / SDK 的构建、vet、测试通过，完整原生 / race 检查通过。菜单与工具条共享渐变采样、背景 alpha 及材质处理，文字 / 图片 / 已填充按钮单独保持不透明。
+- 新增棋盘底图逐像素检查：普通截图工具栏在不透明度 0、0.35、1 时的两端混合色；长截图底部的背景 alpha、完整图片和强调按钮 alpha；实时结束色 / 不透明度更新及亚克力模式切换。实际 DWM 桌面合成与预期混色一致。已查看 `build/screenshot-gradient/region-toolbar-gradient.png` 与 `long-toolbar-gradient.png`，均为合成测试内容。
+- 最终 ZIP 的真实进程接受 `gradientEnd` 与材质切换，握手 / 10 项查询 / activity=false / hide / EOF 正常退出通过。1.6.0 ZIP SHA-256 与目录一致：`26012b4261543c3692e4a4e76c429779a3bb9553e3eca94ca8b6f0070bc7c233`。
+- 配套宿主位于 `build/screenshot-gradient/app/windows-amd64/FluentLauncher.exe`；插件仓库包为 `build/release/official.screenshot-1.6.0-windows-amd64.zip`。完整渐变需两者更新后重启宿主；旧宿主缺少结束色时显示主色。未替换运行实例或已安装插件，未推送发布。

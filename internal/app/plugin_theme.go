@@ -38,6 +38,14 @@ func pluginTheme(value settings.ThemeSettings, dark bool, prefs mygo.ThemePrefer
 		return blend(c.R, t.Background.R)<<16 | blend(c.G, t.Background.G)<<8 | blend(c.B, t.Background.B)
 	}
 	opacity, backdrop := float32(value.Opacity), "none"
+	var gradientEnd *uint32
+	if value.Background == settings.BackgroundGradient {
+		end := flatten(t.Surface)
+		if parsed, ok := parseOpaqueColor(value.GradientColor); ok {
+			end = uint32(parsed.R)<<16 | uint32(parsed.G)<<8 | uint32(parsed.B)
+		}
+		gradientEnd = &end
+	}
 	if value.Background == settings.BackgroundAcrylic {
 		backdrop = "acrylic"
 	}
@@ -46,8 +54,9 @@ func pluginTheme(value settings.ThemeSettings, dark bool, prefs mygo.ThemePrefer
 	}
 	if prefs.HighContrast {
 		backdrop, opacity = "none", 1
+		gradientEnd = nil
 	}
-	return protocol.Theme{Dark: dark, Background: flatten(t.Background), Surface: flatten(t.Surface), SurfaceHover: flatten(t.SurfaceHover), Border: flatten(t.Border), Text: flatten(t.Text), TextMuted: flatten(t.TextMuted), Accent: flatten(t.Accent), AccentText: flatten(t.AccentText), Danger: flatten(t.Danger), Inverse: flatten(t.Inverse), InverseText: flatten(t.InverseText), Radius: t.Radius, Spacing: t.Spacing, Opacity: &opacity, Backdrop: backdrop}
+	return protocol.Theme{Dark: dark, Background: flatten(t.Background), Surface: flatten(t.Surface), SurfaceHover: flatten(t.SurfaceHover), Border: flatten(t.Border), Text: flatten(t.Text), TextMuted: flatten(t.TextMuted), Accent: flatten(t.Accent), AccentText: flatten(t.AccentText), Danger: flatten(t.Danger), Inverse: flatten(t.Inverse), InverseText: flatten(t.InverseText), Radius: t.Radius, Spacing: t.Spacing, Opacity: &opacity, Backdrop: backdrop, GradientEnd: gradientEnd}
 }
 
 func (a *App) syncPluginTheme(value settings.ThemeSettings) {

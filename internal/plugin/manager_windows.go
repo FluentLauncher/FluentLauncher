@@ -60,6 +60,7 @@ type Manager struct {
 	replacing         map[string]bool
 	commandActive     map[string]bool
 	onCommandsChanged func()
+	theme             *protocol.Theme
 }
 
 func (m *Manager) OnCommandsChanged(fn func()) { m.mu.Lock(); m.onCommandsChanged = fn; m.mu.Unlock() }
@@ -231,6 +232,9 @@ func (m *Manager) searchOne(ctx context.Context, registration protocol.Registrat
 			return []model.Result{errorResult(id, registration.Manifest.Name, locales.PluginActiveProcessLimit())}
 		}
 		sess = &session{client: NewClient(registration.Path(), id)}
+		if m.theme != nil {
+			sess.client.SetTheme(*m.theme)
+		}
 		m.sessions[id] = sess
 	}
 	if sess.idle != nil {
@@ -405,6 +409,9 @@ func (m *Manager) ExecuteCommand(ctx context.Context, pluginID, commandID string
 			return errors.New(locales.PluginActiveProcessLimit())
 		}
 		sess = &session{client: NewClient(registration.Path(), pluginID)}
+		if m.theme != nil {
+			sess.client.SetTheme(*m.theme)
+		}
 		m.sessions[pluginID] = sess
 	}
 	m.commandActive[key] = true

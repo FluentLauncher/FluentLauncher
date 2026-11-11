@@ -82,6 +82,9 @@ func runFixture() {
 	if err != nil {
 		os.Exit(1)
 	}
+	if registration.Manifest.ID == "vendor.commands.theme" {
+		defer os.WriteFile(filepath.Join(registration.Directory, "closed.txt"), []byte("eof"), 0600)
+	}
 	for {
 		payload, err := protocol.Read(os.Stdin)
 		if err != nil {
@@ -102,7 +105,18 @@ func runFixture() {
 			if registration.Manifest.ID == "vendor.commands.activity" {
 				initialized.Capabilities = append(initialized.Capabilities, "activity")
 			}
+			if registration.Manifest.ID == "vendor.commands.theme" {
+				initialized.Capabilities = append(initialized.Capabilities, "theme")
+			}
 			result = initialized
+		case "setTheme":
+			tmp := filepath.Join(registration.Directory, "theme.tmp")
+			if err := os.WriteFile(tmp, req.Params, 0600); err != nil {
+				return
+			}
+			if err := os.Rename(tmp, filepath.Join(registration.Directory, "theme.json")); err != nil {
+				return
+			}
 		case "activity":
 			data, _ := os.ReadFile(filepath.Join(registration.Directory, "active.txt"))
 			result = map[string]bool{"active": strings.TrimSpace(string(data)) == "true"}

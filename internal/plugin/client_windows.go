@@ -54,6 +54,9 @@ type Client struct {
 	closed        bool
 	requestID     int64
 	capabilities  []string
+	themeMu       sync.Mutex
+	theme         *protocol.Theme
+	sentTheme     *protocol.Theme // operation-gate protected
 
 	// statsMu guards stats alone, so the settings page can read a snapshot
 	// while a query is in flight instead of waiting for it.
@@ -258,7 +261,7 @@ func (c *Client) startLocked(ctx context.Context) error {
 		return errors.New(locales.PluginClientClosed())
 	}
 	if c.cmd != nil && c.cmd.Process != nil {
-		return nil
+		return c.syncThemeLocked(ctx)
 	}
 	c.stopLocked()
 	start := time.Now()
@@ -310,6 +313,11 @@ func (c *Client) startLocked(ctx context.Context) error {
 		return err
 	}
 	c.capabilities = append([]string(nil), initialized.Capabilities...)
+	c.sentTheme = nil
+	if err := c.syncThemeLocked(ctx); err != nil {
+		c.stopLocked()
+		return err
+	}
 	startupMs := float64(time.Since(start).Microseconds()) / 1000
 	c.statsMu.Lock()
 	c.stats.Running = true
@@ -484,7 +492,46 @@ func (c *Client) Close() {
 	_ = c.lock(context.Background())
 	defer func() { <-c.opGate }()
 	c.closed = true
-	c.stopLocked()
+	c.closeGracefullyLocked()
+}
+
+// Give UI plugins a bounded opportunity to release windows and temporary
+// exports on EOF. Protocol failures/timeouts still use immediate stopLocked.
+func (c *Client) closeGracefullyLocked() {
+	if c.cmd == nil {
+		c.stopLocked()
+		return
+	}
+	if c.stdin != nil {
+		_ = c.stdin.Close()
+		c.stdin = nil
+	}
+	cmd := c.cmd
+	done := make(chan struct{})
+	go func() { _ = cmd.Wait(); close(done) }()
+	timer := time.NewTimer(cancelGrace)
+	defer timer.Stop()
+	select {
+	case <-done:
+	case <-timer.C:
+		if c.job != nil {
+			_ = c.job.Close()
+			c.job = nil
+		}
+		if cmd.Process != nil {
+			_ = cmd.Process.Kill()
+		}
+		<-done
+	}
+	if c.job != nil {
+		_ = c.job.Close()
+		c.job = nil
+	}
+	c.cmd, c.stdin, c.stdout = nil, nil, nil
+	c.statsMu.Lock()
+	c.stats.Running = false
+	c.stats.PID = 0
+	c.statsMu.Unlock()
 }
 
 func (c *Client) stopLocked() {

@@ -335,7 +335,10 @@ func (a *App) drawActions(c *ui.Context, theme *ui.Theme) {
 }
 
 func (a *App) applyUITheme(t *ui.Theme) {
-	value := a.displayTheme()
+	applyThemeSettings(t, a.displayTheme())
+}
+
+func applyThemeSettings(t *ui.Theme, value settings.ThemeSettings) {
 	if value.FontFamily != "" {
 		t.Font = value.FontFamily
 	}

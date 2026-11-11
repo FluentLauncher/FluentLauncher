@@ -327,6 +327,7 @@ func (a *App) ready() {
 	a.setUpTray()
 	a.plugins.OnCommandsChanged(func() { a.publishUpdate(func() { a.registerHotkey() }) })
 	a.applyTheme()
+	mygo.Theme.OnUpdated(func() { a.syncPluginTheme(a.displayTheme()) })
 	a.registerHotkey()
 	a.applyVolumeSettings()
 	a.applyOpenAtLogin()
@@ -950,6 +951,7 @@ func (a *App) applyThemeFrom(value settings.ThemeSettings) {
 		a.settingsWin.Update(func() {})
 	}
 	a.appliedTheme = value
+	a.syncPluginTheme(value)
 }
 
 // Mica uses the unmodified system backdrop. Clear live desktop blur before

@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,6 +11,7 @@ import (
 	"github.com/egoist/mygo"
 
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/diag"
 	"fluentlauncher/locales"
 )
 
@@ -96,6 +98,9 @@ func (a *App) checkForUpdates(background bool) {
 			return
 		}
 		up, err := mygo.Updater.Check(ctx)
+		if err != nil && ctx.Err() != context.Canceled {
+			slog.Warn("update_check_failed", "error_kind", diag.ErrorKind(err))
+		}
 		a.publishUpdate(func() {
 			a.updates.busy = false
 			if channel != a.settings.EffectiveUpdateChannel(appVersion()) {
@@ -148,6 +153,9 @@ func (a *App) installUpdate() {
 				})
 			}
 		})
+		if err != nil && ctx.Err() != context.Canceled {
+			slog.Warn("update_install_failed", "error_kind", diag.ErrorKind(err))
+		}
 		a.publishUpdate(func() {
 			a.updates.busy = false
 			a.updates.installing = false

@@ -55,6 +55,13 @@ func NewEngine() *Engine {
 	return &Engine{}
 }
 
+// Count reports the current snapshot size without copying index entries.
+func (e *Engine) Count() int {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+	return len(e.entries)
+}
+
 // ReplaceEntries swaps the whole snapshot. Phonetics are reused when the
 // title did not change. Existing personal rules survive refreshes; callers use
 // UpdateProfiles when replacing rules, including resetting learning.

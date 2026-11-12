@@ -6,7 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -16,6 +16,7 @@ import (
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/search"
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/diag"
 	"fluentlauncher/internal/plugin/protocol"
 	"fluentlauncher/locales"
 )
@@ -244,13 +245,16 @@ func (m *Manager) searchOne(ctx context.Context, registration protocol.Registrat
 	sess.busy++
 	m.mu.Unlock()
 
+	queryStarted := time.Now()
 	response, err := sess.client.Query(ctx, protocol.Query{
 		Text: text, MaxResults: limit, QueryVersion: version, Keyword: keyword,
 	}, time.Duration(options.QueryTimeoutMs)*time.Millisecond)
 	if err == nil {
-		log.Printf("plugin %s: %d results for %q", id, len(response.Results), text)
+		slog.Debug("plugin_query", "plugin_id", id, "results", len(response.Results), "duration_ms", time.Since(queryStarted).Milliseconds())
+	} else if ctx.Err() != nil || errors.Is(err, context.Canceled) {
+		slog.Debug("plugin_query_canceled", "plugin_id", id)
 	} else {
-		log.Printf("plugin %s: %v", id, err)
+		slog.Warn("plugin_query_failed", "plugin_id", id, "error_kind", diag.ErrorKind(err), "duration_ms", time.Since(queryStarted).Milliseconds())
 	}
 
 	m.mu.Lock()
@@ -325,7 +329,7 @@ func (m *Manager) searchOne(ctx context.Context, registration protocol.Registrat
 	if dropped > 0 {
 		sess.dropped += dropped
 		sess.dropNote = dropNote
-		log.Printf("plugin %s: dropped %d item(s): %s", id, dropped, dropNote)
+		slog.Warn("plugin_results_dropped", "plugin_id", id, "count", dropped)
 	}
 	sess.busy--
 	m.scheduleIdleLocked(id, sess)

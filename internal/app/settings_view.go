@@ -1132,6 +1132,7 @@ func (a *App) aboutPage(c *ui.Context) {
 			}
 		})
 	})
+	a.diagnosticsCard(c)
 }
 
 func pluginInstalled(installed []protocol.Registration, id string) bool {

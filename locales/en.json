@@ -713,5 +713,19 @@
   "toolsGroupValues": "Calculation & utilities",
   "toolsGroupDates": "Date & time",
   "toolsGroupText": "Encoding & text",
-  "toolsFilterEmpty": "No matching built-in tools. Try a name or keyword."
+  "toolsFilterEmpty": "No matching built-in tools. Try a name or keyword.",
+  "diagnosticsTitle": "Logs and performance",
+  "diagnosticsIdle": "Local logging is on. Start diagnostics, then repeat the search that felt slow.",
+  "diagnosticsUnavailable": "Logging is unavailable. Check write access to the local data folder, then restart.",
+  "diagnosticsActive": "Recording query timings until {time}.",
+  "diagnosticsPrivacy": "Logs stay on this device and exclude search text. Exports contain timings, versions and runtime status, without settings files, databases or history.",
+  "diagnosticsStart": "Start 5-minute diagnostics",
+  "diagnosticsStop": "Stop diagnostics",
+  "diagnosticsOpen": "Open log folder",
+  "diagnosticsRaw": "Include raw plugin output and crash reports",
+  "diagnosticsRawHint": "Off by default. Raw reports may contain paths or private information; review before sharing.",
+  "diagnosticsExport": "Export diagnostics",
+  "diagnosticsExporting": "Exporting…",
+  "diagnosticsExported": "Diagnostics saved.",
+  "diagnosticsFailed": "Diagnostics failed ({reason}). Check folder permissions and retry."
 }

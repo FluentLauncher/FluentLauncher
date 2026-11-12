@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
 	"math"
 	"os"
 	"path/filepath"
@@ -32,6 +33,7 @@ import (
 	"fluentlauncher/internal/winapi/apps"
 	"fluentlauncher/internal/winapi/everything"
 	"fluentlauncher/internal/winapi/glass"
+	"fluentlauncher/internal/winapi/sysinfo"
 	"fluentlauncher/internal/winapi/volume"
 	"fluentlauncher/internal/winapi/windowlist"
 	"fluentlauncher/locales"
@@ -159,16 +161,37 @@ type App struct {
 	lastBatches     []search.Batch
 	catalogTimer    *time.Timer
 	volumeTimer     *time.Timer
+	diagnostics     *diag.Recorder
+	diagnosticBusy  bool
+	diagnosticRaw   bool
+	diagnosticTimer *time.Timer
+	queryUpdates    latestQueryUpdate
 }
 
 // Run starts the single-instance launcher.
-func Run() error {
-	diag.Init()
+func Run() (runErr error) {
 	if !mygo.App.RequestSingleInstanceLock() {
 		return nil
 	}
 	a := &App{}
 	data := filepath.Join(os.Getenv("LOCALAPPDATA"), "FluentLauncher")
+	recorder, err := diag.Open(filepath.Join(data, "logs"))
+	if err != nil {
+		log.Print("local diagnostics unavailable")
+	} else {
+		a.diagnostics = recorder
+		restoreLogging := recorder.Install()
+		defer func() {
+			if runErr != nil {
+				recorder.Logger.Error("startup_failed", "error_kind", diag.ErrorKind(runErr))
+			}
+			recorder.Logger.Info("shutdown")
+			restoreLogging()
+			recorder.Close()
+		}()
+	}
+	diag.Init()
+	slog.Info("application", "version", appVersion(), "windows_version", sysinfo.Version())
 	library, err := bundled.SQLiteLibrary(filepath.Join(data, "cache"))
 	if err != nil {
 		return err
@@ -209,6 +232,7 @@ func (a *App) ready() {
 	a.config = store.NewConfigStore(a.dataDir)
 	a.themes = store.NewThemeStore(filepath.Join(a.dataDir, "themes"))
 	if value, err := a.config.Load(); err != nil {
+		slog.Warn("settings_load_failed", "error_kind", diag.ErrorKind(err))
 		a.notice = locales.AppCannotReadSettings(err)
 	} else {
 		a.settings = value
@@ -262,7 +286,7 @@ func (a *App) ready() {
 	go func() {
 		_ = a.pluginRepo.Refresh()
 		a.plugins.Configure(a.pluginRepo.Installed(), pluginOptions)
-		log.Printf("plugins installed=%d enabled=%v", len(a.pluginRepo.Installed()), pluginOptions.EnabledIDs)
+		slog.Info("plugins_configured", "installed", len(a.pluginRepo.Installed()), "enabled", len(pluginOptions.EnabledIDs))
 	}()
 
 	// The result rows draw the icons in DIPs; the shell renders them in device
@@ -321,7 +345,7 @@ func (a *App) ready() {
 		a.hidePanel()
 	})
 	a.panel.OnBlur(a.hidePanel)
-	a.panel.OnShow(func() { log.Printf("panel shown") })
+	a.panel.OnShow(func() { slog.Debug("panel_shown") })
 	a.panel.OnMove(a.scheduleAnchorCapture)
 	a.createVolumeOverlay()
 	a.setUpTray()
@@ -527,7 +551,7 @@ func (a *App) refreshApps() {
 				return
 			}
 			a.status = locales.AppDiscoveredApps(len(entries))
-			log.Printf("apps: %d in %dms", len(entries), ms)
+			slog.Info("applications_discovered", "count", len(entries), "duration_ms", ms)
 			a.updateResults()
 		})
 	}()
@@ -887,6 +911,7 @@ func (a *App) flushSettingsDraft() {
 		return
 	}
 	if err := a.applySettings(a.settingsDraft); err != nil {
+		slog.Warn("settings_apply_failed", "error_kind", diag.ErrorKind(err))
 		a.settingsError = err.Error()
 		a.settingsNotice = ""
 		// Failed shortcut edits must not keep unregistering/retrying every
@@ -1054,6 +1079,7 @@ func (a *App) updateResults() {
 		return
 	}
 	a.resultsReady = false
+	started := time.Now()
 	preferred := a.selectedID
 	// The query goroutine must not read fields the UI thread replaces on
 	// save; take everything it needs now.
@@ -1061,31 +1087,33 @@ func (a *App) updateResults() {
 	providers := a.providers
 
 	if strings.TrimSpace(a.query) == "" {
-		results := search.RecentEntries(snap.ShowRecentEntries, a.profileSlice(), a.findEntry, snap.MaxResults)
-		a.setResults(results, preferred)
-		a.resultsReady = true
-		a.panel.Update(func() {})
+		go func() {
+			results := search.RecentEntries(snap.ShowRecentEntries, a.profileSlice(), a.findEntry, snap.MaxResults)
+			if ctx.Err() == nil {
+				a.queryUpdates.publish(queryDelivery{generation, search.Update{Results: results}, preferred, started, time.Now()}, a.panel.Update, a.deliverQuery)
+			}
+		}()
 		return
 	}
 	q := search.RouteTools(search.ParseQuery(a.query), snap)
-	log.Printf("query %q scope=%d", q.Text, q.Scope)
+	providers = a.measuredProviders(providers, q, generation)
 	go func() {
+		publications := 0
 		search.Collect(ctx, search.Run(ctx, providers, q, snap.MaxResults), snap.MaxResults, 16*time.Millisecond, func(update search.Update) {
-			a.panel.Update(func() {
-				if generation != a.queryGeneration.Load() {
-					return
-				}
-				if !reflect.DeepEqual(a.results, update.Results) {
-					a.setResults(update.Results, preferred)
-				}
-				a.resultsReady = true
-				a.lastBatches = update.Batches
-			})
+			publications++
+			if publications == 1 && a.diagnostics != nil {
+				a.diagnostics.Measure("first_computed", time.Since(started), "query_id", generation, "results", len(update.Results))
+			}
+			a.queryUpdates.publish(queryDelivery{generation, update, preferred, started, time.Now()}, a.panel.Update, a.deliverQuery)
 		})
+		if a.diagnostics != nil {
+			a.diagnostics.Measure("query_complete", time.Since(started), "query_id", generation, "status", diag.ErrorKind(ctx.Err()), "publications", publications)
+		}
 	}()
 }
 
 func (a *App) setResults(results []model.Result, preferred string) {
+	previousIndex, previousID := a.chosen, a.selectedID
 	a.results = results
 	a.chosen = 0
 	if preferred != "" {
@@ -1100,7 +1128,9 @@ func (a *App) setResults(results []model.Result, preferred string) {
 		a.selectedID = ""
 	} else {
 		a.selectedID = results[a.chosen].Entry.ID
-		a.list.ScrollIntoView(a.chosen)
+		if a.chosen != previousIndex || a.selectedID != previousID {
+			a.list.ScrollIntoView(a.chosen)
+		}
 	}
 }
 
@@ -1322,6 +1352,9 @@ func (a *App) clampToWorkArea(win *mygo.Window) {
 }
 
 func (a *App) close() {
+	if a.diagnosticTimer != nil {
+		a.diagnosticTimer.Stop()
+	}
 	if a.icons != nil {
 		a.icons.close()
 	}

@@ -9873,3 +9873,143 @@ func ToolsFilterEmpty() string { return In(i18n.Locale()).ToolsFilterEmpty() }
 func (msgs Messages) ToolsFilterEmpty() string {
 	return Catalog.Format(msgs.locale, "toolsFilterEmpty", nil)
 }
+
+// DiagnosticsTitle says "日志与性能诊断"
+// in the language the app shows.
+func DiagnosticsTitle() string { return In(i18n.Locale()).DiagnosticsTitle() }
+
+// DiagnosticsTitle says "日志与性能诊断"
+// in the language of msgs.
+func (msgs Messages) DiagnosticsTitle() string {
+	return Catalog.Format(msgs.locale, "diagnosticsTitle", nil)
+}
+
+// DiagnosticsIdle says "本地日志已开启。遇到卡顿时，开始诊断后重复刚才的搜索操作。"
+// in the language the app shows.
+func DiagnosticsIdle() string { return In(i18n.Locale()).DiagnosticsIdle() }
+
+// DiagnosticsIdle says "本地日志已开启。遇到卡顿时，开始诊断后重复刚才的搜索操作。"
+// in the language of msgs.
+func (msgs Messages) DiagnosticsIdle() string {
+	return Catalog.Format(msgs.locale, "diagnosticsIdle", nil)
+}
+
+// DiagnosticsUnavailable says "日志目录不可用。检查本地数据目录的写入权限后重启。"
+// in the language the app shows.
+func DiagnosticsUnavailable() string { return In(i18n.Locale()).DiagnosticsUnavailable() }
+
+// DiagnosticsUnavailable says "日志目录不可用。检查本地数据目录的写入权限后重启。"
+// in the language of msgs.
+func (msgs Messages) DiagnosticsUnavailable() string {
+	return Catalog.Format(msgs.locale, "diagnosticsUnavailable", nil)
+}
+
+// DiagnosticsActive says "正在记录查询耗时，将于 {time} 自动停止。"
+// in the language the app shows.
+func DiagnosticsActive(time_ string) string { return In(i18n.Locale()).DiagnosticsActive(time_) }
+
+// DiagnosticsActive says "正在记录查询耗时，将于 {time} 自动停止。"
+// in the language of msgs.
+func (msgs Messages) DiagnosticsActive(time_ string) string {
+	return Catalog.Format(msgs.locale, "diagnosticsActive", map[string]any{"time": time_})
+}
+
+// DiagnosticsPrivacy says "…"
+// in the language the app shows.
+func DiagnosticsPrivacy() string { return In(i18n.Locale()).DiagnosticsPrivacy() }
+
+// DiagnosticsPrivacy says "…"
+// in the language of msgs.
+func (msgs Messages) DiagnosticsPrivacy() string {
+	return Catalog.Format(msgs.locale, "diagnosticsPrivacy", nil)
+}
+
+// DiagnosticsStart says "开始 5 分钟诊断"
+// in the language the app shows.
+func DiagnosticsStart() string { return In(i18n.Locale()).DiagnosticsStart() }
+
+// DiagnosticsStart says "开始 5 分钟诊断"
+// in the language of msgs.
+func (msgs Messages) DiagnosticsStart() string {
+	return Catalog.Format(msgs.locale, "diagnosticsStart", nil)
+}
+
+// DiagnosticsStop says "停止诊断"
+// in the language the app shows.
+func DiagnosticsStop() string { return In(i18n.Locale()).DiagnosticsStop() }
+
+// DiagnosticsStop says "停止诊断"
+// in the language of msgs.
+func (msgs Messages) DiagnosticsStop() string {
+	return Catalog.Format(msgs.locale, "diagnosticsStop", nil)
+}
+
+// DiagnosticsOpen says "打开日志目录"
+// in the language the app shows.
+func DiagnosticsOpen() string { return In(i18n.Locale()).DiagnosticsOpen() }
+
+// DiagnosticsOpen says "打开日志目录"
+// in the language of msgs.
+func (msgs Messages) DiagnosticsOpen() string {
+	return Catalog.Format(msgs.locale, "diagnosticsOpen", nil)
+}
+
+// DiagnosticsRaw says "附加原始插件输出与崩溃报告"
+// in the language the app shows.
+func DiagnosticsRaw() string { return In(i18n.Locale()).DiagnosticsRaw() }
+
+// DiagnosticsRaw says "附加原始插件输出与崩溃报告"
+// in the language of msgs.
+func (msgs Messages) DiagnosticsRaw() string {
+	return Catalog.Format(msgs.locale, "diagnosticsRaw", nil)
+}
+
+// DiagnosticsRawHint says "默认不勾选。原始内容可能包含路径或私人信息，分享前请检查。"
+// in the language the app shows.
+func DiagnosticsRawHint() string { return In(i18n.Locale()).DiagnosticsRawHint() }
+
+// DiagnosticsRawHint says "默认不勾选。原始内容可能包含路径或私人信息，分享前请检查。"
+// in the language of msgs.
+func (msgs Messages) DiagnosticsRawHint() string {
+	return Catalog.Format(msgs.locale, "diagnosticsRawHint", nil)
+}
+
+// DiagnosticsExport says "导出诊断包"
+// in the language the app shows.
+func DiagnosticsExport() string { return In(i18n.Locale()).DiagnosticsExport() }
+
+// DiagnosticsExport says "导出诊断包"
+// in the language of msgs.
+func (msgs Messages) DiagnosticsExport() string {
+	return Catalog.Format(msgs.locale, "diagnosticsExport", nil)
+}
+
+// DiagnosticsExporting says "正在导出…"
+// in the language the app shows.
+func DiagnosticsExporting() string { return In(i18n.Locale()).DiagnosticsExporting() }
+
+// DiagnosticsExporting says "正在导出…"
+// in the language of msgs.
+func (msgs Messages) DiagnosticsExporting() string {
+	return Catalog.Format(msgs.locale, "diagnosticsExporting", nil)
+}
+
+// DiagnosticsExported says "诊断包已保存。"
+// in the language the app shows.
+func DiagnosticsExported() string { return In(i18n.Locale()).DiagnosticsExported() }
+
+// DiagnosticsExported says "诊断包已保存。"
+// in the language of msgs.
+func (msgs Messages) DiagnosticsExported() string {
+	return Catalog.Format(msgs.locale, "diagnosticsExported", nil)
+}
+
+// DiagnosticsFailed says "诊断操作失败（{reason}），请检查目录权限并重试。"
+// in the language the app shows.
+func DiagnosticsFailed(reason string) string { return In(i18n.Locale()).DiagnosticsFailed(reason) }
+
+// DiagnosticsFailed says "诊断操作失败（{reason}），请检查目录权限并重试。"
+// in the language of msgs.
+func (msgs Messages) DiagnosticsFailed(reason string) string {
+	return Catalog.Format(msgs.locale, "diagnosticsFailed", map[string]any{"reason": reason})
+}

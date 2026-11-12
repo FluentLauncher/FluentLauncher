@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"context"
 	"sync"
+	"sync/atomic"
 
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
@@ -68,6 +69,9 @@ type iconLoader struct {
 	queue   chan iconKey
 	ctx     context.Context
 	cancel  context.CancelFunc
+	hits    atomic.Uint64
+	misses  atomic.Uint64
+	full    atomic.Uint64
 }
 
 func newIconLoader(load func(iconKey) *ui.Bitmap, changed func()) *iconLoader {
@@ -107,13 +111,16 @@ func (l *iconLoader) get(key iconKey) *ui.Bitmap {
 		return nil
 	}
 	if bitmap, ok := l.cache.get(key); ok {
+		l.hits.Add(1)
 		return bitmap
 	}
 	if !l.pending[key] {
+		l.misses.Add(1)
 		select {
 		case l.queue <- key:
 			l.pending[key] = true
 		default: // A completion invalidates the view, which retries visible misses.
+			l.full.Add(1)
 		}
 	}
 	return nil

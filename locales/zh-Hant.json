@@ -713,5 +713,19 @@
   "toolsGroupValues": "計算與實用工具",
   "toolsGroupDates": "日期與時間",
   "toolsGroupText": "編碼與文字",
-  "toolsFilterEmpty": "沒有符合的內建工具，試試名稱或觸發詞。"
+  "toolsFilterEmpty": "沒有符合的內建工具，試試名稱或觸發詞。",
+  "diagnosticsTitle": "日誌與效能診斷",
+  "diagnosticsIdle": "本機日誌已開啟。遇到卡頓時，開始診斷後重複剛才的搜尋操作。",
+  "diagnosticsUnavailable": "日誌目錄無法使用。請檢查本機資料目錄的寫入權限後重新啟動。",
+  "diagnosticsActive": "正在記錄查詢耗時，將於 {time} 自動停止。",
+  "diagnosticsPrivacy": "日誌僅儲存在本機，不記錄搜尋原文。診斷包包含耗時統計、版本及執行狀態，不含設定檔、資料庫或歷史記錄。",
+  "diagnosticsStart": "開始 5 分鐘診斷",
+  "diagnosticsStop": "停止診斷",
+  "diagnosticsOpen": "開啟日誌目錄",
+  "diagnosticsRaw": "附加原始外掛輸出與當機報告",
+  "diagnosticsRawHint": "預設不勾選。原始內容可能包含路徑或私人資訊，分享前請檢查。",
+  "diagnosticsExport": "匯出診斷包",
+  "diagnosticsExporting": "正在匯出…",
+  "diagnosticsExported": "診斷包已儲存。",
+  "diagnosticsFailed": "診斷操作失敗（{reason}），請檢查目錄權限並重試。"
 }

@@ -46,9 +46,10 @@ func TestIndependentOfficialReleaseIntegration(t *testing.T) {
 		if _, err := repo.Install(archive, false); err != nil {
 			t.Fatal(entry.ID, err)
 		}
+		t.Logf("verified and installed %s %s", entry.ID, entry.Version)
 	}
-	if len(repo.Installed()) != 3 {
-		t.Fatalf("installed %d official packages", len(repo.Installed()))
+	if len(repo.Installed()) != len(catalog.Plugins) {
+		t.Fatalf("installed %d of %d official packages", len(repo.Installed()), len(catalog.Plugins))
 	}
 	m := NewManager()
 	defer m.Dispose()

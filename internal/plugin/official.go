@@ -3,6 +3,7 @@ package plugin
 import (
 	_ "embed"
 	"encoding/json"
+	"fluentlauncher/internal/plugin/protocol"
 	"sync"
 
 	"github.com/egoist/mygo/i18n"
@@ -14,20 +15,28 @@ var officialIndexData []byte
 // OfficialPlugin is one catalogue entry in the current UI language. Embedded
 // fallback names have no Version or Package and cannot offer downloads.
 type OfficialPlugin struct {
+	HostServices []string
 	// ID is both the manifest id and its installed package directory name.
 	ID string
 	// Name is what the page shows; it repeats the manifest's name.
 	Name string
 	// Summary is one sentence about what the plugin answers.
-	Summary string
-	Version string
-	Package PluginPackage
+	Summary                                            string
+	Version                                            string
+	Package                                            PluginPackage
+	Author, Description, Usage, Homepage, ReleaseNotes string
+	Icon                                               *PluginPackage
+	RequiredHostServices                               []protocol.ServiceRequirement
 }
 
 type officialIndexEntry struct {
-	ID      string            `json:"id"`
-	Name    map[string]string `json:"name"`
-	Summary map[string]string `json:"summary"`
+	ID          string            `json:"id"`
+	Name        map[string]string `json:"name"`
+	Summary     map[string]string `json:"summary"`
+	Author      string            `json:"author"`
+	Description map[string]string `json:"description"`
+	Usage       map[string]string `json:"usage"`
+	Homepage    string            `json:"homepage"`
 }
 
 var (
@@ -35,7 +44,7 @@ var (
 	officialIndex []officialIndexEntry
 )
 
-// OfficialPlugins supplies names while the signed catalogue is unavailable.
+// OfficialPlugins supplies display metadata while the signed catalogue is unavailable.
 // Download metadata and newly published plugins come from Catalog.Localized.
 func OfficialPlugins() []OfficialPlugin {
 	officialOnce.Do(func() {
@@ -53,6 +62,8 @@ func OfficialPlugins() []OfficialPlugin {
 			ID:      entry.ID,
 			Name:    officialText(entry.Name, locale),
 			Summary: officialText(entry.Summary, locale),
+			Author:  entry.Author, Description: officialText(entry.Description, locale),
+			Usage: officialText(entry.Usage, locale), Homepage: entry.Homepage,
 		})
 	}
 	return out

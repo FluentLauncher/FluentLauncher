@@ -177,6 +177,9 @@ func (r *Repository) Install(source string, upgrade bool) (protocol.Registration
 	if err != nil {
 		return protocol.Registration{}, err
 	}
+	if err := ValidateHostRequirements(manifest); err != nil {
+		return protocol.Registration{}, err
+	}
 	target := filepath.Join(r.dir, manifest.ID)
 	if _, err := os.Stat(target); err == nil && !upgrade {
 		return protocol.Registration{}, errors.New(locales.PluginAlreadyInstalled(manifest.ID))

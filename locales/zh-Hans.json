@@ -2166,7 +2166,7 @@
   "@settingsPageLaunchItems": {
     "description": "Settings sidebar: the launch items page title."
   },
-  "settingsPagePlugins": "插件",
+  "settingsPagePlugins": "插件市场",
   "@settingsPagePlugins": {
     "description": "Settings sidebar: the plugins page title; also the fallback card title when the plugin runtime is missing."
   },
@@ -2963,38 +2963,82 @@
   },
   "updateChannel": "更新通道",
   "updateVersion": "版本",
-  "@updateVersion": { "description": "Update settings row showing the installed version and status." },
+  "@updateVersion": {
+    "description": "Update settings row showing the installed version and status."
+  },
   "updateSchedule": "每 24 小时自动检查一次。",
-  "@updateSchedule": { "description": "Short idle update status; full schedule is in the check button tooltip." },
+  "@updateSchedule": {
+    "description": "Short idle update status; full schedule is in the check button tooltip."
+  },
   "updateNotes": "更新内容",
-  "@updateNotes": { "description": "Release notes settings row and dialog label." },
+  "@updateNotes": {
+    "description": "Release notes settings row and dialog label."
+  },
   "updateNotesHint": "查看本次更新的改进与修复。",
-  "@updateNotesHint": { "description": "Release notes are available for the offered update." },
+  "@updateNotesHint": {
+    "description": "Release notes are available for the offered update."
+  },
   "updateNotesPending": "发现新版本后，可在此查看更新说明。",
-  "@updateNotesPending": { "description": "Release notes row before finding an update." },
+  "@updateNotesPending": {
+    "description": "Release notes row before finding an update."
+  },
   "updateNotesEmpty": "此版本未提供更新说明。",
-  "@updateNotesEmpty": { "description": "An offered update has no release notes." },
+  "@updateNotesEmpty": {
+    "description": "An offered update has no release notes."
+  },
   "updateStableHint": "只接收正式发布的版本。",
-  "@updateStableHint": { "description": "Short explanation of the stable update channel." },
+  "@updateStableHint": {
+    "description": "Short explanation of the stable update channel."
+  },
   "updatePreviewHint": "接收最新开发改动，可能尚不稳定。",
-  "@updatePreviewHint": { "description": "Short explanation of the preview update channel." },
+  "@updatePreviewHint": {
+    "description": "Short explanation of the preview update channel."
+  },
   "updateToVersion": "更新到 v{version}",
-  "@updateToVersion": { "description": "Release notes dialog title.", "placeholders": { "version": { "type": "String" } } },
+  "@updateToVersion": {
+    "description": "Release notes dialog title.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "updateFromVersion": "当前版本 v{version}",
-  "@updateFromVersion": { "description": "Release notes dialog installed version.", "placeholders": { "version": { "type": "String" } } },
+  "@updateFromVersion": {
+    "description": "Release notes dialog installed version.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "updateLater": "稍后",
-  "@updateLater": { "description": "Dismiss release notes without installing." },
+  "@updateLater": {
+    "description": "Dismiss release notes without installing."
+  },
   "updateDataKept": "更新会重启应用，保留个人数据。",
-  "@updateDataKept": { "description": "Release notes footer explaining installation." },
-  "@updateChannel": { "description": "Software update channel selector." },
+  "@updateDataKept": {
+    "description": "Release notes footer explaining installation."
+  },
+  "@updateChannel": {
+    "description": "Software update channel selector."
+  },
   "updateChannelStable": "稳定版",
-  "@updateChannelStable": { "description": "Stable software updates only." },
+  "@updateChannelStable": {
+    "description": "Stable software updates only."
+  },
   "updateChannelNightly": "预览版 / Nightly",
-  "@updateChannelNightly": { "description": "Software updates including nightly prereleases." },
+  "@updateChannelNightly": {
+    "description": "Software updates including nightly prereleases."
+  },
   "updateChannelHint": "预览版包含最新开发改动，可能尚不稳定。切回稳定版后，等待更高的正式版本，不会自动降级。",
-  "@updateChannelHint": { "description": "Explains nightly builds and switching back without downgrading." },
+  "@updateChannelHint": {
+    "description": "Explains nightly builds and switching back without downgrading."
+  },
   "validateUpdateChannel": "更新通道不受支持",
-  "@validateUpdateChannel": { "description": "Settings validation: unsupported update channel." },
+  "@validateUpdateChannel": {
+    "description": "Settings validation: unsupported update channel."
+  },
   "updateTitle": "软件更新",
   "@updateTitle": {
     "description": "Launcher software update controls and status."
@@ -3226,5 +3270,189 @@
         "type": "String"
       }
     }
+  },
+  "marketIntro": "给启动器添一点新本领。",
+  "@marketIntro": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketDiscover": "发现插件",
+  "@marketDiscover": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketInstalled": "已安装",
+  "@marketInstalled": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketUpdates": "可更新",
+  "@marketUpdates": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketRefresh": "刷新",
+  "@marketRefresh": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketLocalInstall": "本地安装",
+  "@marketLocalInstall": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketSearch": "搜索插件名称或功能",
+  "@marketSearch": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketOfficial": "官方插件",
+  "@marketOfficial": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketLocal": "本地插件",
+  "@marketLocal": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketDetails": "详情",
+  "@marketDetails": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketManage": "管理",
+  "@marketManage": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketUse": "立即使用",
+  "@marketUse": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketBack": "返回插件列表",
+  "@marketBack": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketDescription": "功能介绍",
+  "@marketDescription": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketUsage": "怎么使用",
+  "@marketUsage": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketEnable": "启用插件",
+  "@marketEnable": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketGlobal": "参与普通搜索",
+  "@marketGlobal": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketGlobalHint": "关闭后仅通过触发词或快捷键调用。",
+  "@marketGlobalHint": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketDiagnostics": "运行诊断与包信息",
+  "@marketDiagnostics": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketCommands": "插件命令",
+  "@marketCommands": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketNoUpdates": "所有插件都已是最新版本。",
+  "@marketNoUpdates": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketNoMatch": "没有匹配的插件，试试其他关键词。",
+  "@marketNoMatch": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketDownloading": "下载中",
+  "@marketDownloading": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketVerifying": "校验中",
+  "@marketVerifying": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketInstalling": "安装中",
+  "@marketInstalling": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketCancelled": "已取消，原有插件保持不变。",
+  "@marketCancelled": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketRetry": "重试",
+  "@marketRetry": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketBusyHint": "另一个插件正在安装。",
+  "@marketBusyHint": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketNoticeClose": "关闭提示",
+  "@marketNoticeClose": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketNotes": "版本说明",
+  "@marketNotes": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketWebsite": "访问主页",
+  "@marketWebsite": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketNoUsage": "安装后使用触发词或在快捷键页配置命令。",
+  "@marketNoUsage": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketUninstallDone": "插件已卸载。",
+  "@marketUninstallDone": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketSaveFailed": "插件包已安装，但启用设置未保存，请重试。",
+  "@marketSaveFailed": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketInstalledSuccess": "安装完成，插件已启用。",
+  "@marketInstalledSuccess": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketUpdatedSuccess": "更新完成，原有设置已保留。",
+  "@marketUpdatedSuccess": {
+    "description": "Plugin marketplace interface."
+  },
+  "marketConfig": "插件配置",
+  "@marketConfig": {
+    "description": "Plugin marketplace configuration section."
+  },
+  "marketUpgradeHost": "此插件需要更新主程序才能安装：",
+  "@marketUpgradeHost": {
+    "description": "Plugin host service compatibility hint."
+  },
+  "marketServices": "使用的宿主服务",
+  "@marketServices": {
+    "description": "Plugin marketplace host service description."
+  },
+  "marketServiceNotify": "显示通知",
+  "@marketServiceNotify": {
+    "description": "Plugin marketplace host service description."
+  },
+  "marketServiceLauncher": "控制搜索面板",
+  "@marketServiceLauncher": {
+    "description": "Plugin marketplace host service description."
+  },
+  "marketServiceClipboardRead": "读取剪贴板文本",
+  "@marketServiceClipboardRead": {
+    "description": "Plugin marketplace host service description."
+  },
+  "marketServiceClipboardWrite": "写入剪贴板文本",
+  "@marketServiceClipboardWrite": {
+    "description": "Plugin marketplace host service description."
+  },
+  "marketServiceDialogs": "选择文件或目录",
+  "@marketServiceDialogs": {
+    "description": "Plugin marketplace host service description."
+  },
+  "marketServiceContext": "获取语言和数据目录",
+  "@marketServiceContext": {
+    "description": "Plugin marketplace host service description."
+  },
+  "marketServiceShell": "打开链接或文件位置",
+  "@marketServiceShell": {
+    "description": "Plugin marketplace host service description."
   }
 }

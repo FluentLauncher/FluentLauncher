@@ -76,8 +76,12 @@ func TestOfficialCatalogMetadataAndOnDemandDownload(t *testing.T) {
 	}
 	entry := verified.Localized()[0]
 	destination := filepath.Join(root, "download.zip")
-	if err := client.Download(context.Background(), entry, destination); err != nil {
+	var downloaded, total int64
+	if err := client.DownloadWithProgress(context.Background(), entry, destination, func(done, size int64) { downloaded, total = done, size }); err != nil {
 		t.Fatal(err)
+	}
+	if downloaded != int64(len(zipBytes)) || total != downloaded {
+		t.Fatalf("incorrect download progress: %d/%d", downloaded, total)
 	}
 	if packageRequests != 1 {
 		t.Fatal("package was not downloaded on demand")

@@ -1,34 +1,29 @@
 package app
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"image/png"
 	"os"
 	"path/filepath"
 	"testing"
-
-	"github.com/egoist/mygo/ui"
+	"time"
 
 	"fluentlauncher/internal/core/settings"
 	"fluentlauncher/internal/plugin"
+	"fluentlauncher/internal/plugin/hostservices"
 	"fluentlauncher/internal/testutil"
+	"fluentlauncher/locales"
+	"github.com/egoist/mygo/ui"
 )
 
-// writeBrokenPackage leaves a directory with no plugin.json in the plugin
-// root, which is what an interrupted copy or a wrong ZIP looks like.
-func writeBrokenPackage(t *testing.T, root, name string) error {
-	t.Helper()
-	return os.MkdirAll(filepath.Join(root, name), 0o755)
-}
-
-// newPluginsApp is the settings window on the plugin page, with a real
-// repository and manager over a temporary plugin directory.
 func newPluginsApp(t *testing.T) *App {
 	t.Helper()
-	a := &App{
-		settings:      settings.Default(),
-		settingsDraft: settings.Default(),
-	}
-	a.settingsPage = pagePlugins
-	a.pluginRepo = plugin.NewRepository(filepath.Join(t.TempDir(), "plugins"))
+	a := &App{settings: settings.Default(), settingsDraft: settings.Default(), settingsPage: pagePlugins, settingsHover: -1}
+	root := t.TempDir()
+	a.pluginRepo = plugin.NewRepository(filepath.Join(root, "plugins"))
+	a.pluginData = hostservices.NewStore(root)
 	if err := a.pluginRepo.Refresh(); err != nil {
 		t.Fatal(err)
 	}
@@ -40,147 +35,284 @@ func newPluginsApp(t *testing.T) *App {
 
 func installExample(t *testing.T, a *App, id string) {
 	t.Helper()
-	source := testutil.PluginFixture(t, id)
-	if _, err := a.pluginRepo.Install(source, false); err != nil {
+	if _, err := a.pluginRepo.Install(testutil.PluginFixture(t, id), false); err != nil {
 		t.Fatal(err)
 	}
 	a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins)
 }
 
-// The empty page has to say what a plugin is for, not just that there is
-// nothing to see.
-func TestPluginsPageEmptyState(t *testing.T) {
+func TestPluginsMarketplaceBrowseAndSearch(t *testing.T) {
 	a := newPluginsApp(t)
-	tt := ui.NewTester(a.settingsView, 1180, 900)
-	for _, want := range []string{"还没有安装插件", "额外的搜索来源", "安装插件", "回显示例", "运行诊断"} {
+	tt := ui.NewTester(a.settingsView, 1180, 840)
+	for _, want := range []string{"插件市场", "发现插件", "剪贴板历史", "截图与贴图", "开发工具", "回显示例", "刷新", "本地安装"} {
 		if !tt.HasText(want) {
-			t.Fatalf("empty page does not show %q", want)
+			t.Fatalf("missing %q: %v", want, tt.Texts())
 		}
 	}
-	if !tt.HasText("点击安装时下载") {
-		t.Fatal("install card does not explain where plugins come from")
+	if err := tt.Click(locales.MarketSearch()); err != nil {
+		t.Fatal(err)
 	}
-	// The picker names one bundled plugin at a time; opening it lists the
-	// rest, however many official plugins ship.
+	tt.Type("开发")
+	if !tt.HasText("开发工具") || tt.HasText("剪贴板历史") {
+		t.Fatalf("search did not filter: %v", tt.Texts())
+	}
+	a.market.query = "不存在的插件"
+	tt.Frame()
+	if !tt.HasText(locales.MarketNoMatch()) {
+		t.Fatal("no empty search state")
+	}
+}
+
+func TestMarketplaceInstallProgressSurvivesLanguageChange(t *testing.T) {
+	setCatalogLocale(t, "zh-Hans")
+	a := newPluginsApp(t)
+	op, _ := a.beginPluginOperation("official.echo", "回显示例", "1.0.1")
+	defer op.cancel()
+	op.downloaded, op.total = 50, 100
+	tt := ui.NewTester(a.settingsView, 1180, 900)
+	if !tt.HasText("下载中 50%") {
+		t.Fatal("download progress is missing")
+	}
+	setCatalogLocale(t, "en")
+	tt.Frame()
+	if !tt.HasText("Downloading 50%") {
+		t.Fatalf("language change lost progress: %v", tt.Texts())
+	}
+}
+
+func TestPluginsMarketplaceDetailsUseSwitches(t *testing.T) {
+	a := newPluginsApp(t)
+	installExample(t, a, "official.echo")
+	tt := ui.NewTester(a.settingsView, 1180, 1000)
 	if err := tt.Click("回显示例"); err != nil {
 		t.Fatal(err)
 	}
-	if !tt.HasText("开发工具") {
-		t.Fatalf("the picker does not list the other official plugin: %q", tt.Texts())
-	}
-	// HasText matches substrings, and the card title holds "已安装" too.
-	for _, text := range tt.Texts() {
-		if text == "已安装" {
-			t.Fatal("nothing is installed, but the page says something is")
-		}
-	}
-}
-
-// Every line of a plugin entry has its own place: name, id and version,
-// description, keywords, runtime and state.
-func TestPluginsPageEntryShowsEveryField(t *testing.T) {
-	a := newPluginsApp(t)
-	installExample(t, a, "official.echo")
-	tt := ui.NewTester(a.settingsView, 1180, 900)
-	for _, want := range []string{
-		"回显示例",
-		"official.echo · 版本 1.0.0",
-		"演示查询结果和复制动作",
-		"触发词：echo",
-		"未启用",
-		"卸载",
-	} {
+	for _, want := range []string{"official.echo · 版本 1.0.0", "功能介绍", "怎么使用", "启用插件", "参与普通搜索", "卸载", "运行诊断与包信息"} {
 		if !tt.HasText(want) {
-			t.Fatalf("entry does not show %q", want)
+			t.Fatalf("detail missing %q: %v", want, tt.Texts())
 		}
 	}
-	// The card above owns the installed plugin, so the install row has no
-	// button for it any more.
-	if !tt.HasText("已安装") {
-		t.Fatal("installed example still offers to install it")
+	for _, label := range []string{locales.MarketEnable() + ": 回显示例", locales.MarketGlobal() + ": 回显示例"} {
+		rect, ok := tt.Find(label)
+		if !ok || rect.W <= rect.H {
+			t.Fatalf("%q is not a switch: %+v", label, rect)
+		}
+	}
+	if err := tt.Click(locales.MarketEnable() + ": 回显示例"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if !a.plugins.Statuses()[0].Enabled {
+		t.Fatal("enable switch did not update runtime")
+	}
+	if !tt.HasText(locales.PluginNotRunNote()) {
+		t.Fatal("idle enabled plugin is not explained")
+	}
+	if err := tt.Click(locales.MarketGlobal() + ": 回显示例"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if !a.plugins.Statuses()[0].GlobalQuery {
+		t.Fatal("global switch did not update runtime")
+	}
+	if err := tt.Click(locales.MarketEnable() + ": 回显示例"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if a.plugins.Statuses()[0].Enabled {
+		t.Fatal("disable switch did not persist")
+	}
+	if err := tt.Click(locales.MarketBack()); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if !tt.HasText("发现插件") {
+		t.Fatal("detail did not return to market")
 	}
 }
 
-// Enabling a plugin from the page applies at once, without waiting for the
-// settings save, so the next search already asks it.
-func TestPluginsPageToggleAppliesImmediately(t *testing.T) {
+func TestPluginsMarketplaceInstallationFeedbackAndUpdateState(t *testing.T) {
 	a := newPluginsApp(t)
+	op, _ := a.beginPluginOperation("official.echo", "回显示例", "1.0.0")
 	installExample(t, a, "official.echo")
-	a.setPluginEnabled("official.echo", true)
-	if !containsFold(a.settingsDraft.Plugins.EnabledIDs, "official.echo") {
-		t.Fatal("the draft does not hold the enabled plugin")
-	}
-	statuses := a.plugins.Statuses()
-	if len(statuses) != 1 || !statuses[0].Enabled {
-		t.Fatalf("the runtime did not follow the switch: %+v", statuses)
-	}
+	a.finishPluginOperation(op, nil)
 	tt := ui.NewTester(a.settingsView, 1180, 900)
-	if tt.HasText("未启用") {
-		t.Fatal("page still reports the plugin as disabled")
+	if !tt.HasText(locales.MarketInstalledSuccess()) || !tt.HasText(locales.MarketUse()) || !a.plugins.Statuses()[0].Enabled {
+		t.Fatal("installation has no usable success feedback")
 	}
-	if !tt.HasText("尚未运行") {
-		t.Fatal("page does not explain that the plugin starts on the next search")
+	a.setPluginEnabled("official.echo", false)
+	op, _ = a.beginPluginOperation("official.echo", "回显示例", "1.0.0")
+	a.finishPluginOperation(op, nil)
+	tt.Frame()
+	if a.plugins.Statuses()[0].Enabled || !tt.HasText(locales.MarketUpdatedSuccess()) {
+		t.Fatal("update enabled a disabled plugin or lost feedback")
 	}
+	op, _ = a.beginPluginOperation("official.echo", "回显示例", "1.0.0")
+	a.finishPluginOperation(op, context.Canceled)
+	tt.Frame()
+	if !tt.HasText(locales.MarketCancelled()) || len(a.pluginRepo.Installed()) != 1 {
+		t.Fatal("cancel removed installed package")
+	}
+	tt.Frame()
 }
 
-// Uninstalling forgets the plugin in the settings too, so a later install
-// does not inherit a stale "enabled" entry.
-func TestPluginsPageUninstallClearsSettings(t *testing.T) {
+func TestPluginsMarketplaceUninstallAndProblems(t *testing.T) {
 	a := newPluginsApp(t)
 	installExample(t, a, "official.echo")
 	a.setPluginEnabled("official.echo", true)
 	a.setPluginGlobalQuery("official.echo", true)
-	a.uninstallPlugin("official.echo")
-	if len(a.pluginRepo.Installed()) != 0 {
-		t.Fatalf("still installed: %+v", a.pluginRepo.Installed())
+	a.finishPluginUninstall("official.echo", a.removePluginPackage("official.echo"))
+	if len(a.pluginRepo.Installed()) != 0 || len(a.settingsDraft.Plugins.EnabledIDs) != 0 || len(a.settingsDraft.Plugins.GlobalQueryIDs) != 0 {
+		t.Fatal("uninstall left settings or registration")
 	}
-	if containsFold(a.settingsDraft.Plugins.EnabledIDs, "official.echo") ||
-		containsFold(a.settingsDraft.Plugins.GlobalQueryIDs, "official.echo") {
-		t.Fatalf("settings still name the removed plugin: %+v", a.settingsDraft.Plugins)
-	}
-	tt := ui.NewTester(a.settingsView, 1180, 900)
-	if !tt.HasText("还没有安装插件") {
-		t.Fatal("page did not return to the empty state")
-	}
-}
-
-// Broken packages get a card of their own, one line per directory, instead of
-// one joined warning that only showed the last one.
-func TestPluginsPageListsBrokenPackages(t *testing.T) {
-	a := newPluginsApp(t)
-	if err := writeBrokenPackage(t, a.pluginRepo.Dir(), "vendor.broken"); err != nil {
+	if err := os.MkdirAll(filepath.Join(a.pluginRepo.Dir(), "vendor.broken"), 0755); err != nil {
 		t.Fatal(err)
 	}
 	if err := a.pluginRepo.Refresh(); err != nil {
 		t.Fatal(err)
 	}
-	tt := ui.NewTester(a.settingsView, 1180, 900)
-	for _, want := range []string{"无法加载的插件包", "vendor.broken", "缺少 plugin.json"} {
-		if !tt.HasText(want) {
-			t.Fatalf("problem card does not show %q", want)
-		}
+	a.market.view = 1
+	tt := ui.NewTester(a.settingsView, 1180, 1000)
+	if err := tt.Click(locales.SettingsPluginsProblemsCard()); err != nil {
+		t.Fatal(err)
+	}
+	tt.Advance(300 * time.Millisecond)
+	if !tt.HasText("vendor.broken") || !tt.HasText("缺少 plugin.json") {
+		t.Fatal("broken package cannot be diagnosed")
 	}
 }
 
 func TestOfficialCatalogOffersIndependentUpgrade(t *testing.T) {
 	a := newPluginsApp(t)
 	installExample(t, a, "official.echo")
+	a.official.client = plugin.NewCatalogClient(filepath.Join(t.TempDir(), "catalog.json"))
 	a.official.catalog = &plugin.Catalog{SchemaVersion: 1, Plugins: []plugin.CatalogEntry{{ID: "official.echo", Version: "2.0.0", Name: map[string]string{"zh-Hans": "回显示例"}, Summary: map[string]string{"zh-Hans": "新版插件"}}}}
 	tt := ui.NewTester(a.settingsView, 1180, 900)
-	if !tt.HasText("更新插件") || !tt.HasText("2.0.0") {
-		t.Fatal("new official version does not offer an upgrade")
+	if !tt.HasText(locales.PluginCatalogUpgrade()) || !tt.HasText("1.0.0 → 2.0.0") {
+		t.Fatal("independent update is missing")
 	}
-	a.official.installing = true
-	tt.Frame()
-	_ = tt.Click("更新插件")
-	tt.Frame()
-	if !a.official.installing {
-		t.Fatal("busy download accepted a duplicate operation")
-	}
-	a.official.installing = false
 	a.official.catalog.Plugins[0].Version = "1.0.0"
 	tt.Frame()
-	if tt.HasText("更新插件") {
-		t.Fatal("current version still offers an upgrade")
+	if tt.HasText(locales.PluginCatalogUpgrade()) {
+		t.Fatal("current plugin still offers an update")
+	}
+	a.market.view = 2
+	tt.Frame()
+	if !tt.HasText(locales.MarketNoUpdates()) {
+		t.Fatal("missing up-to-date state")
+	}
+}
+
+func TestPluginsMarketplaceLayouts(t *testing.T) {
+	for _, width := range []int{840, 1180} {
+		for _, dark := range []bool{false, true} {
+			t.Run(fmt.Sprintf("width-%v-dark-%t", width, dark), func(t *testing.T) {
+				a := newPluginsApp(t)
+				a.settings.Theme.Background = settings.BackgroundSolid
+				a.settings.Theme.Opacity = 1
+				a.settingsDraft = a.settings
+				installExample(t, a, "official.echo")
+				tt := ui.NewTester(a.settingsView, width, 1000)
+				tt.SetDark(dark)
+				tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
+				for _, label := range []string{"回显示例", "开发工具", locales.MarketLocalInstall()} {
+					rect, ok := tt.Find(label)
+					if !ok || rect.X < 208 || rect.X+rect.W > float32(width) {
+						t.Fatalf("%q overflows: %+v", label, rect)
+					}
+				}
+				if dir := os.Getenv("FL_MARKET_ARTIFACT_DIR"); dir != "" {
+					if err := os.MkdirAll(dir, 0755); err != nil {
+						t.Fatal(err)
+					}
+					saveMarketFrame(t, tt, filepath.Join(dir, fmt.Sprintf("market-%v-dark-%t.png", width, dark)))
+					a.market.detail = "official.echo"
+					tt.Frame()
+					saveMarketFrame(t, tt, filepath.Join(dir, fmt.Sprintf("detail-%v-dark-%t.png", width, dark)))
+				}
+			})
+		}
+	}
+}
+
+func saveMarketFrame(t *testing.T, tt *ui.Tester, path string) {
+	t.Helper()
+	f, err := os.Create(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	if err := png.Encode(f, tt.Image()); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// Optional cross-repository render of the actual packaged metadata and PNGs.
+// It installs only into t.TempDir and never launches the screenshot process.
+func TestMarketplaceReleasedAssetsPreview(t *testing.T) {
+	release := os.Getenv("FL_TEST_OFFICIAL_RELEASE_DIR")
+	output := os.Getenv("FL_MARKET_ARTIFACT_DIR")
+	if release == "" || output == "" {
+		t.Skip("set release and artifact directories for packaged previews")
+	}
+	data, err := os.ReadFile(filepath.Join(release, "catalog.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var catalog plugin.Catalog
+	if err := json.Unmarshal(data, &catalog); err != nil {
+		t.Fatal(err)
+	}
+	a := newPluginsApp(t)
+	a.settings.Theme.Background = settings.BackgroundSolid
+	a.settings.Theme.Opacity = 1
+	a.settingsDraft = a.settings
+	a.official.catalog = &catalog
+	a.official.client = plugin.NewCatalogClient(filepath.Join(t.TempDir(), "catalog-cache.json"))
+	archives, err := filepath.Glob(filepath.Join(release, "official.screenshot-*-windows-amd64.zip"))
+	if err != nil || len(archives) != 1 {
+		t.Fatal(archives, err)
+	}
+	op, _ := a.beginPluginOperation("official.screenshot", "截图与贴图", "")
+	registration, err := a.pluginRepo.Install(archives[0], false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	op.version = registration.Manifest.Version
+	a.finishPluginOperation(op, nil)
+	a.market.icons = map[string]*ui.Bitmap{}
+	for _, item := range a.marketItems() {
+		if item.Official == nil || item.Official.Icon == nil {
+			t.Fatal("missing released icon", item.ID)
+		}
+		asset := item.Official.Icon
+		icon, err := os.ReadFile(filepath.Join(release, filepath.Base(asset.URL)))
+		if err != nil {
+			t.Fatal(err)
+		}
+		bitmap, err := ui.DecodeBitmap(icon)
+		if err != nil {
+			t.Fatal(err)
+		}
+		key := item.ID
+		if item.Installed != nil {
+			key += ":" + item.Manifest().Version + ":" + item.Manifest().Icon
+		}
+		key += ":" + asset.SHA256
+		a.market.icons[key] = bitmap
+	}
+	if err := os.MkdirAll(output, 0755); err != nil {
+		t.Fatal(err)
+	}
+	for _, dark := range []bool{false, true} {
+		a.market.detail = ""
+		tt := ui.NewTester(a.settingsView, 1180, 960)
+		tt.SetDark(dark)
+		tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
+		saveMarketFrame(t, tt, filepath.Join(output, fmt.Sprintf("released-market-dark-%t.png", dark)))
+		a.openPluginDetails("official.screenshot")
+		a.market.feedback = ""
+		tt.Frame()
+		saveMarketFrame(t, tt, filepath.Join(output, fmt.Sprintf("released-detail-dark-%t.png", dark)))
 	}
 }

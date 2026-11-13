@@ -156,16 +156,23 @@ func WriteJSON(w io.Writer, value any) error {
 
 // Manifest is plugin.json.
 type Manifest struct {
-	ID              string    `json:"id"`
-	Name            string    `json:"name"`
-	Version         string    `json:"version"`
-	ProtocolVersion int       `json:"protocolVersion"`
-	Executable      string    `json:"executable"`
-	EntryAssembly   string    `json:"entryAssembly"`
-	Keywords        []string  `json:"keywords"`
-	Permissions     []string  `json:"permissions"`
-	Description     string    `json:"description"`
-	Commands        []Command `json:"commands,omitempty"`
+	ID                   string               `json:"id"`
+	Name                 string               `json:"name"`
+	Version              string               `json:"version"`
+	ProtocolVersion      int                  `json:"protocolVersion"`
+	Executable           string               `json:"executable"`
+	EntryAssembly        string               `json:"entryAssembly"`
+	Keywords             []string             `json:"keywords"`
+	Permissions          []string             `json:"permissions"`
+	Description          string               `json:"description"`
+	Commands             []Command            `json:"commands,omitempty"`
+	Icon                 string               `json:"icon,omitempty"`
+	Author               string               `json:"author,omitempty"`
+	Homepage             string               `json:"homepage,omitempty"`
+	Usage                string               `json:"usage,omitempty"`
+	HostServices         []string             `json:"hostServices,omitempty"`
+	RequiredHostServices []ServiceRequirement `json:"requiredHostServices,omitempty"`
+	Settings             []SettingDefinition  `json:"settings,omitempty"`
 }
 
 // Validate checks a manifest before the launcher runs the package. The
@@ -213,6 +220,15 @@ func (m Manifest) Validate() error {
 	}
 	if len(m.Permissions) > 20 {
 		return errors.New(locales.PluginManifestPermissionsTooMany(len(m.Permissions)))
+	}
+	if m.Icon != "" && (!ValidResourcePath(m.Icon) || !strings.EqualFold(filepath.Ext(m.Icon), ".png")) {
+		return errors.New("plugin icon must be a package-relative PNG path")
+	}
+	if len(m.Author) > 200 || len(m.Homepage) > 2048 || len(m.Usage) > 16000 {
+		return errors.New("plugin display metadata is too long")
+	}
+	if err := m.validateHostMetadata(); err != nil {
+		return err
 	}
 	if utf8.RuneCountInString(m.Description) > 10000 {
 		return errors.New(locales.PluginManifestDescriptionTooLong())

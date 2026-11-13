@@ -187,7 +187,7 @@ func (a *App) runPluginCommand(command shortcutCommand) {
 	a.hidePanel()
 	manager := a.plugins
 	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 35*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute+5*time.Second)
 		defer cancel()
 		err := manager.ExecuteCommand(ctx, command.PluginID, command.PluginCommand.ID)
 		a.publishUpdate(func() {

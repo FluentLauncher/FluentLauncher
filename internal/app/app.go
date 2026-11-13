@@ -29,6 +29,7 @@ import (
 	"fluentlauncher/internal/core/shortcuts"
 	"fluentlauncher/internal/diag"
 	"fluentlauncher/internal/plugin"
+	"fluentlauncher/internal/plugin/hostservices"
 	"fluentlauncher/internal/store"
 	"fluentlauncher/internal/winapi/apps"
 	"fluentlauncher/internal/winapi/everything"
@@ -63,6 +64,7 @@ type App struct {
 	everything *everything.Provider
 	pluginRepo *plugin.Repository
 	plugins    *plugin.Manager
+	pluginData *hostservices.Store
 	providers  []search.Provider
 
 	panel          *mygo.Window
@@ -124,7 +126,7 @@ type App struct {
 	brandIcon     *ui.Bitmap
 
 	selectOpen        string
-	officialPick      string
+	market            marketplaceState
 	official          officialState
 	lastPreview       settings.ThemeSettings
 	blurSlider        float64
@@ -279,6 +281,8 @@ func (a *App) ready() {
 	})
 	a.pluginRepo = plugin.NewRepository(filepath.Join(a.dataDir, "plugins"))
 	a.plugins = plugin.NewManager()
+	a.pluginData = hostservices.NewStore(a.dataDir)
+	a.plugins.SetHostProvider(a.newPluginHost)
 	a.official.client = plugin.NewCatalogClient(filepath.Join(a.dataDir, "cache", "official-catalog.json"))
 	// Plugins are only needed at the first query or when the settings page
 	// opens; the directory scan stays off the path to the first frame.
@@ -1267,10 +1271,9 @@ func (a *App) openSettings() {
 	if a.pluginRepo != nil && a.plugins != nil {
 		// Directory enumeration plus a manifest read per plugin; the page
 		// shows last known list and refreshes when the scan lands.
-		opts := a.settings.Plugins
 		go func() {
 			if err := a.pluginRepo.Refresh(); err == nil {
-				a.plugins.Configure(a.pluginRepo.Installed(), opts)
+				a.publishUpdate(func() { a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins) })
 			}
 		}()
 	}
@@ -1311,6 +1314,7 @@ func (a *App) openSettings() {
 		// Everything applies as it is set; closing keeps what is valid.
 		a.shortcutEdit = shortcutEditor{}
 		a.flushSettingsDraft()
+		a.flushPluginSettings()
 		a.settingsWin.Hide()
 	})
 	a.settingsWin.OnBlur(func() {
@@ -1352,6 +1356,7 @@ func (a *App) clampToWorkArea(win *mygo.Window) {
 }
 
 func (a *App) close() {
+	a.flushPluginSettings()
 	if a.diagnosticTimer != nil {
 		a.diagnosticTimer.Stop()
 	}

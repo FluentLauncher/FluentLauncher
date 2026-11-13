@@ -62,6 +62,23 @@ type Manager struct {
 	commandActive     map[string]bool
 	onCommandsChanged func()
 	theme             *protocol.Theme
+	hostFactory       func(protocol.Registration) HostProvider
+}
+
+// SetHostProvider must be called during startup, before plugins are queried.
+func (m *Manager) SetHostProvider(factory func(protocol.Registration) HostProvider) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.hostFactory = factory
+}
+
+func (m *Manager) newClient(registration protocol.Registration) *Client {
+	client := NewClient(registration.Path(), registration.Manifest.ID)
+	client.requiresHost = len(registration.Manifest.RequiredHostServices) > 0
+	if m.hostFactory != nil {
+		client.host = m.hostFactory(registration)
+	}
+	return client
 }
 
 func (m *Manager) OnCommandsChanged(fn func()) { m.mu.Lock(); m.onCommandsChanged = fn; m.mu.Unlock() }
@@ -232,7 +249,7 @@ func (m *Manager) searchOne(ctx context.Context, registration protocol.Registrat
 			m.mu.Unlock()
 			return []model.Result{errorResult(id, registration.Manifest.Name, locales.PluginActiveProcessLimit())}
 		}
-		sess = &session{client: NewClient(registration.Path(), id)}
+		sess = &session{client: m.newClient(registration)}
 		if m.theme != nil {
 			sess.client.SetTheme(*m.theme)
 		}
@@ -412,7 +429,7 @@ func (m *Manager) ExecuteCommand(ctx context.Context, pluginID, commandID string
 			m.mu.Unlock()
 			return errors.New(locales.PluginActiveProcessLimit())
 		}
-		sess = &session{client: NewClient(registration.Path(), pluginID)}
+		sess = &session{client: m.newClient(registration)}
 		if m.theme != nil {
 			sess.client.SetTheme(*m.theme)
 		}

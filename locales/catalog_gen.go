@@ -5844,14 +5844,14 @@ func (msgs Messages) SettingsPageLaunchItems() string {
 	return Catalog.Format(msgs.locale, "settingsPageLaunchItems", nil)
 }
 
-// SettingsPagePlugins says "插件"
+// SettingsPagePlugins says "插件市场"
 // in the language the app shows.
 //
 // Settings sidebar: the plugins page title; also the fallback card title
 // when the plugin runtime is missing.
 func SettingsPagePlugins() string { return In(i18n.Locale()).SettingsPagePlugins() }
 
-// SettingsPagePlugins says "插件"
+// SettingsPagePlugins says "插件市场"
 // in the language of msgs.
 //
 // Settings sidebar: the plugins page title; also the fallback card title
@@ -10028,4 +10028,648 @@ func DiagnosticsFailed(reason string) string { return In(i18n.Locale()).Diagnost
 // in the language of msgs.
 func (msgs Messages) DiagnosticsFailed(reason string) string {
 	return Catalog.Format(msgs.locale, "diagnosticsFailed", map[string]any{"reason": reason})
+}
+
+// MarketIntro says "给启动器添一点新本领。"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketIntro() string { return In(i18n.Locale()).MarketIntro() }
+
+// MarketIntro says "给启动器添一点新本领。"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketIntro() string {
+	return Catalog.Format(msgs.locale, "marketIntro", nil)
+}
+
+// MarketDiscover says "发现插件"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketDiscover() string { return In(i18n.Locale()).MarketDiscover() }
+
+// MarketDiscover says "发现插件"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketDiscover() string {
+	return Catalog.Format(msgs.locale, "marketDiscover", nil)
+}
+
+// MarketInstalled says "已安装"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketInstalled() string { return In(i18n.Locale()).MarketInstalled() }
+
+// MarketInstalled says "已安装"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketInstalled() string {
+	return Catalog.Format(msgs.locale, "marketInstalled", nil)
+}
+
+// MarketUpdates says "可更新"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketUpdates() string { return In(i18n.Locale()).MarketUpdates() }
+
+// MarketUpdates says "可更新"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketUpdates() string {
+	return Catalog.Format(msgs.locale, "marketUpdates", nil)
+}
+
+// MarketRefresh says "刷新"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketRefresh() string { return In(i18n.Locale()).MarketRefresh() }
+
+// MarketRefresh says "刷新"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketRefresh() string {
+	return Catalog.Format(msgs.locale, "marketRefresh", nil)
+}
+
+// MarketLocalInstall says "本地安装"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketLocalInstall() string { return In(i18n.Locale()).MarketLocalInstall() }
+
+// MarketLocalInstall says "本地安装"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketLocalInstall() string {
+	return Catalog.Format(msgs.locale, "marketLocalInstall", nil)
+}
+
+// MarketSearch says "搜索插件名称或功能"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketSearch() string { return In(i18n.Locale()).MarketSearch() }
+
+// MarketSearch says "搜索插件名称或功能"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketSearch() string {
+	return Catalog.Format(msgs.locale, "marketSearch", nil)
+}
+
+// MarketOfficial says "官方插件"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketOfficial() string { return In(i18n.Locale()).MarketOfficial() }
+
+// MarketOfficial says "官方插件"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketOfficial() string {
+	return Catalog.Format(msgs.locale, "marketOfficial", nil)
+}
+
+// MarketLocal says "本地插件"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketLocal() string { return In(i18n.Locale()).MarketLocal() }
+
+// MarketLocal says "本地插件"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketLocal() string {
+	return Catalog.Format(msgs.locale, "marketLocal", nil)
+}
+
+// MarketDetails says "详情"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketDetails() string { return In(i18n.Locale()).MarketDetails() }
+
+// MarketDetails says "详情"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketDetails() string {
+	return Catalog.Format(msgs.locale, "marketDetails", nil)
+}
+
+// MarketManage says "管理"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketManage() string { return In(i18n.Locale()).MarketManage() }
+
+// MarketManage says "管理"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketManage() string {
+	return Catalog.Format(msgs.locale, "marketManage", nil)
+}
+
+// MarketUse says "立即使用"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketUse() string { return In(i18n.Locale()).MarketUse() }
+
+// MarketUse says "立即使用"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketUse() string {
+	return Catalog.Format(msgs.locale, "marketUse", nil)
+}
+
+// MarketBack says "返回插件列表"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketBack() string { return In(i18n.Locale()).MarketBack() }
+
+// MarketBack says "返回插件列表"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketBack() string {
+	return Catalog.Format(msgs.locale, "marketBack", nil)
+}
+
+// MarketDescription says "功能介绍"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketDescription() string { return In(i18n.Locale()).MarketDescription() }
+
+// MarketDescription says "功能介绍"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketDescription() string {
+	return Catalog.Format(msgs.locale, "marketDescription", nil)
+}
+
+// MarketUsage says "怎么使用"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketUsage() string { return In(i18n.Locale()).MarketUsage() }
+
+// MarketUsage says "怎么使用"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketUsage() string {
+	return Catalog.Format(msgs.locale, "marketUsage", nil)
+}
+
+// MarketEnable says "启用插件"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketEnable() string { return In(i18n.Locale()).MarketEnable() }
+
+// MarketEnable says "启用插件"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketEnable() string {
+	return Catalog.Format(msgs.locale, "marketEnable", nil)
+}
+
+// MarketGlobal says "参与普通搜索"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketGlobal() string { return In(i18n.Locale()).MarketGlobal() }
+
+// MarketGlobal says "参与普通搜索"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketGlobal() string {
+	return Catalog.Format(msgs.locale, "marketGlobal", nil)
+}
+
+// MarketGlobalHint says "关闭后仅通过触发词或快捷键调用。"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketGlobalHint() string { return In(i18n.Locale()).MarketGlobalHint() }
+
+// MarketGlobalHint says "关闭后仅通过触发词或快捷键调用。"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketGlobalHint() string {
+	return Catalog.Format(msgs.locale, "marketGlobalHint", nil)
+}
+
+// MarketDiagnostics says "运行诊断与包信息"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketDiagnostics() string { return In(i18n.Locale()).MarketDiagnostics() }
+
+// MarketDiagnostics says "运行诊断与包信息"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketDiagnostics() string {
+	return Catalog.Format(msgs.locale, "marketDiagnostics", nil)
+}
+
+// MarketCommands says "插件命令"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketCommands() string { return In(i18n.Locale()).MarketCommands() }
+
+// MarketCommands says "插件命令"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketCommands() string {
+	return Catalog.Format(msgs.locale, "marketCommands", nil)
+}
+
+// MarketNoUpdates says "所有插件都已是最新版本。"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketNoUpdates() string { return In(i18n.Locale()).MarketNoUpdates() }
+
+// MarketNoUpdates says "所有插件都已是最新版本。"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketNoUpdates() string {
+	return Catalog.Format(msgs.locale, "marketNoUpdates", nil)
+}
+
+// MarketNoMatch says "没有匹配的插件，试试其他关键词。"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketNoMatch() string { return In(i18n.Locale()).MarketNoMatch() }
+
+// MarketNoMatch says "没有匹配的插件，试试其他关键词。"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketNoMatch() string {
+	return Catalog.Format(msgs.locale, "marketNoMatch", nil)
+}
+
+// MarketDownloading says "下载中"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketDownloading() string { return In(i18n.Locale()).MarketDownloading() }
+
+// MarketDownloading says "下载中"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketDownloading() string {
+	return Catalog.Format(msgs.locale, "marketDownloading", nil)
+}
+
+// MarketVerifying says "校验中"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketVerifying() string { return In(i18n.Locale()).MarketVerifying() }
+
+// MarketVerifying says "校验中"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketVerifying() string {
+	return Catalog.Format(msgs.locale, "marketVerifying", nil)
+}
+
+// MarketInstalling says "安装中"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketInstalling() string { return In(i18n.Locale()).MarketInstalling() }
+
+// MarketInstalling says "安装中"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketInstalling() string {
+	return Catalog.Format(msgs.locale, "marketInstalling", nil)
+}
+
+// MarketCancelled says "已取消，原有插件保持不变。"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketCancelled() string { return In(i18n.Locale()).MarketCancelled() }
+
+// MarketCancelled says "已取消，原有插件保持不变。"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketCancelled() string {
+	return Catalog.Format(msgs.locale, "marketCancelled", nil)
+}
+
+// MarketRetry says "重试"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketRetry() string { return In(i18n.Locale()).MarketRetry() }
+
+// MarketRetry says "重试"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketRetry() string {
+	return Catalog.Format(msgs.locale, "marketRetry", nil)
+}
+
+// MarketBusyHint says "另一个插件正在安装。"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketBusyHint() string { return In(i18n.Locale()).MarketBusyHint() }
+
+// MarketBusyHint says "另一个插件正在安装。"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketBusyHint() string {
+	return Catalog.Format(msgs.locale, "marketBusyHint", nil)
+}
+
+// MarketNoticeClose says "关闭提示"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketNoticeClose() string { return In(i18n.Locale()).MarketNoticeClose() }
+
+// MarketNoticeClose says "关闭提示"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketNoticeClose() string {
+	return Catalog.Format(msgs.locale, "marketNoticeClose", nil)
+}
+
+// MarketNotes says "版本说明"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketNotes() string { return In(i18n.Locale()).MarketNotes() }
+
+// MarketNotes says "版本说明"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketNotes() string {
+	return Catalog.Format(msgs.locale, "marketNotes", nil)
+}
+
+// MarketWebsite says "访问主页"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketWebsite() string { return In(i18n.Locale()).MarketWebsite() }
+
+// MarketWebsite says "访问主页"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketWebsite() string {
+	return Catalog.Format(msgs.locale, "marketWebsite", nil)
+}
+
+// MarketNoUsage says "安装后使用触发词或在快捷键页配置命令。"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketNoUsage() string { return In(i18n.Locale()).MarketNoUsage() }
+
+// MarketNoUsage says "安装后使用触发词或在快捷键页配置命令。"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketNoUsage() string {
+	return Catalog.Format(msgs.locale, "marketNoUsage", nil)
+}
+
+// MarketUninstallDone says "插件已卸载。"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketUninstallDone() string { return In(i18n.Locale()).MarketUninstallDone() }
+
+// MarketUninstallDone says "插件已卸载。"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketUninstallDone() string {
+	return Catalog.Format(msgs.locale, "marketUninstallDone", nil)
+}
+
+// MarketSaveFailed says "插件包已安装，但启用设置未保存，请重试。"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketSaveFailed() string { return In(i18n.Locale()).MarketSaveFailed() }
+
+// MarketSaveFailed says "插件包已安装，但启用设置未保存，请重试。"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketSaveFailed() string {
+	return Catalog.Format(msgs.locale, "marketSaveFailed", nil)
+}
+
+// MarketInstalledSuccess says "安装完成，插件已启用。"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketInstalledSuccess() string { return In(i18n.Locale()).MarketInstalledSuccess() }
+
+// MarketInstalledSuccess says "安装完成，插件已启用。"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketInstalledSuccess() string {
+	return Catalog.Format(msgs.locale, "marketInstalledSuccess", nil)
+}
+
+// MarketUpdatedSuccess says "更新完成，原有设置已保留。"
+// in the language the app shows.
+//
+// Plugin marketplace interface.
+func MarketUpdatedSuccess() string { return In(i18n.Locale()).MarketUpdatedSuccess() }
+
+// MarketUpdatedSuccess says "更新完成，原有设置已保留。"
+// in the language of msgs.
+//
+// Plugin marketplace interface.
+func (msgs Messages) MarketUpdatedSuccess() string {
+	return Catalog.Format(msgs.locale, "marketUpdatedSuccess", nil)
+}
+
+// MarketConfig says "插件配置"
+// in the language the app shows.
+//
+// Plugin marketplace configuration section.
+func MarketConfig() string { return In(i18n.Locale()).MarketConfig() }
+
+// MarketConfig says "插件配置"
+// in the language of msgs.
+//
+// Plugin marketplace configuration section.
+func (msgs Messages) MarketConfig() string {
+	return Catalog.Format(msgs.locale, "marketConfig", nil)
+}
+
+// MarketUpgradeHost says "此插件需要更新主程序才能安装："
+// in the language the app shows.
+//
+// Plugin host service compatibility hint.
+func MarketUpgradeHost() string { return In(i18n.Locale()).MarketUpgradeHost() }
+
+// MarketUpgradeHost says "此插件需要更新主程序才能安装："
+// in the language of msgs.
+//
+// Plugin host service compatibility hint.
+func (msgs Messages) MarketUpgradeHost() string {
+	return Catalog.Format(msgs.locale, "marketUpgradeHost", nil)
+}
+
+// MarketServices says "使用的宿主服务"
+// in the language the app shows.
+//
+// Plugin marketplace host service description.
+func MarketServices() string { return In(i18n.Locale()).MarketServices() }
+
+// MarketServices says "使用的宿主服务"
+// in the language of msgs.
+//
+// Plugin marketplace host service description.
+func (msgs Messages) MarketServices() string {
+	return Catalog.Format(msgs.locale, "marketServices", nil)
+}
+
+// MarketServiceNotify says "显示通知"
+// in the language the app shows.
+//
+// Plugin marketplace host service description.
+func MarketServiceNotify() string { return In(i18n.Locale()).MarketServiceNotify() }
+
+// MarketServiceNotify says "显示通知"
+// in the language of msgs.
+//
+// Plugin marketplace host service description.
+func (msgs Messages) MarketServiceNotify() string {
+	return Catalog.Format(msgs.locale, "marketServiceNotify", nil)
+}
+
+// MarketServiceLauncher says "控制搜索面板"
+// in the language the app shows.
+//
+// Plugin marketplace host service description.
+func MarketServiceLauncher() string { return In(i18n.Locale()).MarketServiceLauncher() }
+
+// MarketServiceLauncher says "控制搜索面板"
+// in the language of msgs.
+//
+// Plugin marketplace host service description.
+func (msgs Messages) MarketServiceLauncher() string {
+	return Catalog.Format(msgs.locale, "marketServiceLauncher", nil)
+}
+
+// MarketServiceClipboardRead says "读取剪贴板文本"
+// in the language the app shows.
+//
+// Plugin marketplace host service description.
+func MarketServiceClipboardRead() string { return In(i18n.Locale()).MarketServiceClipboardRead() }
+
+// MarketServiceClipboardRead says "读取剪贴板文本"
+// in the language of msgs.
+//
+// Plugin marketplace host service description.
+func (msgs Messages) MarketServiceClipboardRead() string {
+	return Catalog.Format(msgs.locale, "marketServiceClipboardRead", nil)
+}
+
+// MarketServiceClipboardWrite says "写入剪贴板文本"
+// in the language the app shows.
+//
+// Plugin marketplace host service description.
+func MarketServiceClipboardWrite() string { return In(i18n.Locale()).MarketServiceClipboardWrite() }
+
+// MarketServiceClipboardWrite says "写入剪贴板文本"
+// in the language of msgs.
+//
+// Plugin marketplace host service description.
+func (msgs Messages) MarketServiceClipboardWrite() string {
+	return Catalog.Format(msgs.locale, "marketServiceClipboardWrite", nil)
+}
+
+// MarketServiceDialogs says "选择文件或目录"
+// in the language the app shows.
+//
+// Plugin marketplace host service description.
+func MarketServiceDialogs() string { return In(i18n.Locale()).MarketServiceDialogs() }
+
+// MarketServiceDialogs says "选择文件或目录"
+// in the language of msgs.
+//
+// Plugin marketplace host service description.
+func (msgs Messages) MarketServiceDialogs() string {
+	return Catalog.Format(msgs.locale, "marketServiceDialogs", nil)
+}
+
+// MarketServiceContext says "获取语言和数据目录"
+// in the language the app shows.
+//
+// Plugin marketplace host service description.
+func MarketServiceContext() string { return In(i18n.Locale()).MarketServiceContext() }
+
+// MarketServiceContext says "获取语言和数据目录"
+// in the language of msgs.
+//
+// Plugin marketplace host service description.
+func (msgs Messages) MarketServiceContext() string {
+	return Catalog.Format(msgs.locale, "marketServiceContext", nil)
+}
+
+// MarketServiceShell says "打开链接或文件位置"
+// in the language the app shows.
+//
+// Plugin marketplace host service description.
+func MarketServiceShell() string { return In(i18n.Locale()).MarketServiceShell() }
+
+// MarketServiceShell says "打开链接或文件位置"
+// in the language of msgs.
+//
+// Plugin marketplace host service description.
+func (msgs Messages) MarketServiceShell() string {
+	return Catalog.Format(msgs.locale, "marketServiceShell", nil)
 }

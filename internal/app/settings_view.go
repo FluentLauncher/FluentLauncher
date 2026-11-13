@@ -14,8 +14,6 @@ import (
 
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/settings"
-	"fluentlauncher/internal/plugin"
-	"fluentlauncher/internal/plugin/protocol"
 	"fluentlauncher/internal/store"
 	"fluentlauncher/locales"
 )
@@ -91,7 +89,15 @@ func (a *App) settingsView(c *ui.Context) {
 						ContentTransition(ui.ContentTransition{Animation: &feedbackMotion})
 				})
 				ui.Divider(c)
-				ui.Scroll(c).Grow(1).Children(func() {
+				scroll := ui.Scroll(c).Grow(1)
+				if a.settingsPage == pagePlugins {
+					if a.market.detail != "" {
+						scroll.TrackScroll(&a.market.detailScroll)
+					} else {
+						scroll.TrackScroll(&a.market.browseScroll[min(max(a.market.view, 0), 2)])
+					}
+				}
+				scroll.Children(func() {
 					c.Key(a.settingsPage)
 					content := ui.Column(c).Padding(20, 24).Gap(16)
 					// Replace only the content, leaving the window, sidebar and
@@ -789,282 +795,6 @@ func (a *App) launchItemsPage(c *ui.Context) {
 	})
 }
 
-func (a *App) pluginsPage(c *ui.Context) {
-	theme := c.Theme()
-	if a.pluginRepo == nil || a.plugins == nil {
-		settingCard(c, locales.SettingsPagePlugins(), func(c *ui.Context) {
-			ui.Text(c, locales.SettingsPluginsUninitialized()).
-				FontSize(12).TextColor(theme.TextMuted)
-		})
-		return
-	}
-	statuses := a.plugins.Statuses()
-	a.installedPluginsCard(c, theme, statuses)
-	a.installPluginsCard(c, theme)
-	a.pluginProblemsCard(c, theme)
-	a.pluginRuntimeCard(c, theme, statuses)
-}
-
-// installedPluginsCard lists what is installed, one plate per plugin: the
-// name and its condition on the first line, then id, version, description and
-// the numbers the runtime kept, so nothing has to be read out of one long line.
-func (a *App) installedPluginsCard(c *ui.Context, theme *ui.Theme, statuses []plugin.Status) {
-	settingCard(c, locales.SettingsPluginsInstalledCard(), func(c *ui.Context) {
-		if len(statuses) == 0 {
-			a.emptyPluginsHint(c, theme)
-			return
-		}
-		for _, status := range statuses {
-			a.pluginEntry(c, theme, status)
-		}
-	})
-}
-
-// emptyPluginsHint explains what a plugin is good for; a page that says only
-// "nothing here" leaves the user with no reason to install one.
-func (a *App) emptyPluginsHint(c *ui.Context, theme *ui.Theme) {
-	ui.Column(c).Gap(4).Children(func() {
-		ui.Text(c, locales.SettingsPluginsEmptyTitle()).FontSize(13).Bold().TextColor(theme.Text)
-		ui.Text(c, locales.SettingsPluginsEmptyHint1()).
-			FontSize(12).TextColor(theme.TextMuted).Wrap()
-		ui.Text(c, locales.SettingsPluginsEmptyHint2()).
-			FontSize(12).TextColor(theme.TextMuted).Wrap()
-		ui.Text(c, locales.SettingsPluginsEmptyHint3()).
-			FontSize(12).TextColor(theme.TextMuted).Wrap()
-	})
-}
-
-// pluginEntry is one installed plugin. The plate keeps its lines together and
-// apart from the next plugin, which a flat list of rows did not: a description
-// and a version looked like the same block.
-func (a *App) pluginEntry(c *ui.Context, theme *ui.Theme, status plugin.Status) {
-	manifest := status.Registration.Manifest
-	enabled := status.Enabled
-	global := status.GlobalQuery
-	ui.Column(c).Gap(6).Padding(12, 14).Radius(8).
-		Background(theme.Surface.Alpha(0.5)).Border(1, theme.Border).Children(func() {
-		ui.Row(c).Gap(10).AlignItems(ui.Center).Children(func() {
-			ui.Text(c, manifest.Name).FontSize(13).Bold().TextColor(theme.Text).Grow(1).SingleLine()
-			pluginStatePill(c, theme, status.State())
-			if status.State() == plugin.StatePaused || status.State() == plugin.StateFailed {
-				if compactButton(c, locales.SettingsPluginsRestart()).Clicked() {
-					// Stop waits for a query in flight; keep it off the UI thread.
-					opts := a.settingsDraft.Plugins
-					go func() {
-						a.plugins.Restart(manifest.ID)
-						a.plugins.Configure(a.pluginRepo.Installed(), opts)
-						a.settingsWin.Update(func() {})
-					}()
-				}
-			}
-			if compactButton(c, locales.CommonUninstall()).Disabled(a.official.installing).Clicked() {
-				go a.uninstallPlugin(manifest.ID)
-			}
-			if ui.Switch(c, &enabled).Disabled(a.official.installing).Changed() {
-				a.setPluginEnabled(manifest.ID, enabled)
-			}
-		})
-		ui.Text(c, locales.SettingsPluginsVersion(manifest.ID, manifest.Version)).
-			FontSize(11).TextColor(theme.TextMuted).SingleLine()
-		if description := strings.TrimSpace(manifest.Description); description != "" {
-			ui.Text(c, description).FontSize(12).TextColor(theme.TextMuted).Wrap()
-		}
-		if len(manifest.Keywords) > 0 {
-			ui.Text(c, locales.SettingsPluginsKeywords(strings.Join(manifest.Keywords, "、"))).
-				FontSize(11).TextColor(theme.TextMuted).Wrap()
-		}
-		ui.Text(c, status.RuntimeText()).FontSize(11).TextColor(theme.TextMuted).Wrap()
-		if status.Dropped > 0 && status.DropNote != "" {
-			ui.Text(c, status.DropNote).FontSize(11).TextColor(theme.Warning).Wrap()
-		}
-		if status.Error != "" && status.State() != plugin.StateRunning {
-			ui.Text(c, status.Error).FontSize(11).TextColor(theme.Danger).Wrap()
-		}
-		if stderr := strings.TrimSpace(status.Stderr); stderr != "" {
-			ui.Text(c, locales.SettingsPluginsStderr(tailText(stderr, 400))).
-				FontSize(11).TextColor(theme.TextMuted).Wrap()
-		}
-		if len(manifest.Commands) > 0 && compactButton(c, locales.ShortcutsConfigure()).Clicked() {
-			a.shortcutFilter = manifest.Name
-			a.settingsPage = pageShortcuts
-		}
-		if enabled {
-			// The switch in the header decides whether the plugin is asked at
-			// all; this decides whether it needs its keywords first.
-			if ui.Checkbox(c, &global, locales.SettingsPluginsGlobalQuery()).Disabled(a.official.installing).Changed() {
-				a.setPluginGlobalQuery(manifest.ID, global)
-			}
-		}
-	})
-}
-
-// pluginStatePill shows the condition of a plugin as a small tag: the color
-// says it at a glance, the word says it exactly. Colors come from the theme,
-// so the tag follows light, dark and custom themes.
-func pluginStatePill(c *ui.Context, theme *ui.Theme, state plugin.State) {
-	color := theme.TextMuted
-	switch state {
-	case plugin.StateRunning:
-		color = theme.Success
-	case plugin.StatePaused:
-		color = theme.Warning
-	case plugin.StateFailed:
-		color = theme.Danger
-	}
-	ui.Row(c).Shrink(0).Padding(1, 8).Radius(999).Background(color.Alpha(0.16)).Children(func() {
-		ui.Text(c, state.String()).FontSize(11).TextColor(color).SingleLine()
-	})
-}
-
-// installPluginsCard is where a plugin comes from: the bundled ones behind a
-// picker — one row however many official plugins ship — then the two ways to
-// install a third-party package.
-func (a *App) installPluginsCard(c *ui.Context, theme *ui.Theme) {
-	settingCard(c, locales.SettingsPluginsInstallCard(), func(c *ui.Context) {
-		ui.Text(c, locales.SettingsPluginsInstallHint()).
-			FontSize(12).TextColor(theme.TextMuted).Wrap()
-		if compactButton(c, locales.PluginCatalogRefresh()).Disabled(a.official.busy || a.official.installing).Clicked() {
-			a.refreshOfficialCatalog(true)
-		}
-		if a.official.message != "" {
-			ui.Text(c, a.official.message).FontSize(12).TextColor(theme.TextMuted).Wrap()
-		}
-		installed := a.pluginRepo.Installed()
-		pending := make([]plugin.OfficialPlugin, 0)
-		for _, official := range a.officialPlugins() {
-			needsInstall := !pluginInstalled(installed, official.ID)
-			for _, registration := range installed {
-				if registration.Manifest.ID == official.ID && official.NewerThan(registration.Manifest.Version) {
-					needsInstall = true
-				}
-			}
-			if needsInstall {
-				pending = append(pending, official)
-			}
-		}
-		if len(pending) > 0 {
-			names := make([]string, 0, len(pending))
-			for _, official := range pending {
-				names = append(names, official.Name)
-			}
-			pick := a.officialPick
-			if !containsFold(names, pick) {
-				pick = names[0]
-			}
-			summary := ""
-			pickID := ""
-			var selected plugin.OfficialPlugin
-			for _, official := range pending {
-				if official.Name == pick {
-					summary = official.Summary
-					pickID = official.ID
-					selected = official
-				}
-			}
-			a.themedSelect(c, "officialPlugin", locales.SettingsPluginsOfficialPick(),
-				locales.SettingsPluginsOfficialPickHint(), names, pick,
-				func(label string) { a.officialPick = label })
-			if summary != "" {
-				ui.Text(c, summary).FontSize(11).TextColor(theme.TextMuted).Wrap()
-			}
-			buttonLabel := locales.CommonInstall()
-			if pluginInstalled(installed, pickID) {
-				buttonLabel = locales.PluginCatalogUpgrade()
-			}
-			if selected.Version != "" {
-				ui.Text(c, selected.Version).FontSize(11).TextColor(theme.TextMuted)
-			}
-			if compactPrimaryButton(c, buttonLabel).Disabled(a.official.installing || selected.Version == "").Clicked() && pickID != "" {
-				a.installOfficialPlugin(selected)
-			}
-		}
-		ui.Divider(c)
-		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
-			if compactButton(c, locales.SettingsPluginsInstallZip()).Disabled(a.official.installing).Clicked() {
-				go a.installPlugin(false)
-			}
-			if compactButton(c, locales.SettingsPluginsInstallDir()).Disabled(a.official.installing).Clicked() {
-				go a.installPlugin(true)
-			}
-			ui.Text(c, a.pluginRepo.Dir()).FontSize(11).TextColor(theme.TextMuted).Grow(1).SingleLine()
-		})
-	})
-}
-
-// pluginProblemsCard lists the packages on disk that could not be loaded, one
-// per line. The old page kept only the last warning, joined into a paragraph,
-// so a broken package could hide behind a working one.
-func (a *App) pluginProblemsCard(c *ui.Context, theme *ui.Theme) {
-	problems := a.pluginRepo.Problems()
-	if len(problems) == 0 {
-		return
-	}
-	settingCard(c, locales.SettingsPluginsProblemsCard(), func(c *ui.Context) {
-		for _, problem := range problems {
-			ui.Column(c).Gap(2).Children(func() {
-				ui.Text(c, problem.Directory).FontSize(12).TextColor(theme.Text).SingleLine()
-				ui.Text(c, problem.Message).FontSize(11).TextColor(theme.Danger).Wrap()
-			})
-		}
-		ui.Text(c, locales.SettingsPluginsProblemsHint()).
-			FontSize(11).TextColor(theme.TextMuted).Wrap()
-	})
-}
-
-// pluginRuntimeCard sums up how the plugin runtime is set up and how much of it
-// is in use, which is what one asks when a plugin "does not work".
-func (a *App) pluginRuntimeCard(c *ui.Context, theme *ui.Theme, statuses []plugin.Status) {
-	options := a.settingsDraft.Plugins
-	running := 0
-	for _, status := range statuses {
-		if status.Running {
-			running++
-		}
-	}
-	enabled := 0
-	for _, status := range statuses {
-		if status.Enabled {
-			enabled++
-		}
-	}
-	settingCard(c, locales.SettingsPluginsRuntimeCard(), func(c *ui.Context) {
-		ui.Text(c, locales.SettingsPluginsRuntimeStats(enabled, running, options.MaxActiveProcesses, options.IdleSeconds, options.QueryTimeoutMs)).
-			FontSize(11).TextColor(theme.TextMuted).Wrap()
-		ui.Text(c, locales.SettingsPluginsTrustHint()).
-			FontSize(11).TextColor(theme.TextMuted).Wrap()
-	})
-}
-
-// setPluginEnabled turns one plugin on or off and reconfigures the runtime at
-// once, so the next search already follows the switch instead of the saved
-// settings a moment later.
-func (a *App) setPluginEnabled(id string, enabled bool) {
-	a.settingsDraft.Plugins.EnabledIDs = toggleID(a.settingsDraft.Plugins.EnabledIDs, id, enabled)
-	a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins)
-}
-
-// setPluginGlobalQuery chooses whether a plugin is asked on every search or
-// only after its keywords. The setting existed but no page could reach it.
-func (a *App) setPluginGlobalQuery(id string, global bool) {
-	a.settingsDraft.Plugins.GlobalQueryIDs = toggleID(a.settingsDraft.Plugins.GlobalQueryIDs, id, global)
-	a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins)
-}
-
-// uninstallPlugin stops the process, removes the package and forgets the id in
-// the settings, so a later reinstall starts from a clean state instead of an
-// "enabled" entry that points at nothing.
-func (a *App) uninstallPlugin(id string) {
-	a.plugins.Stop(id)
-	if err := a.pluginRepo.Uninstall(id); err != nil {
-		a.settingsWin.Update(func() { a.settingsError = err.Error() })
-		return
-	}
-	a.settingsDraft.Plugins.EnabledIDs = toggleID(a.settingsDraft.Plugins.EnabledIDs, id, false)
-	a.settingsDraft.Plugins.GlobalQueryIDs = toggleID(a.settingsDraft.Plugins.GlobalQueryIDs, id, false)
-	a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins)
-	a.settingsWin.Update(func() { a.settingsError = "" })
-}
-
 // tailText keeps the end of a long message, where the actual error is, and
 // marks what it cut.
 func tailText(text string, limit int) string {
@@ -1133,51 +863,6 @@ func (a *App) aboutPage(c *ui.Context) {
 		})
 	})
 	a.diagnosticsCard(c)
-}
-
-func pluginInstalled(installed []protocol.Registration, id string) bool {
-	for _, registration := range installed {
-		if registration.Manifest.ID == id {
-			return true
-		}
-	}
-	return false
-}
-
-func (a *App) installPlugin(directory bool) {
-	options := mygo.OpenDialogOptions{Title: locales.SettingsDialogPluginPackage()}
-	if directory {
-		options.Directory = true
-	} else {
-		options.Filters = []mygo.FileFilter{{Name: locales.SettingsDialogPluginPackageFilter(), Extensions: []string{"zip"}}}
-	}
-	paths, err := mygo.Dialog.Open(options)
-	if err != nil || len(paths) == 0 {
-		return
-	}
-	check, err := a.pluginRepo.CheckUpdate(paths[0])
-	if err != nil {
-		a.settingsWin.Update(func() { a.settingsError = err.Error() })
-		return
-	}
-	if check.IsUpgrade() {
-		a.plugins.Stop(check.Package.ID)
-	}
-	registration, err := a.pluginRepo.Install(paths[0], check.IsUpgrade())
-	if err != nil {
-		a.settingsWin.Update(func() { a.settingsError = err.Error() })
-		return
-	}
-	// A freshly installed plugin is switched on: installing it and finding a
-	// silent search is the same surprise as a broken package. This runs
-	// off the UI thread, so the draft is touched inside Update like every
-	// other change to it from here.
-	id := registration.Manifest.ID
-	a.settingsWin.Update(func() {
-		a.settingsDraft.Plugins.EnabledIDs = toggleID(a.settingsDraft.Plugins.EnabledIDs, id, true)
-		a.plugins.Configure(a.pluginRepo.Installed(), a.settingsDraft.Plugins)
-		a.settingsError = ""
-	})
 }
 
 func containsFold(items []string, value string) bool {

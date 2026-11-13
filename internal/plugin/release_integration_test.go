@@ -1,7 +1,9 @@
 package plugin
 
 import (
+	"bytes"
 	"context"
+	"image/png"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -10,6 +12,7 @@ import (
 
 	"fluentlauncher/internal/core/search"
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/plugin/protocol"
 )
 
 // Optional cross-repository acceptance test. Normal host CI remains completely
@@ -45,6 +48,27 @@ func TestIndependentOfficialReleaseIntegration(t *testing.T) {
 		}
 		if _, err := repo.Install(archive, false); err != nil {
 			t.Fatal(entry.ID, err)
+		}
+		if entry.Icon != nil {
+			icon, err := client.Icon(ctx, *entry.Icon)
+			if err != nil {
+				t.Fatal(entry.ID, err)
+			}
+			if _, err := png.DecodeConfig(bytes.NewReader(icon)); err != nil {
+				t.Fatal("invalid released PNG", entry.ID, err)
+			}
+			for _, installed := range repo.Installed() {
+				if installed.Manifest.ID == entry.ID {
+					path, err := protocol.ResourcePath(installed.Directory, installed.Manifest.Icon)
+					if err != nil {
+						t.Fatal(err)
+					}
+					packaged, err := os.ReadFile(path)
+					if err != nil || !bytes.Equal(packaged, icon) {
+						t.Fatal("catalogue and package icons differ", entry.ID, err)
+					}
+				}
+			}
 		}
 		t.Logf("verified and installed %s %s", entry.ID, entry.Version)
 	}

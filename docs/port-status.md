@@ -29,7 +29,7 @@
 | MainWindow / SettingsWindow | internal/app | 搜索面板、动作面板、设置页、浮层、工作区结果 |
 | 窗口材质与标题栏 | internal/winapi/glass + internal/app/chrome.go | 亚克力模糊透出下层窗口；云母通过 MyGo VibrancyMica 使用 Windows 原生系统材质，不叠加应用着色或透明度；设置与工作区窗口自绘标题栏 |
 | 音量浮层 | internal/app/volume.go + internal/winapi/volume/overlay_windows.go | 底部居中的胶囊：图标、进度条、百分比，自身带模糊；按鼠标所在屏幕的物理工作区定位，支持不同缩放屏幕间移动 |
-| 插件 | internal/plugin + internal/app/settings_view.go | 独立进程、manifest 校验、状态/耗时/重启、每次搜索查询开关；设置页按插件展示状态与诊断 |
+| 插件市场 | internal/plugin + internal/app/plugins_view.go | 独立进程、manifest 校验、状态/耗时/重启、每次搜索查询开关；设置页按插件展示状态与诊断 |
 | 系统功能搜索 | internal/core/systemsearch + internal/core/search | 79 条 Windows 设置/控制面板/系统工具目录，支持中文同义词、英文名与拼音首字母；回车经 ms-settings: 或 ShellExecute 打开 |
 | 设置保存 | internal/app/settings_view.go | 无保存/取消按钮，改动 600ms 后自动应用并保存；校验失败时回退已保存值并提示 |
 | 统一快捷键 | internal/core/shortcuts + internal/app/shortcuts*.go | 内置命令与插件命令统一设置、录制/多绑定/启停/冲突替换；全局差异注册与失败恢复；插件 manifest commands、可选 executeCommand 能力和后台按需调用；详情见 docs/shortcuts.md |
@@ -52,3 +52,5 @@
 - 插件为独立进程，其 manifest 名称/描述与结果文本不随界面语言翻译（属于插件内容，不在 catalog 内）；官方示例插件仍是中文。
 - 繁中用户输入繁体关键词可命中系统功能目录（繁体标题已并入关键词），但应用/文件的搜索匹配数据仍是用户自己的命名。
 - 截图插件（official.screenshot）1.6.0 已在独立插件仓库实现：截图标注、手动滚动自动拼接、细线图片预览与底部操作条，原选区持续显示鼠标穿透的边界框。菜单及普通 / 长截图工具栏同步背景不透明度和完整渐变，两端色与方向跟随宿主，文字与图片不淡化。截图 / 预览保持完整帧绘制及捕获排除，默认保留贴图参与二次截图。宿主在现有主题协议中增加可选 gradientEnd，完整渐变需配套更新宿主和插件，旧宿主显示主色。真实网页、用户 IME 与混合 DPI 仍待人工验收。窗口 / 延时截图与 OCR 后续推进，范围见 `docs/plugin-screenshot.md`。取色器、汇率按用户决定不做。
+
+插件市场已重构为浏览 / 管理 / 更新与详情，图标后台校验加载，安装结果保留提示，管理使用开关。双向宿主服务、独立配置及标准库 SDK 可选接入已实现；当前接口与兼容边界见 `plugin-host-api.md`。真实系统通知、剪贴板及原生文件选择器的交互仍需实机验收。

@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"fluentlauncher/internal/plugin/protocol"
+	"fluentlauncher/internal/plugin/rpc"
 	"fluentlauncher/locales"
 )
 
@@ -40,23 +41,27 @@ type Client struct {
 
 	// The operation gate is cancellable while waiting. Explicit actions share
 	// it with queries but are never superseded by a later search.
-	opGate        chan struct{}
-	queryMu       sync.Mutex
-	querySequence uint64
-	pendingQuery  context.CancelFunc
-	writeMu       sync.Mutex
-	stderrMu      sync.Mutex
-	cmd           *exec.Cmd
-	stdin         io.WriteCloser
-	stdout        *bufio.Reader
-	job           *job
-	stderr        string
-	closed        bool
-	requestID     int64
-	capabilities  []string
-	themeMu       sync.Mutex
-	theme         *protocol.Theme
-	sentTheme     *protocol.Theme // operation-gate protected
+	opGate         chan struct{}
+	queryMu        sync.Mutex
+	querySequence  uint64
+	pendingQuery   context.CancelFunc
+	stderrMu       sync.Mutex
+	cmd            *exec.Cmd
+	stdin          io.WriteCloser
+	stdout         *bufio.Reader
+	job            *job
+	stderr         string
+	closed         bool
+	peer           atomic.Pointer[rpc.Peer]
+	host           HostProvider
+	requiresHost   bool
+	hostReady      atomic.Bool
+	interactive    atomic.Bool
+	settingsEvents atomic.Bool
+	capabilities   []string
+	themeMu        sync.Mutex
+	theme          *protocol.Theme
+	sentTheme      *protocol.Theme // operation-gate protected
 
 	// statsMu guards stats alone, so the settings page can read a snapshot
 	// while a query is in flight instead of waiting for it.
@@ -163,6 +168,11 @@ func (c *Client) Execute(ctx context.Context, request protocol.ExecuteRequest, t
 		c.fail(err, ctx)
 		return errors.New(locales.PluginExecuteStartFailed(err))
 	}
+	c.interactive.Store(true)
+	defer c.interactive.Store(false)
+	if c.hostReady.Load() {
+		timeout = max(timeout, 2*time.Minute)
+	}
 	if _, err := c.requestLocked(ctx, "execute", reqExecute, request, timeout); err != nil {
 		c.fail(err, ctx)
 		if ctx.Err() == nil {
@@ -190,6 +200,11 @@ func (c *Client) ExecuteCommand(ctx context.Context, commandID string, timeout t
 		err := fmt.Errorf("plugin %s does not support executeCommand; update the plugin", c.id)
 		c.fail(err, ctx)
 		return err
+	}
+	c.interactive.Store(true)
+	defer c.interactive.Store(false)
+	if c.hostReady.Load() {
+		timeout = max(timeout, 2*time.Minute)
 	}
 	_, err := c.requestLocked(ctx, "executeCommand", reqExecute, protocol.ExecuteCommandRequest{CommandID: commandID}, timeout)
 	if err != nil {
@@ -294,6 +309,14 @@ func (c *Client) startLocked(ctx context.Context) error {
 		return err
 	}
 	c.cmd, c.stdin, c.stdout, c.job = command, stdin, bufio.NewReaderSize(stdout, 64*1024), job
+	c.hostReady.Store(false)
+	provider := c.host
+	c.peer.Store(rpc.New(c.stdout, stdin, "h:", func(ctx context.Context, method string, params json.RawMessage) (any, error) {
+		if provider == nil || !c.hostReady.Load() {
+			return nil, &rpc.Error{Code: -32601, Message: "host services are unavailable"}
+		}
+		return provider.Call(ctx, method, params, c.interactive.Load())
+	}))
 	c.stderrMu.Lock()
 	c.stderr = ""
 	c.stderrMu.Unlock()
@@ -313,6 +336,23 @@ func (c *Client) startLocked(ctx context.Context) error {
 		return err
 	}
 	c.capabilities = append([]string(nil), initialized.Capabilities...)
+	if c.requiresHost && (c.host == nil || !containsFold(c.capabilities, "hostServices.v1")) {
+		c.stopLocked()
+		return fmt.Errorf("plugin %s requires negotiated host services; update the plugin and launcher", c.id)
+	}
+	c.settingsEvents.Store(containsFold(c.capabilities, "settings"))
+	if c.host != nil && containsFold(c.capabilities, "hostServices.v1") {
+		configuration, err := c.host.Configuration()
+		if err != nil {
+			c.stopLocked()
+			return err
+		}
+		c.hostReady.Store(true)
+		if _, err := c.requestLocked(ctx, "configureHost", reqInitialize, configuration, handshakeTimeout); err != nil {
+			c.stopLocked()
+			return err
+		}
+	}
 	c.sentTheme = nil
 	if err := c.syncThemeLocked(ctx); err != nil {
 		c.stopLocked()
@@ -356,112 +396,35 @@ var (
 	}
 )
 
-// requestLocked writes one request and reads its answer.
+// requestLocked waits on the session peer; only its reader consumes stdout.
 func (c *Client) requestLocked(ctx context.Context, method string, text requestText, params any, timeout time.Duration) (json.RawMessage, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if c.cmd == nil || c.stdin == nil || c.stdout == nil {
+	peer := c.peer.Load()
+	if peer == nil {
 		return nil, errors.New(locales.PluginProcessNotStarted())
 	}
-	id := atomic.AddInt64(&c.requestID, 1)
-	var rawParams json.RawMessage
-	if params != nil {
-		data, err := json.Marshal(params)
-		if err != nil {
-			return nil, err
-		}
-		rawParams = data
+	requestCtx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	result, err := peer.Call(requestCtx, method, params, cancelGrace)
+	if err == nil {
+		return result, nil
 	}
-	request := protocol.Request{JSONRPC: "2.0", ID: json.RawMessage(fmt.Sprintf("%d", id)), Method: method, Params: rawParams}
-	payload, err := json.Marshal(request)
-	if err != nil {
-		return nil, err
+	if errors.Is(err, rpc.ErrUnresponsive) {
+		c.stopLocked()
 	}
-	c.writeMu.Lock()
-	err = protocol.Write(c.stdin, payload)
-	c.writeMu.Unlock()
-	if err != nil {
-		return nil, errors.New(text.send(err))
+	if ctx.Err() != nil {
+		return nil, errors.New(text.cancel())
 	}
-
-	read := make(chan frameResult, 1)
-	// Capture the reader now: the timeout path below stops the client and
-	// nils the field, and the goroutine must not race that write.
-	reader := c.stdout
-	go func() {
-		payload, err := protocol.Read(reader)
-		read <- frameResult{payload, err}
-	}()
-	timer := time.NewTimer(timeout)
-	defer timer.Stop()
-	select {
-	case result := <-read:
-		if result.err != nil {
-			if errors.Is(result.err, io.EOF) {
-				return nil, errors.New(locales.PluginExitedNoResult())
-			}
-			return nil, errors.New(locales.PluginReadResponseFailed(result.err))
-		}
-		var response struct {
-			JSONRPC string             `json:"jsonrpc"`
-			ID      json.RawMessage    `json:"id"`
-			Result  json.RawMessage    `json:"result"`
-			Error   *protocol.RPCError `json:"error"`
-		}
-		if err := json.Unmarshal(result.payload, &response); err != nil {
-			return nil, errors.New(locales.PluginResponseInvalidJSON(err))
-		}
-		if response.JSONRPC != "2.0" || string(response.ID) != string(request.ID) {
-			return nil, errors.New(locales.PluginResponseMismatch())
-		}
-		if response.Error != nil {
-			return nil, response.Error
-		}
-		return response.Result, nil
-	case <-ctx.Done():
-		// Ask the plugin to stop working, then wait a moment for the answer it
-		// will send anyway: a search replaced by the next keystroke must not
-		// cost a process restart.
-		c.cancel(id)
-		return nil, c.afterCancel(read, text)
-	case <-timer.C:
-		c.cancel(id)
+	if requestCtx.Err() != nil {
 		c.stopLocked()
 		return nil, errors.New(text.timeout(timeout.Milliseconds()))
 	}
-}
-
-// frameResult is one frame read from the plugin, or the error that ended the
-// stream. It is a package type so the canceled path can wait on the same
-// channel the request reads from.
-type frameResult struct {
-	payload []byte
-	err     error
-}
-
-// afterCancel waits for the answer to a canceled request and keeps the process
-// when it comes; one that stays silent is stopped, because its late frames
-// could be taken for answers to the next request.
-func (c *Client) afterCancel(read <-chan frameResult, text requestText) error {
-	timer := time.NewTimer(cancelGrace)
-	defer timer.Stop()
-	select {
-	case <-read:
-	case <-timer.C:
-		c.stopLocked()
+	if errors.Is(err, io.EOF) {
+		return nil, errors.New(locales.PluginExitedNoResult())
 	}
-	return errors.New(text.cancel())
-}
-
-func (c *Client) cancel(id int64) {
-	c.writeMu.Lock()
-	_ = protocol.WriteJSON(c.stdin, protocol.Request{
-		JSONRPC: "2.0",
-		Method:  "$/cancelRequest",
-		Params:  json.RawMessage(fmt.Sprintf(`{"id":%d}`, id)),
-	})
-	c.writeMu.Unlock()
+	return nil, err
 }
 
 func (c *Client) readStderr(reader io.Reader) {
@@ -483,6 +446,9 @@ func (c *Client) readStderr(reader io.Reader) {
 }
 
 func (c *Client) Close() {
+	if peer := c.peer.Load(); peer != nil {
+		peer.Close(io.EOF)
+	}
 	c.queryMu.Lock()
 	if c.pendingQuery != nil {
 		c.pendingQuery()
@@ -501,6 +467,9 @@ func (c *Client) closeGracefullyLocked() {
 	if c.cmd == nil {
 		c.stopLocked()
 		return
+	}
+	if peer := c.peer.Swap(nil); peer != nil {
+		peer.Close(io.EOF)
 	}
 	if c.stdin != nil {
 		_ = c.stdin.Close()
@@ -535,6 +504,9 @@ func (c *Client) closeGracefullyLocked() {
 }
 
 func (c *Client) stopLocked() {
+	if peer := c.peer.Swap(nil); peer != nil {
+		peer.Close(io.EOF)
+	}
 	if c.job != nil {
 		_ = c.job.Close()
 		c.job = nil

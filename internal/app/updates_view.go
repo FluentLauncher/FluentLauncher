@@ -18,7 +18,7 @@ func (a *App) updateCard(c *ui.Context) {
 		ui.Row(c).AlignItems(ui.Center).Children(func() {
 			ui.Text(c, locales.UpdateTitle()).FontSize(theme.FontSize + 1).Bold().TextColor(theme.Text).Grow(1)
 			if compactButton(c, locales.UpdateCheck()).Disabled(a.updates.busy || pending).Tooltip(locales.UpdateHint()).Clicked() {
-				a.checkForUpdates(false)
+				a.checkForUpdates()
 			}
 		})
 		ui.Column(c).Radius(theme.Radius*1.5).Background(theme.Surface.Alpha(0.8)).Border(1, theme.Border).Children(func() {

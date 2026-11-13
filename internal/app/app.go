@@ -726,7 +726,7 @@ func (a *App) trayMenu() *mygo.Menu {
 		{Label: locales.UpdateCheck(), Click: func(*mygo.MenuItem, *mygo.Window) {
 			a.settingsPage = len(settingPages()) - 1
 			a.openSettings()
-			a.checkForUpdates(false)
+			a.checkForUpdates()
 		}},
 		mygo.Separator(),
 		{Label: loginLabel, Click: func(*mygo.MenuItem, *mygo.Window) {

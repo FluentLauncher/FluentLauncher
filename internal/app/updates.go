@@ -50,7 +50,7 @@ func (a *App) startUpdateChecks() {
 			case <-timer.C:
 				a.panel.Update(func() {
 					if !a.quitting {
-						a.checkForUpdates(true)
+						a.checkForUpdates()
 					}
 				})
 				timer.Reset(24 * time.Hour)
@@ -71,7 +71,8 @@ func (a *App) publishUpdate(fn func()) {
 	})
 }
 
-func (a *App) checkForUpdates(background bool) {
+// Checking only refreshes update state; opening settings requires a user action.
+func (a *App) checkForUpdates() {
 	if a.updates.busy {
 		return
 	}
@@ -113,15 +114,10 @@ func (a *App) checkForUpdates(background bool) {
 				a.updates.message = locales.UpdateFailed(err)
 				return
 			}
-			previous := a.updates.available
 			a.updates.available = up
 			a.updates.message = locales.UpdateLatest()
 			if up != nil {
 				a.updates.message = ""
-				if background && (previous == nil || previous.Version != up.Version) {
-					a.settingsPage = len(settingPages()) - 1
-					a.openSettings()
-				}
 			}
 		})
 	}()

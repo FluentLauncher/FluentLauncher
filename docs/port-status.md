@@ -28,7 +28,7 @@
 | SDK 与 Echo/DevTools/Clipboard 插件 | 独立 FluentLauncher-plugins 仓库 | 标准库 SDK；三个可执行插件与开发模板独立构建发布，剪贴板历史仅内存 50 条 |
 | MainWindow / SettingsWindow | internal/app | 搜索面板、动作面板、设置页、浮层、工作区结果 |
 | 窗口材质与标题栏 | internal/winapi/glass + internal/app/chrome.go | 亚克力模糊透出下层窗口；云母通过 MyGo VibrancyMica 使用 Windows 原生系统材质，不叠加应用着色或透明度；设置与工作区窗口自绘标题栏 |
-| 音量浮层 | internal/app/volume.go | 底部居中的胶囊：图标、进度条、百分比，自身带模糊 |
+| 音量浮层 | internal/app/volume.go + internal/winapi/volume/overlay_windows.go | 底部居中的胶囊：图标、进度条、百分比，自身带模糊；按鼠标所在屏幕的物理工作区定位，支持不同缩放屏幕间移动 |
 | 插件 | internal/plugin + internal/app/settings_view.go | 独立进程、manifest 校验、状态/耗时/重启、每次搜索查询开关；设置页按插件展示状态与诊断 |
 | 系统功能搜索 | internal/core/systemsearch + internal/core/search | 79 条 Windows 设置/控制面板/系统工具目录，支持中文同义词、英文名与拼音首字母；回车经 ms-settings: 或 ShellExecute 打开 |
 | 设置保存 | internal/app/settings_view.go | 无保存/取消按钮，改动 600ms 后自动应用并保存；校验失败时回退已保存值并提示 |

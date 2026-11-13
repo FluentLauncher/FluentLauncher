@@ -95,6 +95,7 @@ func (a *App) onVolumeChange(percent int) {
 	// UI-thread state, so they move inside the window's update.
 	a.volumeWin.Update(func() {
 		a.volumePct = percent
+		a.showVolumeOverlay()
 		if a.volumeTimer != nil {
 			a.volumeTimer.Stop()
 		}
@@ -107,7 +108,6 @@ func (a *App) onVolumeChange(percent int) {
 			}
 		})
 	})
-	a.showVolumeOverlay()
 }
 
 // showVolumeOverlay puts the overlay near the bottom of the display the
@@ -116,17 +116,9 @@ func (a *App) showVolumeOverlay() {
 	if a.volumeWin == nil {
 		return
 	}
-	display := mygo.Screen.DisplayNearestPoint(mygo.Screen.CursorScreenPoint())
-	if display.WorkArea.Width <= 0 || display.WorkArea.Height <= 0 {
-		display = mygo.Screen.PrimaryDisplay()
+	if err := volume.PositionOverlay(a.volumeWin.NativeHandle(), volumeOverlayWidth, volumeOverlayHeight, volumeOverlayGap); err != nil {
+		log.Printf("volume overlay: %v", err)
 	}
-	work := mygo.Rectangle{X: display.WorkArea.X, Y: display.WorkArea.Y, Width: display.WorkArea.Width, Height: display.WorkArea.Height}
-	if work.Width <= 0 || work.Height <= 0 {
-		work = mygo.Rectangle{Width: 1920, Height: 1080}
-	}
-	x := work.X + (work.Width-volumeOverlayWidth)/2
-	y := work.Y + work.Height - volumeOverlayHeight - volumeOverlayGap
-	a.volumeWin.SetBounds(mygo.Rectangle{X: x, Y: y, Width: volumeOverlayWidth, Height: volumeOverlayHeight})
 	a.volumeWin.ShowInactive()
 }
 

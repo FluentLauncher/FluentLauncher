@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"sync/atomic"
+	"time"
 
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
@@ -53,7 +54,7 @@ func (a *App) pluginsPage(c *ui.Context) {
 	}
 	items := a.marketItems()
 	ui.Column(c).Gap(theme.Space(4)).FillWidth().Children(func() {
-		a.marketFeedback(c, items)
+		a.marketFeedback(c)
 		if a.market.detail != "" {
 			for _, item := range items {
 				if item.ID == a.market.detail {
@@ -224,7 +225,17 @@ func (a *App) marketInstallButton(c *ui.Context, item plugin.MarketItem) {
 	compactButton(c, locales.MarketUse()).Disabled(!item.Installed.Enabled).OnClick(func() { a.useMarketPlugin(item.ID) })
 }
 
-func (a *App) marketFeedback(c *ui.Context, items []plugin.MarketItem) {
+// Consume transient feedback once, so rebuilding the page does not restart
+// the toast's timer. The window owns its overlay and lifetime.
+func (a *App) marketToast(c *ui.Context) {
+	if a.market.feedback == "" || a.market.failed {
+		return
+	}
+	c.AddToast(ui.Toast{ID: "plugin-operation", Title: a.market.feedback, Timeout: 3 * time.Second})
+	a.market.feedback, a.market.feedbackID = "", ""
+}
+
+func (a *App) marketFeedback(c *ui.Context) {
 	theme := c.Theme()
 	if op := a.market.operation; op != nil {
 		ui.Row(c).Gap(theme.Space(3)).AlignItems(ui.Center).Children(func() {
@@ -239,28 +250,14 @@ func (a *App) marketFeedback(c *ui.Context, items []plugin.MarketItem) {
 			ui.Progress(c, float64(op.downloaded)/float64(op.total)).Label(op.phase.String())
 		}
 	}
-	if a.market.feedback == "" {
+	if a.market.feedback == "" || !a.market.failed {
 		return
 	}
-	color := theme.Success
-	if a.market.failed {
-		color = theme.Danger
-	}
-	ui.Column(c).Gap(theme.Space(2)).Padding(theme.Space(3)).Radius(theme.Radius).Background(color.Alpha(0.12)).Children(func() {
+	ui.Column(c).Gap(theme.Space(2)).Padding(theme.Space(3)).Radius(theme.Radius).Background(theme.Danger.Alpha(0.12)).Children(func() {
 		ui.Row(c).Gap(theme.Space(2)).AlignItems(ui.Center).Children(func() {
 			ui.Text(c, a.market.feedback).Grow(1).TextColor(theme.Text).Wrap()
 			compactButton(c, locales.MarketNoticeClose()).OnClick(func() { a.market.feedback = "" })
 		})
-		for _, item := range items {
-			if item.ID == a.market.feedbackID && item.Installed != nil && !a.market.failed {
-				ui.Row(c).Gap(theme.Space(2)).Children(func() {
-					compactButton(c, locales.MarketUse()).Disabled(!item.Installed.Enabled).OnClick(func() { a.useMarketPlugin(item.ID) })
-					if len(item.Manifest().Commands) > 0 {
-						compactButton(c, locales.ShortcutsConfigure()).OnClick(func() { a.shortcutFilter = item.Name; a.settingsPage = pageShortcuts })
-					}
-				})
-			}
-		}
 	})
 }
 

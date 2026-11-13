@@ -156,6 +156,108 @@ func TestPluginsMarketplaceInstallationFeedbackAndUpdateState(t *testing.T) {
 	tt.Frame()
 }
 
+func TestMarketplaceSuccessToastOverlay(t *testing.T) {
+	for _, width := range []int{840, 1180} {
+		for _, dark := range []bool{false, true} {
+			t.Run(fmt.Sprintf("width-%d-dark-%t", width, dark), func(t *testing.T) {
+				a := newPluginsApp(t)
+				tt := ui.NewTester(a.settingsView, width, 900)
+				tt.SetDark(dark)
+				tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
+				if err := tt.Click(locales.MarketSearch()); err != nil {
+					t.Fatal(err)
+				}
+				before, ok := tt.Find(locales.MarketLocalInstall())
+				if !ok {
+					t.Fatal("missing marketplace toolbar")
+				}
+				op, _ := a.beginPluginOperation("official.echo", "回显示例", "1.0.0")
+				installExample(t, a, "official.echo")
+				a.finishPluginOperation(op, nil)
+				message := a.market.feedback
+				tt.Frame()
+				tt.Advance(250 * time.Millisecond)
+				toast, ok := tt.Find(message)
+				if !ok || toast.Y < 810 || toast.X < 0 || toast.X+toast.W > float32(width) {
+					t.Fatalf("success is not a floating toast near the window bottom: %+v", toast)
+				}
+				after, _ := tt.Find(locales.MarketLocalInstall())
+				if before != after || !tt.Focused(locales.MarketSearch()) {
+					t.Fatal("success toast moved the marketplace or took keyboard focus")
+				}
+				if tt.HasText(locales.MarketNoticeClose()) || tt.HasText(locales.ShortcutsConfigure()) {
+					t.Fatal("success still shows the persistent feedback panel")
+				}
+				if dir := os.Getenv("FL_MARKET_ARTIFACT_DIR"); dir != "" {
+					if err := os.MkdirAll(dir, 0755); err != nil {
+						t.Fatal(err)
+					}
+					saveMarketFrame(t, tt, filepath.Join(dir, fmt.Sprintf("toast-%d-dark-%t.png", width, dark)))
+				}
+				tt.Frame()
+				tt.Advance(2749 * time.Millisecond)
+				if !tt.HasText(message) {
+					t.Fatal("toast closed before three seconds")
+				}
+				tt.Advance(time.Millisecond)
+				if tt.HasText(message) {
+					t.Fatal("toast did not close after three seconds")
+				}
+				tt.Advance(time.Second)
+				if tt.HasText(message) {
+					t.Fatal("a later rebuild showed the success toast again")
+				}
+			})
+		}
+	}
+}
+
+func TestMarketplaceRepeatedSuccessRestartsToast(t *testing.T) {
+	a := newPluginsApp(t)
+	installExample(t, a, "official.echo")
+	op, _ := a.beginPluginOperation("official.echo", "回显示例", "1.0.0")
+	a.finishPluginOperation(op, nil)
+	message := a.market.feedback
+	tt := ui.NewTester(a.settingsView, 1180, 900)
+	tt.Advance(2 * time.Second)
+	op, _ = a.beginPluginOperation("official.echo", "回显示例", "1.0.0")
+	a.finishPluginOperation(op, nil)
+	tt.Frame()
+	tt.Advance(2 * time.Second)
+	count := 0
+	for _, text := range tt.Texts() {
+		if text == message {
+			count++
+		}
+	}
+	if count != 1 {
+		t.Fatalf("repeated completion should restart one toast, found %d", count)
+	}
+	tt.Advance(time.Second)
+	if tt.HasText(message) {
+		t.Fatal("repeated success toast did not expire after its own three seconds")
+	}
+}
+
+func TestMarketplaceFailureRemainsAfterToastExpires(t *testing.T) {
+	a := newPluginsApp(t)
+	a.official.client = plugin.NewCatalogClient(filepath.Join(t.TempDir(), "catalog.json"))
+	a.official.catalog = &plugin.Catalog{SchemaVersion: 1, Plugins: []plugin.CatalogEntry{{ID: "official.echo", Version: "1.0.0", Name: map[string]string{"zh-Hans": "回显示例"}}}}
+	op, _ := a.beginPluginOperation("official.echo", "回显示例", "1.0.0")
+	a.finishPluginOperation(op, context.Canceled)
+	message := a.market.feedback
+	tt := ui.NewTester(a.settingsView, 1180, 900)
+	tt.Advance(time.Second)
+	op, _ = a.beginPluginOperation("official.echo", "回显示例", "1.0.0")
+	a.finishPluginOperation(op, fmt.Errorf("package verification failed"))
+	failure := a.market.feedback
+	tt.Frame()
+	tt.Advance(4 * time.Second)
+	if tt.HasText(message) || !tt.HasText(failure) || !tt.HasText(locales.MarketRetry()) || !a.market.failed {
+		t.Fatal("toast expiry removed the persistent error or retry action")
+	}
+}
+
 func TestPluginsMarketplaceUninstallAndProblems(t *testing.T) {
 	a := newPluginsApp(t)
 	installExample(t, a, "official.echo")

@@ -152,6 +152,7 @@ func (a *App) settingsView(c *ui.Context) {
 		})
 	})
 	a.updateNotesDialog(c)
+	a.marketToast(c)
 	if a.settingsWin != nil && a.draftChanged() {
 		a.scheduleSettingsSave()
 	}

@@ -1,6 +1,6 @@
 # WinUI → Go/MyGo 复刻状态
 
-日期：2026-11-11
+日期：2026-11-13
 
 ## 已复刻
 
@@ -21,7 +21,7 @@
 | ThemePackage | internal/store/theme.go | zip 导入导出、路径/大小限制 |
 | StartMenuCatalog | internal/winapi/apps | Shell 应用列表、便携目录、PATH、监听 |
 | WindowsApplicationLauncher | internal/winapi/apps/launch.go | ShellExecuteEx、runas、UAC 取消、打开位置 |
-| EverythingProvider | internal/winapi/everything | WM_COPYDATA Unicode 查询、按需后台启动、程序检测/手动选择、合并启动与退避、连接诊断；真实启动行为见本轮验证说明 |
+| EverythingProvider | internal/winapi/everything | WM_COPYDATA Unicode 查询、按需后台启动、程序检测/手动选择、合并启动、查询失败退避、可取消排队与真实 IPC 连接探测；见 docs/everything.md |
 | WindowCatalog | internal/winapi/windowlist | EnumWindows、cloaked/tool 过滤、还原置前 |
 | ShortcutResolver | internal/winapi/shortcut | WScript.Shell 读取 .lnk 目标/参数/工作目录，用于去重 |
 | Plugin Host/Manager | internal/plugin | 帧协议、进程、Job Object、超时/取消/回收/暂停、按需下载安装与独立升级 |
@@ -44,7 +44,7 @@
 
 ## 仍需补齐
 
-- Everything 协议此前已在本机真实客户端联调；本轮增加自动启动与连接诊断，真实客户端探测未找到程序，冷启动验收仍待完成；模拟并发启动、退避与取消测试已通过。默认实例之外的命名实例尚不支持。
+- Everything 已在本机 1.4.1.1028 x64 客户端验证 IPC 探测、英文/中文/无命中查询、连续取消后的恢复，并通过独立 MyGo 事件循环验证；截图中的偶发超时未稳定复现。冷启动与用户原窗口的实际输入体验仍待验收，默认实例之外的命名实例尚不支持。验证与故障处理见 `docs/everything.md`。
 - 插件为新的可执行模型；旧 C# 插件不会运行（仓库会跳过 `entryAssembly` 包）。
 - 云母使用 Windows 原生 Mica，不提供背景色、透明度或强度控件；系统材质不可用时回退为主题不透明底色。无窗口渲染仅能验证应用绘制与回退，真实 Mica 合成由 Windows 管理。
 - 设置页的启动项/站点/工作区是基础编辑，缺少 C# 的完整校验提示与图标选择。

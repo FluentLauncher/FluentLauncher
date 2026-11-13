@@ -17,21 +17,22 @@ type Update struct {
 // Collect publishes the first results immediately, then coalesces provider
 // completions over interval. All merging stays on the caller's worker. Empty
 // completions that change neither results nor errors do not rebuild the UI.
+// An initial empty update after one interval clears the previous query's rows
+// even when external providers are still pending.
 func Collect(ctx context.Context, input <-chan Batch, limit int, interval time.Duration, publish func(Update)) {
 	timer := time.NewTimer(interval)
-	timer.Stop()
 	defer timer.Stop()
-	var tick <-chan time.Time
+	tick := timer.C
 	var batches []Batch
 	var previous []model.Result
 	var previousErrors []string
 	sent, dirty := false, false
-	emit := func(complete bool) {
+	emit := func(allowEmpty bool) {
 		if !dirty && sent {
 			return
 		}
 		matches := Merge(batches, limit)
-		if !sent && !complete && len(matches) == 0 {
+		if !sent && !allowEmpty && len(matches) == 0 {
 			return
 		}
 		var errors []string
@@ -70,7 +71,7 @@ func Collect(ctx context.Context, input <-chan Batch, limit int, interval time.D
 			}
 		case <-tick:
 			tick = nil
-			emit(false)
+			emit(true)
 		}
 	}
 }

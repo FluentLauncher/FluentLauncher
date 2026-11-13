@@ -30,7 +30,7 @@ const (
 	everythingClass = "EVERYTHING_TASKBAR_NOTIFICATION"
 	everythingTag   = 0x464C
 	maxReplyBytes   = 4 << 20
-	sendTimeout     = 1000
+	sendTimeout     = 100
 	queryTimeout    = 1500 * time.Millisecond
 )
 
@@ -55,11 +55,12 @@ var (
 type Provider struct {
 	Options    func() settings.FileIndexOptions
 	connection *connection
-	mu         sync.Mutex
+	querySlot  chan struct{}
+	runQuery   func(context.Context, string, int) ([]model.Result, error)
 }
 
 func NewProvider(options func() settings.FileIndexOptions, changed func()) *Provider {
-	return &Provider{Options: options, connection: newConnection(changed)}
+	return &Provider{Options: options, connection: newConnection(changed), querySlot: make(chan struct{}, 1), runQuery: query}
 }
 
 func (p *Provider) Status() ConnectionStatus { return p.connection.snapshot() }
@@ -79,7 +80,10 @@ func (p *Provider) Connect(ctx context.Context) error {
 }
 
 func (p *Provider) ConnectWithOptions(ctx context.Context, options settings.FileIndexOptions) error {
-	return p.connection.ensure(ctx, options, true)
+	// A notification window only proves the client exists. Verify that IPC
+	// replies actually arrive before reporting a successful connection.
+	_, err := p.search(ctx, "", 1, options, true)
+	return err
 }
 
 func (p *Provider) Open() error {
@@ -109,23 +113,34 @@ func (p *Provider) Search(ctx context.Context, q search.Query, limit int) ([]mod
 		return nil, ctx.Err()
 	case <-timer.C:
 	}
-	if err := p.connection.ensure(ctx, p.Options(), false); err != nil {
+	return p.search(ctx, q.Text, limit, p.Options(), false)
+}
+
+func (p *Provider) search(ctx context.Context, text string, limit int, options settings.FileIndexOptions, force bool) ([]model.Result, error) {
+	// Canceled keystrokes must leave the queue immediately, even when the
+	// current native call cannot return until SendMessageTimeout expires.
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case p.querySlot <- struct{}{}:
+	}
+	defer func() { <-p.querySlot }()
+	if err := p.connection.ensure(ctx, options, force); err != nil {
 		return nil, err
 	}
-	p.mu.Lock()
-	defer p.mu.Unlock()
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
 	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
-	results, err := query(queryCtx, q.Text, limit)
-	if err != nil && ctx.Err() == nil {
-		p.connection.mu.Lock()
-		p.connection.status.State, p.connection.status.Error = ConnectionFailed, err.Error()
-		p.connection.mu.Unlock()
-		p.connection.notify()
+	results, err := p.runQuery(queryCtx, text, limit)
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
 	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		err = fmt.Errorf("%s: %w", locales.EverythingQueryTimeout(), err)
+	}
+	p.connection.queryFinished(options, err)
 	return results, err
 }
 
@@ -238,8 +253,13 @@ func query(ctx context.Context, text string, limit int) ([]model.Result, error) 
 	}()
 	defer procDestroyWindow.Call(hwnd)
 	done := make(chan struct{})
-	defer close(done)
+	wakeDone := make(chan struct{})
+	defer func() {
+		close(done)
+		<-wakeDone // never post a cancellation wakeup to a recycled HWND
+	}()
 	go func() {
+		defer close(wakeDone)
 		select {
 		case <-ctx.Done():
 			procPostMessageW.Call(hwnd, 0, 0, 0)
@@ -247,10 +267,11 @@ func query(ctx context.Context, text string, limit int) ([]model.Result, error) 
 		}
 	}()
 
-	// The payload carries the query as a terminated UTF-16 string. The
-	// terminator is appended after encoding: StringToUTF16 panics on a NUL
-	// inside its argument.
-	encoded := append(windows.StringToUTF16(text), 0)
+	// The payload carries a terminated UTF-16 string.
+	encoded, err := windows.UTF16FromString(text)
+	if err != nil {
+		return nil, err
+	}
 	payload := make([]byte, 20+len(encoded)*2)
 	binary.LittleEndian.PutUint32(payload[0:], uint32(hwnd))
 	binary.LittleEndian.PutUint32(payload[4:], everythingTag)
@@ -260,9 +281,22 @@ func query(ctx context.Context, text string, limit int) ([]model.Result, error) 
 	}
 	data := copyData{Tag: 2, Length: int32(len(payload)), Data: unsafe.Pointer(&payload[0])}
 	var accepted uintptr
-	r, _, _ := procSendMessageTimeoutW.Call(everything, wmCopyData, hwnd,
-		uintptr(unsafe.Pointer(&data)), 2, sendTimeout, uintptr(unsafe.Pointer(&accepted)))
-	if r == 0 || accepted == 0 {
+	timeout := uint32(sendTimeout)
+	if deadline, ok := ctx.Deadline(); ok {
+		timeout = uint32(max(1, min(int64(timeout), time.Until(deadline).Milliseconds())))
+	}
+	r, _, sendErr := procSendMessageTimeoutW.Call(everything, wmCopyData, hwnd,
+		uintptr(unsafe.Pointer(&data)), 2, uintptr(timeout), uintptr(unsafe.Pointer(&accepted)))
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	if r == 0 {
+		if sendErr == syscall.Errno(0) {
+			sendErr = windows.ERROR_TIMEOUT
+		}
+		return nil, fmt.Errorf("%s: %w", locales.EverythingQueryRejected(), sendErr)
+	}
+	if accepted == 0 {
 		return nil, errors.New(locales.EverythingQueryRejected())
 	}
 

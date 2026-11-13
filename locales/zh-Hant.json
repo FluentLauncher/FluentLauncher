@@ -376,6 +376,7 @@
   "everythingClientNotRunning": "Everything 用戶端未執行；僅啟動服務不支援 IPC。請啟動用戶端或關閉此來源。",
   "everythingReplySizeInvalid": "Everything 回應大小無效",
   "everythingQueryRejected": "Everything 不接受查詢，請檢查用戶端版本、權限和資料庫狀態",
+  "everythingQueryTimeout": "Everything 查詢回應逾時，已暫停查詢 15 秒；可在檔案設定中重新連線",
   "everythingMessageLoopExited": "Everything IPC 訊息迴圈結束",
   "everythingResultHeaderIncomplete": "Everything 結果標頭不完整",
   "everythingResultCountInvalid": "Everything 結果計數無效",

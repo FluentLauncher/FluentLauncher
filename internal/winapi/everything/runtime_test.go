@@ -7,11 +7,11 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
+	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/search"
 	"fluentlauncher/internal/core/settings"
 )
@@ -28,6 +28,9 @@ func TestEverythingLiveIntegration(t *testing.T) {
 	p := NewProvider(func() settings.FileIndexOptions { return options }, nil)
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
+	if err := p.Connect(ctx); err != nil {
+		t.Fatalf("real IPC connection probe: %v", err)
+	}
 	results, err := p.Search(ctx, search.Query{Text: "Everything.exe", Scope: search.ScopeFiles}, 5)
 	if err != nil {
 		t.Fatal(err)
@@ -36,6 +39,25 @@ func TestEverythingLiveIntegration(t *testing.T) {
 		t.Fatal("real client did not connect")
 	}
 	t.Logf("connected to real client; %d result(s)", len(results))
+	for _, text := range []string{"Everything.exe", "fluentlauncher-no-such-file-7a39e2", "文件", "go"} {
+		ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+		start := time.Now()
+		results, err := query(ctx, text, 5)
+		cancel()
+		if err != nil {
+			t.Fatalf("query %q: %v", text, err)
+		}
+		t.Logf("query %q: %d result(s) in %s", text, len(results), time.Since(start))
+	}
+	// Exercise a cancellation during native IPC, then verify the next query.
+	for range 20 {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond)
+		_, _ = query(ctx, "go", 5)
+		cancel()
+	}
+	if _, err := p.Search(ctx, search.Query{Text: "Everything.exe"}, 5); err != nil {
+		t.Fatalf("query after rapid cancellations: %v", err)
+	}
 }
 
 func TestStartupIsSharedAndSurvivesCanceledSearch(t *testing.T) {
@@ -77,7 +99,7 @@ func TestStartupIsSharedAndSurvivesCanceledSearch(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if launches.Load() != 1 || c.snapshot().State != Connected {
+	if launches.Load() != 1 || c.snapshot().State != Disconnected {
 		t.Fatal("startup was duplicated or failed")
 	}
 }
@@ -119,7 +141,8 @@ func TestNoAutoStartAndCanceledSearchDoNotLaunch(t *testing.T) {
 	if c.pending != nil {
 		t.Fatal("auto-start disabled but a startup was scheduled")
 	}
-	p := &Provider{Options: func() settings.FileIndexOptions { return options }, connection: c}
+	p := NewProvider(func() settings.FileIndexOptions { return options }, nil)
+	p.connection = c
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 	before := probes.Load()
@@ -133,17 +156,15 @@ func TestNoAutoStartAndCanceledSearchDoNotLaunch(t *testing.T) {
 
 func TestQueuedCanceledSearchNeverSendsIPC(t *testing.T) {
 	options := settings.DefaultFileIndexOptions()
-	entered := make(chan struct{})
-	var once sync.Once
-	p := &Provider{Options: func() settings.FileIndexOptions { return options }, connection: &connection{running: func() bool { once.Do(func() { close(entered) }); return true }}}
-	p.mu.Lock()
+	p := NewProvider(func() settings.FileIndexOptions { return options }, nil)
+	var probes atomic.Int32
+	p.connection.running = func() bool { probes.Add(1); return true }
+	p.querySlot <- struct{}{}
 	ctx, cancel := context.WithCancel(context.Background())
 	done := make(chan error, 1)
-	go func() { _, err := p.Search(ctx, search.Query{Text: "report"}, 10); done <- err }()
-	// No actual Everything call is possible: the provider lock is held.
-	<-entered
+	go func() { _, err := p.search(ctx, "report", 10, options, false); done <- err }()
 	cancel()
-	p.mu.Unlock()
+	// Cancellation must return while the native query slot is still occupied.
 	select {
 	case err := <-done:
 		if !errors.Is(err, context.Canceled) {
@@ -151,6 +172,87 @@ func TestQueuedCanceledSearchNeverSendsIPC(t *testing.T) {
 		}
 	case <-time.After(time.Second):
 		t.Fatal("canceled search was not discarded")
+	}
+	<-p.querySlot
+	if probes.Load() != 0 {
+		t.Fatal("queued canceled search touched Everything")
+	}
+}
+
+func TestQueryFailureRetriesAfterBackoffOrPathChange(t *testing.T) {
+	for _, change := range []string{"expired", "path"} {
+		t.Run(change, func(t *testing.T) {
+			options := settings.DefaultFileIndexOptions()
+			p := NewProvider(func() settings.FileIndexOptions { return options }, nil)
+			p.connection.running = func() bool { return true }
+			p.connection.queryFinished(options, errors.New("unresponsive"))
+			if change == "expired" {
+				p.connection.retryAt = time.Now().Add(-time.Second)
+			} else {
+				options.EverythingPath = "another.exe"
+			}
+			p.runQuery = func(context.Context, string, int) ([]model.Result, error) { return nil, nil }
+			if _, err := p.search(context.Background(), "report", 10, options, false); err != nil {
+				t.Fatal(err)
+			}
+			if p.Status().State != Connected {
+				t.Fatal("retry did not recover")
+			}
+		})
+	}
+}
+
+func TestQueryFailureBackoffAndConnectionProbe(t *testing.T) {
+	options := settings.DefaultFileIndexOptions()
+	options.EnableEverything = true
+	p := NewProvider(func() settings.FileIndexOptions { return options }, nil)
+	p.connection.running = func() bool { return true }
+	calls, fail := 0, true
+	p.runQuery = func(_ context.Context, text string, limit int) ([]model.Result, error) {
+		calls++
+		if fail {
+			return nil, context.DeadlineExceeded
+		}
+		if text != "" || limit != 1 {
+			t.Fatal("manual connection did not use a minimal IPC probe")
+		}
+		return nil, nil
+	}
+	if err := p.Connect(context.Background()); !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("client window without a reply appeared connected: %v", err)
+	}
+	for range 3 {
+		if _, err := p.Search(context.Background(), search.Query{Text: "report"}, 10); err == nil {
+			t.Fatal("unresponsive client succeeded")
+		}
+	}
+	if calls != 1 || p.Status().State != ConnectionFailed {
+		t.Fatalf("queries were not backed off: %d, %+v", calls, p.Status())
+	}
+	fail = false
+	if err := p.Connect(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if calls != 2 || p.Status().State != Connected || p.Status().Error != "" {
+		t.Fatal("manual IPC probe did not clear the failure")
+	}
+}
+
+func TestCanceledIPCDoesNotMarkConnectionFailed(t *testing.T) {
+	options := settings.DefaultFileIndexOptions()
+	p := NewProvider(func() settings.FileIndexOptions { return options }, nil)
+	p.connection.running = func() bool { return true }
+	p.connection.status.State = Connected
+	ctx, cancel := context.WithCancel(context.Background())
+	p.runQuery = func(context.Context, string, int) ([]model.Result, error) {
+		cancel()
+		return nil, context.Canceled
+	}
+	if _, err := p.Search(ctx, search.Query{Text: "report"}, 10); !errors.Is(err, context.Canceled) {
+		t.Fatalf("canceled query: %v", err)
+	}
+	if p.Status().State != Connected || !p.connection.retryAt.IsZero() {
+		t.Fatal("typing cancellation triggered connection failure/backoff")
 	}
 }
 

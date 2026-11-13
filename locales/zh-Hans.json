@@ -2045,6 +2045,10 @@
   "@everythingQueryRejected": {
     "description": "Everything: the client did not accept the query."
   },
+  "everythingQueryTimeout": "Everything 查询响应超时，已暂停查询 15 秒；可在文件设置中重新连接",
+  "@everythingQueryTimeout": {
+    "description": "Everything: IPC reply timed out; automatic queries back off for 15 seconds."
+  },
   "everythingMessageLoopExited": "Everything IPC 消息循环退出",
   "@everythingMessageLoopExited": {
     "description": "Everything: the IPC message loop ended unexpectedly."

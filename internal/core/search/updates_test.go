@@ -105,6 +105,28 @@ func TestCollectCompletesAnEmptyQuery(t *testing.T) {
 	}
 }
 
+func TestCollectClearsOldResultsWhileExternalSourceIsPending(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	input, updates := make(chan Batch, 4), make(chan Update, 4)
+	done := make(chan struct{})
+	go func() {
+		Collect(ctx, input, 20, 5*time.Millisecond, func(update Update) { updates <- update })
+		close(done)
+	}()
+	input <- Batch{SourceID: "local"}
+	if first := receiveUpdate(t, updates); len(first.Results) != 0 {
+		t.Fatal("previous query's results were not cleared")
+	}
+	// The external provider is still running when the empty state is published.
+	input <- updateResult("everything", 5000)
+	close(input)
+	if final := receiveUpdate(t, updates); len(final.Results) != 1 || final.Results[0].Entry.ID != "everything" {
+		t.Fatal("late external result was lost")
+	}
+	<-done
+}
+
 func BenchmarkProviderBurst(b *testing.B) {
 	batches := make([]Batch, 20)
 	for p := range batches {

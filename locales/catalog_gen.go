@@ -5452,6 +5452,22 @@ func (msgs Messages) EverythingQueryRejected() string {
 	return Catalog.Format(msgs.locale, "everythingQueryRejected", nil)
 }
 
+// EverythingQueryTimeout says "Everything 查询响应超时，已暂停查询 15 秒；可在文件设置中重新连接"
+// in the language the app shows.
+//
+// Everything: IPC reply timed out; automatic queries back off for 15
+// seconds.
+func EverythingQueryTimeout() string { return In(i18n.Locale()).EverythingQueryTimeout() }
+
+// EverythingQueryTimeout says "Everything 查询响应超时，已暂停查询 15 秒；可在文件设置中重新连接"
+// in the language of msgs.
+//
+// Everything: IPC reply timed out; automatic queries back off for 15
+// seconds.
+func (msgs Messages) EverythingQueryTimeout() string {
+	return Catalog.Format(msgs.locale, "everythingQueryTimeout", nil)
+}
+
 // EverythingMessageLoopExited says "Everything IPC 消息循环退出"
 // in the language the app shows.
 //

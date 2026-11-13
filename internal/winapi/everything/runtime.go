@@ -31,6 +31,8 @@ const (
 	ConnectionFailed
 )
 
+const retryDelay = 15 * time.Second
+
 type ConnectionStatus struct {
 	State ConnectionState
 	Path  string
@@ -93,13 +95,16 @@ func (c *connection) ensure(ctx context.Context, options settings.FileIndexOptio
 		return err
 	}
 	c.mu.Lock()
-	if c.running() {
-		changed := c.status.State != Connected
-		c.status.State, c.status.Error = Connected, ""
+	// IPC can fail while the client window is still present. Check backoff
+	// before probing that window, otherwise every keystroke clears the error
+	// and retries the same unresponsive connection.
+	if !force && c.pending == nil && options.EverythingPath == c.lastPath && time.Now().Before(c.retryAt) {
+		err := c.status.Error
 		c.mu.Unlock()
-		if changed {
-			c.notify()
-		}
+		return errors.New(err)
+	}
+	if c.pending == nil && c.running() {
+		c.mu.Unlock()
 		return nil
 	}
 	if !force && !options.EverythingAutoStart && c.pending == nil {
@@ -108,11 +113,6 @@ func (c *connection) ensure(ctx context.Context, options settings.FileIndexOptio
 		return errors.New(locales.EverythingClientNotRunning())
 	}
 	if c.pending == nil {
-		if !force && options.EverythingPath == c.lastPath && time.Now().Before(c.retryAt) {
-			err := c.status.Error
-			c.mu.Unlock()
-			return errors.New(err)
-		}
 		c.pending = make(chan struct{})
 		c.lastPath = options.EverythingPath
 		c.status = ConnectionStatus{State: Starting}
@@ -130,6 +130,23 @@ func (c *connection) ensure(ctx context.Context, options settings.FileIndexOptio
 			return errors.New(status.Error)
 		}
 		return nil
+	}
+}
+
+func (c *connection) queryFinished(options settings.FileIndexOptions, err error) {
+	c.mu.Lock()
+	previous := c.status
+	c.lastPath = options.EverythingPath
+	c.status.State, c.status.Error = Connected, ""
+	c.retryAt = time.Time{}
+	if err != nil {
+		c.status.State, c.status.Error = ConnectionFailed, err.Error()
+		c.retryAt = time.Now().Add(retryDelay)
+	}
+	changed := previous != c.status
+	c.mu.Unlock()
+	if changed {
+		c.notify()
 	}
 }
 
@@ -152,10 +169,11 @@ func (c *connection) start(configured string, pending chan struct{}) {
 		}
 	}
 	c.mu.Lock()
-	c.status = ConnectionStatus{State: Connected, Path: path}
+	// The process is ready, but only a successful query confirms IPC.
+	c.status = ConnectionStatus{State: Disconnected, Path: path}
 	if err != nil {
 		c.status.State, c.status.Error = ConnectionFailed, err.Error()
-		c.retryAt = time.Now().Add(15 * time.Second)
+		c.retryAt = time.Now().Add(retryDelay)
 	} else {
 		c.retryAt = time.Time{}
 	}

@@ -376,6 +376,7 @@
   "everythingClientNotRunning": "The Everything client is not running; the service alone does not support IPC. Start the client or disable this source.",
   "everythingReplySizeInvalid": "Invalid Everything reply size",
   "everythingQueryRejected": "Everything rejected the query; check the client version, permissions and database state",
+  "everythingQueryTimeout": "Everything did not reply in time; queries are paused for 15 seconds. Reconnect in Files settings.",
   "everythingMessageLoopExited": "The Everything IPC message loop exited",
   "everythingResultHeaderIncomplete": "The Everything result header is incomplete",
   "everythingResultCountInvalid": "Invalid Everything result count",

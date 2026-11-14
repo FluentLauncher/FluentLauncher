@@ -2849,6 +2849,46 @@
   "@resultUUIDHint": {
     "description": "Instant tool: fresh UUID row subtitle."
   },
+  "formatNoHyphens": "无横线",
+  "@formatNoHyphens": {
+    "description": "Instant tools: subtitle of the UUID row without hyphens."
+  },
+  "formatUppercase": "大写",
+  "@formatUppercase": {
+    "description": "Instant tools: subtitle of the uppercase UUID row."
+  },
+  "formatUpperNoHyphens": "大写无横线",
+  "@formatUpperNoHyphens": {
+    "description": "Instant tools: subtitle of the uppercase UUID row without hyphens."
+  },
+  "formatBraces": "带花括号（注册表 / COM）",
+  "@formatBraces": {
+    "description": "Instant tools: subtitle of the {UUID} row, the form the Windows registry and COM use."
+  },
+  "formatWithDate": "日期 + 时间",
+  "@formatWithDate": {
+    "description": "Instant tools: subtitle of the time row that includes today's date."
+  },
+  "formatNoSeconds": "不含秒",
+  "@formatNoSeconds": {
+    "description": "Instant tools: subtitle of the hours:minutes time row."
+  },
+  "formatISO8601": "ISO 8601（含时区）",
+  "@formatISO8601": {
+    "description": "Instant tools: subtitle of the ISO 8601 / RFC 3339 time row with the UTC offset."
+  },
+  "formatSlashes": "斜杠分隔",
+  "@formatSlashes": {
+    "description": "Instant tools: subtitle of the 2006/01/02 date row."
+  },
+  "formatCompact": "紧凑",
+  "@formatCompact": {
+    "description": "Instant tools: subtitle of the 20060102 date row."
+  },
+  "formatChinese": "中文",
+  "@formatChinese": {
+    "description": "Instant tools: subtitle of the 2006年1月2日 date row."
+  },
   "cmdCopyValue": "复制结果",
   "@cmdCopyValue": {
     "description": "Action panel: copy the value of an instant tool result."
@@ -2921,33 +2961,13 @@
       }
     }
   },
-  "cmdCopyUppercase": "复制大写",
-  "@cmdCopyUppercase": {
-    "description": "Action panel: copy the UUID in uppercase."
-  },
-  "cmdCopyNoHyphens": "复制无横线",
-  "@cmdCopyNoHyphens": {
-    "description": "Action panel: copy the UUID without hyphens."
-  },
-  "cmdCopyUpperNoHyphens": "复制大写无横线",
-  "@cmdCopyUpperNoHyphens": {
-    "description": "Action panel: copy the UUID uppercase without hyphens."
-  },
   "cmdRegenerate": "重新生成",
   "@cmdRegenerate": {
     "description": "Action panel: reroll a random tool value."
   },
-  "cmdCopyChineseDate": "复制中文日期",
-  "@cmdCopyChineseDate": {
-    "description": "Action panel: copy the date in Chinese form."
-  },
   "cmdCopyTimestamp": "复制时间戳",
   "@cmdCopyTimestamp": {
     "description": "Action panel: copy the date as a Unix timestamp."
-  },
-  "cmdCopyWithDate": "复制日期+时间",
-  "@cmdCopyWithDate": {
-    "description": "Action panel: copy the time together with today’s date."
   },
   "cmdCopyRGB": "复制 rgb()",
   "@cmdCopyRGB": {

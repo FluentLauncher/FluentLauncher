@@ -2,7 +2,9 @@ package search
 
 import (
 	"context"
+	"fmt"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -57,27 +59,53 @@ func TestUtilityTools(t *testing.T) {
 	cfg := settings.Default()
 	p := UtilityProvider{Settings: func() settings.LauncherSettings { return cfg }}
 	date, _ := p.Search(context.Background(), Query{Text: "date", Scope: ScopeAll}, 10)
-	if len(date) != 1 || !regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`).MatchString(date[0].Entry.Title) ||
-		date[0].Entry.CopyText != date[0].Entry.Title {
-		t.Fatalf("date = %+v", date)
+	today := time.Now()
+	wantDates := []string{today.Format("2006-01-02"), today.Format("2006/01/02"), today.Format("20060102"),
+		fmt.Sprintf("%d年%d月%d日", today.Year(), today.Month(), today.Day())}
+	if got := titles(date); !slices.Equal(got, wantDates) {
+		t.Fatalf("date formats = %q, want %q", got, wantDates)
 	}
-	if zh, _ := p.Search(context.Background(), Query{Text: "今天", Scope: ScopeAll}, 10); len(zh) != 1 || zh[0].Entry.ID != date[0].Entry.ID {
+	for _, row := range date {
+		if row.Entry.CopyText != row.Entry.Title {
+			t.Fatalf("date row copies something else than it shows: %+v", row)
+		}
+	}
+	if zh, _ := p.Search(context.Background(), Query{Text: "今天", Scope: ScopeAll}, 10); len(zh) != len(date) || zh[0].Entry.ID != date[0].Entry.ID {
 		t.Fatalf("今天 = %+v", zh)
 	}
+	if shifted, _ := p.Search(context.Background(), Query{Text: "date 2026-01-31 +1m", Scope: ScopeAll}, 10); !slices.Equal(titles(shifted),
+		[]string{"2026-02-28", "2026/02/28", "20260228", "2026年2月28日"}) {
+		t.Fatalf("date math formats = %q", titles(shifted))
+	}
 	clock, _ := p.Search(context.Background(), Query{Text: "time", Scope: ScopeAll}, 10)
-	if len(clock) != 1 || !regexp.MustCompile(`^\d{2}:\d{2}:\d{2}$`).MatchString(clock[0].Entry.Title) {
-		t.Fatalf("time = %+v", clock)
+	if len(clock) != 4 || !regexp.MustCompile(`^\d{2}:\d{2}:\d{2}$`).MatchString(clock[0].Entry.Title) ||
+		!regexp.MustCompile(`^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$`).MatchString(clock[1].Entry.Title) ||
+		!regexp.MustCompile(`^\d{2}:\d{2}$`).MatchString(clock[2].Entry.Title) {
+		t.Fatalf("time = %q", titles(clock))
+	}
+	if _, err := time.Parse(time.RFC3339, clock[3].Entry.Title); err != nil {
+		t.Fatalf("iso time %q: %v", clock[3].Entry.Title, err)
 	}
 	stamps, _ := p.Search(context.Background(), Query{Text: "timestamp", Scope: ScopeAll}, 10)
 	if len(stamps) != 2 || len(stamps[0].Entry.CopyText) < 10 || len(stamps[1].Entry.CopyText) < 13 {
 		t.Fatalf("timestamp = %+v", stamps)
 	}
 	uuid, _ := p.Search(context.Background(), Query{Text: "uuid", Scope: ScopeAll}, 10)
-	if len(uuid) != 1 || !regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`).MatchString(uuid[0].Entry.Title) {
+	if len(uuid) != 5 || !regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`).MatchString(uuid[0].Entry.Title) {
 		t.Fatalf("uuid = %+v", uuid)
+	}
+	canonical := uuid[0].Entry.Title
+	plain := strings.ReplaceAll(canonical, "-", "")
+	if want := []string{canonical, plain, strings.ToUpper(canonical), strings.ToUpper(plain), "{" + strings.ToUpper(canonical) + "}"}; !slices.Equal(titles(uuid), want) {
+		t.Fatalf("uuid formats = %q, want %q", titles(uuid), want)
 	}
 	if again, _ := p.Search(context.Background(), Query{Text: "uuid", Scope: ScopeAll}, 10); again[0].Entry.Title == uuid[0].Entry.Title {
 		t.Fatal("the uuid did not change between searches")
+	}
+	// Merge keeps the formats in order: each row ranks just below the one
+	// before it, so the canonical form stays the default selection.
+	if merged := Merge([]Batch{{Results: uuid}}, 10); !slices.Equal(titles(merged), titles(uuid)) {
+		t.Fatalf("merged uuid order = %q", titles(merged))
 	}
 	// The tools belong to the unscoped query; "web" scope keeps searching.
 	if web, _ := p.Search(context.Background(), Query{Text: "date", Scope: ScopeWeb}, 10); len(web) != 1 || web[0].Entry.Kind != model.URL {
@@ -138,10 +166,10 @@ func TestUtilityToolsExtended(t *testing.T) {
 	}
 
 	// Date math, days and week.
-	if got := search("date 2026-01-31 +1d"); len(got) != 1 || got[0].Entry.Title != "2026-02-01" {
+	if got := search("date 2026-01-31 +1d"); len(got) == 0 || got[0].Entry.Title != "2026-02-01" {
 		t.Fatalf("date +1d = %+v", got)
 	}
-	if got := search("date 2026-01-31 +1m"); len(got) != 1 || got[0].Entry.Title != "2026-02-28" {
+	if got := search("date 2026-01-31 +1m"); len(got) == 0 || got[0].Entry.Title != "2026-02-28" {
 		t.Fatalf("date +1m clamps to the shorter month: %+v", got)
 	}
 	if got := search("date 2026-02-31"); len(got) != 0 {
@@ -185,15 +213,10 @@ func TestUtilityToolsExtended(t *testing.T) {
 }
 
 func TestToolCommands(t *testing.T) {
-	uuid := model.Entry{ID: "uuid:62152892-92c1-425f-b32e-075f31040bde", Title: "62152892-92c1-425f-b32e-075f31040bde",
-		Kind: model.Calculation, CopyText: "62152892-92c1-425f-b32e-075f31040bde", SourceID: "utilities"}
-	commands := CommandsFor(uuid, false, false)
-	values := map[string]string{}
+	uuid := model.Entry{ID: "uuid:plain:62152892-92c1-425f-b32e-075f31040bde", Title: "6215289292c1425fb32e075f31040bde",
+		Kind: model.Calculation, CopyText: "6215289292c1425fb32e075f31040bde", SourceID: "utilities"}
 	regen := false
-	for _, command := range commands {
-		if command.Command == CommandCopyValue {
-			values[command.Title] = command.Value
-		}
+	for _, command := range CommandsFor(uuid, false, false) {
 		if command.Command == CommandRegenerate {
 			regen = true
 		}
@@ -201,30 +224,22 @@ func TestToolCommands(t *testing.T) {
 	if !regen {
 		t.Fatal("the uuid row offers no regenerate")
 	}
-	if got := values[locales.CmdCopyUppercase()]; got != "62152892-92C1-425F-B32E-075F31040BDE" {
-		t.Fatalf("uppercase copy = %q", got)
-	}
-	if got := values[locales.CmdCopyNoHyphens()]; got != "6215289292c1425fb32e075f31040bde" {
-		t.Fatalf("no-hyphen copy = %q", got)
-	}
 
-	date := model.Entry{ID: "date:2026-11-08", Title: "2026-11-08", Kind: model.Calculation, CopyText: "2026-11-08", SourceID: "utilities"}
-	commands = CommandsFor(date, false, false)
-	values = map[string]string{}
-	for _, command := range commands {
+	// Every date row, whatever its format, offers the ISO date's timestamp.
+	date := model.Entry{ID: "date:zh:2026-11-08", Title: "2026年11月8日", Kind: model.Calculation, CopyText: "2026年11月8日", SourceID: "utilities"}
+	values := map[string]string{}
+	for _, command := range CommandsFor(date, false, false) {
 		if command.Command == CommandCopyValue {
 			values[command.Title] = command.Value
 		}
 	}
-	if got := values[locales.CmdCopyChineseDate()]; got != "2026年11月8日" {
-		t.Fatalf("chinese date copy = %q", got)
-	}
-	if got := values[locales.CmdCopyTimestamp()]; len(got) < 10 {
-		t.Fatalf("timestamp copy = %q", got)
+	want := strconv.FormatInt(time.Date(2026, 11, 8, 0, 0, 0, 0, time.Local).Unix(), 10)
+	if got := values[locales.CmdCopyTimestamp()]; got != want {
+		t.Fatalf("timestamp copy = %q, want %q", got, want)
 	}
 
 	color := model.Entry{ID: "color:#3366AA", Title: "#3366AA", Kind: model.Calculation, CopyText: "#3366AA", SourceID: "utilities"}
-	commands = CommandsFor(color, false, false)
+	commands := CommandsFor(color, false, false)
 	values = map[string]string{}
 	for _, command := range commands {
 		if command.Command == CommandCopyValue {
@@ -288,5 +303,38 @@ func TestCommands(t *testing.T) {
 		if command.Command == CommandRunAsAdministrator || command.Command == CommandSetAlias {
 			t.Fatalf("URL got inapplicable command: %+v", commands)
 		}
+	}
+}
+
+func titles(results []model.Result) []string {
+	out := make([]string, len(results))
+	for i, result := range results {
+		out[i] = result.Entry.Title
+	}
+	return out
+}
+
+// TestRefreshUUIDs rerolls every UUID row together, each in its own format,
+// and leaves the other rows alone.
+func TestRefreshUUIDs(t *testing.T) {
+	old := "62152892-92c1-425f-b32e-075f31040bde"
+	results := append(UUIDResults(old), model.Result{Entry: model.Entry{ID: "rand:1-9:5", Title: "5", CopyText: "5"}})
+	if !RefreshUUIDs(results) {
+		t.Fatal("nothing refreshed")
+	}
+	canonical := results[0].Entry.Title
+	if canonical == old {
+		t.Fatal("the uuid did not change")
+	}
+	if want := titles(UUIDResults(canonical)); !slices.Equal(titles(results[:5]), want) {
+		t.Fatalf("refreshed formats = %q, want %q", titles(results[:5]), want)
+	}
+	for _, row := range results[:5] {
+		if row.Entry.CopyText != row.Entry.Title || !strings.HasSuffix(row.Entry.ID, ":"+canonical) {
+			t.Fatalf("refreshed row is inconsistent: %+v", row.Entry)
+		}
+	}
+	if results[5].Entry.Title != "5" {
+		t.Fatalf("a non-uuid row changed: %+v", results[5].Entry)
 	}
 }

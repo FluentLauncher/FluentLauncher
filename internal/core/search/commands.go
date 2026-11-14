@@ -88,24 +88,18 @@ func toolCommands(entry model.Entry) []CommandItem {
 	commands := []CommandItem{{Command: CommandOpen, Title: openTitle(entry)}}
 	switch {
 	case strings.HasPrefix(entry.ID, "uuid:"):
-		plain := strings.ReplaceAll(value, "-", "")
-		commands = append(commands,
-			CommandItem{Command: CommandCopyValue, Title: locales.CmdCopyUppercase(), Value: strings.ToUpper(value)},
-			CommandItem{Command: CommandCopyValue, Title: locales.CmdCopyNoHyphens(), Value: plain},
-			CommandItem{Command: CommandCopyValue, Title: locales.CmdCopyUpperNoHyphens(), Value: strings.ToUpper(plain)},
-			CommandItem{Command: CommandRegenerate, Title: locales.CmdRegenerate()})
+		// The formats are rows of their own; the panel only rerolls.
+		commands = append(commands, CommandItem{Command: CommandRegenerate, Title: locales.CmdRegenerate()})
 	case strings.HasPrefix(entry.ID, "date:"):
-		if t, err := time.ParseInLocation("2006-01-02", value, time.Local); err == nil {
-			commands = append(commands,
-				CommandItem{Command: CommandCopyValue, Title: locales.CmdCopyChineseDate(),
-					Value: fmt.Sprintf("%d年%d月%d日", t.Year(), t.Month(), t.Day())},
-				CommandItem{Command: CommandCopyValue, Title: locales.CmdCopyTimestamp(),
+		// Every date row carries the ISO date as its key.
+		if _, _, key, ok := splitFormatID(entry.ID); ok {
+			if t, err := time.ParseInLocation("2006-01-02", key, time.Local); err == nil {
+				commands = append(commands, CommandItem{Command: CommandCopyValue, Title: locales.CmdCopyTimestamp(),
 					Value: strconv.FormatInt(t.Unix(), 10)})
+			}
 		}
 	case strings.HasPrefix(entry.ID, "time:"):
-		commands = append(commands,
-			CommandItem{Command: CommandCopyValue, Title: locales.CmdCopyWithDate(),
-				Value: time.Now().Format("2006-01-02 " + value)})
+		// The formats, with the date among them, are rows of their own.
 	case strings.HasPrefix(entry.ID, "color:"):
 		commands = append(commands,
 			CommandItem{Command: CommandCopyValue, Title: locales.CmdCopyRGB(), Value: colorRGB(value)},

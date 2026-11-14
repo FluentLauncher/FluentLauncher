@@ -99,8 +99,7 @@ func utilityTools(text string) []model.Result {
 	case matchesTool(lower, "date", "today", "日期", "今天"):
 		return dateTool(trimmed, now)
 	case matchesTool(lower, "time", "now", "时间", "现在"):
-		value := now.Format("15:04:05")
-		return toolResult("time:", value, locales.ResultTimeHint())
+		return timeResults(now)
 	case matchesTool(lower, "timestamp", "unix", "时间戳"):
 		sec := strconv.FormatInt(now.Unix(), 10)
 		ms := strconv.FormatInt(now.UnixMilli(), 10)
@@ -112,7 +111,7 @@ func utilityTools(text string) []model.Result {
 		}
 	case matchesTool(lower, "uuid", "guid"):
 		if value := NewUUID(); value != "" {
-			return toolResult("uuid:", value, locales.ResultUUIDHint())
+			return UUIDResults(value)
 		}
 	case matchesTool(lower, "week", "周数"):
 		year, week := now.ISOWeek()
@@ -142,7 +141,7 @@ func utilityTools(text string) []model.Result {
 func dateTool(trimmed string, now time.Time) []model.Result {
 	fields := strings.Fields(trimmed)
 	if len(fields) == 1 {
-		return toolResult("date:", now.Format("2006-01-02"), locales.ResultDateHint())
+		return dateResults(now, locales.ResultDateHint())
 	}
 	base := parseDate(fields[1], now)
 	if base == nil {
@@ -163,7 +162,7 @@ func dateTool(trimmed string, now time.Time) []model.Result {
 			}
 		}
 	}
-	return toolResult("date:", base.Format("2006-01-02"), locales.ResultDateCalcHint())
+	return dateResults(*base, locales.ResultDateCalcHint())
 }
 
 // addMonthsClamped shifts by whole months, pinning to the last day of a

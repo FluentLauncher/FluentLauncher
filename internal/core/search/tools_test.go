@@ -48,14 +48,14 @@ func TestToolControlsPreventExecution(t *testing.T) {
 	if got, _ := p.Search(context.Background(), ParseQuery("uuid"), 10); len(got) != 0 {
 		t.Fatal("removed alias still generated a UUID")
 	}
-	if got, _ := p.Search(context.Background(), ParseQuery("uid"), 10); len(got) != 1 {
+	if got, _ := p.Search(context.Background(), ParseQuery("uid"), 10); len(got) == 0 {
 		t.Fatal("new alias did not execute")
 	}
 	editTool(&cfg, "uuid", func(tool *settings.ToolOptions) { tool.GlobalQuery = false })
 	if got, _ := p.Search(context.Background(), ParseQuery("uid"), 10); len(got) != 0 {
 		t.Fatal("tool excluded from normal search executed")
 	}
-	if got, _ := p.Search(context.Background(), ParseQuery("tool uid"), 10); len(got) != 1 {
+	if got, _ := p.Search(context.Background(), ParseQuery("tool uid"), 10); len(got) == 0 {
 		t.Fatal("explicit call stopped working")
 	}
 	editTool(&cfg, "uuid", func(tool *settings.ToolOptions) { tool.Enabled = false })
@@ -88,7 +88,7 @@ func TestExplicitToolDoesNotDispatchExternalSources(t *testing.T) {
 			t.Fatalf("%q was not routed to a tool", text)
 		}
 		for batch := range Run(context.Background(), []Provider{external, p}, q, 10) {
-			if batch.SourceID != "utilities" || batch.Error != "" || len(batch.Results) != 1 {
+			if batch.SourceID != "utilities" || batch.Error != "" || len(batch.Results) == 0 {
 				t.Fatalf("unexpected dispatch: %+v", batch)
 			}
 		}

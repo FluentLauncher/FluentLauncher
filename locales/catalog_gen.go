@@ -8092,6 +8092,150 @@ func (msgs Messages) ResultUUIDHint() string {
 	return Catalog.Format(msgs.locale, "resultUUIDHint", nil)
 }
 
+// FormatNoHyphens says "无横线"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the UUID row without hyphens.
+func FormatNoHyphens() string { return In(i18n.Locale()).FormatNoHyphens() }
+
+// FormatNoHyphens says "无横线"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the UUID row without hyphens.
+func (msgs Messages) FormatNoHyphens() string {
+	return Catalog.Format(msgs.locale, "formatNoHyphens", nil)
+}
+
+// FormatUppercase says "大写"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the uppercase UUID row.
+func FormatUppercase() string { return In(i18n.Locale()).FormatUppercase() }
+
+// FormatUppercase says "大写"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the uppercase UUID row.
+func (msgs Messages) FormatUppercase() string {
+	return Catalog.Format(msgs.locale, "formatUppercase", nil)
+}
+
+// FormatUpperNoHyphens says "大写无横线"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the uppercase UUID row without hyphens.
+func FormatUpperNoHyphens() string { return In(i18n.Locale()).FormatUpperNoHyphens() }
+
+// FormatUpperNoHyphens says "大写无横线"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the uppercase UUID row without hyphens.
+func (msgs Messages) FormatUpperNoHyphens() string {
+	return Catalog.Format(msgs.locale, "formatUpperNoHyphens", nil)
+}
+
+// FormatBraces says "带花括号（注册表 / COM）"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the {UUID} row, the form the Windows registry
+// and COM use.
+func FormatBraces() string { return In(i18n.Locale()).FormatBraces() }
+
+// FormatBraces says "带花括号（注册表 / COM）"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the {UUID} row, the form the Windows registry
+// and COM use.
+func (msgs Messages) FormatBraces() string {
+	return Catalog.Format(msgs.locale, "formatBraces", nil)
+}
+
+// FormatWithDate says "日期 + 时间"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the time row that includes today's date.
+func FormatWithDate() string { return In(i18n.Locale()).FormatWithDate() }
+
+// FormatWithDate says "日期 + 时间"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the time row that includes today's date.
+func (msgs Messages) FormatWithDate() string {
+	return Catalog.Format(msgs.locale, "formatWithDate", nil)
+}
+
+// FormatNoSeconds says "不含秒"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the hours:minutes time row.
+func FormatNoSeconds() string { return In(i18n.Locale()).FormatNoSeconds() }
+
+// FormatNoSeconds says "不含秒"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the hours:minutes time row.
+func (msgs Messages) FormatNoSeconds() string {
+	return Catalog.Format(msgs.locale, "formatNoSeconds", nil)
+}
+
+// FormatISO8601 says "ISO 8601（含时区）"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the ISO 8601 / RFC 3339 time row with the UTC
+// offset.
+func FormatISO8601() string { return In(i18n.Locale()).FormatISO8601() }
+
+// FormatISO8601 says "ISO 8601（含时区）"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the ISO 8601 / RFC 3339 time row with the UTC
+// offset.
+func (msgs Messages) FormatISO8601() string {
+	return Catalog.Format(msgs.locale, "formatISO8601", nil)
+}
+
+// FormatSlashes says "斜杠分隔"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the 2006/01/02 date row.
+func FormatSlashes() string { return In(i18n.Locale()).FormatSlashes() }
+
+// FormatSlashes says "斜杠分隔"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the 2006/01/02 date row.
+func (msgs Messages) FormatSlashes() string {
+	return Catalog.Format(msgs.locale, "formatSlashes", nil)
+}
+
+// FormatCompact says "紧凑"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the 20060102 date row.
+func FormatCompact() string { return In(i18n.Locale()).FormatCompact() }
+
+// FormatCompact says "紧凑"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the 20060102 date row.
+func (msgs Messages) FormatCompact() string {
+	return Catalog.Format(msgs.locale, "formatCompact", nil)
+}
+
+// FormatChinese says "中文"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the 2006年1月2日 date row.
+func FormatChinese() string { return In(i18n.Locale()).FormatChinese() }
+
+// FormatChinese says "中文"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the 2006年1月2日 date row.
+func (msgs Messages) FormatChinese() string {
+	return Catalog.Format(msgs.locale, "formatChinese", nil)
+}
+
 // CmdCopyValue says "复制结果"
 // in the language the app shows.
 //
@@ -8294,48 +8438,6 @@ func (msgs Messages) ResultColorHint(rgb string, hsl string) string {
 	return Catalog.Format(msgs.locale, "resultColorHint", map[string]any{"rgb": rgb, "hsl": hsl})
 }
 
-// CmdCopyUppercase says "复制大写"
-// in the language the app shows.
-//
-// Action panel: copy the UUID in uppercase.
-func CmdCopyUppercase() string { return In(i18n.Locale()).CmdCopyUppercase() }
-
-// CmdCopyUppercase says "复制大写"
-// in the language of msgs.
-//
-// Action panel: copy the UUID in uppercase.
-func (msgs Messages) CmdCopyUppercase() string {
-	return Catalog.Format(msgs.locale, "cmdCopyUppercase", nil)
-}
-
-// CmdCopyNoHyphens says "复制无横线"
-// in the language the app shows.
-//
-// Action panel: copy the UUID without hyphens.
-func CmdCopyNoHyphens() string { return In(i18n.Locale()).CmdCopyNoHyphens() }
-
-// CmdCopyNoHyphens says "复制无横线"
-// in the language of msgs.
-//
-// Action panel: copy the UUID without hyphens.
-func (msgs Messages) CmdCopyNoHyphens() string {
-	return Catalog.Format(msgs.locale, "cmdCopyNoHyphens", nil)
-}
-
-// CmdCopyUpperNoHyphens says "复制大写无横线"
-// in the language the app shows.
-//
-// Action panel: copy the UUID uppercase without hyphens.
-func CmdCopyUpperNoHyphens() string { return In(i18n.Locale()).CmdCopyUpperNoHyphens() }
-
-// CmdCopyUpperNoHyphens says "复制大写无横线"
-// in the language of msgs.
-//
-// Action panel: copy the UUID uppercase without hyphens.
-func (msgs Messages) CmdCopyUpperNoHyphens() string {
-	return Catalog.Format(msgs.locale, "cmdCopyUpperNoHyphens", nil)
-}
-
 // CmdRegenerate says "重新生成"
 // in the language the app shows.
 //
@@ -8350,20 +8452,6 @@ func (msgs Messages) CmdRegenerate() string {
 	return Catalog.Format(msgs.locale, "cmdRegenerate", nil)
 }
 
-// CmdCopyChineseDate says "复制中文日期"
-// in the language the app shows.
-//
-// Action panel: copy the date in Chinese form.
-func CmdCopyChineseDate() string { return In(i18n.Locale()).CmdCopyChineseDate() }
-
-// CmdCopyChineseDate says "复制中文日期"
-// in the language of msgs.
-//
-// Action panel: copy the date in Chinese form.
-func (msgs Messages) CmdCopyChineseDate() string {
-	return Catalog.Format(msgs.locale, "cmdCopyChineseDate", nil)
-}
-
 // CmdCopyTimestamp says "复制时间戳"
 // in the language the app shows.
 //
@@ -8376,20 +8464,6 @@ func CmdCopyTimestamp() string { return In(i18n.Locale()).CmdCopyTimestamp() }
 // Action panel: copy the date as a Unix timestamp.
 func (msgs Messages) CmdCopyTimestamp() string {
 	return Catalog.Format(msgs.locale, "cmdCopyTimestamp", nil)
-}
-
-// CmdCopyWithDate says "复制日期+时间"
-// in the language the app shows.
-//
-// Action panel: copy the time together with today’s date.
-func CmdCopyWithDate() string { return In(i18n.Locale()).CmdCopyWithDate() }
-
-// CmdCopyWithDate says "复制日期+时间"
-// in the language of msgs.
-//
-// Action panel: copy the time together with today’s date.
-func (msgs Messages) CmdCopyWithDate() string {
-	return Catalog.Format(msgs.locale, "cmdCopyWithDate", nil)
 }
 
 // CmdCopyRGB says "复制 rgb()"

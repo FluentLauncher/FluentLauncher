@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -392,20 +393,18 @@ func TestRegenerateToolValue(t *testing.T) {
 		settingsDraft: settings.Default(),
 		profiles:      map[string]model.Profile{},
 	}
-	uuid := model.Result{Entry: model.Entry{
-		ID: "uuid:62152892-92c1-425f-b32e-075f31040bde", Title: "62152892-92c1-425f-b32e-075f31040bde",
-		CopyText: "62152892-92c1-425f-b32e-075f31040bde", Kind: model.Calculation, SourceID: "utilities"}}
-	a.results = []model.Result{uuid}
-	a.chosen = 0
+	a.results = search.UUIDResults("62152892-92c1-425f-b32e-075f31040bde")
+	a.chosen = 1
 	a.resultsReady = true
 	a.regenerateToolValue()
 	got := a.results[0].Entry
-	if got.Title == uuid.Entry.Title ||
+	if got.Title == "62152892-92c1-425f-b32e-075f31040bde" ||
 		!regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`).MatchString(got.Title) {
 		t.Fatalf("uuid reroll = %+v", got)
 	}
-	if got.CopyText != got.Title || got.ID != "uuid:"+got.Title {
-		t.Fatalf("reroll did not stay consistent: %+v", got)
+	// Rerolling from any format row rerolls all of them to the same UUID.
+	if plain := a.results[1].Entry; plain.Title != strings.ReplaceAll(got.Title, "-", "") || plain.CopyText != plain.Title {
+		t.Fatalf("reroll did not stay consistent: %+v / %+v", got, plain)
 	}
 
 	a.results = []model.Result{{Entry: model.Entry{

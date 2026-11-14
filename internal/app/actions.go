@@ -125,7 +125,7 @@ func (a *App) savePrompt() {
 
 // regenerateToolValue rerolls the selected random tool (uuid/rand/pass) in
 // place, keeping the range or length the user asked for, which ride in the
-// entry ID.
+// entry ID. A UUID rerolls in all its format rows at once.
 func (a *App) regenerateToolValue() {
 	entry, ok := a.selected()
 	if !ok {
@@ -134,7 +134,11 @@ func (a *App) regenerateToolValue() {
 	var id, value string
 	switch {
 	case strings.HasPrefix(entry.ID, "uuid:"):
-		id, value = "uuid:", search.NewUUID()
+		// Every format row of the UUID takes the new one together.
+		if search.RefreshUUIDs(a.results) {
+			a.panel.Update(func() {})
+		}
+		return
 	case strings.HasPrefix(entry.ID, "rand:"):
 		parts := strings.SplitN(entry.ID, ":", 3)
 		if len(parts) != 3 {

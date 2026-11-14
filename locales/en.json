@@ -495,7 +495,7 @@
   "settingsVolumeEdgeLeft": "Left",
   "settingsVolumeEdgeRight": "Right",
   "settingsVolumeThickness": "Hot zone thickness",
-  "settingsVolumeThicknessHint": "1 – 32 pixels",
+  "settingsVolumeThicknessHint": "How far from the edge the wheel still works, 1 – 32 px; at the very edge any value works",
   "settingsVolumeStep": "Step per scroll",
   "settingsVolumeStepHint": "1 – 10%",
   "settingsSitesCard": "Site Search",

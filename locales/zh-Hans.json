@@ -2539,9 +2539,9 @@
   "@settingsVolumeThickness": {
     "description": "Volume page: the hot zone thickness number field label."
   },
-  "settingsVolumeThicknessHint": "1 – 32 像素",
+  "settingsVolumeThicknessHint": "离边缘多远仍可触发，1 – 32 像素；鼠标贴边时任何值都会触发",
   "@settingsVolumeThicknessHint": {
-    "description": "Volume page: allowed range of the hot zone thickness field."
+    "description": "Volume page: hint for the hot zone thickness field: how far from the screen edge the wheel still triggers, and its allowed range."
   },
   "settingsVolumeStep": "每次步进",
   "@settingsVolumeStep": {

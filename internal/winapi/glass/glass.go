@@ -9,6 +9,7 @@ package glass
 
 import (
 	"errors"
+	"fmt"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -40,6 +41,32 @@ type compositionAttribute struct {
 	Attribute  int32
 	Data       uintptr
 	SizeOfData uintptr
+}
+
+var procDwmSetWindowAttribute = windows.NewLazySystemDLL("dwmapi.dll").NewProc("DwmSetWindowAttribute")
+
+const (
+	// DWMWA_BORDER_COLOR and DWMWA_COLOR_NONE (Windows 11 22000+).
+	dwmBorderColorAttribute = 34
+	dwmColorNone            = 0xFFFFFFFE
+)
+
+// HideBorder removes the 1px border Windows 11 draws around a window with
+// rounded corners. Over a blurred, translucent surface that system line
+// shows as a light rim whatever the theme. Older systems ignore it.
+func HideBorder(hwnd uintptr) error {
+	if hwnd == 0 {
+		return errors.New("glass: the window has no native handle")
+	}
+	if err := procDwmSetWindowAttribute.Find(); err != nil {
+		return err
+	}
+	color := uint32(dwmColorNone)
+	if hr, _, _ := procDwmSetWindowAttribute.Call(hwnd, dwmBorderColorAttribute,
+		uintptr(unsafe.Pointer(&color)), unsafe.Sizeof(color)); hr != 0 {
+		return fmt.Errorf("glass: DwmSetWindowAttribute(border): HRESULT %#x", uint32(hr))
+	}
+	return nil
 }
 
 // SetBlur blurs what is behind hwnd while it is on, and stops when it is off.

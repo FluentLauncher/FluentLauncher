@@ -495,7 +495,7 @@
   "settingsVolumeEdgeLeft": "左",
   "settingsVolumeEdgeRight": "右",
   "settingsVolumeThickness": "熱區厚度",
-  "settingsVolumeThicknessHint": "1 – 32 像素",
+  "settingsVolumeThicknessHint": "離邊緣多遠仍可觸發，1 – 32 像素；滑鼠貼邊時任何值都會觸發",
   "settingsVolumeStep": "每次步進",
   "settingsVolumeStepHint": "1 – 10%",
   "settingsSitesCard": "網站搜尋",

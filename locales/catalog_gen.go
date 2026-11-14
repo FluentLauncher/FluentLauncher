@@ -7158,16 +7158,18 @@ func (msgs Messages) SettingsVolumeThickness() string {
 	return Catalog.Format(msgs.locale, "settingsVolumeThickness", nil)
 }
 
-// SettingsVolumeThicknessHint says "1 – 32 像素"
+// SettingsVolumeThicknessHint says "离边缘多远仍可触发，1 – 32 像素；鼠标贴边时任何值都会触发"
 // in the language the app shows.
 //
-// Volume page: allowed range of the hot zone thickness field.
+// Volume page: hint for the hot zone thickness field: how far from the
+// screen edge the wheel still triggers, and its allowed range.
 func SettingsVolumeThicknessHint() string { return In(i18n.Locale()).SettingsVolumeThicknessHint() }
 
-// SettingsVolumeThicknessHint says "1 – 32 像素"
+// SettingsVolumeThicknessHint says "离边缘多远仍可触发，1 – 32 像素；鼠标贴边时任何值都会触发"
 // in the language of msgs.
 //
-// Volume page: allowed range of the hot zone thickness field.
+// Volume page: hint for the hot zone thickness field: how far from the
+// screen edge the wheel still triggers, and its allowed range.
 func (msgs Messages) SettingsVolumeThicknessHint() string {
 	return Catalog.Format(msgs.locale, "settingsVolumeThicknessHint", nil)
 }

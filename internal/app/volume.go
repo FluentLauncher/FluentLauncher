@@ -42,6 +42,11 @@ func (a *App) createVolumeOverlay() {
 	if err := glass.SetBlur(a.volumeWin.NativeHandle(), true); err != nil {
 		log.Printf("volume overlay: %v", err)
 	}
+	// Windows rounds the window and clips the blur to its corners; its own
+	// 1px border would sit on the translucent plate as a light rim.
+	if err := glass.HideBorder(a.volumeWin.NativeHandle()); err != nil {
+		log.Printf("volume overlay: %v", err)
+	}
 }
 
 func (a *App) volumeView(c *ui.Context) {
@@ -55,7 +60,10 @@ func (a *App) volumeView(c *ui.Context) {
 	if percent > 100 {
 		percent = 100
 	}
-	ui.Row(c).Fill().Padding(8, 14).Gap(12).AlignItems(ui.Center).Radius(theme.Radius + 6).
+	// The plate fills the window without corners of its own: Windows rounds
+	// the window, and a second radius would leave a ring of the blur between
+	// the two outlines.
+	ui.Row(c).Fill().Padding(8, 14).Gap(12).AlignItems(ui.Center).
 		Background(theme.Surface).Children(func() {
 		ui.Icon(c, volumeIcon).FontSize(18).TextColor(theme.Text)
 		ui.Box(c).Grow(1).Height(5).Radius(2.5).Background(theme.Border.Alpha(0.6)).Children(func() {

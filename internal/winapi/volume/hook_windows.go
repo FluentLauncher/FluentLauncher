@@ -215,22 +215,23 @@ func (c *Controller) hit(p point) bool {
 		uintptr(unsafe.Pointer(&dx)), uintptr(unsafe.Pointer(&dy))); r == 0 && dx > 0 {
 		dpi = dx
 	}
-	thickness := int32(math.Round(float64(c.opts.ThicknessDIP) * float64(dpi) / 96))
-	if thickness < 1 {
-		thickness = 1
-	}
-	r := mi.RcMonitor
-	switch {
-	case c.opts.Edges&EdgeBottom != 0 && p.Y >= r.Bottom-thickness:
-		return true
-	case c.opts.Edges&EdgeTop != 0 && p.Y <= r.Top+thickness:
-		return true
-	case c.opts.Edges&EdgeLeft != 0 && p.X <= r.Left+thickness:
-		return true
-	case c.opts.Edges&EdgeRight != 0 && p.X >= r.Right-thickness:
-		return true
-	}
-	return false
+	return edgeHit(p, mi.RcMonitor, edgeThickness(c.opts.ThicknessDIP, dpi), c.opts.Edges)
+}
+
+// edgeThickness converts the hot zone's DIPs to the monitor's pixels; the
+// zone is never thinner than the pixel row the pointer stops on.
+func edgeThickness(dip int, dpi uint32) int32 {
+	return max(int32(math.Round(float64(dip)*float64(dpi)/96)), 1)
+}
+
+// edgeHit reports whether p lies within thickness pixels of a selected edge
+// of the monitor r, whose Right and Bottom are exclusive: a thickness of n
+// covers exactly n rows or columns on every edge.
+func edgeHit(p point, r rect, thickness int32, edges Edges) bool {
+	return edges&EdgeBottom != 0 && p.Y >= r.Bottom-thickness ||
+		edges&EdgeTop != 0 && p.Y < r.Top+thickness ||
+		edges&EdgeLeft != 0 && p.X < r.Left+thickness ||
+		edges&EdgeRight != 0 && p.X >= r.Right-thickness
 }
 
 func (c *Controller) worker() {

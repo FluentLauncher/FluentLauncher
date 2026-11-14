@@ -15,8 +15,13 @@ func TestPackageResourcesStayInsideTheirDirectory(t *testing.T) {
 	if err := os.WriteFile(path, []byte("fixture"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	if got, err := ResourcePath(root, "assets/icon.png"); err != nil || got != path {
-		t.Fatal(got, err)
+	// ResourcePath returns the resolved path; TEMP may be an 8.3 short name on CI runners.
+	want, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, err := ResourcePath(root, "assets/icon.png"); err != nil || got != want {
+		t.Fatal(got, want, err)
 	}
 	for _, invalid := range []string{"../icon.png", "/icon.png", `C:\icon.png`, `assets\icon.png`, "https://example.com/icon.png", "assets/../../icon.png"} {
 		if _, err := ResourcePath(root, invalid); err == nil {

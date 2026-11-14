@@ -64,8 +64,6 @@ func ToolName(id string) string {
 		"calc": locales.ToolCalc(), "uuid": locales.ToolUUID(), "date": locales.ToolDate(),
 		"time": locales.ToolTime(), "timestamp": locales.ToolTimestamp(), "week": locales.ToolWeek(),
 		"days": locales.ToolDays(), "rand": locales.ToolRand(), "pass": locales.ToolPass(),
-		"convert": locales.ToolConvert(), "b64": locales.ToolB64(), "unb64": locales.ToolUnb64(),
-		"urlencode": locales.ToolURLEncode(), "urldecode": locales.ToolURLDecode(), "color": locales.ToolColor(),
 	}
 	return names[id]
 }
@@ -103,10 +101,6 @@ func runTool(id, arg string) []model.Result {
 				Subtitle: locales.ResultCalcHint(arg), Kind: model.Calculation,
 				CopyText: formatted, SourceID: "utilities"}, Score: 20000}}
 		}
-	case "convert":
-		return convertTool(arg)
-	case "color":
-		return colorTool(arg)
 	default:
 		// Existing handlers receive canonical names, never user aliases.
 		return utilityTools(strings.TrimSpace(id + " " + arg))
@@ -116,17 +110,11 @@ func runTool(id, arg string) []model.Result {
 
 // Automatic recognition is opt-in and never probes tools with a fixed prefix.
 func automaticTools(text string, cfg settings.LauncherSettings) []model.Result {
-	for _, id := range []string{"convert", "color", "calc"} {
-		option := cfg.Tool(id)
-		if option.Enabled && option.GlobalQuery && option.Prefix == "" {
-			// Arithmetic candidates are cheap to reject before parsing.
-			if id == "calc" && strings.IndexFunc(text, unicode.IsDigit) < 0 {
-				continue
-			}
-			if results := runTool(id, text); results != nil {
-				return results
-			}
-		}
+	// Only the calculator recognizes its input without a keyword.
+	option := cfg.Tool("calc")
+	if !option.Enabled || !option.GlobalQuery || option.Prefix != "" ||
+		strings.IndexFunc(text, unicode.IsDigit) < 0 { // cheap to reject before parsing
+		return nil
 	}
-	return nil
+	return runTool("calc", text)
 }

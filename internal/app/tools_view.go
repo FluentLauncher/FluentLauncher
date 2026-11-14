@@ -69,9 +69,8 @@ func (a *App) toolsPage(c *ui.Context) {
 				title string
 				ids   []string
 			}{
-				{locales.ToolsGroupValues(), []string{"calc", "uuid", "rand", "pass", "convert", "color"}},
+				{locales.ToolsGroupValues(), []string{"calc", "uuid", "rand", "pass"}},
 				{locales.ToolsGroupDates(), []string{"date", "time", "timestamp", "week", "days"}},
-				{locales.ToolsGroupText(), []string{"b64", "unb64", "urlencode", "urldecode"}},
 			} {
 				heading := false
 				for _, id := range group.ids {

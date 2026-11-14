@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"strconv"
 	"strings"
 
 	"fluentlauncher/internal/core/model"
@@ -124,53 +123,15 @@ func (a *App) savePrompt() {
 }
 
 // regenerateToolValue rerolls the selected random tool (uuid/rand/pass) in
-// place, keeping the range or length the user asked for, which ride in the
-// entry ID. A UUID rerolls in all its format rows at once.
+// place, keeping the range, length or count the user asked for. The format
+// rows of a UUID reroll together.
 func (a *App) regenerateToolValue() {
-	entry, ok := a.selected()
-	if !ok {
+	if _, ok := a.selected(); !ok {
 		return
 	}
-	var id, value string
-	switch {
-	case strings.HasPrefix(entry.ID, "uuid:"):
-		// Every format row of the UUID takes the new one together.
-		if search.RefreshUUIDs(a.results) {
-			a.panel.Update(func() {})
-		}
-		return
-	case strings.HasPrefix(entry.ID, "rand:"):
-		parts := strings.SplitN(entry.ID, ":", 3)
-		if len(parts) != 3 {
-			return
-		}
-		bounds := strings.SplitN(parts[1], "-", 2)
-		lo, err1 := strconv.Atoi(bounds[0])
-		hi, err2 := strconv.Atoi(bounds[1])
-		if len(bounds) != 2 || err1 != nil || err2 != nil {
-			return
-		}
-		id, value = "rand:"+parts[1]+":", search.RandInRange(lo, hi)
-	case strings.HasPrefix(entry.ID, "pass:"):
-		parts := strings.SplitN(entry.ID, ":", 3)
-		if len(parts) != 3 {
-			return
-		}
-		length, err := strconv.Atoi(parts[1])
-		if err != nil || length < 4 || length > 64 {
-			return
-		}
-		id, value = "pass:"+parts[1]+":", search.RandomPassword(length)
-	default:
-		return
+	if search.Reroll(a.results, a.chosen) {
+		a.panel.Update(func() {})
 	}
-	if value == "" {
-		return
-	}
-	a.results[a.chosen].Entry.ID = id + value
-	a.results[a.chosen].Entry.Title = value
-	a.results[a.chosen].Entry.CopyText = value
-	a.panel.Update(func() {})
 }
 
 func (a *App) anyHidden() bool {

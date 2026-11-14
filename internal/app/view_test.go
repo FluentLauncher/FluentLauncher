@@ -408,7 +408,7 @@ func TestRegenerateToolValue(t *testing.T) {
 	}
 
 	a.results = []model.Result{{Entry: model.Entry{
-		ID: "rand:7-9:8", Title: "8", CopyText: "8", Kind: model.Calculation, SourceID: "utilities"}}}
+		ID: "rand:int:7~9", Title: "8", CopyText: "8", Kind: model.Calculation, SourceID: "utilities"}}}
 	for i := 0; i < 20; i++ {
 		a.regenerateToolValue()
 		n, err := strconv.Atoi(a.results[0].Entry.Title)

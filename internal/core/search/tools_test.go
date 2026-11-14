@@ -82,7 +82,7 @@ func TestExplicitToolDoesNotDispatchExternalSources(t *testing.T) {
 	cfg := settings.Default()
 	external := &countingSource{}
 	p := UtilityProvider{Settings: func() settings.LauncherSettings { return cfg }}
-	for _, text := range []string{"=1+2", "tool uuid", "uuid", "b64 hi"} {
+	for _, text := range []string{"=1+2", "tool uuid", "uuid", "week"} {
 		q := RouteTools(ParseQuery(text), cfg)
 		if q.Scope != ScopeTools {
 			t.Fatalf("%q was not routed to a tool", text)
@@ -116,9 +116,13 @@ func TestAutomaticRecognitionIsOptIn(t *testing.T) {
 	if got, _ := p.Search(context.Background(), ParseQuery("2+2"), 10); len(got) != 1 {
 		t.Fatal("opt-in calculation failed")
 	}
-	for _, text := range []string{"tool convert 10kg lb", "tool color #36a"} {
-		if got, err := p.Search(context.Background(), ParseQuery(text), 10); err != nil || len(got) != 1 {
-			t.Fatalf("explicit tool failed: %q %+v %v", text, got, err)
+	if got, err := p.Search(context.Background(), ParseQuery("tool calc 2+2"), 10); err != nil || len(got) != 1 {
+		t.Fatalf("explicit tool failed: %+v %v", got, err)
+	}
+	// The removed tools say so instead of answering.
+	for _, text := range []string{"tool convert 10kg lb", "tool color #36a", "tool b64 hi"} {
+		if got, err := p.Search(context.Background(), ParseQuery(text), 10); err == nil || len(got) != 0 {
+			t.Fatalf("removed tool answered: %q %+v", text, got)
 		}
 	}
 	if got, err := p.Search(context.Background(), ParseQuery("tool"), 5); err != nil || len(got) != 5 {

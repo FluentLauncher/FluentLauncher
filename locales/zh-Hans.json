@@ -2889,6 +2889,84 @@
   "@formatChinese": {
     "description": "Instant tools: subtitle of the 2006年1月2日 date row."
   },
+  "formatChineseWeekday": "中文，含星期",
+  "@formatChineseWeekday": {
+    "description": "Instant tools: subtitle of the date row in Chinese with the weekday, e.g. 2026年11月14日 星期六."
+  },
+  "formatEnglish": "英文",
+  "@formatEnglish": {
+    "description": "Instant tools: subtitle of the date row in English, e.g. Saturday, November 14, 2026."
+  },
+  "format12Hour": "12 小时制",
+  "@format12Hour": {
+    "description": "Instant tools: subtitle of the 3:04:05 PM time row."
+  },
+  "formatMilliseconds": "日期 + 时间，精确到毫秒",
+  "@formatMilliseconds": {
+    "description": "Instant tools: subtitle of the time row with milliseconds."
+  },
+  "formatUTC": "UTC 时间",
+  "@formatUTC": {
+    "description": "Instant tools: subtitle of a row showing the moment in UTC."
+  },
+  "formatLocalTime": "本机时间（{zone}）",
+  "@formatLocalTime": {
+    "description": "Instant tools: subtitle of the row converting a Unix timestamp to local time; zone is like UTC+08:00.",
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
+  "formatUUIDCount": "{count} 个，每行一个",
+  "@formatUUIDCount": {
+    "description": "Instant tools: prefix of the subtitle when several UUIDs were asked for; Enter copies them one per line.",
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "formatPassAlnum": "仅字母和数字",
+  "@formatPassAlnum": {
+    "description": "Instant tools: subtitle of the password row without symbols."
+  },
+  "formatPassDigits": "仅数字",
+  "@formatPassDigits": {
+    "description": "Instant tools: subtitle of the password row of digits only, like a PIN."
+  },
+  "formatWeekOfDate": "该日期所在的 ISO 周（回车复制）",
+  "@formatWeekOfDate": {
+    "description": "Instant tools: subtitle of the week row when a date was given."
+  },
+  "formatWeekNumber": "周数",
+  "@formatWeekNumber": {
+    "description": "Instant tools: subtitle of the bare week-number row."
+  },
+  "formatWeekRange": "周一至周日",
+  "@formatWeekRange": {
+    "description": "Instant tools: subtitle of the row with the week's first and last dates."
+  },
+  "formatDaysBetween": "两个日期相差的天数（回车复制）",
+  "@formatDaysBetween": {
+    "description": "Instant tools: subtitle of the day count between two given dates."
+  },
+  "formatWeeksAndDays": "{weeks} 周 {days} 天",
+  "@formatWeeksAndDays": {
+    "description": "Instant tools: a day count written in weeks and days.",
+    "placeholders": {
+      "weeks": {
+        "type": "Object"
+      },
+      "days": {
+        "type": "Object"
+      }
+    }
+  },
+  "formatInWeeks": "按周计",
+  "@formatInWeeks": {
+    "description": "Instant tools: subtitle of the day count written in weeks and days."
+  },
   "cmdCopyValue": "复制结果",
   "@cmdCopyValue": {
     "description": "Action panel: copy the value of an instant tool result."
@@ -2900,34 +2978,6 @@
   "settingsPluginsOfficialPickHint": "选择要安装的官方插件",
   "@settingsPluginsOfficialPickHint": {
     "description": "Settings, plugins page: hint of the official plugin picker."
-  },
-  "resultConvertHint": "{from} → {to}（回车复制）",
-  "@resultConvertHint": {
-    "description": "Instant tool: unit conversion row subtitle.",
-    "placeholders": {
-      "from": {
-        "type": "String"
-      },
-      "to": {
-        "type": "String"
-      }
-    }
-  },
-  "resultB64EncodeHint": "Base64 编码（回车复制）",
-  "@resultB64EncodeHint": {
-    "description": "Instant tool: Base64 encode row subtitle."
-  },
-  "resultB64DecodeHint": "Base64 解码（回车复制）",
-  "@resultB64DecodeHint": {
-    "description": "Instant tool: Base64 decode row subtitle."
-  },
-  "resultUrlEncodeHint": "URL 编码（回车复制）",
-  "@resultUrlEncodeHint": {
-    "description": "Instant tool: URL encode row subtitle."
-  },
-  "resultUrlDecodeHint": "URL 解码（回车复制）",
-  "@resultUrlDecodeHint": {
-    "description": "Instant tool: URL decode row subtitle."
   },
   "resultDateCalcHint": "日期计算（回车复制）",
   "@resultDateCalcHint": {
@@ -2949,18 +2999,6 @@
   "@resultPassHint": {
     "description": "Instant tool: random password row subtitle."
   },
-  "resultColorHint": "RGB {rgb} · HSL {hsl}",
-  "@resultColorHint": {
-    "description": "Instant tool: color row subtitle with RGB and HSL forms.",
-    "placeholders": {
-      "rgb": {
-        "type": "String"
-      },
-      "hsl": {
-        "type": "String"
-      }
-    }
-  },
   "cmdRegenerate": "重新生成",
   "@cmdRegenerate": {
     "description": "Action panel: reroll a random tool value."
@@ -2968,18 +3006,6 @@
   "cmdCopyTimestamp": "复制时间戳",
   "@cmdCopyTimestamp": {
     "description": "Action panel: copy the date as a Unix timestamp."
-  },
-  "cmdCopyRGB": "复制 rgb()",
-  "@cmdCopyRGB": {
-    "description": "Action panel: copy the color as rgb()."
-  },
-  "cmdCopyHSL": "复制 hsl()",
-  "@cmdCopyHSL": {
-    "description": "Action panel: copy the color as hsl()."
-  },
-  "cmdCopyWithUnit": "复制带单位",
-  "@cmdCopyWithUnit": {
-    "description": "Action panel: copy the converted value with its unit."
   },
   "updateChannel": "更新通道",
   "updateVersion": "版本",
@@ -3231,12 +3257,6 @@
   "toolDays": "日期间隔",
   "toolRand": "随机数",
   "toolPass": "密码生成",
-  "toolConvert": "单位换算",
-  "toolB64": "Base64 编码",
-  "toolUnb64": "Base64 解码",
-  "toolURLEncode": "URL 编码",
-  "toolURLDecode": "URL 解码",
-  "toolColor": "颜色转换",
   "everythingCard": "Everything 连接器",
   "everythingAutoStart": "未运行时自动后台启动",
   "everythingAutoStartHint": "文件搜索需要时启动，不弹出 Everything 窗口。",
@@ -3261,7 +3281,6 @@
   "toolsNormalSearch": "普通搜索",
   "toolsGroupValues": "计算与实用工具",
   "toolsGroupDates": "日期与时间",
-  "toolsGroupText": "编码与文本",
   "toolsFilterEmpty": "没有匹配的内置工具，试试名称或触发词。",
   "diagnosticsTitle": "日志与性能诊断",
   "diagnosticsIdle": "本地日志已开启。遇到卡顿时，开始诊断后重复刚才的搜索操作。",

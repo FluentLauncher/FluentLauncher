@@ -174,7 +174,7 @@ func TestToolsListShowsEveryToolAndFilters(t *testing.T) {
 	}
 	tt.Scroll(700, 500, 0, 10000)
 	tt.Frame()
-	lastToggle := locales.CommonEnable() + ": " + search.ToolName("urldecode")
+	lastToggle := locales.CommonEnable() + ": " + search.ToolName("days")
 	if bounds, ok := tt.Find(lastToggle); !ok || bounds.W <= 0 || bounds.H <= 0 {
 		t.Fatal("the last tool cannot be reached by scrolling")
 	}
@@ -182,7 +182,7 @@ func TestToolsListShowsEveryToolAndFilters(t *testing.T) {
 		t.Fatal(err)
 	}
 	tt.Frame()
-	if a.settingsDraft.Tool("urldecode").Enabled {
+	if a.settingsDraft.Tool("days").Enabled {
 		t.Fatal("scrolled tool toggle did not update its own setting")
 	}
 }

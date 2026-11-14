@@ -39,7 +39,7 @@
 | 设置窗口 | internal/app/app.go | 默认 1180×840（更宽更矮），StateKey 换新以丢弃旧的过高窗口尺寸 |
 | 弹出位置与尺寸 | internal/app/size_preview.go + internal/core/layout | 拖动缩略图或面板手柄设置尺寸与相对位置（AnchorX/AnchorY），按屏幕比例记忆；搜索框高度、结果行高度可调 |
 | 界面国际化 | locales/（mygo ARB catalog）+ settings.Language | 简体中文（source）、繁体中文、英文；默认跟随系统语言，设置页可切换、立即生效；窗口标题/托盘菜单经 OnLocaleChanged 重建；系统功能目录三语显示，匹配关键词保持多语言 |
-| 即时工具与内置图标 | internal/core/search/utility.go + tools.go + internal/app/tools_view.go | 逐项启停、固定前缀、自定义触发词、普通搜索参与；计算器默认仅 `=` 前缀，`tool` 为显式入口；工具命令独占路由，保留复制与变体动作；详见 search-tools.md |
+| 即时工具与内置图标 | internal/core/search/utility.go + instant.go + tools.go + internal/app/tools_view.go | 9 个日常工具（计算、UUID、随机数、密码、日期、时间、时间戳、周数、天数），按格式逐行列出；逐项启停、固定前缀、自定义触发词、普通搜索参与；计算器默认仅 `=` 前缀，`tool` 为显式入口；单位换算已移除，编码与颜色交给开发工具插件；详见 search-tools.md |
 | 官方插件清单 | internal/plugin/catalog.go | 在线签名三语目录、缓存、固定版本 ZIP 与哈希校验；内置名称仅作无下载能力的回退 |
 
 ## 仍需补齐

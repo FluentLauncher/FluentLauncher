@@ -2,6 +2,7 @@ package settings
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"unicode"
 
@@ -29,12 +30,6 @@ func DefaultTools() []ToolOptions {
 		{ID: "days", Enabled: true, GlobalQuery: true, Keywords: []string{"days", "天数"}},
 		{ID: "rand", Enabled: true, GlobalQuery: true, Keywords: []string{"rand", "随机数"}},
 		{ID: "pass", Enabled: true, GlobalQuery: true, Keywords: []string{"pass", "password", "密码"}},
-		{ID: "convert", Enabled: true, Keywords: []string{"convert", "换算"}},
-		{ID: "b64", Enabled: true, GlobalQuery: true, Keywords: []string{"b64", "base64"}},
-		{ID: "unb64", Enabled: true, GlobalQuery: true, Keywords: []string{"unb64"}},
-		{ID: "urlencode", Enabled: true, GlobalQuery: true, Keywords: []string{"urlencode"}},
-		{ID: "urldecode", Enabled: true, GlobalQuery: true, Keywords: []string{"urldecode"}},
-		{ID: "color", Enabled: true, Keywords: []string{"color", "颜色"}},
 	}
 }
 
@@ -51,6 +46,13 @@ func (s LauncherSettings) Tool(id string) ToolOptions {
 }
 
 func (s *LauncherSettings) normalizeTools() {
+	// Tools the launcher no longer has (unit conversion, color, the text
+	// encodings, which the developer tools plugin covers) leave older files.
+	known := map[string]bool{}
+	for _, def := range DefaultTools() {
+		known[def.ID] = true
+	}
+	s.Tools = slices.DeleteFunc(s.Tools, func(tool ToolOptions) bool { return !known[tool.ID] })
 	for _, def := range DefaultTools() {
 		found := false
 		for _, tool := range s.Tools {

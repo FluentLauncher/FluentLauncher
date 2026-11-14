@@ -8236,6 +8236,226 @@ func (msgs Messages) FormatChinese() string {
 	return Catalog.Format(msgs.locale, "formatChinese", nil)
 }
 
+// FormatChineseWeekday says "中文，含星期"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the date row in Chinese with the weekday, e.g.
+// 2026年11月14日 星期六.
+func FormatChineseWeekday() string { return In(i18n.Locale()).FormatChineseWeekday() }
+
+// FormatChineseWeekday says "中文，含星期"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the date row in Chinese with the weekday, e.g.
+// 2026年11月14日 星期六.
+func (msgs Messages) FormatChineseWeekday() string {
+	return Catalog.Format(msgs.locale, "formatChineseWeekday", nil)
+}
+
+// FormatEnglish says "英文"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the date row in English, e.g. Saturday,
+// November 14, 2026.
+func FormatEnglish() string { return In(i18n.Locale()).FormatEnglish() }
+
+// FormatEnglish says "英文"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the date row in English, e.g. Saturday,
+// November 14, 2026.
+func (msgs Messages) FormatEnglish() string {
+	return Catalog.Format(msgs.locale, "formatEnglish", nil)
+}
+
+// Format12Hour says "12 小时制"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the 3:04:05 PM time row.
+func Format12Hour() string { return In(i18n.Locale()).Format12Hour() }
+
+// Format12Hour says "12 小时制"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the 3:04:05 PM time row.
+func (msgs Messages) Format12Hour() string {
+	return Catalog.Format(msgs.locale, "format12Hour", nil)
+}
+
+// FormatMilliseconds says "日期 + 时间，精确到毫秒"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the time row with milliseconds.
+func FormatMilliseconds() string { return In(i18n.Locale()).FormatMilliseconds() }
+
+// FormatMilliseconds says "日期 + 时间，精确到毫秒"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the time row with milliseconds.
+func (msgs Messages) FormatMilliseconds() string {
+	return Catalog.Format(msgs.locale, "formatMilliseconds", nil)
+}
+
+// FormatUTC says "UTC 时间"
+// in the language the app shows.
+//
+// Instant tools: subtitle of a row showing the moment in UTC.
+func FormatUTC() string { return In(i18n.Locale()).FormatUTC() }
+
+// FormatUTC says "UTC 时间"
+// in the language of msgs.
+//
+// Instant tools: subtitle of a row showing the moment in UTC.
+func (msgs Messages) FormatUTC() string {
+	return Catalog.Format(msgs.locale, "formatUTC", nil)
+}
+
+// FormatLocalTime says "本机时间（{zone}）"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the row converting a Unix timestamp to local
+// time; zone is like UTC+08:00.
+func FormatLocalTime(zone string) string { return In(i18n.Locale()).FormatLocalTime(zone) }
+
+// FormatLocalTime says "本机时间（{zone}）"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the row converting a Unix timestamp to local
+// time; zone is like UTC+08:00.
+func (msgs Messages) FormatLocalTime(zone string) string {
+	return Catalog.Format(msgs.locale, "formatLocalTime", map[string]any{"zone": zone})
+}
+
+// FormatUUIDCount says "{count} 个，每行一个"
+// in the language the app shows.
+//
+// Instant tools: prefix of the subtitle when several UUIDs were asked for;
+// Enter copies them one per line.
+func FormatUUIDCount(count any) string { return In(i18n.Locale()).FormatUUIDCount(count) }
+
+// FormatUUIDCount says "{count} 个，每行一个"
+// in the language of msgs.
+//
+// Instant tools: prefix of the subtitle when several UUIDs were asked for;
+// Enter copies them one per line.
+func (msgs Messages) FormatUUIDCount(count any) string {
+	return Catalog.Format(msgs.locale, "formatUUIDCount", map[string]any{"count": count})
+}
+
+// FormatPassAlnum says "仅字母和数字"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the password row without symbols.
+func FormatPassAlnum() string { return In(i18n.Locale()).FormatPassAlnum() }
+
+// FormatPassAlnum says "仅字母和数字"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the password row without symbols.
+func (msgs Messages) FormatPassAlnum() string {
+	return Catalog.Format(msgs.locale, "formatPassAlnum", nil)
+}
+
+// FormatPassDigits says "仅数字"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the password row of digits only, like a PIN.
+func FormatPassDigits() string { return In(i18n.Locale()).FormatPassDigits() }
+
+// FormatPassDigits says "仅数字"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the password row of digits only, like a PIN.
+func (msgs Messages) FormatPassDigits() string {
+	return Catalog.Format(msgs.locale, "formatPassDigits", nil)
+}
+
+// FormatWeekOfDate says "该日期所在的 ISO 周（回车复制）"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the week row when a date was given.
+func FormatWeekOfDate() string { return In(i18n.Locale()).FormatWeekOfDate() }
+
+// FormatWeekOfDate says "该日期所在的 ISO 周（回车复制）"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the week row when a date was given.
+func (msgs Messages) FormatWeekOfDate() string {
+	return Catalog.Format(msgs.locale, "formatWeekOfDate", nil)
+}
+
+// FormatWeekNumber says "周数"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the bare week-number row.
+func FormatWeekNumber() string { return In(i18n.Locale()).FormatWeekNumber() }
+
+// FormatWeekNumber says "周数"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the bare week-number row.
+func (msgs Messages) FormatWeekNumber() string {
+	return Catalog.Format(msgs.locale, "formatWeekNumber", nil)
+}
+
+// FormatWeekRange says "周一至周日"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the row with the week's first and last dates.
+func FormatWeekRange() string { return In(i18n.Locale()).FormatWeekRange() }
+
+// FormatWeekRange says "周一至周日"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the row with the week's first and last dates.
+func (msgs Messages) FormatWeekRange() string {
+	return Catalog.Format(msgs.locale, "formatWeekRange", nil)
+}
+
+// FormatDaysBetween says "两个日期相差的天数（回车复制）"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the day count between two given dates.
+func FormatDaysBetween() string { return In(i18n.Locale()).FormatDaysBetween() }
+
+// FormatDaysBetween says "两个日期相差的天数（回车复制）"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the day count between two given dates.
+func (msgs Messages) FormatDaysBetween() string {
+	return Catalog.Format(msgs.locale, "formatDaysBetween", nil)
+}
+
+// FormatWeeksAndDays says "{weeks} 周 {days} 天"
+// in the language the app shows.
+//
+// Instant tools: a day count written in weeks and days.
+func FormatWeeksAndDays(weeks any, days any) string {
+	return In(i18n.Locale()).FormatWeeksAndDays(weeks, days)
+}
+
+// FormatWeeksAndDays says "{weeks} 周 {days} 天"
+// in the language of msgs.
+//
+// Instant tools: a day count written in weeks and days.
+func (msgs Messages) FormatWeeksAndDays(weeks any, days any) string {
+	return Catalog.Format(msgs.locale, "formatWeeksAndDays", map[string]any{"weeks": weeks, "days": days})
+}
+
+// FormatInWeeks says "按周计"
+// in the language the app shows.
+//
+// Instant tools: subtitle of the day count written in weeks and days.
+func FormatInWeeks() string { return In(i18n.Locale()).FormatInWeeks() }
+
+// FormatInWeeks says "按周计"
+// in the language of msgs.
+//
+// Instant tools: subtitle of the day count written in weeks and days.
+func (msgs Messages) FormatInWeeks() string {
+	return Catalog.Format(msgs.locale, "formatInWeeks", nil)
+}
+
 // CmdCopyValue says "复制结果"
 // in the language the app shows.
 //
@@ -8278,78 +8498,6 @@ func SettingsPluginsOfficialPickHint() string {
 // Settings, plugins page: hint of the official plugin picker.
 func (msgs Messages) SettingsPluginsOfficialPickHint() string {
 	return Catalog.Format(msgs.locale, "settingsPluginsOfficialPickHint", nil)
-}
-
-// ResultConvertHint says "{from} → {to}（回车复制）"
-// in the language the app shows.
-//
-// Instant tool: unit conversion row subtitle.
-func ResultConvertHint(from string, to string) string {
-	return In(i18n.Locale()).ResultConvertHint(from, to)
-}
-
-// ResultConvertHint says "{from} → {to}（回车复制）"
-// in the language of msgs.
-//
-// Instant tool: unit conversion row subtitle.
-func (msgs Messages) ResultConvertHint(from string, to string) string {
-	return Catalog.Format(msgs.locale, "resultConvertHint", map[string]any{"from": from, "to": to})
-}
-
-// ResultB64EncodeHint says "Base64 编码（回车复制）"
-// in the language the app shows.
-//
-// Instant tool: Base64 encode row subtitle.
-func ResultB64EncodeHint() string { return In(i18n.Locale()).ResultB64EncodeHint() }
-
-// ResultB64EncodeHint says "Base64 编码（回车复制）"
-// in the language of msgs.
-//
-// Instant tool: Base64 encode row subtitle.
-func (msgs Messages) ResultB64EncodeHint() string {
-	return Catalog.Format(msgs.locale, "resultB64EncodeHint", nil)
-}
-
-// ResultB64DecodeHint says "Base64 解码（回车复制）"
-// in the language the app shows.
-//
-// Instant tool: Base64 decode row subtitle.
-func ResultB64DecodeHint() string { return In(i18n.Locale()).ResultB64DecodeHint() }
-
-// ResultB64DecodeHint says "Base64 解码（回车复制）"
-// in the language of msgs.
-//
-// Instant tool: Base64 decode row subtitle.
-func (msgs Messages) ResultB64DecodeHint() string {
-	return Catalog.Format(msgs.locale, "resultB64DecodeHint", nil)
-}
-
-// ResultUrlEncodeHint says "URL 编码（回车复制）"
-// in the language the app shows.
-//
-// Instant tool: URL encode row subtitle.
-func ResultUrlEncodeHint() string { return In(i18n.Locale()).ResultUrlEncodeHint() }
-
-// ResultUrlEncodeHint says "URL 编码（回车复制）"
-// in the language of msgs.
-//
-// Instant tool: URL encode row subtitle.
-func (msgs Messages) ResultUrlEncodeHint() string {
-	return Catalog.Format(msgs.locale, "resultUrlEncodeHint", nil)
-}
-
-// ResultUrlDecodeHint says "URL 解码（回车复制）"
-// in the language the app shows.
-//
-// Instant tool: URL decode row subtitle.
-func ResultUrlDecodeHint() string { return In(i18n.Locale()).ResultUrlDecodeHint() }
-
-// ResultUrlDecodeHint says "URL 解码（回车复制）"
-// in the language of msgs.
-//
-// Instant tool: URL decode row subtitle.
-func (msgs Messages) ResultUrlDecodeHint() string {
-	return Catalog.Format(msgs.locale, "resultUrlDecodeHint", nil)
 }
 
 // ResultDateCalcHint says "日期计算（回车复制）"
@@ -8422,22 +8570,6 @@ func (msgs Messages) ResultPassHint() string {
 	return Catalog.Format(msgs.locale, "resultPassHint", nil)
 }
 
-// ResultColorHint says "RGB {rgb} · HSL {hsl}"
-// in the language the app shows.
-//
-// Instant tool: color row subtitle with RGB and HSL forms.
-func ResultColorHint(rgb string, hsl string) string {
-	return In(i18n.Locale()).ResultColorHint(rgb, hsl)
-}
-
-// ResultColorHint says "RGB {rgb} · HSL {hsl}"
-// in the language of msgs.
-//
-// Instant tool: color row subtitle with RGB and HSL forms.
-func (msgs Messages) ResultColorHint(rgb string, hsl string) string {
-	return Catalog.Format(msgs.locale, "resultColorHint", map[string]any{"rgb": rgb, "hsl": hsl})
-}
-
 // CmdRegenerate says "重新生成"
 // in the language the app shows.
 //
@@ -8464,48 +8596,6 @@ func CmdCopyTimestamp() string { return In(i18n.Locale()).CmdCopyTimestamp() }
 // Action panel: copy the date as a Unix timestamp.
 func (msgs Messages) CmdCopyTimestamp() string {
 	return Catalog.Format(msgs.locale, "cmdCopyTimestamp", nil)
-}
-
-// CmdCopyRGB says "复制 rgb()"
-// in the language the app shows.
-//
-// Action panel: copy the color as rgb().
-func CmdCopyRGB() string { return In(i18n.Locale()).CmdCopyRGB() }
-
-// CmdCopyRGB says "复制 rgb()"
-// in the language of msgs.
-//
-// Action panel: copy the color as rgb().
-func (msgs Messages) CmdCopyRGB() string {
-	return Catalog.Format(msgs.locale, "cmdCopyRGB", nil)
-}
-
-// CmdCopyHSL says "复制 hsl()"
-// in the language the app shows.
-//
-// Action panel: copy the color as hsl().
-func CmdCopyHSL() string { return In(i18n.Locale()).CmdCopyHSL() }
-
-// CmdCopyHSL says "复制 hsl()"
-// in the language of msgs.
-//
-// Action panel: copy the color as hsl().
-func (msgs Messages) CmdCopyHSL() string {
-	return Catalog.Format(msgs.locale, "cmdCopyHSL", nil)
-}
-
-// CmdCopyWithUnit says "复制带单位"
-// in the language the app shows.
-//
-// Action panel: copy the converted value with its unit.
-func CmdCopyWithUnit() string { return In(i18n.Locale()).CmdCopyWithUnit() }
-
-// CmdCopyWithUnit says "复制带单位"
-// in the language of msgs.
-//
-// Action panel: copy the converted value with its unit.
-func (msgs Messages) CmdCopyWithUnit() string {
-	return Catalog.Format(msgs.locale, "cmdCopyWithUnit", nil)
 }
 
 // UpdateChannel says "更新通道"
@@ -9646,66 +9736,6 @@ func (msgs Messages) ToolPass() string {
 	return Catalog.Format(msgs.locale, "toolPass", nil)
 }
 
-// ToolConvert says "单位换算"
-// in the language the app shows.
-func ToolConvert() string { return In(i18n.Locale()).ToolConvert() }
-
-// ToolConvert says "单位换算"
-// in the language of msgs.
-func (msgs Messages) ToolConvert() string {
-	return Catalog.Format(msgs.locale, "toolConvert", nil)
-}
-
-// ToolB64 says "Base64 编码"
-// in the language the app shows.
-func ToolB64() string { return In(i18n.Locale()).ToolB64() }
-
-// ToolB64 says "Base64 编码"
-// in the language of msgs.
-func (msgs Messages) ToolB64() string {
-	return Catalog.Format(msgs.locale, "toolB64", nil)
-}
-
-// ToolUnb64 says "Base64 解码"
-// in the language the app shows.
-func ToolUnb64() string { return In(i18n.Locale()).ToolUnb64() }
-
-// ToolUnb64 says "Base64 解码"
-// in the language of msgs.
-func (msgs Messages) ToolUnb64() string {
-	return Catalog.Format(msgs.locale, "toolUnb64", nil)
-}
-
-// ToolURLEncode says "URL 编码"
-// in the language the app shows.
-func ToolURLEncode() string { return In(i18n.Locale()).ToolURLEncode() }
-
-// ToolURLEncode says "URL 编码"
-// in the language of msgs.
-func (msgs Messages) ToolURLEncode() string {
-	return Catalog.Format(msgs.locale, "toolURLEncode", nil)
-}
-
-// ToolURLDecode says "URL 解码"
-// in the language the app shows.
-func ToolURLDecode() string { return In(i18n.Locale()).ToolURLDecode() }
-
-// ToolURLDecode says "URL 解码"
-// in the language of msgs.
-func (msgs Messages) ToolURLDecode() string {
-	return Catalog.Format(msgs.locale, "toolURLDecode", nil)
-}
-
-// ToolColor says "颜色转换"
-// in the language the app shows.
-func ToolColor() string { return In(i18n.Locale()).ToolColor() }
-
-// ToolColor says "颜色转换"
-// in the language of msgs.
-func (msgs Messages) ToolColor() string {
-	return Catalog.Format(msgs.locale, "toolColor", nil)
-}
-
 // EverythingCard says "Everything 连接器"
 // in the language the app shows.
 func EverythingCard() string { return In(i18n.Locale()).EverythingCard() }
@@ -9944,16 +9974,6 @@ func ToolsGroupDates() string { return In(i18n.Locale()).ToolsGroupDates() }
 // in the language of msgs.
 func (msgs Messages) ToolsGroupDates() string {
 	return Catalog.Format(msgs.locale, "toolsGroupDates", nil)
-}
-
-// ToolsGroupText says "编码与文本"
-// in the language the app shows.
-func ToolsGroupText() string { return In(i18n.Locale()).ToolsGroupText() }
-
-// ToolsGroupText says "编码与文本"
-// in the language of msgs.
-func (msgs Messages) ToolsGroupText() string {
-	return Catalog.Format(msgs.locale, "toolsGroupText", nil)
 }
 
 // ToolsFilterEmpty says "没有匹配的内置工具，试试名称或触发词。"

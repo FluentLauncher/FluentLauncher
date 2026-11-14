@@ -1,7 +1,6 @@
 package search
 
 import (
-	"fmt"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -84,7 +83,6 @@ func toolCommands(entry model.Entry) []CommandItem {
 	if entry.SourceID != "utilities" || entry.Kind != model.Calculation {
 		return nil
 	}
-	value := entry.CopyText
 	commands := []CommandItem{{Command: CommandOpen, Title: openTitle(entry)}}
 	switch {
 	case strings.HasPrefix(entry.ID, "uuid:"):
@@ -100,48 +98,12 @@ func toolCommands(entry model.Entry) []CommandItem {
 		}
 	case strings.HasPrefix(entry.ID, "time:"):
 		// The formats, with the date among them, are rows of their own.
-	case strings.HasPrefix(entry.ID, "color:"):
-		commands = append(commands,
-			CommandItem{Command: CommandCopyValue, Title: locales.CmdCopyRGB(), Value: colorRGB(value)},
-			CommandItem{Command: CommandCopyValue, Title: locales.CmdCopyHSL(), Value: colorHSL(value)})
-	case strings.HasPrefix(entry.ID, "convert:"):
-		commands = append(commands,
-			CommandItem{Command: CommandCopyValue, Title: locales.CmdCopyWithUnit(), Value: entry.Title})
 	case strings.HasPrefix(entry.ID, "rand:"), strings.HasPrefix(entry.ID, "pass:"):
 		commands = append(commands, CommandItem{Command: CommandRegenerate, Title: locales.CmdRegenerate()})
 	default:
 		return nil
 	}
 	return commands
-}
-
-func colorRGB(hex string) string {
-	r, g, b, ok := parseHexColor(hex)
-	if !ok {
-		return hex
-	}
-	return fmt.Sprintf("rgb(%d, %d, %d)", r, g, b)
-}
-
-func colorHSL(hex string) string {
-	r, g, b, ok := parseHexColor(hex)
-	if !ok {
-		return hex
-	}
-	h, s, l := rgbToHSL(r, g, b)
-	return fmt.Sprintf("hsl(%d, %d%%, %d%%)", h, s, l)
-}
-
-func parseHexColor(hex string) (int, int, int, bool) {
-	hex = strings.TrimPrefix(hex, "#")
-	if len(hex) != 6 {
-		return 0, 0, 0, false
-	}
-	v, err := strconv.ParseUint(hex, 16, 32)
-	if err != nil {
-		return 0, 0, 0, false
-	}
-	return int(v >> 16 & 0xff), int(v >> 8 & 0xff), int(v & 0xff), true
 }
 
 func openTitle(entry model.Entry) string {

@@ -35,6 +35,7 @@ import (
 	"fluentlauncher/internal/winapi/everything"
 	"fluentlauncher/internal/winapi/glass"
 	"fluentlauncher/internal/winapi/sysinfo"
+	"fluentlauncher/internal/winapi/teardown"
 	"fluentlauncher/internal/winapi/volume"
 	"fluentlauncher/internal/winapi/windowlist"
 	"fluentlauncher/locales"
@@ -217,6 +218,11 @@ func Run() (runErr error) {
 	})
 	mygo.App.OnBeforeQuit(func(*mygo.QuitEvent) { a.quitting = true })
 	mygo.App.OnWillQuit(func(*mygo.QuitEvent) { a.close() })
+	// MyGo 0.7.4 leaves its hidden app window alive when the process exits. An
+	// input method that parented a window to it (Doubao IME does) destroys that
+	// window while DLLs unload, which calls back into Go inside ExitProcess and
+	// hangs the process: after an update the old instance stayed behind.
+	mygo.App.OnQuit(func() { teardown.DestroyThreadWindows("MyGo") })
 	mygo.App.WhenReady(a.ready)
 	return mygo.App.Run()
 }

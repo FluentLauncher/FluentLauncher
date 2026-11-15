@@ -201,10 +201,43 @@ type FileIndexOptions struct {
 	EnableEverything    bool     `json:"EnableEverything"`
 	EverythingAutoStart bool     `json:"EverythingAutoStart"`
 	EverythingPath      string   `json:"EverythingPath"`
+	// EverythingExcludes are path fragments appended to every Everything
+	// query as exclusions; environment variables are expanded at query time.
+	EverythingExcludes []string `json:"EverythingExcludes"`
+}
+
+// DefaultEverythingExcludes hide Windows component stores and system
+// bookkeeping folders, whose names flood a launcher's results.
+func DefaultEverythingExcludes() []string {
+	return []string{
+		`%SystemRoot%\WinSxS\`,
+		`%SystemRoot%\SoftwareDistribution\`,
+		`%SystemRoot%\Installer\`,
+		`%SystemRoot%\servicing\`,
+		`%SystemRoot%\assembly\`,
+		`%SystemRoot%\Prefetch\`,
+		`\$Recycle.Bin\`,
+		`\System Volume Information\`,
+	}
 }
 
 func DefaultFileIndexOptions() FileIndexOptions {
-	return FileIndexOptions{MaxEntries: 100000, IncludeDirectories: true, EverythingAutoStart: true}
+	return FileIndexOptions{MaxEntries: 100000, IncludeDirectories: true, EverythingAutoStart: true,
+		EverythingExcludes: DefaultEverythingExcludes()}
+}
+
+// ValidateEverythingExcludes keeps exclusions short enough to send and free
+// of quotes, which would break the generated Everything search syntax.
+func ValidateEverythingExcludes(excludes []string) error {
+	if len(excludes) > 64 {
+		return errors.New(locales.ValidateEverythingExcludes())
+	}
+	for _, exclude := range excludes {
+		if strings.TrimSpace(exclude) == "" || len([]rune(exclude)) > 260 || strings.ContainsRune(exclude, '"') {
+			return errors.New(locales.ValidateEverythingExcludes())
+		}
+	}
+	return nil
 }
 
 // SameIndex reports whether the local file snapshot and its watches can be
@@ -402,6 +435,9 @@ func (s *LauncherSettings) Normalize() {
 	if s.Files.ExcludedDirectories == nil {
 		s.Files.ExcludedDirectories = []string{}
 	}
+	if s.Files.EverythingExcludes == nil {
+		s.Files.EverythingExcludes = []string{}
+	}
 	if s.Plugins.EnabledIDs == nil {
 		s.Plugins.EnabledIDs = []string{}
 	}
@@ -514,6 +550,9 @@ func (s LauncherSettings) Validate() error {
 	}
 	if s.Files.MaxEntries < 1000 || s.Files.MaxEntries > 500000 {
 		return errors.New(locales.ValidateFileIndexLimit())
+	}
+	if err := ValidateEverythingExcludes(s.Files.EverythingExcludes); err != nil {
+		return err
 	}
 	if s.Plugins.QueryTimeoutMs < 100 || s.Plugins.QueryTimeoutMs > 30000 ||
 		s.Plugins.MaxResults < 1 || s.Plugins.MaxResults > 100 ||

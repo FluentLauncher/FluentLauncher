@@ -48,14 +48,20 @@ type connection struct {
 	retryAt    time.Time
 	lastPath   string
 	discovered string
-	changed    func()
-	running    func() bool
-	resolve    func(string) (string, error)
-	launch     func(string, bool) error
+	// autoBlocked stops automatic launches after one failed or skipped
+	// attempt, so a declined UAC prompt or a slow start is never repeated on
+	// every keystroke. A manual connection, a successful query or a changed
+	// program path re-arms it.
+	autoBlocked bool
+	changed     func()
+	running     func() bool
+	resolve     func(string) (string, error)
+	launch      func(string, bool) error
+	needsAdmin  func(string) bool
 }
 
 func newConnection(changed func()) *connection {
-	c := &connection{changed: changed, running: clientRunning, launch: launchEverything}
+	c := &connection{changed: changed, running: clientRunning, launch: launchEverything, needsAdmin: requiresAdmin}
 	c.resolve = func(configured string) (string, error) {
 		if configured == "" {
 			c.mu.Lock()
@@ -95,6 +101,9 @@ func (c *connection) ensure(ctx context.Context, options settings.FileIndexOptio
 		return err
 	}
 	c.mu.Lock()
+	if options.EverythingPath != c.lastPath {
+		c.autoBlocked = false
+	}
 	// IPC can fail while the client window is still present. Check backoff
 	// before probing that window, otherwise every keystroke clears the error
 	// and retries the same unresponsive connection.
@@ -112,11 +121,16 @@ func (c *connection) ensure(ctx context.Context, options settings.FileIndexOptio
 		c.mu.Unlock()
 		return errors.New(locales.EverythingClientNotRunning())
 	}
+	if !force && c.autoBlocked && c.pending == nil {
+		err := c.status.Error
+		c.mu.Unlock()
+		return errors.New(err)
+	}
 	if c.pending == nil {
 		c.pending = make(chan struct{})
 		c.lastPath = options.EverythingPath
 		c.status = ConnectionStatus{State: Starting}
-		go c.start(options.EverythingPath, c.pending)
+		go c.start(options.EverythingPath, c.pending, force)
 	}
 	pending := c.pending
 	c.mu.Unlock()
@@ -142,6 +156,8 @@ func (c *connection) queryFinished(options settings.FileIndexOptions, err error)
 	if err != nil {
 		c.status.State, c.status.Error = ConnectionFailed, err.Error()
 		c.retryAt = time.Now().Add(retryDelay)
+	} else {
+		c.autoBlocked = false
 	}
 	changed := previous != c.status
 	c.mu.Unlock()
@@ -150,10 +166,16 @@ func (c *connection) queryFinished(options settings.FileIndexOptions, err error)
 	}
 }
 
-func (c *connection) start(configured string, pending chan struct{}) {
+func (c *connection) start(configured string, pending chan struct{}, force bool) {
 	path, err := c.resolve(configured)
 	if err == nil && !c.running() {
-		err = c.launch(path, false)
+		// An elevated client raises a UAC prompt; only the user's own
+		// connect action may cause that, never a keystroke.
+		if !force && c.needsAdmin != nil && c.needsAdmin(path) {
+			err = errors.New(locales.EverythingNeedsAdmin())
+		} else {
+			err = c.launch(path, false)
+		}
 	}
 	if err == nil {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -174,8 +196,10 @@ func (c *connection) start(configured string, pending chan struct{}) {
 	if err != nil {
 		c.status.State, c.status.Error = ConnectionFailed, err.Error()
 		c.retryAt = time.Now().Add(retryDelay)
+		c.autoBlocked = c.autoBlocked || !force
 	} else {
 		c.retryAt = time.Time{}
+		c.autoBlocked = false
 	}
 	c.pending = nil
 	close(pending)
@@ -230,6 +254,44 @@ func resolveExecutable(configured string) (string, error) {
 		return path, nil
 	}
 	return "", errors.New(locales.EverythingNotFound())
+}
+
+// requiresAdmin reports whether Everything is set to "Run as administrator",
+// which makes the client relaunch itself elevated behind a UAC prompt.
+// Settings live next to a portable executable, or in %APPDATA% when the
+// local Everything.ini is absent or sets app_data=1.
+func requiresAdmin(exe string) bool {
+	local, err := readSmallFile(filepath.Join(filepath.Dir(exe), "Everything.ini"))
+	if err == nil && iniValue(local, "app_data") != "1" {
+		return iniValue(local, "run_as_admin") == "1"
+	}
+	roaming, err := readSmallFile(filepath.Join(os.Getenv("APPDATA"), "Everything", "Everything.ini"))
+	return err == nil && iniValue(roaming, "run_as_admin") == "1"
+}
+
+func readSmallFile(path string) (string, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return "", err
+	}
+	if info.Size() > 1<<20 {
+		return "", errors.New("Everything.ini too large")
+	}
+	data, err := os.ReadFile(path)
+	return string(data), err
+}
+
+// iniValue returns the first value of key in Everything.ini, which is a
+// flat key=value list after its [Everything] section header.
+func iniValue(text, key string) string {
+	text = strings.TrimPrefix(text, "\uFEFF")
+	for _, line := range strings.Split(text, "\n") {
+		name, value, ok := strings.Cut(strings.TrimSpace(line), "=")
+		if ok && strings.EqualFold(strings.TrimSpace(name), key) {
+			return strings.TrimSpace(value)
+		}
+	}
+	return ""
 }
 
 func launchEverything(path string, show bool) error {

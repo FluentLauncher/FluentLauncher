@@ -21,7 +21,7 @@
 | ThemePackage | internal/store/theme.go | zip 导入导出、路径/大小限制 |
 | StartMenuCatalog | internal/winapi/apps | Shell 应用列表、便携目录、PATH、监听 |
 | WindowsApplicationLauncher | internal/winapi/apps/launch.go | ShellExecuteEx、runas、UAC 取消、打开位置 |
-| EverythingProvider | internal/winapi/everything | WM_COPYDATA Unicode 查询、按需后台启动、程序检测/手动选择、合并启动、查询失败退避、可取消排队与真实 IPC 连接探测；见 docs/everything.md |
+| EverythingProvider | internal/winapi/everything | WM_COPYDATA Unicode 查询、按需后台启动（需管理员时跳过、失败不重复）、程序检测/手动选择、合并启动、查询失败退避、可取消排队与真实 IPC 连接探测；前缀＋常规双查询本地重排，分数低于本地来源，默认排除系统组件目录；见 docs/everything.md |
 | WindowCatalog | internal/winapi/windowlist | EnumWindows、cloaked/tool 过滤、还原置前 |
 | ShortcutResolver | internal/winapi/shortcut | WScript.Shell 读取 .lnk 目标/参数/工作目录，用于去重 |
 | Plugin Host/Manager | internal/plugin | 帧协议、进程、Job Object、超时/取消/回收/暂停、按需下载安装与独立升级 |

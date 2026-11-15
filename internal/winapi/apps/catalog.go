@@ -87,6 +87,7 @@ func (c *Catalog) Discover(ctx context.Context) ([]model.Entry, error) {
 			Title:        app.Name,
 			Subtitle:     appSubtitle(app.Path),
 			LaunchTarget: app.Path,
+			Aliases:      appIDAliases(app.ID, app.Name),
 			Kind:         model.Application,
 			SourceID:     "applications",
 			IconPath:     app.Path,
@@ -192,6 +193,39 @@ func appSubtitle(path string) string {
 		name = name[:i]
 	}
 	return locales.LaunchPackagedAppSubtitle(name)
+}
+
+// appIDAliases derives an English search name from an AppUserModelID, so a
+// localized title such as "文件资源管理器" is still found by "explorer":
+//
+//	Microsoft.Windows.Explorer                    → Explorer
+//	Microsoft.WindowsCalculator_8wekyb3d8bbwe!App → WindowsCalculator, Calculator
+//	{1AC14E77-…}\cmd.exe                          → cmd
+//
+// Generated IDs ({GUID}) and names equal to the title add nothing.
+func appIDAliases(id, title string) []string {
+	var name string
+	if i := strings.LastIndexAny(id, `\/`); i >= 0 {
+		file := id[i+1:]
+		switch strings.ToLower(filepath.Ext(file)) {
+		case ".exe", ".msc", ".cpl", ".com", ".bat", ".cmd":
+			name = strings.TrimSuffix(file, filepath.Ext(file))
+		}
+	} else {
+		pkg := strings.Split(id, "!")[0]
+		if i := strings.LastIndex(pkg, "_"); i > 0 {
+			pkg = pkg[:i]
+		}
+		name = pkg[strings.LastIndex(pkg, ".")+1:]
+	}
+	if name == "" || strings.ContainsAny(name, "{}") || strings.EqualFold(name, title) {
+		return nil
+	}
+	aliases := []string{name}
+	if rest, ok := strings.CutPrefix(name, "Windows"); ok && len(rest) >= 3 {
+		aliases = append(aliases, rest)
+	}
+	return aliases
 }
 
 func appID(identity, arguments string) string {

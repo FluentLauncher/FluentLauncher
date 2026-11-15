@@ -722,20 +722,6 @@ func (msgs Messages) PanelWorkspaceBadge() string {
 	return Catalog.Format(msgs.locale, "panelWorkspaceBadge", nil)
 }
 
-// PanelComposing says "组合 {value}"
-// in the language the app shows.
-//
-// Main launcher panel footer: whether the input method is composing
-func PanelComposing(value string) string { return In(i18n.Locale()).PanelComposing(value) }
-
-// PanelComposing says "组合 {value}"
-// in the language of msgs.
-//
-// Main launcher panel footer: whether the input method is composing
-func (msgs Messages) PanelComposing(value string) string {
-	return Catalog.Format(msgs.locale, "panelComposing", map[string]any{"value": value})
-}
-
 // PanelHint says "↑↓ 选择 · ↵ 打开 · Ctrl+K 动作 · Esc 清空/隐藏"
 // in the language the app shows.
 //
@@ -1696,6 +1682,22 @@ func ValidateFileIndexLimit() string { return In(i18n.Locale()).ValidateFileInde
 // Settings validation: file index entry limit out of range.
 func (msgs Messages) ValidateFileIndexLimit() string {
 	return Catalog.Format(msgs.locale, "validateFileIndexLimit", nil)
+}
+
+// ValidateEverythingExcludes says "Everything 排除路径最多 64 条，每条不超过 260 个字符且不能包含双引号"
+// in the language the app shows.
+//
+// Settings validation: Everything exclusion list too long, an entry too
+// long, or an entry contains a quote.
+func ValidateEverythingExcludes() string { return In(i18n.Locale()).ValidateEverythingExcludes() }
+
+// ValidateEverythingExcludes says "Everything 排除路径最多 64 条，每条不超过 260 个字符且不能包含双引号"
+// in the language of msgs.
+//
+// Settings validation: Everything exclusion list too long, an entry too
+// long, or an entry contains a quote.
+func (msgs Messages) ValidateEverythingExcludes() string {
+	return Catalog.Format(msgs.locale, "validateEverythingExcludes", nil)
 }
 
 // ValidatePluginOptions says "插件超时、结果数、空闲回收或进程数量超出允许范围"
@@ -9756,11 +9758,11 @@ func (msgs Messages) EverythingAutoStart() string {
 	return Catalog.Format(msgs.locale, "everythingAutoStart", nil)
 }
 
-// EverythingAutoStartHint says "文件搜索需要时启动，不弹出 Everything 窗口。"
+// EverythingAutoStartHint says "文件搜索需要时启动，不弹出 Everything 窗口。若 Everything …"
 // in the language the app shows.
 func EverythingAutoStartHint() string { return In(i18n.Locale()).EverythingAutoStartHint() }
 
-// EverythingAutoStartHint says "文件搜索需要时启动，不弹出 Everything 窗口。"
+// EverythingAutoStartHint says "文件搜索需要时启动，不弹出 Everything 窗口。若 Everything …"
 // in the language of msgs.
 func (msgs Messages) EverythingAutoStartHint() string {
 	return Catalog.Format(msgs.locale, "everythingAutoStartHint", nil)
@@ -9784,6 +9786,36 @@ func EverythingPathHint() string { return In(i18n.Locale()).EverythingPathHint()
 // in the language of msgs.
 func (msgs Messages) EverythingPathHint() string {
 	return Catalog.Format(msgs.locale, "everythingPathHint", nil)
+}
+
+// EverythingExcludes says "排除路径"
+// in the language the app shows.
+func EverythingExcludes() string { return In(i18n.Locale()).EverythingExcludes() }
+
+// EverythingExcludes says "排除路径"
+// in the language of msgs.
+func (msgs Messages) EverythingExcludes() string {
+	return Catalog.Format(msgs.locale, "everythingExcludes", nil)
+}
+
+// EverythingExcludesHint says "每行一条，不显示这些位置下的结果。含 \\ 时按完整路径匹配，支持 %SystemRoot% …"
+// in the language the app shows.
+func EverythingExcludesHint() string { return In(i18n.Locale()).EverythingExcludesHint() }
+
+// EverythingExcludesHint says "每行一条，不显示这些位置下的结果。含 \\ 时按完整路径匹配，支持 %SystemRoot% …"
+// in the language of msgs.
+func (msgs Messages) EverythingExcludesHint() string {
+	return Catalog.Format(msgs.locale, "everythingExcludesHint", nil)
+}
+
+// EverythingNeedsAdmin says "Everything 设为“以管理员身份运行”，后台启动会弹出 UAC …"
+// in the language the app shows.
+func EverythingNeedsAdmin() string { return In(i18n.Locale()).EverythingNeedsAdmin() }
+
+// EverythingNeedsAdmin says "Everything 设为“以管理员身份运行”，后台启动会弹出 UAC …"
+// in the language of msgs.
+func (msgs Messages) EverythingNeedsAdmin() string {
+	return Catalog.Format(msgs.locale, "everythingNeedsAdmin", nil)
 }
 
 // EverythingChoose says "选择程序"

@@ -227,6 +227,8 @@ func TestSearchSettingsLayouts(t *testing.T) {
 						tt.Frame()
 					} else if !tt.HasText(locales.EverythingCard()) || !tt.HasText(locales.SettingsFilesLocalRebuild()) {
 						t.Fatal("Everything and local indexing were not separated")
+					} else if bounds, ok := tt.Find(locales.EverythingExcludes()); !ok || bounds.W <= 0 || bounds.X < 0 || bounds.X+bounds.W > float32(size[0]) {
+						t.Fatalf("%s %v: Everything exclusions editor missing or clipped %+v", lang, size, bounds)
 					}
 					if dir := os.Getenv("FL_SEARCH_ARTIFACT_DIR"); dir != "" && size[0] == 1180 {
 						if err := os.MkdirAll(dir, 0755); err != nil {

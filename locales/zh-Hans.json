@@ -243,15 +243,6 @@
   "@panelWorkspaceBadge": {
     "description": "Main launcher panel: badge on result rows that are workspaces"
   },
-  "panelComposing": "组合 {value}",
-  "@panelComposing": {
-    "description": "Main launcher panel footer: whether the input method is composing",
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
   "panelHint": "↑↓ 选择 · ↵ 打开 · Ctrl+K 动作 · Esc 清空/隐藏",
   "@panelHint": {
     "description": "Main launcher panel footer: shortcut hint"
@@ -591,6 +582,10 @@
   "validateFileIndexLimit": "文件索引上限须为 1,000–500,000",
   "@validateFileIndexLimit": {
     "description": "Settings validation: file index entry limit out of range."
+  },
+  "validateEverythingExcludes": "Everything 排除路径最多 64 条，每条不超过 260 个字符且不能包含双引号",
+  "@validateEverythingExcludes": {
+    "description": "Settings validation: Everything exclusion list too long, an entry too long, or an entry contains a quote."
   },
   "validatePluginOptions": "插件超时、结果数、空闲回收或进程数量超出允许范围",
   "@validatePluginOptions": {
@@ -3259,9 +3254,12 @@
   "toolPass": "密码生成",
   "everythingCard": "Everything 连接器",
   "everythingAutoStart": "未运行时自动后台启动",
-  "everythingAutoStartHint": "文件搜索需要时启动，不弹出 Everything 窗口。",
+  "everythingAutoStartHint": "文件搜索需要时启动，不弹出 Everything 窗口。若 Everything 设为以管理员身份运行则跳过；启动失败后本次运行不再自动尝试。",
   "everythingPath": "程序位置",
   "everythingPathHint": "留空自动检测；便携版可选择 Everything.exe。",
+  "everythingExcludes": "排除路径",
+  "everythingExcludesHint": "每行一条，不显示这些位置下的结果。含 \\ 时按完整路径匹配，支持 %SystemRoot% 等环境变量。",
+  "everythingNeedsAdmin": "Everything 设为“以管理员身份运行”，后台启动会弹出 UAC 授权，已跳过自动启动。可点击“后台启动并连接”手动启动；或在 Everything 的“选项 → 常规”中取消“以管理员身份运行”并启用 Everything 服务。",
   "everythingChoose": "选择程序",
   "everythingConnect": "后台启动并连接",
   "everythingOpen": "打开 Everything",

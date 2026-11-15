@@ -213,7 +213,6 @@ func (a *App) footer(c *ui.Context, theme *ui.Theme) {
 	if a.mem != "" {
 		parts = append(parts, a.mem)
 	}
-	parts = append(parts, locales.PanelComposing(strconv.FormatBool(a.composing)))
 	ui.Row(c).Padding(8, 16).Gap(12).Children(func() {
 		ui.Text(c, strings.Join(parts, " · ")).FontSize(11).TextColor(theme.TextMuted).Grow(1).SingleLine()
 		hints := []string{}

@@ -71,6 +71,7 @@ func (p *Provider) RememberExecutable(path string) {
 	if p.connection.discovered != path {
 		p.connection.discovered = path
 		p.connection.retryAt = time.Time{}
+		p.connection.autoBlocked = false
 	}
 	p.connection.mu.Unlock()
 }
@@ -133,7 +134,14 @@ func (p *Provider) search(ctx context.Context, text string, limit int, options s
 	}
 	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
-	results, err := p.runQuery(queryCtx, text, limit)
+	var results []model.Result
+	var err error
+	if text == "" {
+		// Connection probe: one minimal query is enough.
+		results, err = p.runQuery(queryCtx, text, limit)
+	} else if results, err = p.collect(queryCtx, text, options.EverythingExcludes); err == nil {
+		results = rankResults(results, text, limit)
+	}
 	if ctx.Err() != nil {
 		return nil, ctx.Err()
 	}
@@ -142,6 +150,24 @@ func (p *Provider) search(ctx context.Context, text string, limit int, options s
 	}
 	p.connection.queryFinished(options, err)
 	return results, err
+}
+
+// collect gathers name-prefix matches first, then the general query, both
+// filtered by the configured exclusions; rankResults orders them.
+func (p *Provider) collect(ctx context.Context, text string, excludes []string) ([]model.Result, error) {
+	var all []model.Result
+	if prefix, ok := prefixQuery(text); ok {
+		results, err := p.runQuery(ctx, queryText(prefix, excludes), prefixLimit)
+		if err != nil {
+			return nil, err
+		}
+		all = results
+	}
+	results, err := p.runQuery(ctx, queryText(text, excludes), candidateLimit)
+	if err != nil {
+		return nil, err
+	}
+	return append(all, results...), nil
 }
 
 type wndClass struct {
@@ -354,7 +380,7 @@ func parseResults(payload []byte, limit int) ([]model.Result, error) {
 			Kind:         kind,
 			SourceID:     "everything",
 			IconPath:     path,
-		}, Score: 5000})
+		}, Score: otherScore})
 	}
 	return results, nil
 }

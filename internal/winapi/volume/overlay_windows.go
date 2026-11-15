@@ -49,12 +49,18 @@ func overlayBounds(work rect, dpi uint32, width, height, gap int) rect {
 }
 
 func positionOverlay(hwnd uintptr, bounds rect) error {
-	const noZOrderNoActivate = 0x0004 | 0x0010
+	// Topmost windows keep an order of their own, and showing a window does not
+	// change it: one that turned topmost after the overlay would cover it. Raise
+	// the overlay to the top of that band every time, still without activating.
+	const (
+		topmost    = ^uintptr(0) // HWND_TOPMOST
+		noActivate = 0x0010
+	)
 	place := func() error {
-		if ok, _, err := procSetWindowPos.Call(hwnd, 0,
+		if ok, _, err := procSetWindowPos.Call(hwnd, topmost,
 			uintptr(bounds.Left), uintptr(bounds.Top),
 			uintptr(bounds.Right-bounds.Left), uintptr(bounds.Bottom-bounds.Top),
-			noZOrderNoActivate); ok == 0 {
+			noActivate); ok == 0 {
 			return fmt.Errorf("SetWindowPos: %w", err)
 		}
 		return nil

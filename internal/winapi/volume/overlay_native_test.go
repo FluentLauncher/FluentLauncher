@@ -33,6 +33,44 @@ func TestMain(m *testing.M) {
 	os.Exit(<-result)
 }
 
+// A window that turns topmost after the overlay was created sits above it in
+// the topmost band; showing the overlay has to raise it again.
+func TestOverlayNativeAboveLaterTopmost(t *testing.T) {
+	if os.Getenv("FL_VOLUME_NATIVE_TEST") != "1" {
+		t.Skip("set FL_VOLUME_NATIVE_TEST=1 to check native window order")
+	}
+	mygo.RunOnMain(func() {
+		options := mygo.WindowOptions{
+			Title: "Volume order test", Hidden: true, Frameless: true,
+			Transparent: true, AlwaysOnTop: true, SkipTaskbar: true,
+			DisableResize: true, Width: 240, Height: 44,
+			Content: ui.View(func(c *ui.Context) { ui.Text(c, "Volume 64") }),
+		}
+		win := mygo.NewWindow(options)
+		defer win.Close()
+		win.SetIgnoreMouseEvents(true)
+		later := mygo.NewWindow(options)
+		defer later.Close()
+		later.SetIgnoreMouseEvents(true)
+		later.ShowInactive()
+		later.SetAlwaysOnTop(true)
+
+		if err := PositionOverlay(win.NativeHandle(), 240, 44, 20); err != nil {
+			t.Error(err)
+			return
+		}
+		win.ShowInactive()
+		getWindow := user32.NewProc("GetWindow")
+		const previous = 3 // GW_HWNDPREV: the next window up in Z order
+		for above, _, _ := getWindow.Call(win.NativeHandle(), previous); above != 0; above, _, _ = getWindow.Call(above, previous) {
+			if above == later.NativeHandle() {
+				t.Error("a window that became topmost later covers the overlay")
+				return
+			}
+		}
+	})
+}
+
 func TestOverlayNativeCrossDPI(t *testing.T) {
 	if os.Getenv("FL_VOLUME_NATIVE_TEST") != "1" {
 		t.Skip("set FL_VOLUME_NATIVE_TEST=1 to check native window positions")

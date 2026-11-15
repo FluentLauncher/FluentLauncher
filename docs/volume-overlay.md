@@ -23,6 +23,12 @@
 - `go build ./...`、`go vet ./...`、`CGO_ENABLED=0 go test ./...`、`go tool mygo vet .` 和 `go test -race ./internal/app ./internal/winapi/volume` 均通过。
 - `go tool mygo build -platform windows/amd64 -skip-installer -o build/volume-overlay-fix` 已生成本地试用程序。
 
+## 2026-11-15 补充：被其它置顶窗口遮挡
+
+浮层只在创建时置顶一次，之后定位用 `SWP_NOZORDER`、显示用 `SW_SHOWNOACTIVATE`，两者都不改变 Z 序。置顶窗口之间自有先后，晚于浮层变为置顶的窗口（其它程序的置顶窗口、置顶工具钉住的窗口等）会一直压在它上面。现在每次定位都以 `HWND_TOPMOST` 把浮层提到置顶层最上方，仍不激活。`TestOverlayNativeAboveLaterTopmost` 覆盖该场景（修复前失败）。
+
+系统自身的更高层级（开始菜单、锁屏、独占全屏等）不在普通置顶层内，没有 uiAccess 的程序无法盖过，属预期。
+
 原生测试默认跳过；在 Windows 桌面会话内按需执行：
 
 ```powershell

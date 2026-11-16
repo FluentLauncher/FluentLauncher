@@ -34,6 +34,7 @@ import (
 	"fluentlauncher/internal/winapi/apps"
 	"fluentlauncher/internal/winapi/everything"
 	"fluentlauncher/internal/winapi/glass"
+	"fluentlauncher/internal/winapi/monitor"
 	"fluentlauncher/internal/winapi/sysinfo"
 	"fluentlauncher/internal/winapi/teardown"
 	"fluentlauncher/internal/winapi/volume"
@@ -622,18 +623,23 @@ func (a *App) positionPanelSize(width, height int, anchorX, anchorY float64) {
 	if a.panel == nil {
 		return
 	}
-	display := mygo.Screen.DisplayNearestPoint(mygo.Screen.CursorScreenPoint())
-	switch a.settings.Placement {
-	case settings.PlacementPrimaryScreen:
-		display = mygo.Screen.PrimaryDisplay()
-	case settings.PlacementMouseScreen:
-		display = mygo.Screen.DisplayNearestPoint(mygo.Screen.CursorScreenPoint())
+	// Placed in physical pixels: MyGo converts SetBounds with the DPI of the
+	// monitor the panel is on now, so a DIP rectangle of a monitor at another
+	// scale opened it in the wrong place once after every monitor change.
+	target := monitor.AtCursor
+	if a.settings.Placement == settings.PlacementPrimaryScreen {
+		target = monitor.Primary
 	}
-	rect := layout.Calculate(layout.WorkArea{
-		X: display.WorkArea.X, Y: display.WorkArea.Y,
-		Width: display.WorkArea.Width, Height: display.WorkArea.Height,
-	}, 1, float64(width), float64(height), &layout.Anchor{X: anchorX, Y: anchorY})
-	a.panel.SetBounds(mygo.Rectangle{X: rect.X, Y: rect.Y, Width: rect.Width, Height: rect.Height})
+	mygo.RunOnMain(func() {
+		area, err := target()
+		if err == nil {
+			rect := layout.Calculate(area.Work, area.Scale, float64(width), float64(height), &layout.Anchor{X: anchorX, Y: anchorY})
+			err = monitor.Place(a.panel.NativeHandle(), rect)
+		}
+		if err != nil {
+			slog.Warn("panel_placement_failed", "error", err)
+		}
+	})
 }
 
 // previewPanelSize applies the draft size to the panel while the settings
@@ -671,19 +677,18 @@ func (a *App) rememberPanelAnchor() {
 	if a.panel == nil || (a.settingsWin != nil && a.settingsWin.IsVisible()) {
 		return
 	}
-	bounds := a.panel.Bounds()
-	if bounds.Width <= 0 || bounds.Height <= 0 {
+	// Physical pixels, as positionPanelSize places it: DIP bounds of monitors
+	// at different scales overlap and could name the wrong monitor.
+	area, bounds, err := monitor.OfWindow(a.panel.NativeHandle())
+	if err != nil {
+		slog.Warn("panel_anchor_failed", "error", err)
 		return
 	}
-	display := mygo.Screen.DisplayNearestPoint(mygo.Point{X: bounds.X + bounds.Width/2, Y: bounds.Y + bounds.Height/2})
-	work := display.WorkArea
-	if work.Width <= 0 || work.Height <= 0 {
+	work := area.Work
+	if bounds.Width <= 0 || bounds.Height <= 0 || work.Width <= 0 || work.Height <= 0 {
 		return
 	}
-	anchor := layout.Capture(
-		layout.WorkArea{X: work.X, Y: work.Y, Width: work.Width, Height: work.Height},
-		bounds.X, bounds.Y, bounds.Width, bounds.Height,
-	)
+	anchor := layout.Capture(work, bounds.X, bounds.Y, bounds.Width, bounds.Height)
 	// A move of a few pixels is the rounding of a placement, not the user
 	// dragging the panel: do not rewrite the settings for it.
 	if math.Abs(anchor.X-a.settings.AnchorX) < 0.002 && math.Abs(anchor.Y-a.settings.AnchorY) < 0.002 {

@@ -1,8 +1,8 @@
 # MyGo 上游 issue 草稿：Windows 下进程退出时挂死
 
-状态：待提交到 `github.com/egoist/mygo`。分隔线以下是可直接粘贴的英文正文。
+状态：已提交为 [egoist/mygo#1896](https://github.com/egoist/mygo/issues/1896)，由 [#1897](https://github.com/egoist/mygo/pull/1897)（2026-11-15 合并）修复，等待发布：截至 2026-11-16 最新正式版 `v0.9.1` 早于该修复，尚不包含。分隔线以下是提交时的英文正文。
 
-本项目的规避方式见 `internal/winapi/teardown` 和 `internal/app/app.go` 里的 `OnQuit`（提交 `4a69786`）；上游修复后可以移除。
+本项目的规避方式见 `internal/winapi/teardown` 和 `internal/app/app.go` 里的 `OnQuit`（提交 `4a69786`）。升级到包含 #1897 的 MyGo 正式版后移除；从当前的 `v0.7.4` 跨越多个版本，升级需单独验证构建、窗口、输入法和更新后重启。
 
 ---
 
@@ -42,7 +42,7 @@ The cause is that the hidden application window (class `MyGoApp`) is still alive
 
 Stack of the only remaining thread (the UI thread), innermost first. System frames are from export symbols; Go frames were resolved from the binary's pclntab.
 
-```
+```bash
 ntdll!NtWaitForSingleObject
 KERNELBASE!WaitForSingleObjectEx
 runtime.semasleep

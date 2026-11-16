@@ -4,7 +4,9 @@
 package shortcut
 
 import (
+	"errors"
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/go-ole/go-ole"
@@ -21,8 +23,14 @@ type Target struct {
 // Resolve reads a shortcut's target, arguments and working directory. It
 // returns false when the shortcut cannot be read.
 func Resolve(path string) (Target, bool) {
-	initialized := ole.CoInitializeEx(0, ole.COINIT_APARTMENTTHREADED) == nil
-	if initialized {
+	// COM state belongs to the OS thread: keep the goroutine on the thread it
+	// initialized until every object is released.
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+	// S_FALSE means the thread already was in this apartment; it still takes
+	// a matching CoUninitialize. Another apartment (RPC_E_CHANGED_MODE) works
+	// as is and must not be uninitialized.
+	if err := ole.CoInitializeEx(0, ole.COINIT_APARTMENTTHREADED); err == nil || isSFalse(err) {
 		defer ole.CoUninitialize()
 	}
 	unknown, err := oleutil.CreateObject("WScript.Shell")
@@ -39,12 +47,13 @@ func Resolve(path string) (Target, bool) {
 	if err != nil {
 		return Target{}, false
 	}
-	shortcut := result.ToIDispatch()
+	// The VARIANT owns the shortcut object: ToIDispatch does not AddRef, and
+	// Clear releases it. Releasing it as well freed it twice and crashed.
 	defer result.Clear()
+	shortcut := result.ToIDispatch()
 	if shortcut == nil {
 		return Target{}, false
 	}
-	defer shortcut.Release()
 	target := Target{
 		Path:             property(shortcut, "TargetPath"),
 		Arguments:        property(shortcut, "Arguments"),
@@ -62,6 +71,11 @@ func Resolve(path string) (Target, bool) {
 	}
 	target.IconPath = os.ExpandEnv(target.IconPath)
 	return target, true
+}
+
+func isSFalse(err error) bool {
+	var oleErr *ole.OleError
+	return errors.As(err, &oleErr) && oleErr.Code() == 1 // S_FALSE
 }
 
 func property(dispatch *ole.IDispatch, name string) string {

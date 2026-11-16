@@ -15,6 +15,7 @@ import (
 	"sync"
 
 	"github.com/egoist/mygo"
+	"golang.org/x/sys/windows"
 
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/settings"
@@ -75,6 +76,7 @@ func (c *Catalog) Discover(ctx context.Context) ([]model.Entry, error) {
 	if err != nil {
 		c.setWarning(locales.LaunchShellAppsWarning(err))
 	}
+	installedNames := make(map[string]bool, len(installed))
 	for _, app := range installed {
 		if err := ctx.Err(); err != nil {
 			return nil, err
@@ -82,6 +84,7 @@ func (c *Catalog) Discover(ctx context.Context) ([]model.Entry, error) {
 		if app.Name == "" || app.Path == "" {
 			continue
 		}
+		installedNames[strings.ToLower(app.Name)] = true
 		add(model.Entry{
 			ID:           appID(app.Path, ""),
 			Title:        app.Name,
@@ -93,6 +96,21 @@ func (c *Catalog) Discover(ctx context.Context) ([]model.Entry, error) {
 			IconPath:     app.Path,
 			AppID:        app.ID,
 		})
+	}
+
+	// The Applications folder only lists the Start menu, so shortcuts that
+	// live solely on the desktop (Toolbox or unzipped IDEs) are scanned here.
+	// Their IDs come from the shortcut target, not shell:AppsFolder, so a
+	// shortcut that the Start menu also has is recognized by its name.
+	for _, root := range desktopRoots() {
+		scanRoot(ctx, root, false, func(entry model.Entry) {
+			if !installedNames[strings.ToLower(entry.Title)] {
+				add(entry)
+			}
+		})
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, err
 	}
 
 	roots := make([]string, 0)
@@ -171,6 +189,19 @@ func scanRoot(ctx context.Context, root string, recursive bool, add func(model.E
 		return nil
 	}
 	_ = filepath.WalkDir(root, walk)
+}
+
+// desktopRoots returns the user's and the public desktop. Known folders
+// follow redirection (OneDrive, another drive), which %USERPROFILE%\Desktop
+// does not.
+func desktopRoots() []string {
+	roots := make([]string, 0, 2)
+	for _, id := range []*windows.KNOWNFOLDERID{windows.FOLDERID_Desktop, windows.FOLDERID_PublicDesktop} {
+		if path, err := windows.KnownFolderPath(id, windows.KF_FLAG_DEFAULT); err == nil && path != "" {
+			roots = append(roots, path)
+		}
+	}
+	return roots
 }
 
 func launchable(path string) bool {
@@ -264,8 +295,12 @@ func (c *Catalog) Watch(ctx context.Context) {
 	}{
 		{filepath.Join(os.Getenv("APPDATA"), "Microsoft", "Windows", "Start Menu", "Programs"), true},
 		{filepath.Join(os.Getenv("ProgramData"), "Microsoft", "Windows", "Start Menu", "Programs"), true},
-		{filepath.Join(os.Getenv("USERPROFILE"), "Desktop"), false},
-		{filepath.Join(os.Getenv("PUBLIC"), "Desktop"), false},
+	}
+	for _, root := range desktopRoots() {
+		roots = append(roots, struct {
+			path      string
+			recursive bool
+		}{root, false})
 	}
 	for _, root := range options.PortableDirectories {
 		roots = append(roots, struct {

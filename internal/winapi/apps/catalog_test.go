@@ -3,8 +3,13 @@
 package apps
 
 import (
+	"context"
+	"os"
+	"path/filepath"
 	"slices"
 	"testing"
+
+	"fluentlauncher/internal/core/model"
 )
 
 func TestAppIDAliases(t *testing.T) {
@@ -22,6 +27,38 @@ func TestAppIDAliases(t *testing.T) {
 	} {
 		if got := appIDAliases(tc.id, tc.title); !slices.Equal(got, tc.want) {
 			t.Fatalf("%s: aliases = %q, want %q", tc.id, got, tc.want)
+		}
+	}
+}
+
+func TestScanRootDesktopIsShallow(t *testing.T) {
+	root := t.TempDir()
+	for _, name := range []string{"tool.exe", "notes.txt", `nested\inner.exe`} {
+		path := filepath.Join(root, name)
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, nil, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	var titles []string
+	scanRoot(context.Background(), root, false, func(entry model.Entry) {
+		titles = append(titles, entry.Title)
+	})
+	if !slices.Equal(titles, []string{"tool"}) {
+		t.Fatalf("titles = %q, want [tool]", titles)
+	}
+}
+
+func TestDesktopRootsResolveKnownFolders(t *testing.T) {
+	roots := desktopRoots()
+	if len(roots) == 0 {
+		t.Fatal("no desktop known folder resolved")
+	}
+	for _, root := range roots {
+		if !filepath.IsAbs(root) {
+			t.Fatalf("desktop root %q is not absolute", root)
 		}
 	}
 }

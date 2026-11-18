@@ -85,18 +85,19 @@ type App struct {
 	input ui.Handle
 	list  ui.ListState
 
-	query          string
-	results        []model.Result
-	chosen         int
-	selectedID     string
-	resultsReady   bool
-	notice         string
-	status         string
-	composing      bool
-	settingsError  string
-	settingsNotice string
-	loading        atomic.Bool
-	lastDiscovery  time.Time
+	query             string
+	resultsQuery      string
+	results           []model.Result
+	chosen            int
+	preferredResultID string
+	resultsReady      bool
+	notice            string
+	status            string
+	composing         bool
+	settingsError     string
+	settingsNotice    string
+	loading           atomic.Bool
+	lastDiscovery     time.Time
 
 	icons           *iconLoader
 	iconSize        int
@@ -1095,22 +1096,22 @@ func (a *App) updateResults() {
 	}
 	a.resultsReady = false
 	started := time.Now()
-	preferred := a.selectedID
+	query := a.query
 	// The query goroutine must not read fields the UI thread replaces on
 	// save; take everything it needs now.
 	snap := a.currentSettings()
 	providers := a.providers
 
-	if strings.TrimSpace(a.query) == "" {
+	if strings.TrimSpace(query) == "" {
 		go func() {
 			results := search.RecentEntries(snap.ShowRecentEntries, a.profileSlice(), a.findEntry, snap.MaxResults)
 			if ctx.Err() == nil {
-				a.queryUpdates.publish(queryDelivery{generation, search.Update{Results: results}, preferred, started, time.Now()}, a.panel.Update, a.deliverQuery)
+				a.queryUpdates.publish(queryDelivery{generation, search.Update{Results: results}, query, started, time.Now()}, a.panel.Update, a.deliverQuery)
 			}
 		}()
 		return
 	}
-	q := search.RouteTools(search.ParseQuery(a.query), snap)
+	q := search.RouteTools(search.ParseQuery(query), snap)
 	providers = a.measuredProviders(providers, q, generation)
 	go func() {
 		publications := 0
@@ -1119,7 +1120,7 @@ func (a *App) updateResults() {
 			if publications == 1 && a.diagnostics != nil {
 				a.diagnostics.Measure("first_computed", time.Since(started), "query_id", generation, "results", len(update.Results))
 			}
-			a.queryUpdates.publish(queryDelivery{generation, update, preferred, started, time.Now()}, a.panel.Update, a.deliverQuery)
+			a.queryUpdates.publish(queryDelivery{generation, update, query, started, time.Now()}, a.panel.Update, a.deliverQuery)
 		})
 		if a.diagnostics != nil {
 			a.diagnostics.Measure("query_complete", time.Since(started), "query_id", generation, "status", diag.ErrorKind(ctx.Err()), "publications", publications)
@@ -1127,25 +1128,25 @@ func (a *App) updateResults() {
 	}()
 }
 
-func (a *App) setResults(results []model.Result, preferred string) {
-	previousIndex, previousID := a.chosen, a.selectedID
+func (a *App) setResults(results []model.Result) {
+	previousIndex := a.chosen
+	previous, _ := a.selected()
 	a.results = results
 	a.chosen = 0
-	if preferred != "" {
+	if a.preferredResultID != "" {
 		for i, result := range results {
-			if result.Entry.ID == preferred {
+			if result.Entry.ID == a.preferredResultID {
 				a.chosen = i
 				break
 			}
 		}
 	}
-	if len(results) == 0 {
-		a.selectedID = ""
-	} else {
-		a.selectedID = results[a.chosen].Entry.ID
-		if a.chosen != previousIndex || a.selectedID != previousID {
-			a.list.ScrollIntoView(a.chosen)
-		}
+	selected, ok := a.selected()
+	if !ok || selected.ID != a.preferredResultID {
+		a.preferredResultID = ""
+	}
+	if ok && (a.chosen != previousIndex || selected.ID != previous.ID) {
+		a.list.ScrollIntoView(a.chosen)
 	}
 }
 
@@ -1177,9 +1178,13 @@ func (a *App) choose(offset int) {
 	if len(a.results) == 0 {
 		return
 	}
-	a.chosen = min(max(a.chosen+offset, 0), len(a.results)-1)
-	a.selectedID = a.results[a.chosen].Entry.ID
+	a.selectResult(min(max(a.chosen+offset, 0), len(a.results)-1))
 	a.list.ScrollIntoView(a.chosen)
+}
+
+func (a *App) selectResult(index int) {
+	a.chosen = index
+	a.preferredResultID = a.results[index].Entry.ID
 }
 
 func (a *App) selected() (model.Entry, bool) {

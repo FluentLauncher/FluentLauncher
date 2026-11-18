@@ -190,13 +190,11 @@ func (a *App) row(c *ui.Context, theme *ui.Theme, index int) {
 		}
 	})
 	if row.RightClicked() {
-		a.chosen = index
-		a.selectedID = item.Entry.ID
+		a.selectResult(index)
 		a.openActions()
 	}
 	if row.Clicked() {
-		a.chosen = index
-		a.selectedID = item.Entry.ID
+		a.selectResult(index)
 		a.pendingOpen = true
 	}
 	if row.Hovered() {

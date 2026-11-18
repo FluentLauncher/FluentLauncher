@@ -7,6 +7,8 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/egoist/mygo/ui"
+
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/search"
 	"fluentlauncher/internal/diag"
@@ -15,7 +17,7 @@ import (
 type queryDelivery struct {
 	generation int64
 	update     search.Update
-	preferred  string
+	query      string
 	started    time.Time
 	queued     time.Time
 }
@@ -57,14 +59,16 @@ func (a *App) deliverQuery(value queryDelivery) {
 	}
 	started := time.Now()
 	first := !a.resultsReady
-	if !reflect.DeepEqual(a.results, value.update.Results) {
-		// Respect keyboard navigation made since this query started. Late
-		// providers must not restore the selection captured at the first key.
-		preferred := value.preferred
-		if a.resultsReady {
-			preferred = a.selectedID
-		}
-		a.setResults(value.update.Results, preferred)
+	queryChanged := a.resultsQuery != value.query
+	if queryChanged {
+		a.resultsQuery = value.query
+		a.preferredResultID = ""
+	}
+	if queryChanged || !reflect.DeepEqual(a.results, value.update.Results) {
+		a.setResults(value.update.Results)
+	}
+	if queryChanged {
+		a.list.ScrollTo(0, ui.Start)
 	}
 	a.resultsReady = true
 	a.lastBatches = value.update.Batches

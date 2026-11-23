@@ -211,6 +211,8 @@ func (a *App) stopVolume() {
 		a.volumeTimer.Stop()
 		a.volumeTimer = nil
 	}
+	// A hidden overlay is not drawn, so its hover would not clear itself.
+	a.volumeHovered = false
 	if a.volumeWin != nil {
 		a.volumeWin.Hide()
 	}

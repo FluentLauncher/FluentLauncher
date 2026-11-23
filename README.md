@@ -93,6 +93,7 @@ FL_DEBUG_QUERY=echo hello   # 启动后填入查询
 FL_DEBUG_OPEN_SETTINGS=1    # 启动后打开设置窗口
 FL_DEBUG_SETTINGS_PAGE=1    # 配合上一项，直接打开指定设置页（0 起）
 FL_DEBUG_VOLUME=64          # 固定显示音量浮层，便于调整样式
+FL_DEBUG_VOLUME_MUTED=1     # 配合上一项，以静音样式显示音量浮层
 FL_DEBUG_TRAY_MENU=1        # 启动后弹出托盘菜单，便于检查菜单项
 FL_DEBUG_EXIT_MS=6000       # 启动后自动退出
 FL_DEBUG_MEMORY=1           # 每 2 秒采样 Go 内存并在页脚显示；默认关闭

@@ -78,6 +78,7 @@ type App struct {
 	volumeWin      *mygo.Window
 	volume         *volume.Controller
 	volumePct      int
+	volumeMuted    bool
 	// volumePinned keeps the debug overlay on screen, so that a build can be
 	// checked without a wheel gesture.
 	volumePinned bool
@@ -411,6 +412,7 @@ func (a *App) ready() {
 		if percent, err := strconv.Atoi(value); err == nil {
 			a.volumePinned = true
 			a.volumePct = min(max(percent, 0), 100)
+			a.volumeMuted = os.Getenv("FL_DEBUG_VOLUME_MUTED") == "1"
 			a.showVolumeOverlay()
 		}
 	}

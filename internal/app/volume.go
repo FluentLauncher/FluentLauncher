@@ -21,7 +21,27 @@ const (
 	volumeOverlayGap    = 20
 )
 
-var volumeIcon = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>`))
+// The speaker follows the system flyout: a cross when muted, no waves at
+// zero, then one or two waves as the level rises.
+var (
+	volumeMutedIcon = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 6 6"/><path d="m22 9-6 6"/></svg>`))
+	volumeZeroIcon  = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M11 5 6 9H3v6h3l5 4z"/></svg>`))
+	volumeLowIcon   = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>`))
+	volumeHighIcon  = ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>`))
+)
+
+func volumeIconFor(percent int, muted bool) *ui.SVG {
+	switch {
+	case muted:
+		return volumeMutedIcon
+	case percent == 0:
+		return volumeZeroIcon
+	case percent < 50:
+		return volumeLowIcon
+	default:
+		return volumeHighIcon
+	}
+}
 
 func (a *App) createVolumeOverlay() {
 	a.volumeWin = mygo.NewWindow(mygo.WindowOptions{
@@ -60,16 +80,22 @@ func (a *App) volumeView(c *ui.Context) {
 	if percent > 100 {
 		percent = 100
 	}
+	// A muted device keeps its level; the bar and number show it greyed
+	// out, as the system flyout does, so a moving bar never hides the mute.
+	fill, label := theme.Accent, theme.Text
+	if a.volumeMuted {
+		fill, label = theme.TextMuted, theme.TextMuted
+	}
 	// The plate fills the window without corners of its own: Windows rounds
 	// the window, and a second radius would leave a ring of the blur between
 	// the two outlines.
 	ui.Row(c).Fill().Padding(8, 14).Gap(12).AlignItems(ui.Center).
 		Background(theme.Surface).Children(func() {
-		ui.Icon(c, volumeIcon).FontSize(18).TextColor(theme.Text)
+		ui.Icon(c, volumeIconFor(percent, a.volumeMuted)).FontSize(18).TextColor(label)
 		ui.Box(c).Grow(1).Height(5).Radius(2.5).Background(theme.Border.Alpha(0.6)).Children(func() {
-			ui.Box(c).WidthPercent(float32(percent)).Height(5).Radius(2.5).Background(theme.Accent)
+			ui.Box(c).WidthPercent(float32(percent)).Height(5).Radius(2.5).Background(fill)
 		})
-		ui.Text(c, strconv.Itoa(percent)).FontSize(13).TextColor(theme.Text).Width(26)
+		ui.Text(c, strconv.Itoa(percent)).FontSize(13).TextColor(label).Width(26)
 	})
 }
 
@@ -90,19 +116,19 @@ func (a *App) applyVolumeSettings() {
 		return
 	}
 	a.volume = controller
-	if percent, err := volume.Get(); err == nil {
-		a.volumePct = percent
+	if state, err := volume.Get(); err == nil {
+		a.volumePct, a.volumeMuted = state.Percent, state.Muted
 	}
 }
 
-func (a *App) onVolumeChange(percent int) {
+func (a *App) onVolumeChange(state volume.State) {
 	if a.volumeWin == nil {
 		return
 	}
 	// Runs on the hook's worker goroutine; the timer and the pin flag are
 	// UI-thread state, so they move inside the window's update.
 	a.volumeWin.Update(func() {
-		a.volumePct = percent
+		a.volumePct, a.volumeMuted = state.Percent, state.Muted
 		a.showVolumeOverlay()
 		if a.volumeTimer != nil {
 			a.volumeTimer.Stop()

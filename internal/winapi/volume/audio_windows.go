@@ -7,6 +7,7 @@ import (
 	"math"
 	"runtime"
 	"syscall"
+	"unsafe"
 
 	"github.com/go-ole/go-ole"
 	"github.com/moutend/go-wca/pkg/wca"
@@ -17,48 +18,86 @@ var procCoInitializeEx = syscall.NewLazyDLL("ole32.dll").NewProc("CoInitializeEx
 // StepPercent is the default volume change for one wheel notch.
 const StepPercent = 2
 
+// State is the default output device's master volume as a percentage and
+// whether the device is muted. A muted device keeps its level: the level
+// still moves, but nothing plays until the mute is lifted.
+type State struct {
+	Percent int
+	Muted   bool
+}
+
 // Adjust changes the default output device's master volume by deltaSteps
 // notches (positive is louder), each notch moving stepPercent points, and
-// returns the new volume as a percentage. It keeps the mute state as it is
-// and re-reads the default device on every call, so a device change is
+// returns the new state. Like the keyboard's volume keys, any change lifts
+// the mute: otherwise the bar would move while the speakers stay silent.
+// It re-reads the default device on every call, so a device change is
 // followed without extra notifications.
-func Adjust(deltaSteps float32, stepPercent int) (int, error) {
+func Adjust(deltaSteps float32, stepPercent int) (State, error) {
+	var state State
+	err := withEndpointVolume(func(aev *wca.IAudioEndpointVolume) error {
+		var current float32
+		if err := aev.GetMasterVolumeLevelScalar(&current); err != nil {
+			return err
+		}
+		next := nextLevel(current, deltaSteps, stepPercent)
+		if err := aev.SetMasterVolumeLevelScalar(next, nil); err != nil {
+			return err
+		}
+		muted, err := getMute(aev)
+		if err != nil {
+			return err
+		}
+		if muted {
+			if err := aev.SetMute(false, nil); err != nil {
+				return err
+			}
+		}
+		state = State{Percent: toPercent(next)}
+		return nil
+	})
+	return state, err
+}
+
+// Get returns the default output device's master volume and mute state.
+func Get() (State, error) {
+	var state State
+	err := withEndpointVolume(func(aev *wca.IAudioEndpointVolume) error {
+		var level float32
+		if err := aev.GetMasterVolumeLevelScalar(&level); err != nil {
+			return err
+		}
+		muted, err := getMute(aev)
+		if err != nil {
+			return err
+		}
+		state = State{Percent: toPercent(level), Muted: muted}
+		return nil
+	})
+	return state, err
+}
+
+func nextLevel(current, deltaSteps float32, stepPercent int) float32 {
 	if stepPercent <= 0 {
 		stepPercent = StepPercent
 	}
-	current, err := get()
-	if err != nil {
-		return 0, err
-	}
 	next := current + deltaSteps*float32(stepPercent)/100
-	next = float32(math.Max(0, math.Min(1, float64(next))))
-	if err := set(next); err != nil {
-		return 0, err
+	return float32(math.Max(0, math.Min(1, float64(next))))
+}
+
+func toPercent(level float32) int {
+	return int(math.Round(float64(level) * 100))
+}
+
+// getMute reads the endpoint's mute flag. go-wca's GetMute hands a Go bool
+// to a method that writes a 4-byte BOOL, overrunning it; read a uint32.
+func getMute(aev *wca.IAudioEndpointVolume) (bool, error) {
+	var value uint32
+	hr, _, _ := syscall.SyscallN(aev.VTable().GetMute,
+		uintptr(unsafe.Pointer(aev)), uintptr(unsafe.Pointer(&value)))
+	if hr != 0 {
+		return false, ole.NewError(hr)
 	}
-	return int(math.Round(float64(next) * 100)), nil
-}
-
-// Get returns the default output device's master volume as a percentage.
-func Get() (int, error) {
-	v, err := get()
-	if err != nil {
-		return 0, err
-	}
-	return int(math.Round(float64(v) * 100)), nil
-}
-
-func get() (float32, error) {
-	var value float32
-	err := withEndpointVolume(func(aev *wca.IAudioEndpointVolume) error {
-		return aev.GetMasterVolumeLevelScalar(&value)
-	})
-	return value, err
-}
-
-func set(value float32) error {
-	return withEndpointVolume(func(aev *wca.IAudioEndpointVolume) error {
-		return aev.SetMasterVolumeLevelScalar(value, nil)
-	})
+	return value != 0, nil
 }
 
 func withEndpointVolume(fn func(*wca.IAudioEndpointVolume) error) error {

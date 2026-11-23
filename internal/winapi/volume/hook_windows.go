@@ -42,7 +42,7 @@ type Options struct {
 	Edges        Edges
 	ThicknessDIP int
 	StepPercent  int
-	OnChange     func(percent int)
+	OnChange     func(State)
 }
 
 // Controller owns the low-level mouse hook and its worker.
@@ -241,13 +241,13 @@ func (c *Controller) worker() {
 			return
 		case delta := <-c.ch:
 			steps := float32(delta) / 120
-			percent, err := Adjust(steps, c.opts.StepPercent)
+			state, err := Adjust(steps, c.opts.StepPercent)
 			if err != nil {
 				log.Printf("volume: %v", err)
 				continue
 			}
 			if c.opts.OnChange != nil {
-				c.opts.OnChange(percent)
+				c.opts.OnChange(state)
 			}
 		}
 	}

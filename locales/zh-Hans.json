@@ -352,6 +352,7 @@
     "description": "Workspace result window: notice when the launch item to retry no longer exists"
   },
   "volumeWheelError": "无法启用边缘滚轮调音量：{err}",
+  "volumeToggleMute": "静音或取消静音",
   "@volumeWheelError": {
     "description": "Main launcher panel: notice when the edge wheel for volume cannot start",
     "placeholders": {

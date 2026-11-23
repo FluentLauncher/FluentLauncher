@@ -3,8 +3,11 @@ package app
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/egoist/mygo/ui"
+
+	"fluentlauncher/internal/winapi/volume"
 )
 
 func TestVolumeViewUpdates(t *testing.T) {
@@ -45,5 +48,37 @@ func TestVolumeIconFor(t *testing.T) {
 		if got := volumeIconFor(tc.percent, tc.muted); got != tc.want {
 			t.Errorf("volumeIconFor(%d, %v) picked the wrong icon", tc.percent, tc.muted)
 		}
+	}
+}
+
+// Hovering the overlay holds it on screen, and clicking the speaker toggles
+// the mute, as on the system flyout.
+func TestVolumeSpeakerTogglesMute(t *testing.T) {
+	a := newLocalizedApp()
+	toggled := make(chan struct{}, 1)
+	defer func(old func() (volume.State, error)) { toggleMute = old }(toggleMute)
+	toggleMute = func() (volume.State, error) {
+		toggled <- struct{}{}
+		return volume.State{Percent: 64, Muted: true}, nil
+	}
+	tt := ui.NewTester(a.volumeView, volumeOverlayWidth, volumeOverlayHeight)
+	a.volumePct = 64
+	tt.Frame()
+	tt.Move(20, volumeOverlayHeight/2)
+	tt.Frame()
+	if !a.volumeHovered {
+		t.Fatal("hovering the overlay does not hold it")
+	}
+	tt.ClickAt(20, volumeOverlayHeight/2)
+	tt.Frame()
+	select {
+	case <-toggled:
+	case <-time.After(2 * time.Second):
+		t.Fatal("clicking the speaker does not toggle the mute")
+	}
+	tt.Move(-10, -10)
+	tt.Frame()
+	if a.volumeHovered {
+		t.Fatal("the overlay stays held after the pointer left")
 	}
 }

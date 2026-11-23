@@ -58,6 +58,28 @@ func Adjust(deltaSteps float32, stepPercent int) (State, error) {
 	return state, err
 }
 
+// ToggleMute flips the default output device's mute, as clicking the speaker
+// on the system's volume flyout does, and returns the new state.
+func ToggleMute() (State, error) {
+	var state State
+	err := withEndpointVolume(func(aev *wca.IAudioEndpointVolume) error {
+		var level float32
+		if err := aev.GetMasterVolumeLevelScalar(&level); err != nil {
+			return err
+		}
+		muted, err := getMute(aev)
+		if err != nil {
+			return err
+		}
+		if err := aev.SetMute(!muted, nil); err != nil {
+			return err
+		}
+		state = State{Percent: toPercent(level), Muted: !muted}
+		return nil
+	})
+	return state, err
+}
+
 // Get returns the default output device's master volume and mute state.
 func Get() (State, error) {
 	var state State

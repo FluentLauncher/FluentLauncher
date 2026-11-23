@@ -79,6 +79,7 @@ type App struct {
 	volume         *volume.Controller
 	volumePct      int
 	volumeMuted    bool
+	volumeHovered  bool
 	// volumePinned keeps the debug overlay on screen, so that a build can be
 	// checked without a wheel gesture.
 	volumePinned bool

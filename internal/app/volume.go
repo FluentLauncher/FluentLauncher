@@ -56,7 +56,12 @@ func (a *App) createVolumeOverlay() {
 		Height:        volumeOverlayHeight,
 		Content:       ui.View(a.volumeView),
 	})
-	a.volumeWin.SetIgnoreMouseEvents(true)
+	// The speaker toggles the mute, as on the system flyout, so the overlay
+	// takes the pointer; clicking it must not pull the keyboard away from the
+	// app in use.
+	if err := volume.SetNoActivate(a.volumeWin.NativeHandle()); err != nil {
+		log.Printf("volume overlay: %v", err)
+	}
 	// The overlay blurs what is behind it, as the system's own volume flyout
 	// does, so that it reads on any wallpaper.
 	if err := glass.SetBlur(a.volumeWin.NativeHandle(), true); err != nil {
@@ -89,14 +94,45 @@ func (a *App) volumeView(c *ui.Context) {
 	// The plate fills the window without corners of its own: Windows rounds
 	// the window, and a second radius would leave a ring of the blur between
 	// the two outlines.
-	ui.Row(c).Fill().Padding(8, 14).Gap(12).AlignItems(ui.Center).
-		Background(theme.Surface).Children(func() {
-		ui.Icon(c, volumeIconFor(percent, a.volumeMuted)).FontSize(18).TextColor(label)
+	plate := ui.Row(c).Fill().Padding(8, 8, 8, 6).Gap(8).AlignItems(ui.Center).
+		Background(theme.Surface)
+	plate.Children(func() {
+		speaker := ui.ButtonBase(c).Size(30, 28).Radius(theme.Radius).Label(locales.VolumeToggleMute())
+		speaker.Children(func() {
+			ui.Icon(c, volumeIconFor(percent, a.volumeMuted)).FontSize(18).TextColor(label)
+		})
+		if speaker.Hovered() {
+			speaker.Background(theme.SurfaceHover)
+		}
+		if speaker.Clicked() {
+			a.toggleVolumeMute()
+		}
 		ui.Box(c).Grow(1).Height(5).Radius(2.5).Background(theme.Border.Alpha(0.6)).Children(func() {
 			ui.Box(c).WidthPercent(float32(percent)).Height(5).Radius(2.5).Background(fill)
 		})
 		ui.Text(c, strconv.Itoa(percent)).FontSize(13).TextColor(label).Width(26)
 	})
+	// The overlay stays while the pointer is on it, so the speaker can be
+	// reached before it hides.
+	if hovered := plate.Hovered(); hovered != a.volumeHovered {
+		a.volumeHovered = hovered
+		a.armVolumeHide()
+	}
+}
+
+// toggleMute is swapped in tests, which must not mute the machine.
+var toggleMute = volume.ToggleMute
+
+// toggleVolumeMute flips the mute off the UI thread and shows the result.
+func (a *App) toggleVolumeMute() {
+	go func() {
+		state, err := toggleMute()
+		if err != nil {
+			log.Printf("volume: %v", err)
+			return
+		}
+		a.onVolumeChange(state)
+	}()
 }
 
 func (a *App) applyVolumeSettings() {
@@ -130,15 +166,25 @@ func (a *App) onVolumeChange(state volume.State) {
 	a.volumeWin.Update(func() {
 		a.volumePct, a.volumeMuted = state.Percent, state.Muted
 		a.showVolumeOverlay()
-		if a.volumeTimer != nil {
-			a.volumeTimer.Stop()
-		}
-		if a.volumePinned {
-			return
-		}
-		a.volumeTimer = time.AfterFunc(1200*time.Millisecond, func() {
-			if a.volumeWin != nil {
-				a.volumeWin.Hide()
+		a.armVolumeHide()
+	})
+}
+
+// armVolumeHide restarts the overlay's hide timer, or holds the overlay
+// while it is pinned for debugging or under the pointer. UI thread only.
+func (a *App) armVolumeHide() {
+	if a.volumeTimer != nil {
+		a.volumeTimer.Stop()
+		a.volumeTimer = nil
+	}
+	if a.volumePinned || a.volumeHovered || a.volumeWin == nil {
+		return
+	}
+	win := a.volumeWin
+	a.volumeTimer = time.AfterFunc(1200*time.Millisecond, func() {
+		win.Update(func() {
+			if !a.volumeHovered {
+				win.Hide()
 			}
 		})
 	})

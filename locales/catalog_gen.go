@@ -974,6 +974,16 @@ func (msgs Messages) VolumeWheelError(err string) string {
 	return Catalog.Format(msgs.locale, "volumeWheelError", map[string]any{"err": err})
 }
 
+// VolumeToggleMute says "静音或取消静音"
+// in the language the app shows.
+func VolumeToggleMute() string { return In(i18n.Locale()).VolumeToggleMute() }
+
+// VolumeToggleMute says "静音或取消静音"
+// in the language of msgs.
+func (msgs Messages) VolumeToggleMute() string {
+	return Catalog.Format(msgs.locale, "volumeToggleMute", nil)
+}
+
 // SizePreviewHint says "拖动面板移动位置，拖边缘调整大小"
 // in the language the app shows.
 //

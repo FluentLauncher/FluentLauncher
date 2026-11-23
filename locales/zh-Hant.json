@@ -65,6 +65,7 @@
   "workspaceRetryFailed": "重試失敗：{error}",
   "workspaceItemDeleted": "該啟動項目已刪除。",
   "volumeWheelError": "無法啟用邊緣滾輪調音量：{err}",
+  "volumeToggleMute": "靜音或取消靜音",
   "sizePreviewHint": "拖動面板移動位置，拖動邊緣調整大小",
   "sizePreviewReset": "還原預設",
   "sizePreviewLabel": "視窗尺寸與位置預覽",

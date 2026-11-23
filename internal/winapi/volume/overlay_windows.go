@@ -9,9 +9,11 @@ import (
 )
 
 var (
-	procGetCursorPos    = user32.NewProc("GetCursorPos")
-	procSetWindowPos    = user32.NewProc("SetWindowPos")
-	procGetDpiForWindow = user32.NewProc("GetDpiForWindow")
+	procGetWindowLongPtrW = user32.NewProc("GetWindowLongPtrW")
+	procSetWindowLongPtrW = user32.NewProc("SetWindowLongPtrW")
+	procGetCursorPos      = user32.NewProc("GetCursorPos")
+	procSetWindowPos      = user32.NewProc("SetWindowPos")
+	procGetDpiForWindow   = user32.NewProc("GetDpiForWindow")
 )
 
 // PositionOverlay centers a non-activating overlay above the work area's bottom
@@ -73,6 +75,24 @@ func positionOverlay(hwnd uintptr, bounds rect) error {
 		// MyGo handles WM_DPICHANGED by applying Windows' suggested size. That
 		// scales our already scaled pixel size again; restore it at the new DPI.
 		return place()
+	}
+	return nil
+}
+
+// SetNoActivate keeps a window from taking the foreground when it is
+// clicked, so the overlay's speaker can be clicked without pulling the
+// keyboard away from the app in use. MyGo has no such option for plain
+// windows, and only flips its own extended style bits later, keeping this.
+func SetNoActivate(hwnd uintptr) error {
+	const (
+		gwlExStyle     = ^uintptr(19) // -20
+		wsExNoActivate = 0x08000000
+	)
+	ex, _, _ := procGetWindowLongPtrW.Call(hwnd, gwlExStyle)
+	procSetWindowLongPtrW.Call(hwnd, gwlExStyle, ex|wsExNoActivate)
+	// A zero return is ambiguous for both calls; read the style back instead.
+	if got, _, err := procGetWindowLongPtrW.Call(hwnd, gwlExStyle); got&wsExNoActivate == 0 {
+		return fmt.Errorf("SetWindowLongPtrW: %w", err)
 	}
 	return nil
 }

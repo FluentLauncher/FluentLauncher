@@ -65,6 +65,7 @@
   "workspaceRetryFailed": "Retry failed: {error}",
   "workspaceItemDeleted": "This launch item has been removed.",
   "volumeWheelError": "Cannot enable the edge wheel for volume: {err}",
+  "volumeToggleMute": "Mute or unmute",
   "sizePreviewHint": "Drag the panel to move it, drag an edge to resize",
   "sizePreviewReset": "Restore defaults",
   "sizePreviewLabel": "Preview of window size and position",

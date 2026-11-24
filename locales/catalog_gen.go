@@ -9848,11 +9848,11 @@ func (msgs Messages) EverythingExcludesHint() string {
 	return Catalog.Format(msgs.locale, "everythingExcludesHint", nil)
 }
 
-// EverythingNeedsAdmin says "Everything 设为“以管理员身份运行”，后台启动会弹出 UAC …"
+// EverythingNeedsAdmin says "Everything 设为“以管理员身份运行”，每次启动都要 UAC …"
 // in the language the app shows.
 func EverythingNeedsAdmin() string { return In(i18n.Locale()).EverythingNeedsAdmin() }
 
-// EverythingNeedsAdmin says "Everything 设为“以管理员身份运行”，后台启动会弹出 UAC …"
+// EverythingNeedsAdmin says "Everything 设为“以管理员身份运行”，每次启动都要 UAC …"
 // in the language of msgs.
 func (msgs Messages) EverythingNeedsAdmin() string {
 	return Catalog.Format(msgs.locale, "everythingNeedsAdmin", nil)
@@ -9886,6 +9886,84 @@ func EverythingOpen() string { return In(i18n.Locale()).EverythingOpen() }
 // in the language of msgs.
 func (msgs Messages) EverythingOpen() string {
 	return Catalog.Format(msgs.locale, "everythingOpen", nil)
+}
+
+// EverythingFixAdmin says "改为免授权启动"
+// in the language the app shows.
+//
+// Files page: button that turns off Everything's run-as-administrator
+// setting and installs its service.
+func EverythingFixAdmin() string { return In(i18n.Locale()).EverythingFixAdmin() }
+
+// EverythingFixAdmin says "改为免授权启动"
+// in the language of msgs.
+//
+// Files page: button that turns off Everything's run-as-administrator
+// setting and installs its service.
+func (msgs Messages) EverythingFixAdmin() string {
+	return Catalog.Format(msgs.locale, "everythingFixAdmin", nil)
+}
+
+// EverythingFixAdminHint says "关闭 Everything 的“以管理员身份运行”，并安装随 Windows 启动的 Everything 服务。Windows …"
+// in the language the app shows.
+//
+// Files page: explanation under the fix-UAC button for Everything.
+func EverythingFixAdminHint() string { return In(i18n.Locale()).EverythingFixAdminHint() }
+
+// EverythingFixAdminHint says "关闭 Everything 的“以管理员身份运行”，并安装随 Windows 启动的 Everything 服务。Windows …"
+// in the language of msgs.
+//
+// Files page: explanation under the fix-UAC button for Everything.
+func (msgs Messages) EverythingFixAdminHint() string {
+	return Catalog.Format(msgs.locale, "everythingFixAdminHint", nil)
+}
+
+// EverythingFixAdminExitFirst says "请先退出 Everything（右键托盘图标 → 退出），再点击“改为免授权启动”。"
+// in the language the app shows.
+//
+// Error: the Everything client must be closed before its
+// run-as-administrator setting can be changed.
+func EverythingFixAdminExitFirst() string { return In(i18n.Locale()).EverythingFixAdminExitFirst() }
+
+// EverythingFixAdminExitFirst says "请先退出 Everything（右键托盘图标 → 退出），再点击“改为免授权启动”。"
+// in the language of msgs.
+//
+// Error: the Everything client must be closed before its
+// run-as-administrator setting can be changed.
+func (msgs Messages) EverythingFixAdminExitFirst() string {
+	return Catalog.Format(msgs.locale, "everythingFixAdminExitFirst", nil)
+}
+
+// EverythingFixAdminFailed says "修改 Everything 设置失败"
+// in the language the app shows.
+//
+// Error prefix: changing Everything's run-as-administrator setting or
+// installing its service failed.
+func EverythingFixAdminFailed() string { return In(i18n.Locale()).EverythingFixAdminFailed() }
+
+// EverythingFixAdminFailed says "修改 Everything 设置失败"
+// in the language of msgs.
+//
+// Error prefix: changing Everything's run-as-administrator setting or
+// installing its service failed.
+func (msgs Messages) EverythingFixAdminFailed() string {
+	return Catalog.Format(msgs.locale, "everythingFixAdminFailed", nil)
+}
+
+// EverythingFixAdminDone says "已改为免授权启动，Everything 已连接。"
+// in the language the app shows.
+//
+// Notice: Everything was switched to start without UAC and the connection
+// works.
+func EverythingFixAdminDone() string { return In(i18n.Locale()).EverythingFixAdminDone() }
+
+// EverythingFixAdminDone says "已改为免授权启动，Everything 已连接。"
+// in the language of msgs.
+//
+// Notice: Everything was switched to start without UAC and the connection
+// works.
+func (msgs Messages) EverythingFixAdminDone() string {
+	return Catalog.Format(msgs.locale, "everythingFixAdminDone", nil)
 }
 
 // EverythingDisconnected says "未连接，首次文件搜索时检查"

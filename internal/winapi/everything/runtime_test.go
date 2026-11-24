@@ -14,6 +14,7 @@ import (
 	"fluentlauncher/internal/core/model"
 	"fluentlauncher/internal/core/search"
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/winapi/apps"
 )
 
 // This opt-in probe bypasses MyGo app discovery, which requires a live UI
@@ -254,6 +255,81 @@ func TestCanceledIPCDoesNotMarkConnectionFailed(t *testing.T) {
 	if p.Status().State != Connected || !p.connection.retryAt.IsZero() {
 		t.Fatal("typing cancellation triggered connection failure/backoff")
 	}
+}
+
+// FixAdmin runs Everything's two elevated switches in order, then starts the
+// client without elevation and probes IPC; a running client or a declined
+// prompt stops it before anything changes.
+func TestFixAdmin(t *testing.T) {
+	options := settings.DefaultFileIndexOptions()
+	newProvider := func(running *atomic.Bool, admin *atomic.Bool, steps *[]string, elevateErr error) *Provider {
+		p := NewProvider(func() settings.FileIndexOptions { return options }, nil)
+		c := p.connection
+		c.running = running.Load
+		c.resolve = func(string) (string, error) { return `C:\Everything\Everything.exe`, nil }
+		c.needsAdmin = func(string) bool { return admin.Load() }
+		c.launch = func(_ string, show bool) error {
+			if admin.Load() {
+				t.Error("client launched while still set to run as administrator")
+			}
+			running.Store(true)
+			return nil
+		}
+		c.elevate = func(_ context.Context, file, arguments string) error {
+			*steps = append(*steps, arguments)
+			if elevateErr != nil {
+				return elevateErr
+			}
+			if arguments == "-disable-run-as-admin" {
+				admin.Store(false)
+			}
+			return nil
+		}
+		p.runQuery = func(context.Context, string, int) ([]model.Result, error) { return nil, nil }
+		return p
+	}
+
+	t.Run("success", func(t *testing.T) {
+		var running, admin atomic.Bool
+		admin.Store(true)
+		var steps []string
+		p := newProvider(&running, &admin, &steps, nil)
+		// A keystroke-driven start is skipped and reports the requirement.
+		_ = p.connection.ensure(context.Background(), options, false)
+		if !p.Status().NeedsAdmin {
+			t.Fatal("skipped start did not report NeedsAdmin")
+		}
+		if err := p.FixAdmin(context.Background(), options); err != nil {
+			t.Fatal(err)
+		}
+		if len(steps) != 2 || steps[0] != "-disable-run-as-admin" || steps[1] != "-install-service" {
+			t.Fatalf("elevated steps = %q", steps)
+		}
+		if status := p.Status(); status.State != Connected || status.NeedsAdmin {
+			t.Fatalf("status after fix = %+v", status)
+		}
+	})
+
+	t.Run("client running", func(t *testing.T) {
+		var running, admin atomic.Bool
+		running.Store(true)
+		admin.Store(true)
+		var steps []string
+		p := newProvider(&running, &admin, &steps, nil)
+		if err := p.FixAdmin(context.Background(), options); err == nil || len(steps) != 0 {
+			t.Fatalf("fix ran with the client open: %v, %q", err, steps)
+		}
+	})
+
+	t.Run("prompt declined", func(t *testing.T) {
+		var running, admin atomic.Bool
+		admin.Store(true)
+		var steps []string
+		p := newProvider(&running, &admin, &steps, apps.ErrUACCanceled)
+		if err := p.FixAdmin(context.Background(), options); err == nil || len(steps) != 1 || running.Load() {
+			t.Fatalf("declined prompt continued: %v, %q", err, steps)
+		}
+	})
 }
 
 func TestExplicitExecutableSelection(t *testing.T) {

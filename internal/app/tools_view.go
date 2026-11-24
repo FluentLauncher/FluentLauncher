@@ -215,6 +215,13 @@ func (a *App) everythingCard(c *ui.Context) {
 			if status.Path != "" {
 				ui.Text(c, status.Path).TextColor(c.Theme().TextMuted).Wrap()
 			}
+			if status.NeedsAdmin {
+				searchSettingRow(c, locales.EverythingFixAdmin(), locales.EverythingFixAdminHint(), func(c *ui.Context) {
+					if compactButton(c, locales.EverythingFixAdmin()).Disabled(a.everythingBusy || status.State == everything.Starting).Clicked() {
+						a.runEverythingFix()
+					}
+				})
+			}
 		}
 	})
 }
@@ -250,6 +257,26 @@ func (a *App) runEverythingAction(show bool) {
 				a.settingsError = ""
 				a.updateResults()
 			}
+		})
+	}()
+}
+
+// runEverythingFix switches Everything to start without UAC. The two
+// elevated steps wait on the user's prompts, so they run off the UI thread.
+func (a *App) runEverythingFix() {
+	a.everythingBusy = true
+	options := a.settingsDraft.Files
+	go func() {
+		err := a.everything.FixAdmin(context.Background(), options)
+		a.publishUpdate(func() {
+			a.everythingBusy = false
+			if err != nil {
+				a.settingsError = err.Error()
+				return
+			}
+			a.settingsError = ""
+			a.settingsNotice = locales.EverythingFixAdminDone()
+			a.updateResults()
 		})
 	}()
 }

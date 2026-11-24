@@ -3268,10 +3268,30 @@
   "everythingPathHint": "留空自动检测；便携版可选择 Everything.exe。",
   "everythingExcludes": "排除路径",
   "everythingExcludesHint": "每行一条，不显示这些位置下的结果。含 \\ 时按完整路径匹配，支持 %SystemRoot% 等环境变量。",
-  "everythingNeedsAdmin": "Everything 设为“以管理员身份运行”，后台启动会弹出 UAC 授权，已跳过自动启动。可点击“后台启动并连接”手动启动；或在 Everything 的“选项 → 常规”中取消“以管理员身份运行”并启用 Everything 服务。",
+  "everythingNeedsAdmin": "Everything 设为“以管理员身份运行”，每次启动都要 UAC 授权，已跳过自动启动。点击“改为免授权启动”可一次性修复。",
   "everythingChoose": "选择程序",
   "everythingConnect": "后台启动并连接",
   "everythingOpen": "打开 Everything",
+  "everythingFixAdmin": "改为免授权启动",
+  "@everythingFixAdmin": {
+    "description": "Files page: button that turns off Everything's run-as-administrator setting and installs its service."
+  },
+  "everythingFixAdminHint": "关闭 Everything 的“以管理员身份运行”，并安装随 Windows 启动的 Everything 服务。Windows 会请求两次授权，之后启动 Everything 不再弹出 UAC。",
+  "@everythingFixAdminHint": {
+    "description": "Files page: explanation under the fix-UAC button for Everything."
+  },
+  "everythingFixAdminExitFirst": "请先退出 Everything（右键托盘图标 → 退出），再点击“改为免授权启动”。",
+  "@everythingFixAdminExitFirst": {
+    "description": "Error: the Everything client must be closed before its run-as-administrator setting can be changed."
+  },
+  "everythingFixAdminFailed": "修改 Everything 设置失败",
+  "@everythingFixAdminFailed": {
+    "description": "Error prefix: changing Everything's run-as-administrator setting or installing its service failed."
+  },
+  "everythingFixAdminDone": "已改为免授权启动，Everything 已连接。",
+  "@everythingFixAdminDone": {
+    "description": "Notice: Everything was switched to start without UAC and the connection works."
+  },
   "everythingDisconnected": "未连接，首次文件搜索时检查",
   "everythingStarting": "正在启动并等待连接…",
   "everythingConnected": "已连接",

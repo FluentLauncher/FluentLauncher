@@ -19,6 +19,7 @@ import (
 	"golang.org/x/sys/windows/registry"
 
 	"fluentlauncher/internal/core/settings"
+	"fluentlauncher/internal/winapi/apps"
 	"fluentlauncher/locales"
 )
 
@@ -37,6 +38,9 @@ type ConnectionStatus struct {
 	State ConnectionState
 	Path  string
 	Error string
+	// NeedsAdmin is set when the resolved client is configured to "Run as
+	// administrator", so every launch raises a UAC prompt; FixAdmin clears it.
+	NeedsAdmin bool
 }
 
 // connection owns a single startup attempt, independent of keystroke cancellation.
@@ -58,10 +62,11 @@ type connection struct {
 	resolve     func(string) (string, error)
 	launch      func(string, bool) error
 	needsAdmin  func(string) bool
+	elevate     func(ctx context.Context, file, arguments string) error
 }
 
 func newConnection(changed func()) *connection {
-	c := &connection{changed: changed, running: clientRunning, launch: launchEverything, needsAdmin: requiresAdmin}
+	c := &connection{changed: changed, running: clientRunning, launch: launchEverything, needsAdmin: requiresAdmin, elevate: apps.RunElevatedAndWait}
 	c.resolve = func(configured string) (string, error) {
 		if configured == "" {
 			c.mu.Lock()
@@ -129,7 +134,7 @@ func (c *connection) ensure(ctx context.Context, options settings.FileIndexOptio
 	if c.pending == nil {
 		c.pending = make(chan struct{})
 		c.lastPath = options.EverythingPath
-		c.status = ConnectionStatus{State: Starting}
+		c.status = ConnectionStatus{State: Starting, NeedsAdmin: c.status.NeedsAdmin}
 		go c.start(options.EverythingPath, c.pending, force)
 	}
 	pending := c.pending
@@ -168,10 +173,11 @@ func (c *connection) queryFinished(options settings.FileIndexOptions, err error)
 
 func (c *connection) start(configured string, pending chan struct{}, force bool) {
 	path, err := c.resolve(configured)
+	admin := err == nil && c.needsAdmin != nil && c.needsAdmin(path)
 	if err == nil && !c.running() {
 		// An elevated client raises a UAC prompt; only the user's own
 		// connect action may cause that, never a keystroke.
-		if !force && c.needsAdmin != nil && c.needsAdmin(path) {
+		if !force && admin {
 			err = errors.New(locales.EverythingNeedsAdmin())
 		} else {
 			err = c.launch(path, false)
@@ -192,7 +198,7 @@ func (c *connection) start(configured string, pending chan struct{}, force bool)
 	}
 	c.mu.Lock()
 	// The process is ready, but only a successful query confirms IPC.
-	c.status = ConnectionStatus{State: Disconnected, Path: path}
+	c.status = ConnectionStatus{State: Disconnected, Path: path, NeedsAdmin: admin}
 	if err != nil {
 		c.status.State, c.status.Error = ConnectionFailed, err.Error()
 		c.retryAt = time.Now().Add(retryDelay)
@@ -292,6 +298,39 @@ func iniValue(text, key string) string {
 		}
 	}
 	return ""
+}
+
+// fixAdminSteps are Everything's own switches for the supported setup that
+// needs no elevation: the client runs as the user and the Everything service
+// reads the volumes. Each requires administrator rights, so each raises one
+// UAC prompt; -install-service also starts the service and sets it to start
+// with Windows.
+var fixAdminSteps = []string{"-disable-run-as-admin", "-install-service"}
+
+// FixAdmin turns off "Run as administrator" and installs the service, then
+// starts the client without elevation and verifies IPC. Everything ignores
+// -disable-run-as-admin while it is running, so the client must be closed.
+func (p *Provider) FixAdmin(ctx context.Context, options settings.FileIndexOptions) error {
+	c := p.connection
+	path, err := c.resolve(options.EverythingPath)
+	if err != nil {
+		return err
+	}
+	if c.running() {
+		return errors.New(locales.EverythingFixAdminExitFirst())
+	}
+	for _, step := range fixAdminSteps {
+		if err := c.elevate(ctx, path, step); err != nil {
+			if errors.Is(err, apps.ErrUACCanceled) {
+				return errors.New(locales.LaunchUACCanceled())
+			}
+			return fmt.Errorf("%s: %w", locales.EverythingFixAdminFailed(), err)
+		}
+	}
+	c.mu.Lock()
+	c.retryAt, c.autoBlocked = time.Time{}, false
+	c.mu.Unlock()
+	return p.ConnectWithOptions(ctx, options)
 }
 
 func launchEverything(path string, show bool) error {

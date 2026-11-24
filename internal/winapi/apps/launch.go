@@ -4,6 +4,8 @@ package apps
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -25,6 +27,7 @@ var (
 const (
 	seeMaskNoCloseProcess = 0x00000040
 	seeMaskNoAsync        = 0x00000100
+	swHide                = 0
 	swShowNormal          = 1
 )
 
@@ -160,4 +163,70 @@ func shellExecute(file, arguments, directory string, runAs bool) model.Outcome {
 		windows.CloseHandle(windows.Handle(info.HProcess))
 	}
 	return model.Outcome{Succeeded: true}
+}
+
+// ErrUACCanceled is returned by RunElevatedAndWait when the user declines
+// the UAC prompt. It is not localized: callers say locales.LaunchUACCanceled.
+var ErrUACCanceled = errors.New("UAC prompt canceled")
+
+// RunElevatedAndWait runs a hidden program as administrator, behind a UAC
+// prompt, and waits for it to exit. A nonzero exit code is an error.
+func RunElevatedAndWait(ctx context.Context, file, arguments string) error {
+	verb, _ := windows.UTF16PtrFromString("runas")
+	filePtr, err := windows.UTF16PtrFromString(file)
+	if err != nil {
+		return err
+	}
+	argsPtr, err := windows.UTF16PtrFromString(arguments)
+	if err != nil {
+		return err
+	}
+	dirPtr, err := windows.UTF16PtrFromString(filepath.Dir(file))
+	if err != nil {
+		return err
+	}
+	info := shellExecuteInfo{
+		CbSize:       uint32(unsafe.Sizeof(shellExecuteInfo{})),
+		FMask:        seeMaskNoCloseProcess | seeMaskNoAsync,
+		LpVerb:       verb,
+		LpFile:       filePtr,
+		LpParameters: argsPtr,
+		LpDirectory:  dirPtr,
+		NShow:        swHide,
+	}
+	r, _, callErr := procShellExecuteEx.Call(uintptr(unsafe.Pointer(&info)))
+	if r == 0 {
+		if errno, ok := callErr.(syscall.Errno); ok && errno == windows.ERROR_CANCELLED {
+			return ErrUACCanceled
+		}
+		if callErr != nil && callErr != syscall.Errno(0) {
+			return callErr
+		}
+		return errors.New(locales.LaunchShellExecuteFailed(windows.GetLastError()))
+	}
+	if info.HProcess == 0 {
+		return nil
+	}
+	process := windows.Handle(info.HProcess)
+	defer windows.CloseHandle(process)
+	for {
+		event, err := windows.WaitForSingleObject(process, 100)
+		if err != nil {
+			return err
+		}
+		if event == windows.WAIT_OBJECT_0 {
+			break
+		}
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+	}
+	var code uint32
+	if err := windows.GetExitCodeProcess(process, &code); err != nil {
+		return err
+	}
+	if code != 0 {
+		return fmt.Errorf("%s %s: exit code %d", filepath.Base(file), arguments, code)
+	}
+	return nil
 }

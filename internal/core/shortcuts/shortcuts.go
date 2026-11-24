@@ -44,7 +44,7 @@ func Builtins() []Command {
 		{ID: "actions.previous", Scope: Actions, Defaults: []string{"Up"}},
 		{ID: "actions.next", Scope: Actions, Defaults: []string{"Down"}},
 		{ID: "actions.execute", Scope: Actions, Defaults: []string{"Enter"}},
-		{ID: "actions.dismiss", Scope: Actions, Defaults: []string{"Escape", "Ctrl+K"}},
+		{ID: "actions.dismiss", Scope: Actions, Defaults: []string{"Escape", "Ctrl+K", "Left"}},
 		{ID: "prompt.confirm", Scope: Prompt, Defaults: []string{"Enter"}},
 		{ID: "prompt.cancel", Scope: Prompt, Defaults: []string{"Escape"}},
 		{ID: "preview.left", Scope: Preview, Defaults: []string{"Left"}},

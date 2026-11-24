@@ -32,7 +32,7 @@
 | search | search.execute / dismiss | Enter / Escape |
 | search | search.actions | Ctrl+K、Shift+F10、Menu |
 | actions | actions.previous / next | Up / Down |
-| actions | actions.execute / dismiss | Enter / Escape、Ctrl+K |
+| actions | actions.execute / dismiss | Enter / Escape、Ctrl+K、Left |
 | actions | actions.slot.1 ～ actions.slot.9 | Alt+1 ～ Alt+9 |
 | prompt | prompt.confirm / cancel | Enter / Escape |
 | preview | preview.left / right / up / down | Left / Right / Up / Down |

@@ -338,6 +338,19 @@ func TestRecorderCapturesEscapeAndEnterWithoutExecuting(t *testing.T) {
 	}
 }
 
+// Right can be bound to open the action menu; Left by default leaves it.
+func TestActionsLeftReturnsToSearch(t *testing.T) {
+	a := newLocalizedApp()
+	a.results = []model.Result{{Entry: model.Entry{ID: "one", Title: "One", Kind: model.Application}}}
+	a.openActions()
+	tt := ui.NewTester(a.view, 760, 560)
+	tt.Key(0, ui.KeyLeft)
+	tt.Frame()
+	if a.actionsOpen {
+		t.Fatal("Left did not close the action menu")
+	}
+}
+
 func TestActionAndPromptRemapping(t *testing.T) {
 	a := newLocalizedApp()
 	a.settings.Shortcuts["actions.slot.1"] = shortcuts.Binding{Keys: []string{"Ctrl+1"}, Enabled: true}

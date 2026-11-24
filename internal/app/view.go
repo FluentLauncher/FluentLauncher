@@ -284,11 +284,17 @@ func (a *App) drawActions(c *ui.Context, theme *ui.Theme) {
 			return
 		}
 	}
+	// The menu scrolls when it is taller than the panel; a row chosen with
+	// the keyboard is brought into view in that frame only, so the wheel
+	// can still scroll it away afterwards.
+	reveal := false
 	if a.shortcut(c, "actions.next") {
 		a.actionIndex = min(a.actionIndex+1, len(a.actions)-1)
+		reveal = true
 	}
 	if a.shortcut(c, "actions.previous") {
 		a.actionIndex = max(a.actionIndex-1, 0)
+		reveal = true
 	}
 	if a.shortcut(c, "actions.execute") {
 		a.runAction()
@@ -300,39 +306,48 @@ func (a *App) drawActions(c *ui.Context, theme *ui.Theme) {
 			ui.Text(c, entry.Title).FontSize(18).Bold().TextColor(theme.Text)
 		})
 		ui.Divider(c)
-		ui.Column(c).Fill().Padding(6).Bind(&a.actionsFocus).Focusable().AutoFocus().Children(func() {
-			a.actionsHover = a.actionsHoverNext
-			a.actionsHoverNext = -1
-			for i, command := range a.actions {
-				background := ui.Transparent
-				text := theme.Text
-				switch {
-				case i == a.actionIndex:
-					background = selectionTint(theme)
-					text = theme.Text
-				case i == a.actionsHover:
-					background = theme.Surface.Alpha(0.8)
-				}
-				row := ui.Row(c).Padding(10, 14).Radius(6).Background(background).Children(func() {
-					ui.Text(c, command.Title).TextColor(text).Grow(1)
-					if i < 9 {
-						ui.Text(c, a.shortcutHint("actions.slot."+strconv.Itoa(i+1))).FontSize(theme.FontSize * 0.8).TextColor(theme.TextMuted)
-					}
-				})
-				if row.Clicked() {
-					a.actionIndex = i
-					a.runAction()
-					return
-				}
-				if row.Hovered() {
-					a.actionsHoverNext = i
-				}
-			}
+		ui.Scroll(c).Grow(1).Children(func() {
+			a.drawActionRows(c, theme, reveal)
 		})
 		ui.Divider(c)
 		ui.Row(c).Padding(8, 16).Children(func() {
 			ui.Text(c, strings.Join([]string{a.shortcutHint("actions.previous") + " / " + a.shortcutHint("actions.next"), a.shortcutHint("actions.execute"), a.shortcutHint("actions.dismiss")}, " · ")).FontSize(11).TextColor(theme.TextMuted)
 		})
+	})
+}
+
+func (a *App) drawActionRows(c *ui.Context, theme *ui.Theme, reveal bool) {
+	ui.Column(c).Padding(6).Bind(&a.actionsFocus).Focusable().AutoFocus().Children(func() {
+		a.actionsHover = a.actionsHoverNext
+		a.actionsHoverNext = -1
+		for i, command := range a.actions {
+			background := ui.Transparent
+			text := theme.Text
+			switch {
+			case i == a.actionIndex:
+				background = selectionTint(theme)
+				text = theme.Text
+			case i == a.actionsHover:
+				background = theme.Surface.Alpha(0.8)
+			}
+			row := ui.Row(c).Padding(10, 14).Radius(6).Background(background).Children(func() {
+				ui.Text(c, command.Title).TextColor(text).Grow(1)
+				if i < 9 {
+					ui.Text(c, a.shortcutHint("actions.slot."+strconv.Itoa(i+1))).FontSize(theme.FontSize * 0.8).TextColor(theme.TextMuted)
+				}
+			})
+			if reveal && i == a.actionIndex {
+				row.ScrollIntoView()
+			}
+			if row.Clicked() {
+				a.actionIndex = i
+				a.runAction()
+				return
+			}
+			if row.Hovered() {
+				a.actionsHoverNext = i
+			}
+		}
 	})
 }
 

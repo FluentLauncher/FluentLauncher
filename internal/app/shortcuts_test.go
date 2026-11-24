@@ -351,6 +351,31 @@ func TestActionsLeftReturnsToSearch(t *testing.T) {
 	}
 }
 
+// A menu taller than the panel scrolls, and the row chosen with the
+// keyboard comes into view instead of sliding under the footer.
+func TestActionsScrollToKeyboardSelection(t *testing.T) {
+	const height = 300
+	a := newLocalizedApp()
+	a.results = []model.Result{{Entry: model.Entry{ID: "one", Title: "One", Kind: model.Application, LaunchTarget: `C:\Windows\notepad.exe`}}}
+	a.openActions()
+	last := a.actions[len(a.actions)-1].Title
+	tt := ui.NewTester(a.view, 760, height)
+	if r, ok := tt.Find(last); ok && r.Y+r.H <= height {
+		t.Fatalf("menu fits the panel; the test needs more rows (%d)", len(a.actions))
+	}
+	for range len(a.actions) - 1 {
+		tt.Key(0, ui.KeyDown)
+		tt.Frame()
+	}
+	if a.actionIndex != len(a.actions)-1 {
+		t.Fatalf("actionIndex = %d", a.actionIndex)
+	}
+	r, ok := tt.Find(last)
+	if !ok || r.Y < 0 || r.Y+r.H > height {
+		t.Fatalf("selected last action %q is outside the panel: %+v %v", last, r, ok)
+	}
+}
+
 func TestActionAndPromptRemapping(t *testing.T) {
 	a := newLocalizedApp()
 	a.settings.Shortcuts["actions.slot.1"] = shortcuts.Binding{Keys: []string{"Ctrl+1"}, Enabled: true}

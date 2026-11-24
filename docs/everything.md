@@ -17,7 +17,7 @@ Everything 设置了「以管理员身份运行」（`Everything.ini` 中 `run_a
 - 自动启动前读取 `Everything.ini`：便携版在程序目录；本地文件不存在或 `app_data=1` 时读 `%APPDATA%\Everything\Everything.ini`。检测到 `run_as_admin=1` 时跳过自动启动并在设置页说明原因，只有用户点击「后台启动并连接」才会启动（并弹一次 UAC）。
 - 自动启动失败或超时后，本次运行不再随输入自动重试启动；手动连接、修改程序位置或一次成功查询后恢复。客户端已在运行时不受影响，仍正常连接。
 - 推荐配置：在 Everything「选项 → 常规」中取消「以管理员身份运行」，勾选「Everything 服务」，并让 Everything 开机启动。这样任何方式启动都不再需要授权。
-- 检测到 `run_as_admin=1` 时，设置页显示「改为免授权启动」。它先要求 Everything 客户端已退出（官方说明 `-disable-run-as-admin` 需要客户端关闭），再以管理员身份依次运行 `Everything.exe -disable-run-as-admin` 和 `Everything.exe -install-service`（安装并启动随 Windows 启动的服务），每步一次 UAC。两步都成功后以普通权限 `-startup` 启动客户端并做真实 IPC 探测。取消 UAC 或某步失败时立即停止，不会继续后面的步骤。
+- 检测到 `run_as_admin=1` 时，设置页显示「改为免授权启动」。它先要求 Everything 客户端已退出（官方说明 `-disable-run-as-admin` 需要客户端关闭），再以管理员身份依次运行 `Everything.exe -install-service`（安装并启动随 Windows 启动的服务）和 `Everything.exe -disable-run-as-admin`，每步一次 UAC。先装服务：若用户拒绝第二次授权，客户端仍保持提权运行、可以正常使用，不会变成既无服务又无权限读取卷的状态。两步都成功后以普通权限 `-startup` 启动客户端并做真实 IPC 探测。取消 UAC 或某步失败时立即停止，不会继续后面的步骤。
 
 ## 结果排序与过滤
 

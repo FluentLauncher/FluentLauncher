@@ -302,7 +302,7 @@ func TestFixAdmin(t *testing.T) {
 		if err := p.FixAdmin(context.Background(), options); err != nil {
 			t.Fatal(err)
 		}
-		if len(steps) != 2 || steps[0] != "-disable-run-as-admin" || steps[1] != "-install-service" {
+		if len(steps) != 2 || steps[0] != "-install-service" || steps[1] != "-disable-run-as-admin" {
 			t.Fatalf("elevated steps = %q", steps)
 		}
 		if status := p.Status(); status.State != Connected || status.NeedsAdmin {

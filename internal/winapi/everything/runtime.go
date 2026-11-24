@@ -304,8 +304,10 @@ func iniValue(text, key string) string {
 // needs no elevation: the client runs as the user and the Everything service
 // reads the volumes. Each requires administrator rights, so each raises one
 // UAC prompt; -install-service also starts the service and sets it to start
-// with Windows.
-var fixAdminSteps = []string{"-disable-run-as-admin", "-install-service"}
+// with Windows. The service comes first: declining the second prompt then
+// leaves an elevated client that still works, not an unelevated client that
+// cannot read the volumes.
+var fixAdminSteps = []string{"-install-service", "-disable-run-as-admin"}
 
 // FixAdmin turns off "Run as administrator" and installs the service, then
 // starts the client without elevation and verifies IPC. Everything ignores

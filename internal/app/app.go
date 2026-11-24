@@ -594,7 +594,9 @@ func (a *App) refreshIfStale() {
 
 func (a *App) show() {
 	a.positionPanel()
-	a.query = ""
+	if !a.settings.KeepLastQuery {
+		a.query = ""
+	}
 	a.notice = ""
 	a.pendingOpen = false
 	a.hideActions()

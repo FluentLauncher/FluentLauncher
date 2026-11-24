@@ -529,6 +529,7 @@ func (a *App) generalPage(c *ui.Context) {
 		a.panelSizePreview(c)
 		a.numberRow(c, locales.SettingsMaxResults(), locales.SettingsMaxResultsHint(), &a.settingsDraft.MaxResults, 5, 200, 5)
 		a.switchRow(c, locales.SettingsShowRecent(), locales.SettingsShowRecentHint(), &a.settingsDraft.ShowRecentEntries)
+		a.switchRow(c, locales.SettingsKeepLastQuery(), locales.SettingsKeepLastQueryHint(), &a.settingsDraft.KeepLastQuery)
 	})
 }
 

@@ -347,6 +347,9 @@ type LauncherSettings struct {
 	Shortcuts          map[string]shortcuts.Binding `json:"Shortcuts"`
 	ShowRecentEntries  bool                         `json:"ShowRecentEntries"`
 	ShowRecentSearches bool                         `json:"ShowRecentSearches"`
+	// KeepLastQuery leaves the query in place when the panel is shown again,
+	// so text typed before switching to another window is not lost.
+	KeepLastQuery bool `json:"KeepLastQuery"`
 	RunAtLogin         bool                         `json:"RunAtLogin"`
 	HideOnStartup      bool                         `json:"HideOnStartup"`
 	Placement          WindowPlacement              `json:"Placement"`

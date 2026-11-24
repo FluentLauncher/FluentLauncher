@@ -432,6 +432,8 @@
   "settingsMaxResultsHint": "每次搜尋最多顯示的項目",
   "settingsShowRecent": "空搜尋時顯示最近開啟",
   "settingsShowRecentHint": "未輸入關鍵詞時列出最近使用的項目",
+  "settingsKeepLastQuery": "重新開啟時保留上次輸入",
+  "settingsKeepLastQueryHint": "面板隱藏後（包括切換到其他視窗）再次開啟，繼續顯示之前的輸入；按 Esc 清除",
   "settingsThemeModeCard": "模式與背景",
   "settingsThemeMode": "模式",
   "settingsThemeModeHint": "淺色、深色或跟隨系統",

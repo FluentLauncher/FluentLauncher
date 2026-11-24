@@ -29,6 +29,20 @@ func newLocalizedApp() *App {
 	}
 }
 
+// The keep-last-query switch sits on the general page and is off by default,
+// so the panel still opens empty unless the user asks otherwise.
+func TestGeneralPageShowsKeepLastQuery(t *testing.T) {
+	setCatalogLocale(t, "zh-Hans")
+	a := newLocalizedApp()
+	if a.settingsDraft.KeepLastQuery {
+		t.Fatal("KeepLastQuery is on by default")
+	}
+	tt := ui.NewTester(a.settingsView, 1180, 1400)
+	if !tt.HasText("重新打开时保留上次输入") {
+		t.Fatalf("general page lacks the keep-last-query switch: %q", tt.Texts())
+	}
+}
+
 // TestSettingsViewFollowsLocale proves the settings window speaks the app's
 // language: the catalog messages are fetched at build time, so a locale the
 // tester sets shows up in the very next frame, without a restart.

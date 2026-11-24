@@ -6258,6 +6258,36 @@ func (msgs Messages) SettingsShowRecentHint() string {
 	return Catalog.Format(msgs.locale, "settingsShowRecentHint", nil)
 }
 
+// SettingsKeepLastQuery says "重新打开时保留上次输入"
+// in the language the app shows.
+//
+// General page: switch that keeps the previous query when the search panel
+// is shown again.
+func SettingsKeepLastQuery() string { return In(i18n.Locale()).SettingsKeepLastQuery() }
+
+// SettingsKeepLastQuery says "重新打开时保留上次输入"
+// in the language of msgs.
+//
+// General page: switch that keeps the previous query when the search panel
+// is shown again.
+func (msgs Messages) SettingsKeepLastQuery() string {
+	return Catalog.Format(msgs.locale, "settingsKeepLastQuery", nil)
+}
+
+// SettingsKeepLastQueryHint says "面板隐藏后（包括切换到其他窗口）再次打开，继续显示之前的输入；按 Esc 清空"
+// in the language the app shows.
+//
+// General page: hint of the keep-last-query switch.
+func SettingsKeepLastQueryHint() string { return In(i18n.Locale()).SettingsKeepLastQueryHint() }
+
+// SettingsKeepLastQueryHint says "面板隐藏后（包括切换到其他窗口）再次打开，继续显示之前的输入；按 Esc 清空"
+// in the language of msgs.
+//
+// General page: hint of the keep-last-query switch.
+func (msgs Messages) SettingsKeepLastQueryHint() string {
+	return Catalog.Format(msgs.locale, "settingsKeepLastQueryHint", nil)
+}
+
 // SettingsThemeModeCard says "模式与背景"
 // in the language the app shows.
 //

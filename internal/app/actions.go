@@ -59,7 +59,7 @@ func (a *App) runAction() {
 	case search.CommandCopyValue:
 		mygo.Clipboard.WriteText(command.Value)
 		a.hideActions()
-		a.hidePanel()
+		a.finishPanel()
 	case search.CommandRegenerate:
 		a.hideActions()
 		a.regenerateToolValue()
@@ -152,7 +152,7 @@ func (a *App) runWorkspace(workspaceID string) {
 		return
 	}
 	workspaceCopy := *workspace
-	a.hidePanel()
+	a.finishPanel()
 	// The steps launch programs one after another and each can wait on a
 	// UAC prompt; the UI thread only hears the outcome.
 	go func() {
@@ -287,7 +287,7 @@ func (a *App) executePluginAction(entry model.Entry, action model.Action) {
 	switch action.Kind {
 	case "copyText":
 		mygo.Clipboard.WriteText(action.Value)
-		a.hidePanel()
+		a.finishPanel()
 		a.panel.Update(func() {})
 		return
 	case "openUrl", "openPath":
@@ -296,7 +296,7 @@ func (a *App) executePluginAction(entry model.Entry, action model.Action) {
 			kind = model.URL
 		}
 		target := model.Entry{ID: "plugin-action", Title: action.Title, LaunchTarget: action.Value, Kind: kind}
-		a.hidePanel()
+		a.finishPanel()
 		go func() {
 			outcome := apps.Launch(context.Background(), target, model.Open)
 			if a.panel == nil {
@@ -315,7 +315,7 @@ func (a *App) executePluginAction(entry model.Entry, action model.Action) {
 			a.panel.Update(func() {})
 			return
 		}
-		a.hidePanel()
+		a.finishPanel()
 		go func() {
 			err := a.plugins.Execute(context.Background(), entry, action)
 			if a.panel == nil {

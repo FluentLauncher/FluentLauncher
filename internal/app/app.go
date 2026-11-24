@@ -614,6 +614,14 @@ func (a *App) hidePanel() {
 	a.panel.Hide()
 }
 
+// finishPanel hides the panel after the user acted on a result. The query
+// has served its purpose, so it is cleared even when KeepLastQuery keeps it
+// across a plain hide such as switching to another window.
+func (a *App) finishPanel() {
+	a.query = ""
+	a.hidePanel()
+}
+
 func (a *App) toggle() {
 	if a.panel.IsVisible() {
 		a.hidePanel()
@@ -1228,7 +1236,7 @@ func (a *App) executeSelected(action model.EntryAction) {
 			return
 		}
 		mygo.Clipboard.WriteText(entry.LaunchTarget)
-		a.hidePanel()
+		a.finishPanel()
 		return
 	}
 	if action == model.CopyText || (action == model.Open && entry.Kind == model.Calculation) {
@@ -1237,7 +1245,7 @@ func (a *App) executeSelected(action model.EntryAction) {
 			text = entry.LaunchTarget
 		}
 		mygo.Clipboard.WriteText(text)
-		a.hidePanel()
+		a.finishPanel()
 		return
 	}
 	if entry.Kind == model.Plugin {
@@ -1250,7 +1258,7 @@ func (a *App) executeSelected(action model.EntryAction) {
 	}
 	// The shell call waits for the launch to finish and, for runas, for the
 	// UAC prompt; the UI thread only hears the outcome.
-	a.hidePanel()
+	a.finishPanel()
 	go func() {
 		outcome := apps.Launch(context.Background(), entry, action)
 		if a.panel == nil {

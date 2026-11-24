@@ -433,7 +433,7 @@
   "settingsShowRecent": "Show recent items on an empty search",
   "settingsShowRecentHint": "Lists recently used entries when no keyword is typed",
   "settingsKeepLastQuery": "Keep the last input when reopened",
-  "settingsKeepLastQueryHint": "After the panel hides, including when you switch to another window, it opens again with the previous input; press Esc to clear it",
+  "settingsKeepLastQueryHint": "After the panel hides, including when you switch to another window, it opens again with the previous input; opening or copying a result clears it, and so does Esc",
   "settingsThemeModeCard": "Mode and Background",
   "settingsThemeMode": "Mode",
   "settingsThemeModeHint": "Light, dark, or follow the system",

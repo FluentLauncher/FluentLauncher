@@ -2283,7 +2283,7 @@
   "@settingsKeepLastQuery": {
     "description": "General page: switch that keeps the previous query when the search panel is shown again."
   },
-  "settingsKeepLastQueryHint": "面板隐藏后（包括切换到其他窗口）再次打开，继续显示之前的输入；按 Esc 清空",
+  "settingsKeepLastQueryHint": "面板隐藏后（包括切换到其他窗口）再次打开，继续显示之前的输入；打开或复制结果后自动清空，也可按 Esc 清空",
   "@settingsKeepLastQueryHint": {
     "description": "General page: hint of the keep-last-query switch."
   },

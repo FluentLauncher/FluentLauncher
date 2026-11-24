@@ -111,6 +111,7 @@ type App struct {
 
 	settingsPage   int
 	settingsDraft  settings.LauncherSettings
+	lineDrafts     map[string]*string
 	toolFilter     string
 	toolRowHandles map[string]*ui.Handle
 	everythingBusy bool

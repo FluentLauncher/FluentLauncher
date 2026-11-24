@@ -180,9 +180,9 @@ func (a *App) everythingCard(c *ui.Context) {
 		ui.Column(c).Gap(c.Theme().Space(1)).Children(func() {
 			ui.Text(c, locales.EverythingExcludes()).Wrap()
 			ui.Text(c, locales.EverythingExcludesHint()).FontSize(c.Theme().FontSize * 0.9).TextColor(c.Theme().TextMuted).Wrap()
-			excludes := strings.Join(options.EverythingExcludes, "\n")
-			if ui.TextArea(c, &excludes).Lines(3, 8).Label(locales.EverythingExcludes()).Changed() {
-				options.EverythingExcludes = splitLines(excludes)
+			excludes := a.lineText("files.everythingExcludes", options.EverythingExcludes)
+			if ui.TextArea(c, excludes).Lines(3, 8).Label(locales.EverythingExcludes()).Changed() {
+				options.EverythingExcludes = splitLines(*excludes)
 			}
 		})
 		ui.Row(c).Gap(c.Theme().Spacing).Children(func() {

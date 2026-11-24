@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -658,16 +659,16 @@ func (a *App) filesPage(c *ui.Context) {
 	settingCard(c, locales.SettingsFilesIndexCard(), func(c *ui.Context) {
 		ui.Column(c).Gap(4).Children(func() {
 			ui.Text(c, locales.SettingsFilesDirectoriesHint()).FontSize(12).TextColor(c.Theme().TextMuted)
-			directories := strings.Join(a.settingsDraft.Files.Directories, "\n")
-			if ui.TextArea(c, &directories).Lines(4, 8).Height(110).Changed() {
-				a.settingsDraft.Files.Directories = splitLines(directories)
+			directories := a.lineText("files.directories", a.settingsDraft.Files.Directories)
+			if ui.TextArea(c, directories).Lines(4, 8).Height(110).Changed() {
+				a.settingsDraft.Files.Directories = splitLines(*directories)
 			}
 		})
 		ui.Column(c).Gap(4).Children(func() {
 			ui.Text(c, locales.SettingsFilesExcluded()).FontSize(12).TextColor(c.Theme().TextMuted)
-			excluded := strings.Join(a.settingsDraft.Files.ExcludedDirectories, "\n")
-			if ui.TextArea(c, &excluded).Lines(2, 6).Height(70).Changed() {
-				a.settingsDraft.Files.ExcludedDirectories = splitLines(excluded)
+			excluded := a.lineText("files.excluded", a.settingsDraft.Files.ExcludedDirectories)
+			if ui.TextArea(c, excluded).Lines(2, 6).Height(70).Changed() {
+				a.settingsDraft.Files.ExcludedDirectories = splitLines(*excluded)
 			}
 		})
 		a.numberRow(c, locales.SettingsFilesMaxEntries(), locales.SettingsFilesMaxEntriesHint(), &a.settingsDraft.Files.MaxEntries, 1000, 500000, 1000)
@@ -1020,6 +1021,25 @@ func splitComma(text string) []string {
 		}
 	}
 	return out
+}
+
+// lineText returns the text buffer behind a one-entry-per-line TextArea.
+// The typed text persists between frames so blank and trailing lines (such
+// as the one Enter just inserted) survive; it is rebuilt from list only when
+// list changed elsewhere, e.g. the dialog reopened or was reset.
+func (a *App) lineText(key string, list []string) *string {
+	if a.lineDrafts == nil {
+		a.lineDrafts = map[string]*string{}
+	}
+	text := a.lineDrafts[key]
+	if text == nil {
+		text = new(string)
+		a.lineDrafts[key] = text
+	}
+	if !slices.Equal(splitLines(*text), list) {
+		*text = strings.Join(list, "\n")
+	}
+	return text
 }
 
 func splitLines(text string) []string {

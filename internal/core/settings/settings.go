@@ -349,10 +349,10 @@ type LauncherSettings struct {
 	ShowRecentSearches bool                         `json:"ShowRecentSearches"`
 	// KeepLastQuery leaves the query in place when the panel is shown again,
 	// so text typed before switching to another window is not lost.
-	KeepLastQuery bool `json:"KeepLastQuery"`
-	RunAtLogin         bool                         `json:"RunAtLogin"`
-	HideOnStartup      bool                         `json:"HideOnStartup"`
-	Placement          WindowPlacement              `json:"Placement"`
+	KeepLastQuery bool            `json:"KeepLastQuery"`
+	RunAtLogin    bool            `json:"RunAtLogin"`
+	HideOnStartup bool            `json:"HideOnStartup"`
+	Placement     WindowPlacement `json:"Placement"`
 	// AnchorX and AnchorY place the panel in the work area, as the share of
 	// the room left around it: 0 is flush with the left or top edge, 1 with
 	// the right or bottom edge, 0.5 centered. The settings preview sets them

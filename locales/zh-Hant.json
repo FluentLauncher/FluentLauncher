@@ -363,7 +363,7 @@
   "pluginPackageSizeLimit": "外掛程式包解壓後超過大小上限",
   "launchActionHandledBySource": "此動作由對應來源處理。",
   "launchNoLocalLocation": "此項目沒有本機位置。",
-  "launchRunAsAppsOnly": "僅應用程式支援以系統管理員身分執行。",
+  "launchRunAsAppsOnly": "僅應用程式、程式、指令碼和捷徑支援以系統管理員身分執行。",
   "launchUACCanceled": "使用者取消了系統權限確認。",
   "launchShellExecuteFailed": "ShellExecuteEx 失敗：{err}",
   "launchShellAppsWarning": "系統應用程式清單暫不可用：{err}",

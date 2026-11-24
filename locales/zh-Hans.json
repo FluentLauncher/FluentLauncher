@@ -1957,9 +1957,9 @@
   "@launchNoLocalLocation": {
     "description": "Launch outcome: the entry has no path to open in Explorer."
   },
-  "launchRunAsAppsOnly": "仅应用支持以管理员身份运行。",
+  "launchRunAsAppsOnly": "仅应用、程序、脚本和快捷方式支持以管理员身份运行。",
   "@launchRunAsAppsOnly": {
-    "description": "Launch outcome: only applications support the run-as-administrator action."
+    "description": "Launch outcome: only applications and executable files (programs, scripts, installers, shortcuts) support the run-as-administrator action."
   },
   "launchUACCanceled": "用户取消了系统权限确认。",
   "@launchUACCanceled": {

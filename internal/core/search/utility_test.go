@@ -327,6 +327,31 @@ func TestCommands(t *testing.T) {
 	}
 }
 
+// Files found by the file index or Everything have Kind File; programs and
+// shortcuts among them can still run as administrator.
+func TestRunAsAdministratorForExecutableFiles(t *testing.T) {
+	tests := []struct {
+		entry model.Entry
+		want  bool
+	}{
+		{model.Entry{Kind: model.File, LaunchTarget: `C:\Users\me\Desktop\1Remote.lnk`}, true},
+		{model.Entry{Kind: model.File, LaunchTarget: `D:\tools\App.EXE`}, true},
+		{model.Entry{Kind: model.File, LaunchTarget: `D:\scripts\build.cmd`}, true},
+		{model.Entry{Kind: model.File, LaunchTarget: `D:\docs\readme.txt`}, false},
+		{model.Entry{Kind: model.Directory, LaunchTarget: `D:\tools`}, false},
+		{model.Entry{Kind: model.Application, LaunchTarget: `C:\Windows\notepad.exe`, RunElevated: true}, false},
+	}
+	for _, tt := range tests {
+		got := false
+		for _, command := range CommandsFor(tt.entry, false, false) {
+			got = got || command.Command == CommandRunAsAdministrator
+		}
+		if got != tt.want {
+			t.Errorf("%s (kind %d): run as administrator = %v, want %v", tt.entry.LaunchTarget, tt.entry.Kind, got, tt.want)
+		}
+	}
+}
+
 func titles(results []model.Result) []string {
 	out := make([]string, len(results))
 	for i, result := range results {

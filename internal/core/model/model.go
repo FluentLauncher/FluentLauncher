@@ -2,7 +2,11 @@
 // Windows dependency so that every source can produce the same values.
 package model
 
-import "time"
+import (
+	"path/filepath"
+	"strings"
+	"time"
+)
 
 // Kind is what an entry opens or represents.
 type Kind uint8
@@ -51,6 +55,21 @@ type Entry struct {
 	PreviewText  string
 	Actions      []Action
 	RunElevated  bool
+}
+
+// CanRunElevated reports whether the shell's "runas" verb applies: an
+// application, or a file that is a program, script, installer or shortcut.
+func CanRunElevated(entry Entry) bool {
+	switch entry.Kind {
+	case Application:
+		return true
+	case File:
+		switch strings.ToLower(filepath.Ext(entry.LaunchTarget)) {
+		case ".exe", ".com", ".bat", ".cmd", ".msi", ".lnk":
+			return true
+		}
+	}
+	return false
 }
 
 // Profile is the user's personal rule for an entry.

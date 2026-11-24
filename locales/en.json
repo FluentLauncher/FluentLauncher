@@ -363,7 +363,7 @@
   "pluginPackageSizeLimit": "The plugin package exceeds the size limit when extracted",
   "launchActionHandledBySource": "This action is handled by its source.",
   "launchNoLocalLocation": "This entry has no local location.",
-  "launchRunAsAppsOnly": "Only applications can run as administrator.",
+  "launchRunAsAppsOnly": "Only applications, programs, scripts and shortcuts can run as administrator.",
   "launchUACCanceled": "The elevation prompt was canceled.",
   "launchShellExecuteFailed": "ShellExecuteEx failed: {err}",
   "launchShellAppsWarning": "The system app list is unavailable: {err}",

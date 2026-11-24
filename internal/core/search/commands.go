@@ -40,7 +40,7 @@ func CommandsFor(entry model.Entry, pinned, anyHidden bool) []CommandItem {
 		return commands
 	}
 	commands := []CommandItem{{Command: CommandOpen, Title: openTitle(entry)}}
-	if entry.Kind == model.Application && !entry.RunElevated {
+	if model.CanRunElevated(entry) && !entry.RunElevated {
 		commands = append(commands, CommandItem{Command: CommandRunAsAdministrator, Title: locales.CmdRunAsAdministrator()})
 	}
 	if hasLocalPath(entry) {

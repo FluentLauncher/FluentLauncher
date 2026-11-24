@@ -75,7 +75,7 @@ func Launch(ctx context.Context, entry model.Entry, action model.EntryAction) mo
 		return model.Outcome{Error: locales.LaunchActionHandledBySource()}
 	}
 	runAs := action == model.RunAsAdministrator || (action == model.Open && entry.RunElevated)
-	if runAs && entry.Kind != model.Application {
+	if runAs && !model.CanRunElevated(entry) {
 		return model.Outcome{Error: locales.LaunchRunAsAppsOnly()}
 	}
 	if entry.Kind == model.URL {

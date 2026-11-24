@@ -5262,18 +5262,18 @@ func (msgs Messages) LaunchNoLocalLocation() string {
 	return Catalog.Format(msgs.locale, "launchNoLocalLocation", nil)
 }
 
-// LaunchRunAsAppsOnly says "仅应用支持以管理员身份运行。"
+// LaunchRunAsAppsOnly says "仅应用、程序、脚本和快捷方式支持以管理员身份运行。"
 // in the language the app shows.
 //
-// Launch outcome: only applications support the run-as-administrator
-// action.
+// Launch outcome: only applications and executable files (programs,
+// scripts, installers, shortcuts) support the run-as-administrator action.
 func LaunchRunAsAppsOnly() string { return In(i18n.Locale()).LaunchRunAsAppsOnly() }
 
-// LaunchRunAsAppsOnly says "仅应用支持以管理员身份运行。"
+// LaunchRunAsAppsOnly says "仅应用、程序、脚本和快捷方式支持以管理员身份运行。"
 // in the language of msgs.
 //
-// Launch outcome: only applications support the run-as-administrator
-// action.
+// Launch outcome: only applications and executable files (programs,
+// scripts, installers, shortcuts) support the run-as-administrator action.
 func (msgs Messages) LaunchRunAsAppsOnly() string {
 	return Catalog.Format(msgs.locale, "launchRunAsAppsOnly", nil)
 }

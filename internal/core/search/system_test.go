@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"fluentlauncher/internal/core/model"
+	"fluentlauncher/internal/core/systemsearch"
 )
 
 func TestSystemProviderSupports(t *testing.T) {
@@ -57,6 +58,11 @@ func TestSystemProviderSearch(t *testing.T) {
 		t.Fatalf("network connections entry = %+v", first.Entry)
 	}
 
+	got, err = p.Search(ctx, Query{Text: "相机", Scope: ScopeAll}, 1)
+	if err != nil || len(got) != 1 || got[0].Entry.LaunchTarget != "ms-settings:privacy-webcam" {
+		t.Fatalf("相机 = %+v, %v", got, err)
+	}
+
 	// A settings page is a protocol URI without arguments; apps.Launch opens it
 	// with the shell's "open" verb.
 	got, _ = p.Search(ctx, Query{Text: "蓝牙", Scope: ScopeAll}, 10)
@@ -73,6 +79,21 @@ func TestSystemProviderSearch(t *testing.T) {
 	}
 	if got, err := p.Search(ctx, Query{Text: "zzzz", Scope: ScopeAll}, 10); err != nil || len(got) != 0 {
 		t.Fatalf("miss = %+v, %v", got, err)
+	}
+}
+
+func TestSystemProviderFillsResultsAfterSkippingUnavailableTarget(t *testing.T) {
+	provider := SystemProvider{Resolve: func(target systemsearch.Target) (string, bool) {
+		return `C:\Windows\System32\` + target.File, target.File != "wfs.exe" && target.File != "ms-settings:printers"
+	}}
+	results, err := provider.Search(t.Context(), Query{Text: "打印机", Scope: ScopeAll}, 1)
+	if err != nil || len(results) != 1 || results[0].Entry.LaunchTarget != `C:\Windows\System32\control.exe` ||
+		results[0].Entry.Arguments != "/name Microsoft.DevicesAndPrinters" {
+		t.Fatalf("打印机 = %+v, %v", results, err)
+	}
+	results, err = provider.Search(t.Context(), Query{Text: "wfs", Scope: ScopeAll}, 10)
+	if err != nil || len(results) != 0 {
+		t.Fatalf("unavailable wfs.exe = %+v, %v", results, err)
 	}
 }
 

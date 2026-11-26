@@ -214,6 +214,26 @@ func TestCatalogCompleteness(t *testing.T) {
 	}
 }
 
+func TestCatalogSettingsURIs(t *testing.T) {
+	checkedPages := strings.Fields(`
+		about apps-volume appsfeatures backup batterysaver bluetooth connecteddevices dateandtime
+		defaultapps developers devices-touchpad disksandvolumes display display-advanced display-advancedgraphics
+		easeofaccess-colorfilter emailandaccounts mousetouchpad network-ethernet network-proxy network-status network-vpn network-wifi
+		nightlight notifications optionalfeatures otherusers pen powersleep printers privacy privacy-feedback privacy-location
+		privacy-microphone privacy-webcam recovery regionformatting regionlanguage savelocations signinoptions sound sound-devices
+		speech startupapps storagesense sync typing usb windowsdefender windowsupdate windowsupdate-history yourinfo
+	`)
+	known := make(map[string]bool, len(checkedPages))
+	for _, page := range checkedPages {
+		known["ms-settings:"+page] = true
+	}
+	for _, entry := range All() {
+		if entry.Target.URI && !known[entry.Target.File] {
+			t.Errorf("%s: Settings URI %q has not been verified against the Windows reference", entry.Title, entry.Target.File)
+		}
+	}
+}
+
 // TestCatalogEntriesAreSearchable is the data test that keeps the catalog
 // useful: every entry must be found by its own title and by its English name.
 func TestCatalogEntriesAreSearchable(t *testing.T) {

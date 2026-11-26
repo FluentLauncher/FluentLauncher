@@ -334,7 +334,7 @@ func (a *App) ready() {
 		search.UtilityProvider{Settings: a.currentSettings},
 		search.SiteSearchProvider{Settings: a.currentSettings},
 		search.LauncherCommands{},
-		search.SystemProvider{},
+		search.SystemProvider{Resolve: apps.ResolveSystemTarget},
 		windowProvider{},
 		a.everything,
 		a.plugins,
@@ -1276,6 +1276,10 @@ func (a *App) executeSelected(action model.EntryAction) {
 				return
 			}
 			a.notice = locales.AppCannotOpenEntry(entry.Title, outcome.Error)
+			if entry.Kind == model.Setting {
+				slog.Warn("system_target_open_failed", "id", entry.ID, "error", outcome.Error)
+				_ = mygo.NewNotification(mygo.NotificationOptions{Title: entry.Title, Body: a.notice}).Show()
+			}
 			a.updateResults()
 		})
 	}()

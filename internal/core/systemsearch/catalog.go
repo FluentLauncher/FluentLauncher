@@ -230,7 +230,7 @@ var catalog = []Entry{
 		Target:   settingsURI("ms-settings:privacy-location")},
 	{Key: "sysCamera", Title: "相机", Latin: "Camera", Category: "隐私",
 		Keywords: []string{"相机", "摄像头", "相机权限", "camera", "webcam", "相機"},
-		Target:   settingsURI("ms-settings:privacy-camera")},
+		Target:   settingsURI("ms-settings:privacy-webcam")},
 	{Key: "sysMicrophone", Title: "麦克风", Latin: "Microphone", Category: "隐私",
 		Keywords: []string{"麦克风", "话筒", "录音权限", "microphone", "mic", "麥克風"},
 		Target:   settingsURI("ms-settings:privacy-microphone")},

@@ -30,7 +30,7 @@
 | 窗口材质与标题栏 | internal/winapi/glass + internal/app/chrome.go | 亚克力模糊透出下层窗口；云母通过 MyGo VibrancyMica 使用 Windows 原生系统材质，不叠加应用着色或透明度；设置与工作区窗口自绘标题栏 |
 | 音量浮层 | internal/app/volume.go + internal/winapi/volume/overlay_windows.go | 底部居中的胶囊：图标、进度条、百分比，自身带模糊；圆角交给 Windows 裁切，面板不另设圆角并去掉系统 1px 描边，避免浅色边圈；按鼠标所在屏幕的物理工作区定位，支持不同缩放屏幕间移动；静音时显示静音图标并把进度条与百分比置灰，滚轮调节与系统音量键一致，会同时解除静音；点击喇叭图标切换静音，与系统音量浮窗一致，浮层带 WS_EX_NOACTIVATE，点击不抢前台焦点，鼠标停留时不自动隐藏 |
 | 插件市场 | internal/plugin + internal/app/plugins_view.go | 独立进程、manifest 校验、状态/耗时/重启、每次搜索查询开关；设置页按插件展示状态与诊断 |
-| 系统功能搜索 | internal/core/systemsearch + internal/core/search | 79 条 Windows 设置/控制面板/系统工具目录，支持中文同义词、英文名与拼音首字母；回车经 ms-settings: 或 ShellExecute 打开 |
+| 系统功能搜索 | internal/core/systemsearch + internal/core/search | 79 条 Windows 设置/控制面板/系统工具目录，支持中文同义词、英文名与拼音首字母；缺失的系统程序、控制面板项不显示 |
 | 设置保存 | internal/app/settings_view.go | 无保存/取消按钮，改动 600ms 后自动应用并保存；校验失败时回退已保存值并提示 |
 | 统一快捷键 | internal/core/shortcuts + internal/app/shortcuts*.go | 内置命令与插件命令统一设置、录制/多绑定/启停/冲突替换；全局差异注册与失败恢复；插件 manifest commands、可选 executeCommand 能力和后台按需调用；详情见 docs/shortcuts.md |
 | 托盘菜单 | internal/app/app.go | 使用系统菜单，跟随应用深/浅色（mygo 设置首选应用模式） |
@@ -43,6 +43,8 @@
 | 官方插件清单 | internal/plugin/catalog.go | 在线签名三语目录、缓存、固定版本 ZIP 与哈希校验；内置名称仅作无下载能力的回退 |
 
 ## 仍需补齐
+
+- Windows 会按版本、设备和策略限制或重定向部分设置页，例如 Wi-Fi、触摸板和节电模式。新增或修改设置 URI 时，先对照 [Microsoft 的设置 URI 表](https://learn.microsoft.com/windows/apps/develop/launch/launch-settings)，再在 Windows 11 确认打开的是目标页面（仅收到 Shell 成功返回不算通过），并更新 `TestCatalogSettingsURIs`。程序、`.cpl` 文件和控制面板规范名称在本次运行的首次系统功能查询时检查；安装可选功能后需重启启动器。
 
 - Everything 已在本机 1.4.1.1028 x64 客户端验证 IPC 探测、英文/中文/无命中查询、连续取消后的恢复，并通过独立 MyGo 事件循环验证；截图中的偶发超时未稳定复现。冷启动与用户原窗口的实际输入体验仍待验收，默认实例之外的命名实例尚不支持。验证与故障处理见 `docs/everything.md`。
 - 插件为新的可执行模型；旧 C# 插件不会运行（仓库会跳过 `entryAssembly` 包）。

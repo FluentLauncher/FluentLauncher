@@ -2,6 +2,7 @@ package search
 
 import (
 	"context"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -15,7 +16,9 @@ import (
 // catalog (internal/core/systemsearch). It answers only an unscoped search: the
 // catalog is neither an application, a file nor a window, so "app 网络" or
 // "win 网络" must not list settings pages.
-type SystemProvider struct{}
+type SystemProvider struct {
+	Resolve func(systemsearch.Target) (string, bool)
+}
 
 func (SystemProvider) ID() string { return "system" }
 
@@ -23,23 +26,38 @@ func (SystemProvider) Supports(q Query) bool {
 	return q.Scope == ScopeAll && strings.TrimSpace(q.Text) != ""
 }
 
-func (SystemProvider) Search(ctx context.Context, q Query, limit int) ([]model.Result, error) {
+func (p SystemProvider) Search(ctx context.Context, q Query, limit int) ([]model.Result, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	matches := systemsearch.Search(q.Text, limit)
+	if limit <= 0 {
+		return nil, nil
+	}
+	matchLimit := limit
+	if p.Resolve != nil {
+		matchLimit = math.MaxInt
+	}
+	matches := systemsearch.Search(q.Text, matchLimit)
 	if len(matches) == 0 {
 		return nil, nil
 	}
-	results := make([]model.Result, 0, len(matches))
+	results := make([]model.Result, 0, min(len(matches), limit))
 	for _, match := range matches {
 		entry := match.Entry
 		target := entry.Target
+		launchTarget := target.File
+		if p.Resolve != nil {
+			resolved, ok := p.Resolve(target)
+			if !ok {
+				continue
+			}
+			launchTarget = resolved
+		}
 		result := model.Entry{
 			ID:           systemID(target),
 			Title:        systemsearch.DisplayTitle(entry),
 			Subtitle:     systemsearch.DisplayCategory(entry) + " · " + targetKind(target),
-			LaunchTarget: target.File,
+			LaunchTarget: launchTarget,
 			Arguments:    target.Arguments,
 			IconPath:     targetIcon(target),
 			SourceID:     "system",
@@ -49,6 +67,9 @@ func (SystemProvider) Search(ctx context.Context, q Query, limit int) ([]model.R
 			Kind: model.Setting,
 		}
 		results = append(results, model.Result{Entry: result, Score: match.Score})
+		if len(results) == limit {
+			break
+		}
 	}
 	return results, nil
 }

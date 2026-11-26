@@ -47,20 +47,14 @@ func TestSystemProviderSearch(t *testing.T) {
 		t.Fatalf("subtitle = %q, want the category in it", first.Entry.Subtitle)
 	}
 
-	// A *.cpl page keeps its arguments, which is what apps.Launch passes on.
-	got, _ = p.Search(ctx, Query{Text: "网络连接", Scope: ScopeAll}, 10)
-	found := false
-	for _, result := range got {
-		if result.Entry.LaunchTarget == "control.exe" &&
-			result.Entry.Arguments == "/name Microsoft.NetworkConnections" {
-			found = true
-			if result.Entry.Kind != model.Setting {
-				t.Fatalf("network connections kind = %v", result.Entry.Kind)
-			}
-		}
+	got, err = p.Search(ctx, Query{Text: "网络连接", Scope: ScopeAll}, 10)
+	if err != nil || len(got) == 0 {
+		t.Fatalf("网络连接 = %+v, %v", got, err)
 	}
-	if !found {
-		t.Fatalf("网络连接 = %+v", got)
+	first = got[0]
+	if first.Entry.Title != "网络连接" || first.Entry.Kind != model.Setting ||
+		first.Entry.LaunchTarget != "control.exe" || first.Entry.Arguments != "ncpa.cpl" {
+		t.Fatalf("network connections entry = %+v", first.Entry)
 	}
 
 	// A settings page is a protocol URI without arguments; apps.Launch opens it

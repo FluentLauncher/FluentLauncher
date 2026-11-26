@@ -75,7 +75,7 @@ var catalog = []Entry{
 		Target:   settingsURI("ms-settings:network-ethernet")},
 	{Key: "sysNetworkConnections", Title: "网络连接", Latin: "Network Connections", Category: "网络",
 		Keywords: []string{"网络连接", "适配器", "更改适配器设置", "网卡", "ncpa", "adapters", "network connections", "網路連線"},
-		Target:   command("control.exe", "/name Microsoft.NetworkConnections")},
+		Target:   command("control.exe", "ncpa.cpl")},
 	{Key: "sysVPN", Title: "VPN", Latin: "VPN", Category: "网络",
 		Keywords: []string{"虚拟专用网络", "专线", "远程访问", "vpn", "虚拟专用"},
 		Target:   settingsURI("ms-settings:network-vpn")},

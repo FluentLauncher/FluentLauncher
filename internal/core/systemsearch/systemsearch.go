@@ -18,7 +18,7 @@ import (
 
 // Target is how Windows opens one entry: a protocol URI such as
 // "ms-settings:display", a program with fixed arguments such as
-// control.exe /name Microsoft.NetworkConnections, or a *.cpl / *.msc module.
+// control.exe ncpa.cpl, or a *.cpl / *.msc module.
 type Target struct {
 	// File is the URI, executable or module to start.
 	File string
